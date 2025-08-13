@@ -180,10 +180,12 @@ export default function BrowseRequests() {
                       }`}>
                         {request.status === 'open' ? 'Open' : 'In Progress'}
                       </span>
-                      <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-                      </Button>
+                      <Link href={`/client/requests/${request.id}`}>
+                        <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 </CardContent>
