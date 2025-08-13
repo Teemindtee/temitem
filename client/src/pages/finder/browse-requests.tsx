@@ -12,8 +12,8 @@ import type { Request } from "@shared/schema";
 export default function BrowseRequests() {
   const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [budgetFilter, setBudgetFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [budgetFilter, setBudgetFilter] = useState("all");
 
   const { data: requests = [], isLoading } = useQuery<Request[]>({
     queryKey: ['/api/finder/requests'],
@@ -29,8 +29,8 @@ export default function BrowseRequests() {
   const filteredRequests = requests.filter(request => {
     const matchesSearch = request.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          request.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !categoryFilter || request.category === categoryFilter;
-    const matchesBudget = !budgetFilter || 
+    const matchesCategory = categoryFilter === "all" || request.category === categoryFilter;
+    const matchesBudget = budgetFilter === "all" || 
       (budgetFilter === "under-100" && parseInt(request.budgetMax || "0") < 100) ||
       (budgetFilter === "100-500" && parseInt(request.budgetMax || "0") >= 100 && parseInt(request.budgetMax || "0") <= 500) ||
       (budgetFilter === "over-500" && parseInt(request.budgetMax || "0") > 500);
@@ -104,7 +104,7 @@ export default function BrowseRequests() {
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="all">All Categories</SelectItem>
                     <SelectItem value="product">Product Search</SelectItem>
                     <SelectItem value="service">Service Provider</SelectItem>
                     <SelectItem value="vendor">Vendor/Supplier</SelectItem>
@@ -120,7 +120,7 @@ export default function BrowseRequests() {
                     <SelectValue placeholder="Budget Range" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any Budget</SelectItem>
+                    <SelectItem value="all">Any Budget</SelectItem>
                     <SelectItem value="under-100">Under $100</SelectItem>
                     <SelectItem value="100-500">$100 - $500</SelectItem>
                     <SelectItem value="over-500">Over $500</SelectItem>
