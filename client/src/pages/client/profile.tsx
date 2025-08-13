@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,15 +7,29 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { ArrowLeft } from "lucide-react";
 import ClientHeader from "@/components/client-header";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function ClientProfile() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
     email: user?.email || '',
     phone: user?.phone || '',
   });
+
+  // Update form data when user data loads/changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+      });
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,8 +49,15 @@ export default function ClientProfile() {
 
       if (response.ok) {
         alert('Profile updated successfully!');
-        // Update user data in localStorage or trigger a refetch
-        window.location.reload();
+        // Invalidate the auth query to refetch user data
+        await queryClient.invalidateQueries({ queryKey: ['/api/auth/me'] });
+        // Update form data to reflect the new values
+        setFormData({
+          firstName: data.user.firstName,
+          lastName: data.user.lastName,
+          email: data.user.email,
+          phone: data.user.phone || '',
+        });
       } else {
         alert(data.message || 'Failed to update profile');
       }
