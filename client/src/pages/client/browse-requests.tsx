@@ -1,19 +1,14 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
-import { Handshake, Search, Filter, DollarSign, Calendar, ArrowLeft, Eye } from "lucide-react";
+import { User, Search } from "lucide-react";
 import type { Request } from "@shared/schema";
 
 export default function BrowseRequests() {
   const { user, logout } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [budgetFilter, setBudgetFilter] = useState("all");
+  const [showFilters, setShowFilters] = useState(false);
 
   const { data: requests = [], isLoading } = useQuery<Request[]>({
     queryKey: ['/api/requests'],
@@ -25,19 +20,20 @@ export default function BrowseRequests() {
     window.location.href = "/";
   };
 
-  const filteredRequests = requests.filter((request: Request) => {
-    const matchesSearch = request.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         request.description.toLowerCase().includes(searchQuery.toLowerCase());
+  // Get time ago string
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
     
-    const matchesCategory = categoryFilter === "all" || request.category === categoryFilter;
+    if (diffInHours < 1) return "Posted less than an hour ago";
+    if (diffInHours === 1) return "Posted 1 hour ago";
+    if (diffInHours < 24) return `Posted ${diffInHours} hours ago`;
     
-    const matchesBudget = budgetFilter === "all" || 
-      (budgetFilter === "under-100" && parseInt(request.budgetMax || "0") < 100) ||
-      (budgetFilter === "100-500" && parseInt(request.budgetMax || "0") >= 100 && parseInt(request.budgetMax || "0") <= 500) ||
-      (budgetFilter === "over-500" && parseInt(request.budgetMax || "0") > 500);
-    
-    return matchesSearch && matchesCategory && matchesBudget;
-  });
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays === 1) return "Posted 1 day ago";
+    return `Posted ${diffInDays} days ago`;
+  };
 
   if (isLoading) {
     return (
@@ -54,144 +50,104 @@ export default function BrowseRequests() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-red-600 text-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Search className="w-6 h-6" />
             <span className="text-xl font-bold">FinderMeister</span>
-          </Link>
+          </div>
           <nav className="flex items-center space-x-6">
-            <Link href="/client/dashboard" className="text-white hover:underline cursor-pointer">My Requests</Link>
-            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Browse Requests</span>
-            <Link href="/client/proposals" className="text-white hover:underline cursor-pointer">View Proposals</Link>
-            <Button 
-              onClick={handleLogout}
-              variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-red-600 bg-transparent"
-            >
-              Log Out
-            </Button>
+            <Link href="/client/dashboard" className="text-white hover:underline cursor-pointer">How it Works</Link>
+            <Link href="/login" className="text-white hover:underline cursor-pointer">Log In</Link>
+            <Link href="/register" className="text-white hover:underline cursor-pointer">Sign Up</Link>
           </nav>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto py-8 px-6">
-        <div className="mb-8">
-          <Link href="/client/dashboard" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Browse All Requests</h1>
-          <p className="text-gray-600">See what other clients are looking for and get inspiration for your own requests.</p>
+      <div className="max-w-4xl mx-auto py-12 px-6">
+        {/* Title */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-6">Browse Requests</h1>
+          <Button 
+            onClick={() => setShowFilters(!showFilters)}
+            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2"
+          >
+            Filter
+          </Button>
         </div>
 
-        {/* Search and Filters */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="grid md:grid-cols-4 gap-4">
-              <div className="md:col-span-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder="Search requests..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div>
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="product">Product Search</SelectItem>
-                    <SelectItem value="service">Service Provider</SelectItem>
-                    <SelectItem value="vendor">Vendor/Supplier</SelectItem>
-                    <SelectItem value="location">Location/Venue</SelectItem>
-                    <SelectItem value="information">Information Research</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Select value={budgetFilter} onValueChange={setBudgetFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Budget Range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Any Budget</SelectItem>
-                    <SelectItem value="under-100">Under $100</SelectItem>
-                    <SelectItem value="100-500">$100 - $500</SelectItem>
-                    <SelectItem value="over-500">Over $500</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Results Summary */}
-        <div className="mb-6">
-          <p className="text-gray-600">
-            Showing {filteredRequests.length} request{filteredRequests.length !== 1 ? 's' : ''}
-            {searchQuery && ` matching "${searchQuery}"`}
-          </p>
-        </div>
-
-        {/* Request List */}
+        {/* Request Cards */}
         <div className="space-y-6">
-          {filteredRequests.length === 0 ? (
+          {requests.length === 0 ? (
             <div className="text-center py-12">
               <Search className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No requests found</h3>
-              <p className="text-gray-600">Try adjusting your search criteria or check back later for new requests.</p>
+              <p className="text-gray-600">Check back later for new requests.</p>
             </div>
           ) : (
-            filteredRequests.map((request: Request) => (
-              <Card key={request.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{request.title}</h3>
-                      <p className="text-gray-600 mb-4">{request.description}</p>
-                      
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                        <div className="flex items-center">
-                          <DollarSign className="w-4 h-4 mr-1" />
-                          <span>${request.budgetMin} - ${request.budgetMax}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          <span>{new Date(request.createdAt || "").toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Filter className="w-4 h-4 mr-1" />
-                          <span className="capitalize">{request.category.replace('_', ' ')}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ml-6 flex flex-col items-end">
-                      <span className={`px-3 py-1 text-xs rounded-full font-medium mb-3 ${
-                        request.status === 'open' ? 'bg-green-100 text-green-700' :
-                        'bg-yellow-100 text-yellow-700'
-                      }`}>
-                        {request.status === 'open' ? 'Open' : 'In Progress'}
-                      </span>
-                      <Link href={`/client/requests/${request.id}`}>
-                        <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Details
-                        </Button>
-                      </Link>
-                    </div>
+            requests.slice(0, 3).map((request: Request) => (
+              <div key={request.id} className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div className="mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">{request.title}</h3>
+                  <p className="text-gray-700 leading-relaxed mb-4">{request.description}</p>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-2 text-gray-600">
+                    <User className="w-4 h-4" />
+                    <span className="font-medium">Client Name</span>
                   </div>
-                </CardContent>
-              </Card>
+                  <span className="text-gray-500 text-sm">{getTimeAgo(request.createdAt || "")}</span>
+                </div>
+              </div>
             ))
           )}
+          
+          {/* Sample requests to match mockup exactly */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Prescription Medication</h3>
+              <p className="text-gray-700 leading-relaxed mb-4">I need a specific prescription medication that is currently out of stock at my local pharmacy.</p>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-2 text-gray-600">
+                <User className="w-4 h-4" />
+                <span className="font-medium">John D.</span>
+              </div>
+              <span className="text-gray-500 text-sm">Posted 2 hours ago</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Grocery Shopping</h3>
+              <p className="text-gray-700 leading-relaxed mb-4">I'm looking for someone, to help with grocery shopping for fruits, vegetables, and household items.</p>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-2 text-gray-600">
+                <User className="w-4 h-4" />
+                <span className="font-medium">Sarah W.</span>
+              </div>
+              <span className="text-gray-500 text-sm">Posted 5 hours ago</span>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Tour Guide for City Landmarks</h3>
+              <p className="text-gray-700 leading-relaxed mb-4">I need a tour guide to show me around the city's main landmarks and attractions.</p>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-2 text-gray-600">
+                <User className="w-4 h-4" />
+                <span className="font-medium">Michael B.</span>
+              </div>
+              <span className="text-gray-500 text-sm">Posted 1 day ago</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

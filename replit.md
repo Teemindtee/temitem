@@ -5,6 +5,8 @@ FinderMeister is a full-stack service marketplace platform that connects clients
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
+Design requirements: Clean, simple UI matching exact mockups without complex filters or excessive features.
+User feedback: Frustrated with back-and-forth iterations - requires working solutions on first attempt.
 
 # System Architecture
 
