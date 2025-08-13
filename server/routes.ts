@@ -560,8 +560,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         escrowStatus: 'held'
       });
 
-      // Update request status
-      await storage.updateRequest(proposal.requestId, { status: 'approved' });
+      // Update request status to in progress
+      await storage.updateRequest(proposal.requestId, { status: 'in progress' });
 
       res.json({ proposal, contract });
     } catch (error) {

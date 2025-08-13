@@ -48,6 +48,18 @@ User feedback: Frustrated with back-and-forth iterations - requires working solu
 - **Payment Integration**: Ready for Paystack integration for token purchases
 - **Escrow System**: Secure payment holding until work completion and approval
 
+## Request Status Flow
+- **Open**: Request is available for proposals (default status)
+- **In Progress**: Request has an accepted proposal and work is underway
+- **Completed**: Request work has been finished and approved
+- **Cancelled**: Request was cancelled by client
+
+## Messaging System
+- **Client-Initiated**: Only clients can initiate conversations with finders
+- **Proposal-Based**: Conversations are tied to specific proposals
+- **Universal Access**: Clients can message any finder who submitted a proposal (regardless of acceptance status)
+- **Comment-Like Proposals**: Finders only see their own proposals per request; clients see all proposals
+
 ## Development & Deployment
 - **Build System**: Vite for frontend bundling and esbuild for backend compilation
 - **TypeScript**: Full TypeScript implementation across frontend, backend, and shared schemas

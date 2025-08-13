@@ -1,12 +1,14 @@
 import { useParams, Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, User, Clock, DollarSign } from "lucide-react";
 import ClientHeader from "@/components/client-header";
 import StartConversationButton from "@/components/StartConversationButton";
+import { apiRequest } from "@/lib/queryClient";
 import type { Proposal } from "@shared/schema";
 
 type ProposalWithDetails = Proposal & {
@@ -27,12 +29,40 @@ type ProposalWithDetails = Proposal & {
 export default function ProposalDetail() {
   const params = useParams();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const proposalId = params.id as string;
   
   const { data: proposal, isLoading } = useQuery<ProposalWithDetails>({
     queryKey: ['/api/proposals', proposalId],
     enabled: !!proposalId && !!user
   });
+
+  const acceptProposalMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest("POST", `/api/proposals/${id}/accept`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/proposals', proposalId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/client/proposals'] });
+      toast({
+        title: "Proposal Accepted!",
+        description: "The proposal has been accepted and a contract has been created.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to accept proposal",
+      });
+    }
+  });
+
+  const handleAcceptProposal = (id: string) => {
+    acceptProposalMutation.mutate(id);
+  };
 
   if (isLoading) {
     return (
@@ -174,8 +204,12 @@ export default function ProposalDetail() {
                   />
                 </div>
                 {proposal.status === 'pending' && (
-                  <Button className="bg-red-600 hover:bg-red-700 text-white flex-1">
-                    Accept Proposal
+                  <Button 
+                    onClick={() => handleAcceptProposal(proposal.id)}
+                    className="bg-red-600 hover:bg-red-700 text-white flex-1"
+                    disabled={acceptProposalMutation.isPending}
+                  >
+                    {acceptProposalMutation.isPending ? "Accepting..." : "Accept Proposal"}
                   </Button>
                 )}
               </div>
