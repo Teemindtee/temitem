@@ -42,7 +42,10 @@ export default function AdminSettings() {
 
   const createCategoryMutation = useMutation({
     mutationFn: async (data: { name: string; description: string }) => {
-      const response = await apiRequest('POST', '/api/admin/categories', data);
+      const response = await apiRequest('/api/admin/categories', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -66,7 +69,10 @@ export default function AdminSettings() {
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: { proposalTokenCost: string }) => {
       console.log('Sending API request with data:', data);
-      const response = await apiRequest('PUT', '/api/admin/settings', data);
+      const response = await apiRequest('/api/admin/settings', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
       return response.json();
     },
     onSuccess: (data) => {
@@ -90,7 +96,9 @@ export default function AdminSettings() {
 
   const deleteCategoryMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest('DELETE', `/api/admin/categories/${id}`);
+      const response = await apiRequest(`/api/admin/categories/${id}`, {
+        method: 'DELETE',
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -261,9 +269,11 @@ export default function AdminSettings() {
                         {category.description && (
                           <p className="text-gray-600 text-sm mt-1">{category.description}</p>
                         )}
-                        <p className="text-gray-500 text-xs mt-1">
-                          Created: {new Date(category.createdAt).toLocaleDateString()}
-                        </p>
+                        {category.createdAt && (
+                          <p className="text-gray-500 text-xs mt-1">
+                            Created: {new Date(category.createdAt).toLocaleDateString()}
+                          </p>
+                        )}
                       </div>
                       <div className="flex items-center space-x-2">
                         <DropdownMenu>
