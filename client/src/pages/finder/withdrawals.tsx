@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,21 +30,23 @@ export default function WithdrawalSettings() {
 
   const { data: withdrawalSettings, isLoading: settingsLoading } = useQuery({
     queryKey: ['/api/finder/withdrawal-settings'],
-    enabled: !!user,
-    onSuccess: (data) => {
-      if (data) {
-        setFormData({
-          paymentMethod: data.paymentMethod || "bank_transfer",
-          bankName: data.bankDetails?.bankName || "",
-          accountNumber: data.bankDetails?.accountNumber || "",
-          routingNumber: data.bankDetails?.routingNumber || "",
-          accountHolder: data.bankDetails?.accountHolder || "",
-          paypalEmail: data.paypalDetails?.email || "",
-          minimumThreshold: data.minimumThreshold?.toString() || "50"
-        });
-      }
-    }
+    enabled: !!user
   });
+
+  // Update form data when withdrawal settings change
+  useEffect(() => {
+    if (withdrawalSettings) {
+      setFormData({
+        paymentMethod: withdrawalSettings.paymentMethod || "bank_transfer",
+        bankName: withdrawalSettings.bankDetails?.bankName || "",
+        accountNumber: withdrawalSettings.bankDetails?.accountNumber || "",
+        routingNumber: withdrawalSettings.bankDetails?.routingNumber || "",
+        accountHolder: withdrawalSettings.bankDetails?.accountHolder || "",
+        paypalEmail: withdrawalSettings.paypalDetails?.email || "",
+        minimumThreshold: withdrawalSettings.minimumThreshold?.toString() || "50"
+      });
+    }
+  }, [withdrawalSettings]);
 
   const { data: withdrawalHistory = [], isLoading: historyLoading } = useQuery<WithdrawalRequest[]>({
     queryKey: ['/api/finder/withdrawals'],

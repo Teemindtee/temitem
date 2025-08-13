@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { FinderHeader } from "@/components/finder-header";
@@ -27,19 +27,23 @@ export default function FinderProfile() {
     availability: "full-time"
   });
 
-  const { data: finder, isLoading } = useQuery<Finder>({
+  const { data: finder, isLoading } = useQuery<any>({
     queryKey: ['/api/finder/profile'],
-    enabled: !!user,
-    onSuccess: (data) => {
+    enabled: !!user
+  });
+
+  // Update form data when finder data changes
+  useEffect(() => {
+    if (finder) {
       setFormData({
-        name: data.name || "",
-        bio: data.bio || "",
-        skills: data.skills?.join(", ") || "",
-        hourlyRate: data.hourlyRate?.toString() || "",
-        availability: data.availability || "full-time"
+        name: finder.user?.firstName + ' ' + finder.user?.lastName || "",
+        bio: finder.bio || "",
+        skills: finder.skills?.join(", ") || "",
+        hourlyRate: finder.hourlyRate?.toString() || "",
+        availability: finder.availability || "full-time"
       });
     }
-  });
+  }, [finder]);
 
   const updateProfileMutation = useMutation({
     mutationFn: (data: any) => apiRequest('/api/finder/profile', {
@@ -48,7 +52,7 @@ export default function FinderProfile() {
         ...data,
         skills: data.skills.split(",").map((s: string) => s.trim()).filter(Boolean),
         hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null
-      }),
+      })
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });
@@ -74,7 +78,7 @@ export default function FinderProfile() {
   const handleCancel = () => {
     if (finder) {
       setFormData({
-        name: finder.name || "",
+        name: finder.user?.firstName + ' ' + finder.user?.lastName || "",
         bio: finder.bio || "",
         skills: finder.skills?.join(", ") || "",
         hourlyRate: finder.hourlyRate?.toString() || "",
@@ -146,20 +150,20 @@ export default function FinderProfile() {
               {!isEditing && finder && (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">{finder.completedJobs || 0}</div>
+                    <div className="text-2xl font-bold text-red-600">{finder.jobsCompleted || 0}</div>
                     <div className="text-sm text-gray-600">Jobs Completed</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">${finder.totalEarnings || 0}</div>
+                    <div className="text-2xl font-bold text-green-600">${finder.totalEarned || 0}</div>
                     <div className="text-sm text-gray-600">Total Earnings</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{finder.rating || 0}/5</div>
+                    <div className="text-2xl font-bold text-blue-600">{parseFloat(finder.averageRating || "5.0").toFixed(1)}/5</div>
                     <div className="text-sm text-gray-600">Average Rating</div>
                   </div>
                   <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <Badge variant={finder.isVerified ? "default" : "secondary"}>
-                      {finder.isVerified ? "Verified" : "Unverified"}
+                    <Badge variant={finder.user?.isVerified ? "default" : "secondary"}>
+                      {finder.user?.isVerified ? "Verified" : "Unverified"}
                     </Badge>
                     <div className="text-sm text-gray-600 mt-1">Status</div>
                   </div>
@@ -177,7 +181,7 @@ export default function FinderProfile() {
                       className="mt-1"
                     />
                   ) : (
-                    <p className="mt-1 p-2 bg-gray-50 rounded border">{finder?.name || "Not set"}</p>
+                    <p className="mt-1 p-2 bg-gray-50 rounded border">{finder?.user?.firstName + ' ' + finder?.user?.lastName || "Not set"}</p>
                   )}
                 </div>
 
