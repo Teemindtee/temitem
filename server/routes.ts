@@ -167,6 +167,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/auth/update-profile", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { firstName, lastName, email, phone } = req.body;
+      
+      if (!firstName || !lastName || !email) {
+        return res.status(400).json({ message: "First name, last name, and email are required" });
+      }
+
+      // Check if email is already taken by another user
+      if (email !== req.user.email) {
+        const existingUser = await storage.getUserByEmail(email);
+        if (existingUser && existingUser.id !== req.user.userId) {
+          return res.status(400).json({ message: "Email is already taken by another user" });
+        }
+      }
+
+      // Update user profile
+      const updatedUser = await storage.updateUser(req.user.userId, {
+        firstName,
+        lastName,
+        email,
+        phone
+      });
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ 
+        message: "Profile updated successfully",
+        user: { ...updatedUser, password: undefined }
+      });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
   // Request routes
   app.get("/api/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
