@@ -219,85 +219,102 @@ export default function Register() {
       </header>
 
       <section className="py-16">
-        <div className="max-w-2xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Sign Up Form */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Sign Up</h2>
+        <div className="max-w-md mx-auto px-6">
+          <div className="bg-white rounded-lg shadow-sm border p-8">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
               <p className="text-gray-600 mb-6">
+                Join FinderMeister and start connecting with opportunities.
+              </p>
+              <div className="bg-red-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <User className="w-8 h-8 text-white" />
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="role" className="text-gray-700 font-medium">I am a</Label>
+                <Select value={formData.role} onValueChange={handleRoleChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="client">Client - I need help finding things</SelectItem>
+                    <SelectItem value="finder">Finder - I can help find things</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Input
+                    name="firstName"
+                    type="text"
+                    required
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    placeholder="First name"
+                    className="bg-gray-50 border-gray-300"
+                  />
+                </div>
+                <div>
+                  <Input
+                    name="lastName"
+                    type="text"
+                    required
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    placeholder="Last name"
+                    className="bg-gray-50 border-gray-300"
+                  />
+                </div>
+              </div>
+
+              <Input
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Email address"
+                className="bg-gray-50 border-gray-300"
+              />
+
+              <Input
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Password"
+                className="bg-gray-50 border-gray-300"
+              />
+
+              <Input
+                name="confirmPassword"
+                type="password"
+                required
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                placeholder="Confirm password"
+                className="bg-gray-50 border-gray-300"
+              />
+
+              <Button
+                type="submit"
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 font-medium"
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating Account..." : "Create Account"}
+              </Button>
+
+              <p className="text-center text-gray-600">
                 Already have an account?{" "}
                 <Link href="/login" className="text-red-600 hover:underline font-medium">
                   Log In
                 </Link>
               </p>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Select value={formData.role} onValueChange={handleRoleChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="I am a" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="client">Client - I need help finding things</SelectItem>
-                      <SelectItem value="finder">Finder - I can help find things</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <Input
-                  name="firstName"
-                  placeholder="Name"
-                  required
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                />
-
-                <Input
-                  name="email"
-                  type="email"
-                  placeholder="Email"
-                  required
-                  value={formData.email}
-                  onChange={handleInputChange}
-                />
-
-                <Input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  required
-                  value={formData.password}
-                  onChange={handleInputChange}
-                />
-
-                <Button
-                  type="submit"
-                  className="w-full bg-red-600 hover:bg-red-700 text-white py-3 font-medium"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Creating Account..." : "Sign Up"}
-                </Button>
-              </form>
-            </div>
-
-            {/* Log In Form */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Log In</h2>
-              <p className="text-gray-600 mb-6">
-                Don't have an account?{" "}
-                <span className="text-red-600 font-medium">Sign Up</span>
-              </p>
-
-              <div className="space-y-4">
-                <Input placeholder="Email" />
-                <Input type="password" placeholder="Password" />
-                <Link href="/login">
-                  <Button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 font-medium">
-                    Log In
-                  </Button>
-                </Link>
-              </div>
-            </div>
+            </form>
           </div>
         </div>
       </section>
