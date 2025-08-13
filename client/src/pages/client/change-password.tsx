@@ -29,8 +29,14 @@ export default function ChangePassword() {
       return;
     }
     
+    if (formData.newPassword.length < 6) {
+      alert("New password must be at least 6 characters");
+      return;
+    }
+    
     // TODO: Implement password change API call
-    console.log('Password change request');
+    console.log('Password change request for user:', user?.email);
+    alert('Password change functionality will be implemented with backend API');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -144,7 +150,11 @@ export default function ChangePassword() {
                 <Link href="/client/dashboard">
                   <Button variant="outline">Cancel</Button>
                 </Link>
-                <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white">
+                <Button 
+                  type="submit" 
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  disabled={!formData.currentPassword || !formData.newPassword || !formData.confirmPassword}
+                >
                   Update Password
                 </Button>
               </div>
