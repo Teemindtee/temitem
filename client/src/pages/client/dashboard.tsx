@@ -93,7 +93,7 @@ export default function ClientDashboard() {
                 <Clock className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Active Requests</h3>
-              <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Request) => r.status === 'open').length}</p>
+              <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Request) => r.status === 'active').length}</p>
               <p className="text-gray-600 text-sm">Requests waiting for proposals</p>
             </CardContent>
           </Card>
@@ -134,11 +134,11 @@ export default function ClientDashboard() {
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-medium text-gray-900">{request.title}</h4>
                       <span className={`px-2 py-1 text-xs rounded-full font-medium ${
-                        request.status === 'open' ? 'bg-blue-100 text-blue-700' :
+                        request.status === 'active' ? 'bg-blue-100 text-blue-700' :
                         request.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' :
                         'bg-green-100 text-green-700'
                       }`}>
-                        {request.status?.replace('_', ' ') || 'pending'}
+                        {request.status === 'active' ? 'Active' : request.status?.replace('_', ' ') || 'pending'}
                       </span>
                     </div>
                     <p className="text-gray-600 text-sm mb-3">{request.description.substring(0, 100)}...</p>
