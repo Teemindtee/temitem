@@ -49,7 +49,7 @@ export default function FinderDashboard() {
           </Link>
           <nav className="flex items-center space-x-6">
             <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Dashboard</span>
-            <a href="#" className="hover:underline">Browse Requests</a>
+            <Link href="/finder/browse-requests" className="hover:underline">Browse Requests</Link>
             <Button 
               onClick={handleLogout}
               variant="outline" 

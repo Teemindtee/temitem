@@ -140,6 +140,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Finder-specific routes
+  app.get("/api/finder/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: "Only finders can browse requests" });
+      }
+
+      const requests = await storage.getAllActiveRequests();
+      res.json(requests);
+    } catch (error) {
+      console.error('Finder requests error:', error);
+      res.status(500).json({ message: "Failed to fetch requests" });
+    }
+  });
+
+  app.get("/api/finder/proposals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: "Only finders can view their proposals" });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder profile not found" });
+      }
+
+      const proposals = await storage.getProposalsByFinderId(finder.id);
+      res.json(proposals);
+    } catch (error) {
+      console.error('Finder proposals error:', error);
+      res.status(500).json({ message: "Failed to fetch proposals" });
+    }
+  });
+
+  app.get("/api/finder/dashboard", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: "Only finders can access finder dashboard" });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder profile not found" });
+      }
+
+      const tokenBalance = await storage.getTokenBalance(finder.id);
+      const proposals = await storage.getProposalsByFinderId(finder.id);
+      const recentRequests = await storage.getAllActiveRequests();
+
+      res.json({
+        finder,
+        tokenBalance: tokenBalance?.balance ?? 0,
+        proposalsCount: proposals.length,
+        availableRequests: recentRequests.length
+      });
+    } catch (error) {
+      console.error('Finder dashboard error:', error);
+      res.status(500).json({ message: "Failed to fetch dashboard data" });
+    }
+  });
+
   // Client-specific routes
   app.get("/api/client/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
