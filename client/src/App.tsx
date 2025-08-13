@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
+import RegisterFinder from "@/pages/auth/register-finder";
 import ClientDashboard from "@/pages/client/dashboard";
 import CreateRequest from "@/pages/client/create-request";
 import RequestDetails from "@/pages/client/request-details";
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
+      <Route path="/register/finder" component={RegisterFinder} />
       <Route path="/client/dashboard" component={ClientDashboard} />
       <Route path="/client/create-request" component={CreateRequest} />
       <Route path="/client/requests/:id" component={RequestDetails} />
