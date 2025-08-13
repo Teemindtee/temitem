@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Clock, DollarSign, MapPin, User, Star, MessageCircle } from "lucide-react";
 import ClientHeader from "@/components/client-header";
+import StartConversationButton from "@/components/StartConversationButton";
 import { apiRequest } from "@/lib/queryClient";
 import type { Request, Proposal } from "@shared/schema";
 
@@ -175,25 +176,31 @@ export default function RequestDetails() {
                             </div>
                             <div className="text-right">
                               <div className="text-lg font-semibold text-green-600">
-                                ${proposal.proposedBudget}
+                                ${proposal.price}
                               </div>
                               <div className="text-sm text-gray-600">
-                                {proposal.estimatedDays} days
+                                {proposal.timeline}
                               </div>
                             </div>
                           </div>
                           
-                          <p className="text-gray-700 mb-3">{proposal.coverLetter}</p>
+                          <p className="text-gray-700 mb-3">{proposal.approach}</p>
                           
-                          {proposal.status === 'pending' && (
-                            <Button 
-                              onClick={() => acceptProposal.mutate(proposal.id)}
-                              disabled={acceptProposal.isPending}
-                              className="bg-red-600 hover:bg-red-700 text-white"
-                            >
-                              {acceptProposal.isPending ? 'Accepting...' : 'Accept Proposal'}
-                            </Button>
-                          )}
+                          <div className="flex items-center space-x-3">
+                            <StartConversationButton 
+                              proposalId={proposal.id} 
+                              finderName={`Finder #${proposal.finderId}`}
+                            />
+                            {proposal.status === 'pending' && (
+                              <Button 
+                                onClick={() => acceptProposal.mutate(proposal.id)}
+                                disabled={acceptProposal.isPending}
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                              >
+                                {acceptProposal.isPending ? 'Accepting...' : 'Accept Proposal'}
+                              </Button>
+                            )}
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
