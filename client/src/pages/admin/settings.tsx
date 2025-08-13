@@ -42,11 +42,10 @@ export default function AdminSettings() {
 
   const createCategoryMutation = useMutation({
     mutationFn: async (data: { name: string; description: string }) => {
-      const response = await apiRequest('/api/admin/categories', {
+      return await apiRequest('/api/admin/categories', {
         method: 'POST',
         body: JSON.stringify(data),
       });
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
@@ -69,11 +68,10 @@ export default function AdminSettings() {
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: { proposalTokenCost: string }) => {
       console.log('Sending API request with data:', data);
-      const response = await apiRequest('/api/admin/settings', {
+      return await apiRequest('/api/admin/settings', {
         method: 'PUT',
         body: JSON.stringify(data),
       });
-      return response.json();
     },
     onSuccess: (data) => {
       console.log('Settings update successful:', data);
@@ -96,10 +94,9 @@ export default function AdminSettings() {
 
   const deleteCategoryMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiRequest(`/api/admin/categories/${id}`, {
+      return await apiRequest(`/api/admin/categories/${id}`, {
         method: 'DELETE',
       });
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
