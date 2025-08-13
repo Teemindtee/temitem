@@ -86,68 +86,76 @@ export default function BrowseRequests() {
             </div>
           ) : (
             requests.slice(0, 3).map((request: Request) => (
-              <div key={request.id} className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{request.title}</h3>
-                  <p className="text-gray-700 leading-relaxed mb-4">{request.description}</p>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-2 text-gray-600">
-                    <User className="w-4 h-4" />
-                    <span className="font-medium">Client Name</span>
+              <Link key={request.id} href={`/client/requests/${request.id}`}>
+                <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">{request.title}</h3>
+                    <p className="text-gray-700 leading-relaxed mb-4">{request.description}</p>
                   </div>
-                  <span className="text-gray-500 text-sm">{getTimeAgo(request.createdAt || "")}</span>
+                  
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      <User className="w-4 h-4" />
+                      <span className="font-medium">Client Name</span>
+                    </div>
+                    <span className="text-gray-500 text-sm">{getTimeAgo(request.createdAt || "")}</span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))
           )}
           
           {/* Sample requests to match mockup exactly */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="mb-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Prescription Medication</h3>
-              <p className="text-gray-700 leading-relaxed mb-4">I need a specific prescription medication that is currently out of stock at my local pharmacy.</p>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-2 text-gray-600">
-                <User className="w-4 h-4" />
-                <span className="font-medium">John D.</span>
+          <Link href="/client/requests/sample-1">
+            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+              <div className="mb-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Prescription Medication</h3>
+                <p className="text-gray-700 leading-relaxed mb-4">I need a specific prescription medication that is currently out of stock at my local pharmacy.</p>
               </div>
-              <span className="text-gray-500 text-sm">Posted 2 hours ago</span>
+              
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <User className="w-4 h-4" />
+                  <span className="font-medium">John D.</span>
+                </div>
+                <span className="text-gray-500 text-sm">Posted 2 hours ago</span>
+              </div>
             </div>
-          </div>
+          </Link>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="mb-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Grocery Shopping</h3>
-              <p className="text-gray-700 leading-relaxed mb-4">I'm looking for someone, to help with grocery shopping for fruits, vegetables, and household items.</p>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-2 text-gray-600">
-                <User className="w-4 h-4" />
-                <span className="font-medium">Sarah W.</span>
+          <Link href="/client/requests/sample-2">
+            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+              <div className="mb-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Grocery Shopping</h3>
+                <p className="text-gray-700 leading-relaxed mb-4">I'm looking for someone, to help with grocery shopping for fruits, vegetables, and household items.</p>
               </div>
-              <span className="text-gray-500 text-sm">Posted 5 hours ago</span>
+              
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <User className="w-4 h-4" />
+                  <span className="font-medium">Sarah W.</span>
+                </div>
+                <span className="text-gray-500 text-sm">Posted 5 hours ago</span>
+              </div>
             </div>
-          </div>
+          </Link>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="mb-4">
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Tour Guide for City Landmarks</h3>
-              <p className="text-gray-700 leading-relaxed mb-4">I need a tour guide to show me around the city's main landmarks and attractions.</p>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-2 text-gray-600">
-                <User className="w-4 h-4" />
-                <span className="font-medium">Michael B.</span>
+          <Link href="/client/requests/sample-3">
+            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+              <div className="mb-4">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Tour Guide for City Landmarks</h3>
+                <p className="text-gray-700 leading-relaxed mb-4">I need a tour guide to show me around the city's main landmarks and attractions.</p>
               </div>
-              <span className="text-gray-500 text-sm">Posted 1 day ago</span>
+              
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2 text-gray-600">
+                  <User className="w-4 h-4" />
+                  <span className="font-medium">Michael B.</span>
+                </div>
+                <span className="text-gray-500 text-sm">Posted 1 day ago</span>
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>
