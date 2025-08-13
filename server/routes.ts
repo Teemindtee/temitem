@@ -676,7 +676,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/admin/settings", authenticateToken, async (req, res) => {
+  app.post("/api/admin/settings", authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
       if (req.user.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });

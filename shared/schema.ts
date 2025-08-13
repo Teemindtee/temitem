@@ -206,6 +206,12 @@ export type Contract = typeof contracts.$inferSelect;
 export type InsertContract = typeof contracts.$inferInsert;
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = typeof reviews.$inferInsert;
+export type Token = typeof tokens.$inferSelect;
+export type InsertToken = typeof tokens.$inferInsert;
+export type Transaction = typeof transactions.$inferSelect;
+export type InsertTransaction = typeof transactions.$inferInsert;
+export type AdminSetting = typeof adminSettings.$inferSelect;
+export type InsertAdminSetting = typeof adminSettings.$inferInsert;
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -238,9 +244,26 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
 });
 
+export const insertTokenSchema = createInsertSchema(tokens).omit({
+  id: true,
+});
+
+export const insertTransactionSchema = createInsertSchema(transactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAdminSettingSchema = createInsertSchema(adminSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+
 export type InsertUserType = z.infer<typeof insertUserSchema>;
 export type InsertFinderType = z.infer<typeof insertFinderSchema>;
 export type InsertRequestType = z.infer<typeof insertRequestSchema>;
 export type InsertProposalType = z.infer<typeof insertProposalSchema>;
 export type InsertContractType = z.infer<typeof insertContractSchema>;
 export type InsertReviewType = z.infer<typeof insertReviewSchema>;
+export type InsertTokenType = z.infer<typeof insertTokenSchema>;
+export type InsertTransactionType = z.infer<typeof insertTransactionSchema>;
+export type InsertAdminSettingType = z.infer<typeof insertAdminSettingSchema>;
