@@ -1,25 +1,25 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FinderHeader } from "@/components/finder-header";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Save, X, Award } from "lucide-react";
+import { Save, Award } from "lucide-react";
 import type { Finder } from "@shared/schema";
 
 export default function FinderProfile() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
   const [formData, setFormData] = useState({
-    name: "",
     bio: "",
     skills: "",
     hourlyRate: "",
@@ -34,9 +34,7 @@ export default function FinderProfile() {
   // Update form data when finder data changes
   useEffect(() => {
     if (finder) {
-      const fullName = finder.user ? `${finder.user.firstName} ${finder.user.lastName}` : "";
       setFormData({
-        name: fullName.trim(),
         bio: finder.bio || "",
         skills: Array.isArray(finder.skills) ? finder.skills.join(", ") : "",
         hourlyRate: finder.hourlyRate?.toString() || "",
@@ -49,16 +47,17 @@ export default function FinderProfile() {
     mutationFn: (data: any) => apiRequest('/api/finder/profile', {
       method: 'PATCH',
       body: JSON.stringify({
-        ...data,
+        bio: data.bio,
         skills: data.skills.split(",").map((s: string) => s.trim()).filter(Boolean),
-        hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null
+        hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
+        availability: data.availability
       })
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });
       toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated.",
+        title: "Success",
+        description: "Your profile has been updated successfully.",
       });
     },
     onError: (error: any) => {
@@ -70,21 +69,8 @@ export default function FinderProfile() {
     },
   });
 
-  const handleSave = () => {
+  const handleUpdateProfile = () => {
     updateProfileMutation.mutate(formData);
-  };
-
-  const handleReset = () => {
-    if (finder) {
-      const fullName = finder.user ? `${finder.user.firstName} ${finder.user.lastName}` : "";
-      setFormData({
-        name: fullName.trim(),
-        bio: finder.bio || "",
-        skills: Array.isArray(finder.skills) ? finder.skills.join(", ") : "",
-        hourlyRate: finder.hourlyRate?.toString() || "",
-        availability: finder.availability || "full-time"
-      });
-    }
   };
 
   if (isLoading) {
@@ -101,82 +87,82 @@ export default function FinderProfile() {
     );
   }
 
+  const fullName = finder?.user ? `${finder.user.firstName} ${finder.user.lastName}`.trim() : "Not available";
+
   return (
     <div className="min-h-screen bg-gray-50">
       <FinderHeader currentPage="profile" />
       
-      <div className="max-w-6xl mx-auto py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Profile Settings</h1>
-          <p className="text-gray-600 text-sm sm:text-base">Manage your personal information and professional details</p>
+      <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h1>
+          <p className="text-gray-600">Update your professional profile information</p>
         </div>
 
-        <div className="grid gap-4 sm:gap-6">
-          {/* Profile Overview */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="w-5 h-5" />
-                Profile Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6">
-              {finder && (
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-                  <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg">
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-red-600">{finder.jobsCompleted || 0}</div>
-                    <div className="text-xs sm:text-sm text-gray-600">Jobs Completed</div>
-                  </div>
-                  <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg">
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">${finder.totalEarned || 0}</div>
-                    <div className="text-xs sm:text-sm text-gray-600">Total Earnings</div>
-                  </div>
-                  <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg">
-                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">{parseFloat(finder.averageRating || "5.0").toFixed(1)}/5</div>
-                    <div className="text-xs sm:text-sm text-gray-600">Average Rating</div>
-                  </div>
-                  <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg">
-                    <div className="flex flex-col items-center">
-                      <Badge variant={finder.user?.isVerified ? "default" : "secondary"} className="mb-1">
-                        {finder.user?.isVerified ? "Verified" : "Unverified"}
-                      </Badge>
-                      <div className="text-xs sm:text-sm text-gray-600">Status</div>
-                    </div>
-                  </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="w-5 h-5" />
+              Your Profile
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Profile Stats */}
+            {finder && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">{finder.jobsCompleted || 0}</div>
+                  <div className="text-sm text-gray-600">Jobs Completed</div>
                 </div>
-              )}
-
-              <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full"
-                    disabled
-                    placeholder="Name changes require admin approval"
-                  />
-                  <p className="text-xs text-gray-500">Contact admin to change your name</p>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">${finder.totalEarned || 0}</div>
+                  <div className="text-sm text-gray-600">Total Earnings</div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="hourlyRate" className="text-sm font-medium">Hourly Rate ($)</Label>
-                  <Input
-                    id="hourlyRate"
-                    type="number"
-                    value={formData.hourlyRate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: e.target.value }))}
-                    className="w-full"
-                    placeholder="e.g., 25"
-                  />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">{parseFloat(finder.averageRating || "5.0").toFixed(1)}/5</div>
+                  <div className="text-sm text-gray-600">Average Rating</div>
+                </div>
+                <div className="text-center">
+                  <Badge variant={finder.user?.isVerified ? "default" : "secondary"}>
+                    {finder.user?.isVerified ? "Verified" : "Unverified"}
+                  </Badge>
+                  <div className="text-sm text-gray-600 mt-1">Status</div>
                 </div>
               </div>
+            )}
 
-              <div className="space-y-2">
+            {/* Form Fields */}
+            <div className="space-y-6">
+              {/* Full Name - Read Only */}
+              <div>
+                <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
+                <Input
+                  id="name"
+                  value={fullName}
+                  disabled
+                  className="mt-1 bg-gray-100"
+                />
+                <p className="text-xs text-gray-500 mt-1">Contact admin to change your name</p>
+              </div>
+
+              {/* Hourly Rate */}
+              <div>
+                <Label htmlFor="hourlyRate" className="text-sm font-medium">Hourly Rate ($)</Label>
+                <Input
+                  id="hourlyRate"
+                  type="number"
+                  value={formData.hourlyRate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: e.target.value }))}
+                  placeholder="Enter your hourly rate"
+                  className="mt-1"
+                />
+              </div>
+
+              {/* Availability */}
+              <div>
                 <Label htmlFor="availability" className="text-sm font-medium">Availability</Label>
                 <Select value={formData.availability} onValueChange={(value) => setFormData(prev => ({ ...prev, availability: value }))}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -188,51 +174,45 @@ export default function FinderProfile() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              {/* Bio */}
+              <div>
                 <Label htmlFor="bio" className="text-sm font-medium">Bio</Label>
                 <Textarea
                   id="bio"
                   value={formData.bio}
                   onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                  className="w-full"
-                  rows={4}
                   placeholder="Tell clients about yourself, your experience, and what makes you unique..."
+                  rows={4}
+                  className="mt-1"
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* Skills */}
+              <div>
                 <Label htmlFor="skills" className="text-sm font-medium">Skills (comma-separated)</Label>
                 <Input
                   id="skills"
                   value={formData.skills}
                   onChange={(e) => setFormData(prev => ({ ...prev, skills: e.target.value }))}
-                  className="w-full"
                   placeholder="e.g., Research, Data Analysis, Web Scraping, Market Research"
+                  className="mt-1"
                 />
               </div>
-              
-              {/* Action buttons moved to bottom */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+
+              {/* Update Button */}
+              <div className="flex justify-end pt-6 border-t">
                 <Button 
-                  onClick={handleSave} 
+                  onClick={handleUpdateProfile} 
                   disabled={updateProfileMutation.isPending}
-                  className="bg-green-600 hover:bg-green-700 flex-1 sm:flex-none"
+                  className="bg-green-600 hover:bg-green-700 px-8"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
-                </Button>
-                <Button 
-                  onClick={handleReset} 
-                  variant="outline" 
-                  className="flex-1 sm:flex-none"
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Reset
+                  {updateProfileMutation.isPending ? 'Updating...' : 'Update Profile'}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
