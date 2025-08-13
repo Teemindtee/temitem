@@ -197,7 +197,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(requests)
-      .where(eq(requests.status, "active"))
+      .where(eq(requests.status, "open"))
       .orderBy(desc(requests.createdAt));
   }
 

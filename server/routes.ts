@@ -211,6 +211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const requests = await storage.getAllActiveRequests();
       res.json(requests);
     } catch (error) {
+      console.error('Failed to fetch requests:', error);
       res.status(500).json({ message: "Failed to fetch requests" });
     }
   });
