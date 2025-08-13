@@ -42,7 +42,11 @@ export default function ConversationDetail() {
   const { data: messages = [], isLoading } = useQuery<Message[]>({
     queryKey: ['/api/messages/conversations', conversationId, 'messages'],
     enabled: !!conversationId && !!user,
-    refetchInterval: 3000 // Refresh messages every 3 seconds
+    refetchInterval: 1000, // Refresh messages every 1 second for real-time feel
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache results (gcTime replaces cacheTime in v5)
+    refetchOnWindowFocus: true,
+    refetchOnMount: true
   });
 
   const sendMessageMutation = useMutation({
@@ -51,7 +55,8 @@ export default function ConversationDetail() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Cache-Control': 'no-cache'
         },
         body: JSON.stringify({ content })
       });
@@ -62,8 +67,14 @@ export default function ConversationDetail() {
     },
     onSuccess: () => {
       setNewMessage("");
+      // Force cache invalidation and refetch
+      queryClient.removeQueries({ queryKey: ['/api/messages/conversations', conversationId, 'messages'] });
       queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations', conversationId, 'messages'] });
       queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations'] });
+      // Force immediate refetch
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/messages/conversations', conversationId, 'messages'] });
+      }, 100);
     }
   });
 

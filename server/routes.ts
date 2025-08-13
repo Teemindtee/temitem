@@ -832,6 +832,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { conversationId } = req.params;
       
+      // Prevent caching of messages
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       // TODO: Add permission check to ensure user is part of the conversation
       const messages = await storage.getMessages(conversationId);
       
