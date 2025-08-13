@@ -19,15 +19,15 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
   };
 
   return (
-    <header className="bg-red-600 text-white px-6 py-4">
+    <header className="bg-red-600 text-white px-4 sm:px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <Handshake className="w-6 h-6" />
-          <span className="text-xl font-bold">FinderMeister</span>
+          <Handshake className="w-5 h-5 sm:w-6 sm:h-6" />
+          <span className="text-lg sm:text-xl font-bold">FinderMeister</span>
         </Link>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
+        <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
           {user ? (
             <>
               <Link 

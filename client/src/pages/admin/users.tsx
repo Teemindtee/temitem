@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import AdminHeader from "@/components/admin-header";
 import { 
   ArrowLeft,
   Users, 
@@ -135,29 +136,9 @@ export default function AdminUsers() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link href="/admin/dashboard">
-              <Button variant="ghost" className="text-white hover:bg-red-700 p-2">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div className="flex items-center space-x-2">
-              <Shield className="w-6 h-6" />
-              <span className="text-xl font-bold">User Management</span>
-            </div>
-          </div>
-          <Link href="/admin/dashboard">
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-red-600">
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <AdminHeader currentPage="users" />
 
-      <div className="max-w-6xl mx-auto py-8 px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Page Header */}
         <div className="flex justify-between items-center mb-8">
           <div>

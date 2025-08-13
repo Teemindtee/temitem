@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/use-auth";
-import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit } from "lucide-react";
+import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu } from "lucide-react";
 
 interface AdminHeaderProps {
   currentPage?: string;
@@ -9,6 +11,7 @@ interface AdminHeaderProps {
 
 export default function AdminHeader({ currentPage }: AdminHeaderProps) {
   const { logout } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -28,54 +31,100 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center h-16 px-6">
-          {/* Logo and Navigation */}
-          <div className="flex items-center space-x-8">
-            <Link href="/admin/dashboard">
-              <div className="flex items-center space-x-3">
-                <div className="bg-red-600 p-2 rounded-lg">
-                  <User className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <span className="text-xl font-bold text-gray-900">FinderMeister</span>
-                  <span className="text-sm text-gray-500 ml-2">Admin</span>
-                </div>
+        <div className="flex justify-between items-center h-16 px-4 sm:px-6">
+          {/* Logo */}
+          <Link href="/admin/dashboard">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="bg-red-600 p-1.5 sm:p-2 rounded-lg">
+                <User className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-            </Link>
+              <div>
+                <span className="text-lg sm:text-xl font-bold text-gray-900">FinderMeister</span>
+                <span className="text-xs sm:text-sm text-gray-500 ml-1 sm:ml-2 hidden sm:inline">Admin</span>
+              </div>
+            </div>
+          </Link>
 
-            {/* Navigation Menu */}
-            <nav className="hidden md:flex space-x-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link key={item.id} href={item.path}>
-                    <Button
-                      variant={currentPage === item.id ? "default" : "ghost"}
-                      className={`flex items-center space-x-2 ${
-                        currentPage === item.id 
-                          ? "bg-red-600 hover:bg-red-700 text-white" 
-                          : "text-gray-700 hover:text-gray-900"
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                      <span>{item.label}</span>
-                    </Button>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex space-x-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.id} href={item.path}>
+                  <Button
+                    variant={currentPage === item.id ? "default" : "ghost"}
+                    size="sm"
+                    className={`flex items-center space-x-2 ${
+                      currentPage === item.id 
+                        ? "bg-red-600 hover:bg-red-700 text-white" 
+                        : "text-gray-700 hover:text-gray-900"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="text-sm">{item.label}</span>
+                  </Button>
+                </Link>
+              );
+            })}
+          </nav>
 
-          {/* User Actions */}
-          <div className="flex items-center space-x-4">
+          {/* Mobile Navigation & Actions */}
+          <div className="flex items-center space-x-2">
+            {/* Desktop Logout */}
             <Button 
               variant="outline" 
+              size="sm"
               onClick={handleLogout}
-              className="flex items-center space-x-2"
+              className="hidden sm:flex items-center space-x-2"
             >
               <LogOut className="w-4 h-4" />
-              <span>Logout</span>
+              <span className="hidden md:inline">Logout</span>
             </Button>
+
+            {/* Mobile Menu */}
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="lg:hidden">
+                  <Menu className="w-4 h-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px]">
+                <div className="flex flex-col space-y-4 mt-8">
+                  <div className="text-lg font-semibold text-gray-900 mb-4">Admin Panel</div>
+                  
+                  {navItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link key={item.id} href={item.path}>
+                        <Button
+                          variant={currentPage === item.id ? "default" : "ghost"}
+                          className={`w-full justify-start space-x-3 ${
+                            currentPage === item.id 
+                              ? "bg-red-600 hover:bg-red-700 text-white" 
+                              : "text-gray-700 hover:text-gray-900"
+                          }`}
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <Icon className="w-5 h-5" />
+                          <span>{item.label}</span>
+                        </Button>
+                      </Link>
+                    );
+                  })}
+                  
+                  <div className="border-t pt-4 mt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={handleLogout}
+                      className="w-full justify-start space-x-3"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span>Logout</span>
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>
