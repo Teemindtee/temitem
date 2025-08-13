@@ -29,6 +29,7 @@ import AdminWithdrawals from "@/pages/admin/withdrawals";
 import AdminBlogPosts from "@/pages/admin/blog-posts";
 import AdminBlogPostCreate from "@/pages/admin/blog-post-create";
 import AdminBlogPostEdit from "@/pages/admin/blog-post-edit";
+import BlogPost from "@/pages/blog-post";
 import Messages from "@/pages/Messages";
 import ConversationDetail from "@/pages/ConversationDetail";
 import FinderPublicProfile from "@/pages/finder-profile";
@@ -75,6 +76,7 @@ function Router() {
       <Route path="/admin/blog-posts" component={AdminBlogPosts} />
       <Route path="/admin/blog-posts/create" component={AdminBlogPostCreate} />
       <Route path="/admin/blog-posts/edit/:id" component={AdminBlogPostEdit} />
+      <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/messages" component={Messages} />
       <Route path="/messages/:conversationId" component={ConversationDetail} />
       <Route path="/finder-profile/:finderId" component={FinderPublicProfile} />

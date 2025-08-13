@@ -1441,6 +1441,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public blog post route (by slug)
+  app.get("/api/blog/:slug", async (req: Request, res: Response) => {
+    try {
+      const { slug } = req.params;
+      const post = await storage.getBlogPostBySlug(slug);
+
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+
+      // Only return published posts for public access
+      if (!post.isPublished) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+
+      res.json(post);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to fetch blog post", error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
