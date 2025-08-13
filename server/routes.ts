@@ -383,15 +383,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Request not found" });
       }
 
-      // Only the client who posted the request can view proposals
+      // Only the client who posted the request can view ALL proposals
       if (req.user.role === 'client' && request.clientId !== req.user.userId) {
         return res.status(403).json({ message: "Access denied" });
+      }
+
+      // If finder is accessing, they should use /finder/requests/:id/proposals instead
+      if (req.user.role === 'finder') {
+        return res.status(403).json({ message: "Finders should use finder-specific endpoints" });
       }
 
       const proposals = await storage.getProposalsByRequestId(id);
       res.json(proposals);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch proposals" });
+    }
+  });
+
+  // Finder-specific route to see only their own proposals for a request (like comments)
+  app.get("/api/finder/requests/:id/proposals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: "Only finders can use this endpoint" });
+      }
+
+      const request = await storage.getRequest(id);
+      if (!request) {
+        return res.status(404).json({ message: "Request not found" });
+      }
+
+      // Get finder profile
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder profile not found" });
+      }
+
+      // Get only this finder's proposals for this request (like seeing only your own comments)
+      const proposal = await storage.getProposalByFinderAndRequest(finder.id, id);
+      res.json(proposal ? [proposal] : []);
+    } catch (error) {
+      console.error('Finder request proposals error:', error);
+      res.status(500).json({ message: "Failed to fetch your proposals" });
     }
   });
 

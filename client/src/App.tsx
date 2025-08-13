@@ -20,6 +20,7 @@ import FinderBrowseRequests from "@/pages/finder/browse-requests";
 import FinderRequestDetails from "@/pages/finder/request-details";
 import FinderProposals from "@/pages/finder/proposals";
 import FinderProposalDetails from "@/pages/finder/proposal-details";
+import ProposalDetail from "@/pages/client/proposal-detail";
 import AdminDashboard from "@/pages/admin/dashboard";
 import Messages from "@/pages/Messages";
 import ConversationDetail from "@/pages/ConversationDetail";
@@ -36,6 +37,7 @@ function Router() {
       <Route path="/client/create-request" component={CreateRequest} />
       <Route path="/client/requests/:id" component={RequestDetails} />
       <Route path="/client/proposals" component={ViewProposals} />
+      <Route path="/client/proposals/:id" component={ProposalDetail} />
       <Route path="/client/browse-requests" component={ClientBrowseRequests} />
       <Route path="/client/profile" component={ClientProfile} />
       <Route path="/client/change-password" component={ChangePassword} />

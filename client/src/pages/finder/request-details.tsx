@@ -33,8 +33,9 @@ export default function FinderRequestDetails() {
     enabled: !!requestId && !!user
   });
 
+  // For finders, only show their own proposals (like comments under a post)
   const { data: proposals = [], isLoading: proposalsLoading } = useQuery<Proposal[]>({
-    queryKey: ['/api/requests', requestId, 'proposals'],
+    queryKey: ['/api/finder/requests', requestId, 'proposals'],
     enabled: !!requestId && !!user && !!request
   });
 

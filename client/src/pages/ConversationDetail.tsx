@@ -84,11 +84,12 @@ export default function ConversationDetail() {
 
   const getOtherParty = () => {
     if (!messages.length) return null;
-    const otherMessage = messages.find(m => m.senderId !== user?.id);
-    if (otherMessage) {
+    const userId = user?.id?.toString();
+    const otherMessage = messages.find(m => m.senderId !== userId);
+    if (otherMessage && otherMessage.sender) {
       return `${otherMessage.sender.firstName} ${otherMessage.sender.lastName}`;
     }
-    return null;
+    return "Other User";
   };
 
   if (!user) {
@@ -165,23 +166,23 @@ export default function ConversationDetail() {
               <div
                 key={message.id}
                 className={`flex ${
-                  message.senderId === user?.id ? 'justify-end' : 'justify-start'
+                  message.senderId === user?.id?.toString() ? 'justify-end' : 'justify-start'
                 }`}
               >
                 <div
                   className={`flex items-start space-x-3 max-w-xs md:max-w-md lg:max-w-lg ${
-                    message.senderId === user?.id ? 'flex-row-reverse space-x-reverse' : ''
+                    message.senderId === user?.id?.toString() ? 'flex-row-reverse space-x-reverse' : ''
                   }`}
                 >
                   <Avatar className="w-8 h-8 flex-shrink-0">
                     <AvatarFallback>
-                      {message.sender.firstName.charAt(0)}
-                      {message.sender.lastName.charAt(0)}
+                      {message.sender?.firstName?.charAt(0) || 'U'}
+                      {message.sender?.lastName?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div
                     className={`px-4 py-2 rounded-lg ${
-                      message.senderId === user?.id
+                      message.senderId === user?.id?.toString()
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                     }`}
@@ -189,7 +190,7 @@ export default function ConversationDetail() {
                     <p className="text-sm">{message.content}</p>
                     <p
                       className={`text-xs mt-1 ${
-                        message.senderId === user?.id
+                        message.senderId === user?.id?.toString()
                           ? 'text-blue-100'
                           : 'text-gray-500 dark:text-gray-400'
                       }`}
