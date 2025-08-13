@@ -202,11 +202,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAvailableRequestsForFinders(): Promise<Request[]> {
-    // Get all active requests that don't have any accepted proposals
+    // Get all open requests that don't have any accepted proposals
     const availableRequests = await db
       .select()
       .from(requests)
-      .where(eq(requests.status, "active"))
+      .where(eq(requests.status, "open"))
       .orderBy(desc(requests.createdAt));
     
     // Filter out requests that have accepted proposals
