@@ -19,52 +19,11 @@ export default function RequestDetails() {
 
   const { data: request, isLoading: requestLoading } = useQuery<Request>({
     queryKey: ['/api/requests', requestId],
-    queryFn: async () => {
-      // First try to get from client's own requests
-      try {
-        const response = await fetch(`/api/client/requests`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          },
-        });
-        const requests = await response.json();
-        const foundRequest = requests.find((r: Request) => r.id === requestId);
-        if (foundRequest) return foundRequest;
-      } catch (error) {
-        console.log('Not found in client requests, trying general requests');
-      }
-      
-      // If not found in client's requests, try general requests endpoint
-      const response = await fetch(`/api/requests`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-        },
-      });
-      const requests = await response.json();
-      return requests.find((r: Request) => r.id === requestId);
-    },
     enabled: !!requestId && !!user
   });
 
   const { data: proposals = [], isLoading: proposalsLoading } = useQuery<Proposal[]>({
     queryKey: ['/api/requests', requestId, 'proposals'],
-    queryFn: async () => {
-      try {
-        const response = await fetch(`/api/requests/${requestId}/proposals`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-          },
-        });
-        if (response.ok) {
-          return await response.json();
-        }
-        // If user can't access proposals for this request, return empty array
-        return [];
-      } catch (error) {
-        console.log('Could not fetch proposals for this request');
-        return [];
-      }
-    },
     enabled: !!requestId && !!user && !!request
   });
 

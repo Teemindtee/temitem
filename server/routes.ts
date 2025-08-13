@@ -140,6 +140,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/requests/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const request = await storage.getRequest(id);
+      
+      if (!request) {
+        return res.status(404).json({ message: "Request not found" });
+      }
+
+      res.json(request);
+    } catch (error) {
+      console.error('Get request error:', error);
+      res.status(500).json({ message: "Failed to fetch request" });
+    }
+  });
+
   // Finder-specific routes
   app.get("/api/finder/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
