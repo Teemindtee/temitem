@@ -25,6 +25,7 @@ function authenticateToken(req: AuthenticatedRequest, res: Response, next: NextF
     if (err) {
       return res.status(403).json({ message: 'Invalid or expired token' });
     }
+
     req.user = user;
     next();
   });
@@ -1348,11 +1349,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const blogPostData = insertBlogPostSchema.parse(req.body);
+      // Add authorId to request body before validation
+      const userId = req.user.userId;
+      
+      const requestWithAuthor = {
+        ...req.body,
+        authorId: userId
+      };
+      
+      const blogPostData = insertBlogPostSchema.parse(requestWithAuthor);
       
       const post = await storage.createBlogPost({
         ...blogPostData,
-        authorId: req.user.userId,
         publishedAt: blogPostData.isPublished ? new Date() : null
       });
 
