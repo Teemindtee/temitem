@@ -74,7 +74,7 @@ export default function ClientDashboard() {
                 <Clock className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Active Requests</h3>
-              <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Request) => r.status === 'active').length}</p>
+              <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Request) => r.status === 'open').length}</p>
               <p className="text-gray-600 text-sm">Requests waiting for proposals</p>
             </CardContent>
           </Card>

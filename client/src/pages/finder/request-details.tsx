@@ -74,8 +74,9 @@ export default function FinderRequestDetails() {
   });
 
   // Check if user already submitted a proposal for this request
-  // Note: We'll need to get the finder ID from a separate query or user object structure
-  const userProposal = proposals.find(p => p.finderId === user?.id);
+  // Since we're using the finder-specific API that only returns their own proposals,
+  // if proposals array has any item, it means the finder already submitted a proposal
+  const userProposal = proposals.length > 0 ? proposals[0] : null;
 
   if (requestLoading || proposalsLoading) {
     return (
@@ -233,7 +234,7 @@ export default function FinderRequestDetails() {
                       </div>
                     )}
                   </div>
-                ) : request.status === 'active' ? (
+                ) : request.status === 'open' ? (
                   // Show proposal form
                   <div>
                     {!showProposalForm ? (
