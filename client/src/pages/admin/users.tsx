@@ -33,8 +33,10 @@ export default function AdminUsers() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const verifyUserMutation = useMutation({
-    mutationFn: ({ userId, action }: { userId: string; action: 'verify' | 'unverify' }) =>
-      apiRequest(`/api/admin/users/${userId}/${action}`, { method: 'POST' }),
+    mutationFn: async ({ userId, action }: { userId: string; action: 'verify' | 'unverify' }) => {
+      const response = await apiRequest('POST', `/api/admin/users/${userId}/${action}`);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
       toast({
@@ -52,11 +54,11 @@ export default function AdminUsers() {
   });
 
   const banUserMutation = useMutation({
-    mutationFn: ({ userId, action, reason }: { userId: string; action: 'ban' | 'unban'; reason?: string }) =>
-      apiRequest(`/api/admin/users/${userId}/${action}`, { 
-        method: 'POST', 
-        body: action === 'ban' ? { reason } : undefined 
-      }),
+    mutationFn: async ({ userId, action, reason }: { userId: string; action: 'ban' | 'unban'; reason?: string }) => {
+      const response = await apiRequest('POST', `/api/admin/users/${userId}/${action}`, 
+        action === 'ban' ? { reason } : undefined);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
       setSelectedUser(null);

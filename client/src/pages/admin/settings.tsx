@@ -41,8 +41,10 @@ export default function AdminSettings() {
   });
 
   const createCategoryMutation = useMutation({
-    mutationFn: (data: { name: string; description: string }) =>
-      apiRequest('/api/admin/categories', { method: 'POST', body: data }),
+    mutationFn: async (data: { name: string; description: string }) => {
+      const response = await apiRequest('POST', '/api/admin/categories', data);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
       setNewCategoryName("");
@@ -62,9 +64,10 @@ export default function AdminSettings() {
   });
 
   const updateSettingsMutation = useMutation({
-    mutationFn: (data: { proposalTokenCost: string }) => {
+    mutationFn: async (data: { proposalTokenCost: string }) => {
       console.log('Sending API request with data:', data);
-      return apiRequest('/api/admin/settings', { method: 'PUT', body: data });
+      const response = await apiRequest('PUT', '/api/admin/settings', data);
+      return response.json();
     },
     onSuccess: (data) => {
       console.log('Settings update successful:', data);
@@ -86,8 +89,10 @@ export default function AdminSettings() {
   });
 
   const deleteCategoryMutation = useMutation({
-    mutationFn: (id: string) =>
-      apiRequest(`/api/admin/categories/${id}`, { method: 'DELETE' }),
+    mutationFn: async (id: string) => {
+      const response = await apiRequest('DELETE', `/api/admin/categories/${id}`);
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
       toast({

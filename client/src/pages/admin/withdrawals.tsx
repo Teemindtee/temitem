@@ -37,11 +37,10 @@ export default function AdminWithdrawals() {
   });
 
   const updateWithdrawalMutation = useMutation({
-    mutationFn: ({ id, status, adminNotes }: { id: string; status: string; adminNotes: string }) =>
-      apiRequest(`/api/admin/withdrawals/${id}`, { 
-        method: 'PUT', 
-        body: { status, adminNotes } 
-      }),
+    mutationFn: async ({ id, status, adminNotes }: { id: string; status: string; adminNotes: string }) => {
+      const response = await apiRequest('PUT', `/api/admin/withdrawals/${id}`, { status, adminNotes });
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/withdrawals'] });
       setSelectedWithdrawal(null);
