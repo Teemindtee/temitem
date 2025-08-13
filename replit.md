@@ -1,0 +1,84 @@
+# Overview
+
+FinderMeister is a full-stack service marketplace platform that connects clients who need help finding products or services with freelance "finders" who can assist them. The application features role-based authentication (clients, finders, and admins), a token-based proposal system, escrow functionality, and comprehensive user management capabilities.
+
+# User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+# System Architecture
+
+## Frontend Architecture
+- **React SPA**: Built with React 18 using TypeScript for type safety
+- **Routing**: Client-side routing implemented with Wouter for lightweight navigation
+- **State Management**: TanStack Query for server state management and React hooks for local state
+- **UI Framework**: Shadcn/ui components built on Radix UI primitives with Tailwind CSS for styling
+- **Authentication**: JWT-based authentication with protected routes and role-based access control
+- **Responsive Design**: Mobile-first approach with dedicated mobile navigation component
+
+## Backend Architecture
+- **Runtime**: Node.js with Express.js framework
+- **Database ORM**: Drizzle ORM for type-safe database operations
+- **Authentication**: JWT tokens with bcrypt password hashing
+- **API Design**: RESTful API structure with middleware for authentication and error handling
+- **Development Setup**: Vite for development server with hot module replacement
+
+## Database Design
+- **Database**: PostgreSQL with Neon serverless hosting
+- **Schema Management**: Drizzle migrations for version control
+- **Key Entities**:
+  - Users (clients, finders, admins) with role-based permissions
+  - Finders with profile metrics (jobs completed, earnings, ratings)
+  - Requests from clients with budget ranges and status tracking
+  - Proposals from finders with token-based submission system
+  - Contracts and escrow for payment management
+  - Token system for finder proposal submissions
+  - Reviews and ratings for completed work
+
+## Authentication & Authorization
+- **JWT Implementation**: Stateless authentication with secure token storage
+- **Role-Based Access**: Three distinct user roles with different permissions
+- **Protected Routes**: Client-side route protection based on authentication status
+- **Password Security**: Bcrypt hashing with salt rounds for secure password storage
+
+## Token Economy System
+- **Proposal Tokens**: Finders must spend tokens to submit proposals
+- **Payment Integration**: Ready for Paystack integration for token purchases
+- **Escrow System**: Secure payment holding until work completion and approval
+
+## Development & Deployment
+- **Build System**: Vite for frontend bundling and esbuild for backend compilation
+- **TypeScript**: Full TypeScript implementation across frontend, backend, and shared schemas
+- **Environment Configuration**: Separate development and production configurations
+- **Code Organization**: Monorepo structure with shared types and schemas
+
+# External Dependencies
+
+## Database & Storage
+- **Neon PostgreSQL**: Serverless PostgreSQL database with connection pooling
+- **Drizzle ORM**: Type-safe database operations and schema management
+
+## UI & Styling
+- **Radix UI**: Headless component primitives for accessibility
+- **Tailwind CSS**: Utility-first CSS framework for responsive design
+- **Shadcn/ui**: Pre-built component library built on Radix primitives
+
+## Authentication & Security
+- **JWT (jsonwebtoken)**: Token-based authentication
+- **bcrypt**: Password hashing and validation
+- **Zod**: Runtime type validation for API requests
+
+## State Management & Data Fetching
+- **TanStack Query**: Server state management with caching and synchronization
+- **React Hook Form**: Form state management with validation
+
+## Development Tools
+- **Vite**: Frontend build tool and development server
+- **TypeScript**: Static type checking across the entire application
+- **ESBuild**: Fast JavaScript bundler for production builds
+
+## Payment Processing (Planned)
+- **Paystack**: Payment gateway for token purchases and escrow transactions
+
+## Routing & Navigation
+- **Wouter**: Lightweight React router for client-side navigation
