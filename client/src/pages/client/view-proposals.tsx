@@ -66,7 +66,7 @@ export default function ViewProposals() {
           </Link>
           <nav className="flex items-center space-x-6">
             <Link href="/client/dashboard" className="hover:underline">My Requests</Link>
-            <Link href="/finder/browse-requests" className="hover:underline">Browse Requests</Link>
+            <Link href="/client/browse-requests" className="hover:underline">Browse Requests</Link>
             <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">David</span>
             <Button 
               onClick={handleLogout}
