@@ -33,12 +33,16 @@ import FinderProfile from "@/pages/finder/profile";
 import FinderTokens from "@/pages/finder/tokens";
 import FinderWithdrawals from "@/pages/finder/withdrawals";
 import FinderSecurity from "@/pages/finder/security";
+import MobileLanding from "@/pages/mobile-landing";
+import ClientMobileDashboard from "@/pages/client/mobile-dashboard";
 import { AuthProvider } from "@/hooks/use-auth";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
+      <Route path="/mobile" component={MobileLanding} />
+      <Route path="/client/mobile-dashboard" component={ClientMobileDashboard} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/register/finder" component={RegisterFinder} />

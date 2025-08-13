@@ -19,6 +19,58 @@ export default function Landing() {
     }
   }
 
+  // Check if mobile view is needed
+  const isMobile = window.innerWidth < 640;
+
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Mobile-First Layout */}
+        <div className="max-w-sm mx-auto min-h-screen bg-white shadow-xl relative">
+          {/* Header with Logo */}
+          <div className="bg-red-600 px-6 py-4 flex items-center rounded-t-3xl">
+            <div className="bg-white p-2 rounded-lg mr-3">
+              <Search className="h-6 w-6 text-red-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-white">FinderMeister</h1>
+          </div>
+
+          {/* Main Content */}
+          <div className="px-6 py-12 flex flex-col justify-center min-h-[calc(100vh-80px)]">
+            {/* Title */}
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-6 leading-tight">
+                Trouble Finding<br />
+                a Product or<br />
+                Service?
+              </h2>
+              <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+                Connect with finders who can help you search for what you need.
+              </p>
+            </div>
+
+            {/* CTA Button */}
+            <div className="mb-16">
+              <Link href="/register">
+                <Button className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+
+            {/* Bottom Tagline */}
+            <div className="text-center mt-auto">
+              <p className="text-gray-500 text-base font-medium">
+                One successful find<br />
+                at a time
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
