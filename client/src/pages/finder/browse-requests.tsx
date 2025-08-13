@@ -52,42 +52,43 @@ export default function BrowseRequests() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
+      <header className="bg-red-600 text-white px-4 sm:px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <Handshake className="w-6 h-6" />
-            <span className="text-xl font-bold">FinderMeister</span>
+            <span className="text-lg sm:text-xl font-bold">FinderMeister</span>
           </Link>
-          <nav className="flex items-center space-x-6">
-            <Link href="/finder/dashboard" className="hover:underline">Dashboard</Link>
-            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Browse Requests</span>
+          <nav className="flex items-center space-x-2 sm:space-x-6">
+            <Link href="/finder/dashboard" className="hidden sm:inline hover:underline">Dashboard</Link>
+            <span className="bg-white text-red-600 px-2 sm:px-3 py-1 rounded text-sm sm:text-base font-medium">Browse</span>
             <Button 
               onClick={handleLogout}
               variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-red-600"
+              className="border-white text-white hover:bg-white hover:text-red-600 px-2 sm:px-4 text-sm"
             >
-              Log Out
+              <span className="hidden sm:inline">Log Out</span>
+              <span className="sm:hidden">Exit</span>
             </Button>
           </nav>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto py-8 px-6">
-        <div className="mb-8">
+      <div className="max-w-6xl mx-auto py-4 sm:py-8 px-4 sm:px-6">
+        <div className="mb-6 sm:mb-8">
           <Link href="/finder/dashboard" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Browse Requests</h1>
-          <p className="text-gray-600">Find opportunities that match your skills and interests.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Browse Requests</h1>
+          <p className="text-gray-600 text-sm sm:text-base">Find opportunities that match your skills and interests.</p>
         </div>
 
         {/* Search and Filters */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="grid md:grid-cols-4 gap-4">
-              <div className="md:col-span-2">
+        <Card className="mb-6 sm:mb-8">
+          <CardContent className="p-4 sm:p-6">
+            <div className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
+              <div className="sm:col-span-2 lg:col-span-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
@@ -150,37 +151,43 @@ export default function BrowseRequests() {
           ) : (
             filteredRequests.map((request: Request) => (
               <Card key={request.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">{request.title}</h3>
-                      <p className="text-gray-600 mb-4">{request.description}</p>
-                      
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                        <div className="flex items-center">
-                          <DollarSign className="w-4 h-4 mr-1" />
-                          <span>${request.budgetMin} - ${request.budgetMax}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          <span>{new Date(request.createdAt || "").toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Filter className="w-4 h-4 mr-1" />
-                          <span className="capitalize">{request.category.replace('_', ' ')}</span>
-                        </div>
+                <CardContent className="p-4 sm:p-6">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 break-words">{request.title}</h3>
+                        <p className="text-gray-600 mb-4 text-sm sm:text-base line-clamp-3">{request.description}</p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <span className={`px-2 sm:px-3 py-1 text-xs rounded-full font-medium whitespace-nowrap ${
+                          request.status === 'open' ? 'bg-green-100 text-green-700' :
+                          'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {request.status === 'open' ? 'Open' : 'In Progress'}
+                        </span>
                       </div>
                     </div>
-                    <div className="ml-6 flex flex-col items-end">
-                      <span className={`px-3 py-1 text-xs rounded-full font-medium mb-3 ${
-                        request.status === 'open' ? 'bg-green-100 text-green-700' :
-                        'bg-yellow-100 text-yellow-700'
-                      }`}>
-                        {request.status === 'open' ? 'Open' : 'In Progress'}
-                      </span>
+                    
+                    <div className="flex flex-wrap gap-3 sm:gap-4 text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <DollarSign className="w-4 h-4 mr-1 flex-shrink-0" />
+                        <span>${request.budgetMin} - ${request.budgetMax}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
+                        <span>{new Date(request.createdAt || "").toLocaleDateString()}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Filter className="w-4 h-4 mr-1 flex-shrink-0" />
+                        <span className="capitalize">{request.category.replace('_', ' ')}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-end pt-2">
                       <Link href={`/finder/requests/${request.id}`}>
-                        <Button className="bg-red-600 hover:bg-red-700 text-white">
-                          View Details
+                        <Button className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto">
+                          <span className="sm:hidden">View</span>
+                          <span className="hidden sm:inline">View Details</span>
                         </Button>
                       </Link>
                     </div>
