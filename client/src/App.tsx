@@ -19,6 +19,7 @@ import FinderDashboard from "@/pages/finder/dashboard";
 import FinderBrowseRequests from "@/pages/finder/browse-requests";
 import FinderRequestDetails from "@/pages/finder/request-details";
 import FinderProposals from "@/pages/finder/proposals";
+import FinderProposalDetails from "@/pages/finder/proposal-details";
 import AdminDashboard from "@/pages/admin/dashboard";
 import { AuthProvider } from "@/hooks/use-auth";
 
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/finder/browse-requests" component={FinderBrowseRequests} />
       <Route path="/finder/requests/:id" component={FinderRequestDetails} />
       <Route path="/finder/proposals" component={FinderProposals} />
+      <Route path="/finder/proposals/:id" component={FinderProposalDetails} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>

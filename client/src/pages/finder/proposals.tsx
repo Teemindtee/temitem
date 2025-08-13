@@ -207,7 +207,12 @@ export default function FinderProposals() {
                         )}
                       </div>
                       
-                      <div className="ml-6">
+                      <div className="ml-6 flex gap-2">
+                        <Link href={`/finder/proposals/${proposal.id}`}>
+                          <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+                            View Details
+                          </Button>
+                        </Link>
                         <Link href={`/finder/requests/${proposal.requestId}`}>
                           <Button variant="outline" size="sm">
                             View Request
