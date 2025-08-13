@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Handshake, Plus, Clock, CheckCircle, Search, User as UserIcon } from "lucide-react";
+import { Plus, Clock, CheckCircle, Search, User as UserIcon } from "lucide-react";
+import ClientHeader from "@/components/client-header";
 import { apiRequest } from "@/lib/queryClient";
 import type { Request, Proposal, User } from "@shared/schema";
 
@@ -41,27 +42,7 @@ export default function ClientDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
-            <span className="text-xl font-bold">FinderMeister</span>
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">My Requests</span>
-            <Link href="/client/browse-requests" className="text-white hover:underline cursor-pointer">Browse Requests</Link>
-            <Link href="/client/proposals" className="text-white hover:underline cursor-pointer">View Proposals</Link>
-            <Button 
-              onClick={handleLogout}
-              variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-red-600 bg-transparent"
-            >
-              Log Out
-            </Button>
-          </nav>
-        </div>
-      </header>
+      <ClientHeader currentPage="dashboard" />
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto py-8 px-6">

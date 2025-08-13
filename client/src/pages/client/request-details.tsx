@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Handshake, ArrowLeft, Clock, DollarSign, MapPin, User, Star, MessageCircle } from "lucide-react";
+import { ArrowLeft, Clock, DollarSign, MapPin, User, Star, MessageCircle } from "lucide-react";
+import ClientHeader from "@/components/client-header";
 import { apiRequest } from "@/lib/queryClient";
 import type { Request, Proposal } from "@shared/schema";
 
@@ -78,26 +79,7 @@ export default function RequestDetails() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
-            <span className="text-xl font-bold">FinderMeister</span>
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <Link href="/client/dashboard" className="hover:underline">Dashboard</Link>
-            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Request Details</span>
-            <Button 
-              onClick={handleLogout}
-              variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-red-600 bg-transparent"
-            >
-              Log Out
-            </Button>
-          </nav>
-        </div>
-      </header>
+      <ClientHeader />
 
       {/* Back Button */}
       <div className="max-w-6xl mx-auto py-4 px-6">
