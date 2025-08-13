@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useParams } from "wouter";
 import { ArrowLeft, Save } from "lucide-react";
 import AdminHeader from "@/components/admin-header";
 import { useToast } from "@/hooks/use-toast";
@@ -16,66 +16,90 @@ import { insertBlogPostSchema } from "@shared/schema";
 import { z } from "zod";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import React from "react";
 
-// Enhanced schema with slug generation
-const createBlogPostSchema = insertBlogPostSchema.extend({
+// Enhanced schema for editing
+const editBlogPostSchema = insertBlogPostSchema.extend({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   excerpt: z.string().optional(),
   isPublished: z.boolean().default(false),
-}).omit({ slug: true, authorId: true });
+}).omit({ authorId: true });
 
-type CreateBlogPostForm = z.infer<typeof createBlogPostSchema>;
+type EditBlogPostForm = z.infer<typeof editBlogPostSchema>;
 
-export default function AdminBlogPostCreate() {
+export default function AdminBlogPostEdit() {
+  const params = useParams();
+  const postId = params?.id;
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm<CreateBlogPostForm>({
-    resolver: zodResolver(createBlogPostSchema),
+  // Fetch existing blog post
+  const { data: post, isLoading } = useQuery({
+    queryKey: [`/api/admin/blog-posts/${postId}`],
+    enabled: !!postId,
+  });
+
+  const form = useForm<EditBlogPostForm>({
+    resolver: zodResolver(editBlogPostSchema),
     defaultValues: {
       title: "",
+      slug: "",
       content: "",
       excerpt: "",
       isPublished: false,
     },
   });
 
-  const createMutation = useMutation({
-    mutationFn: (data: CreateBlogPostForm) => {
-      // Generate slug from title
+  // Update form when post data loads
+  React.useEffect(() => {
+    if (post) {
+      form.reset({
+        title: post.title,
+        slug: post.slug,
+        content: post.content,
+        excerpt: post.excerpt || "",
+        isPublished: post.isPublished,
+      });
+    }
+  }, [post, form]);
+
+  const updateMutation = useMutation({
+    mutationFn: (data: EditBlogPostForm) => {
+      // Generate slug from title if changed
       const slug = data.title
         .toLowerCase()
-        .replace(/[^\w\s-]/g, '') // Remove special chars
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/--+/g, '-') // Replace multiple hyphens with single
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/--+/g, '-')
         .trim();
 
-      return apiRequest('/api/admin/blog-posts', {
-        method: 'POST',
+      return apiRequest(`/api/admin/blog-posts/${postId}`, {
+        method: 'PUT',
         body: JSON.stringify({ ...data, slug }),
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/blog-posts'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/blog-posts/${postId}`] });
       toast({
         title: "Success",
-        description: "Blog post created successfully",
+        description: "Blog post updated successfully",
       });
       navigate("/admin/blog-posts");
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to create blog post",
+        description: "Failed to update blog post",
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = (data: CreateBlogPostForm) => {
-    createMutation.mutate(data);
+  const onSubmit = (data: EditBlogPostForm) => {
+    updateMutation.mutate(data);
   };
 
   // Quill modules configuration
@@ -103,6 +127,28 @@ export default function AdminBlogPostCreate() {
     'link', 'image', 'video', 'blockquote', 'code-block'
   ];
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <AdminHeader currentPage="blog-posts" />
+        <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6">
+          <div className="text-center">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!post) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <AdminHeader currentPage="blog-posts" />
+        <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6">
+          <div className="text-center">Blog post not found</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader currentPage="blog-posts" />
@@ -116,8 +162,8 @@ export default function AdminBlogPostCreate() {
             </Button>
           </Link>
           <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Create New Blog Post</h1>
-            <p className="text-gray-600 mt-1">Write and publish engaging content</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Edit Blog Post</h1>
+            <p className="text-gray-600 mt-1">Update your blog content</p>
           </div>
         </div>
 
@@ -133,31 +179,18 @@ export default function AdminBlogPostCreate() {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title</FormLabel>
+                      <FormLabel>Post Title</FormLabel>
                       <FormControl>
                         <Input 
-                          placeholder="Enter post title..." 
+                          placeholder="Enter a compelling title..." 
                           {...field}
-                          className="text-lg"
+                          className="text-base sm:text-lg"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
-                {form.watch("title") && (
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">URL Preview:</span> /blog/{
-                      form.watch("title")
-                        .toLowerCase()
-                        .replace(/[^\w\s-]/g, '')
-                        .replace(/\s+/g, '-')
-                        .replace(/--+/g, '-')
-                        .trim()
-                    }
-                  </div>
-                )}
 
                 <FormField
                   control={form.control}
@@ -167,9 +200,10 @@ export default function AdminBlogPostCreate() {
                       <FormLabel>Excerpt (Optional)</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Brief description of the post..." 
-                          {...field}
+                          placeholder="Brief description or summary..."
+                          className="resize-none"
                           rows={3}
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -183,11 +217,9 @@ export default function AdminBlogPostCreate() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
-                        <FormLabel className="text-base">
-                          Publish immediately
-                        </FormLabel>
-                        <div className="text-sm text-gray-600">
-                          Make this post visible to readers
+                        <FormLabel className="text-base">Publish Status</FormLabel>
+                        <div className="text-sm text-muted-foreground">
+                          {field.value ? "This post will be publicly visible" : "This post will remain as draft"}
                         </div>
                       </div>
                       <FormControl>
@@ -213,14 +245,14 @@ export default function AdminBlogPostCreate() {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <div className="min-h-[400px] bg-white">
+                        <div className="min-h-[400px]">
                           <ReactQuill
                             theme="snow"
                             value={field.value}
                             onChange={field.onChange}
                             modules={quillModules}
                             formats={quillFormats}
-                            placeholder="Start writing your blog post..."
+                            className="bg-white"
                             style={{ height: '350px' }}
                           />
                         </div>
@@ -232,26 +264,21 @@ export default function AdminBlogPostCreate() {
               </CardContent>
             </Card>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button
+                type="submit"
+                disabled={updateMutation.isPending}
+                className="bg-red-600 hover:bg-red-700 text-white flex-1 sm:flex-none"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {updateMutation.isPending ? 'Updating...' : 'Update Post'}
+              </Button>
+              
               <Link href="/admin/blog-posts">
                 <Button type="button" variant="outline" className="w-full sm:w-auto">
                   Cancel
                 </Button>
               </Link>
-              <Button 
-                type="submit" 
-                className="bg-red-600 hover:bg-red-700 w-full sm:w-auto"
-                disabled={createMutation.isPending}
-              >
-                {createMutation.isPending ? (
-                  <>Creating...</>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 mr-2" />
-                    Create Post
-                  </>
-                )}
-              </Button>
             </div>
           </form>
         </Form>

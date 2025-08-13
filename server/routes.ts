@@ -1370,6 +1370,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get single blog post
+  app.get("/api/admin/blog-posts/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const post = await storage.getBlogPost(id);
+
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+
+      res.json(post);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to fetch blog post", error: error.message });
+    }
+  });
+
+  // Update blog post
+  app.put("/api/admin/blog-posts/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const userId = req.user.userId;
+      
+      const requestWithAuthor = {
+        ...req.body,
+        authorId: userId
+      };
+      
+      const blogPostData = insertBlogPostSchema.parse(requestWithAuthor);
+      
+      const post = await storage.updateBlogPost(id, {
+        ...blogPostData,
+        publishedAt: blogPostData.isPublished ? new Date() : null
+      });
+
+      if (!post) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+
+      res.json(post);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to update blog post", error: error.message });
+    }
+  });
+
   app.delete("/api/admin/blog-posts/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {
