@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, User } from "lucide-react";
 import ClientHeader from "@/components/client-header";
+import StartConversationButton from "@/components/StartConversationButton";
 import { apiRequest } from "@/lib/queryClient";
 import type { Proposal } from "@shared/schema";
 
@@ -140,17 +141,31 @@ export default function ViewProposals() {
 
                     {/* Action Button */}
                     <div className="col-span-3 text-right">
-                      {proposal.status === 'pending' ? (
-                        <Button 
-                          onClick={() => acceptProposal.mutate(proposal.id)}
-                          disabled={acceptProposal.isPending}
-                          className="bg-red-600 hover:bg-red-700 text-white px-6"
-                        >
-                          {acceptProposal.isPending ? 'Hiring...' : 'Hire Finder'}
-                        </Button>
-                      ) : (
-                        <Badge variant="secondary">Hired</Badge>
-                      )}
+                      <div className="space-y-2">
+                        {proposal.status === 'pending' ? (
+                          <>
+                            <Button 
+                              onClick={() => acceptProposal.mutate(proposal.id)}
+                              disabled={acceptProposal.isPending}
+                              className="bg-red-600 hover:bg-red-700 text-white px-6 w-full"
+                            >
+                              {acceptProposal.isPending ? 'Hiring...' : 'Hire Finder'}
+                            </Button>
+                            <StartConversationButton 
+                              proposalId={proposal.id} 
+                              className="w-full" 
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <Badge variant="secondary">Hired</Badge>
+                            <StartConversationButton 
+                              proposalId={proposal.id} 
+                              className="w-full mt-2" 
+                            />
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
 
