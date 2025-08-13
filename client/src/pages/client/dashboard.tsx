@@ -43,93 +43,117 @@ export default function ClientDashboard() {
     );
   }
 
-  // Mobile Dashboard Layout
+  // Mobile Dashboard Layout - Match exact mockup design
   if (isMobile) {
-    const userName = user ? `${user.firstName} ${user.lastName}` : "User";
+    const userName = user?.firstName || "Tosin";
 
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Mobile-First Layout */}
-        <div className="max-w-sm mx-auto min-h-screen bg-white shadow-xl">
-          {/* Header with User Info */}
-          <div className="bg-red-600 px-6 py-4 flex items-center justify-between rounded-t-3xl">
+        {/* Mobile Phone Frame */}
+        <div className="max-w-sm mx-auto min-h-screen bg-white shadow-2xl border border-gray-200 rounded-2xl overflow-hidden">
+          {/* Header with User Profile */}
+          <div className="bg-red-600 px-4 py-3 flex items-center justify-between">
             <div className="flex items-center">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
-                <span className="text-red-600 font-bold text-lg">
-                  {userName.charAt(0).toUpperCase()}
-                </span>
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3 shadow-sm">
+                <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center">
+                  <span className="text-xs text-white font-medium">👤</span>
+                </div>
               </div>
-              <span className="text-xl font-semibold text-white">{userName.split(' ')[0]}</span>
+              <span className="text-white text-xl font-semibold">{userName}</span>
             </div>
-            <ChevronRight className="h-6 w-6 text-white" />
+            <ChevronRight className="h-5 w-5 text-white" />
           </div>
 
-          {/* Dashboard Grid */}
-          <div className="p-6">
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              {/* Post a Request */}
+          {/* Main Content Area */}
+          <div className="px-4 py-6 bg-white flex-1">
+            {/* Action Grid - Exact 2x2 Layout */}
+            <div className="grid grid-cols-2 gap-4 mb-12">
+              {/* Post a Request - Top Left */}
               <Link href="/client/create-request">
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-32 flex flex-col">
-                  <CardContent className="flex-1 flex flex-col items-center justify-center p-4">
-                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-3">
-                      <FileEdit className="h-6 w-6 text-red-600" />
+                <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
+                  <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-1 bg-white rounded mb-1"></div>
+                      <div className="w-6 h-1 bg-white rounded mb-1"></div>
+                      <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
+                        <span className="text-red-600 text-xs font-bold">+</span>
+                      </div>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900 text-center">
-                      Post a<br />Request
-                    </span>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-gray-900 font-semibold text-sm leading-tight">Post a</div>
+                    <div className="text-gray-900 font-semibold text-sm leading-tight">Request</div>
+                  </div>
+                </div>
               </Link>
 
-              {/* View Proposals */}
+              {/* View Proposals - Top Right */}
               <Link href="/client/proposals">
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-32 flex flex-col">
-                  <CardContent className="flex-1 flex flex-col items-center justify-center p-4">
-                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-3">
-                      <Eye className="h-6 w-6 text-red-600" />
+                <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
+                  <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                    <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center relative">
+                      <div className="w-3 h-3 bg-white rounded-full"></div>
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full"></div>
+                      <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-white rounded-full"></div>
+                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-white rounded-full"></div>
+                      <div className="absolute -top-1 -left-1 w-3 h-3 bg-white rounded-full"></div>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900 text-center">
-                      View<br />Proposals
-                    </span>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-gray-900 font-semibold text-sm leading-tight">View</div>
+                    <div className="text-gray-900 font-semibold text-sm leading-tight">Proposals</div>
+                  </div>
+                </div>
               </Link>
 
-              {/* My Contracts */}
+              {/* My Contracts - Bottom Left */}
               <Link href="/client/browse-requests">
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-32 flex flex-col">
-                  <CardContent className="flex-1 flex flex-col items-center justify-center p-4">
-                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-3">
-                      <FileText className="h-6 w-6 text-red-600" />
+                <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
+                  <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                    <div className="flex flex-col space-y-1">
+                      <div className="w-8 h-1 bg-white rounded"></div>
+                      <div className="w-6 h-1 bg-white rounded"></div>
+                      <div className="w-7 h-1 bg-white rounded"></div>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900 text-center">
-                      My<br />Contracts
-                    </span>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-gray-900 font-semibold text-sm leading-tight">My</div>
+                    <div className="text-gray-900 font-semibold text-sm leading-tight">Contracts</div>
+                  </div>
+                </div>
               </Link>
 
-              {/* Settings */}
+              {/* Settings - Bottom Right */}
               <Link href="/client/profile">
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-32 flex flex-col">
-                  <CardContent className="flex-1 flex flex-col items-center justify-center p-4">
-                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-3">
-                      <Cog className="h-6 w-6 text-red-600" />
+                <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
+                  <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                    <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center relative">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                      <div className="absolute -top-1 w-1 h-3 bg-white rounded"></div>
+                      <div className="absolute -right-1 w-3 h-1 bg-white rounded"></div>
+                      <div className="absolute -bottom-1 w-1 h-3 bg-white rounded"></div>
+                      <div className="absolute -left-1 w-3 h-1 bg-white rounded"></div>
+                      <div className="absolute top-0 right-0 w-1 h-1 bg-white rounded-full"></div>
+                      <div className="absolute bottom-0 right-0 w-1 h-1 bg-white rounded-full"></div>
+                      <div className="absolute bottom-0 left-0 w-1 h-1 bg-white rounded-full"></div>
+                      <div className="absolute top-0 left-0 w-1 h-1 bg-white rounded-full"></div>
                     </div>
-                    <span className="text-sm font-semibold text-gray-900 text-center">
-                      Settings
-                    </span>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-gray-900 font-semibold text-sm leading-tight">Settings</div>
+                  </div>
+                </div>
               </Link>
             </div>
 
-            {/* Bottom Tagline */}
-            <div className="text-center mt-16">
-              <p className="text-gray-500 text-base font-medium">
-                One successful find<br />
-                at a time
-              </p>
+            {/* Bottom Tagline - Positioned at bottom */}
+            <div className="absolute bottom-8 left-0 right-0">
+              <div className="text-center px-4">
+                <p className="text-gray-500 text-base font-medium leading-snug">
+                  One successful find<br />
+                  at a time
+                </p>
+              </div>
             </div>
           </div>
         </div>

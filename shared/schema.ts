@@ -142,6 +142,19 @@ export const withdrawalRequests = pgTable("withdrawal_requests", {
   processedAt: timestamp("processed_at"),
 });
 
+export const blogPosts = pgTable("blog_posts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt"),
+  authorId: varchar("author_id").references(() => users.id).notNull(),
+  isPublished: boolean("is_published").default(false),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   finder: one(finders, {
@@ -270,6 +283,13 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   }),
 }));
 
+export const blogPostsRelations = relations(blogPosts, ({ one }) => ({
+  author: one(users, {
+    fields: [blogPosts.authorId],
+    references: [users.id],
+  }),
+}));
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -360,6 +380,12 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   createdAt: true,
 });
 
+export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type InsertUserType = z.infer<typeof insertUserSchema>;
 export type InsertFinderType = z.infer<typeof insertFinderSchema>;
 export type InsertRequestType = z.infer<typeof insertRequestSchema>;
@@ -371,3 +397,6 @@ export type InsertTransactionType = z.infer<typeof insertTransactionSchema>;
 export type InsertAdminSettingType = z.infer<typeof insertAdminSettingSchema>;
 export type InsertConversationType = z.infer<typeof insertConversationSchema>;
 export type InsertMessageType = z.infer<typeof insertMessageSchema>;
+export type InsertBlogPostType = z.infer<typeof insertBlogPostSchema>;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;

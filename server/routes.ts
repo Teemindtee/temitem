@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema } from "@shared/schema";
+import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema } from "@shared/schema";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -1325,6 +1325,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error changing password:', error);
       res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Blog Posts routes
+  app.get("/api/admin/blog-posts", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const posts = await storage.getBlogPosts();
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog posts" });
+    }
+  });
+
+  app.post("/api/admin/blog-posts", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const blogPostData = insertBlogPostSchema.parse(req.body);
+      
+      const post = await storage.createBlogPost({
+        ...blogPostData,
+        authorId: req.user.userId,
+        publishedAt: blogPostData.isPublished ? new Date() : null
+      });
+
+      res.status(201).json(post);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to create blog post", error: error.message });
+    }
+  });
+
+  app.delete("/api/admin/blog-posts/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const deleted = await storage.deleteBlogPost(id);
+
+      if (!deleted) {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+
+      res.json({ message: "Blog post deleted successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to delete blog post", error: error.message });
     }
   });
 
