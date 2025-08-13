@@ -93,6 +93,15 @@ export default function ConversationDetail() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (newMessage.trim() && !sendMessageMutation.isPending) {
+        sendMessageMutation.mutate(newMessage.trim());
+      }
+    }
+  };
+
   const getOtherParty = () => {
     if (!messages.length) return null;
     const userId = user?.id?.toString();
@@ -221,9 +230,11 @@ export default function ConversationDetail() {
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Type your message..."
               disabled={sendMessageMutation.isPending}
               className="flex-1"
+              autoFocus
             />
             <Button
               type="submit"
