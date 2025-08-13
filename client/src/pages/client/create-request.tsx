@@ -31,13 +31,14 @@ export default function CreateRequest() {
 
   const createRequestMutation = useMutation({
     mutationFn: async (data: any) => {
+      const token = localStorage.getItem('findermeister_token');
       const response = await fetch("/api/client/requests", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(data),
-        credentials: "include",
       });
       if (!response.ok) {
         throw new Error("Failed to create request");
@@ -45,7 +46,7 @@ export default function CreateRequest() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/requests/my'] });
       toast({
         title: "Success!",
         description: "Your request has been posted successfully.",

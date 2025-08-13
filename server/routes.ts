@@ -140,6 +140,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Client-specific routes
+  app.get("/api/client/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can view their requests" });
+      }
+
+      const requests = await storage.getRequestsByClientId(req.user.userId);
+      res.json(requests);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch your requests" });
+    }
+  });
+
+  app.post("/api/client/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can create requests" });
+      }
+
+      const requestData = insertRequestSchema.parse({
+        ...req.body,
+        clientId: req.user.userId
+      });
+
+      const request = await storage.createRequest(requestData);
+      res.status(201).json(request);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to create request", error: error.message });
+    }
+  });
+
+  app.get("/api/client/proposals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can view proposals" });
+      }
+
+      const proposals = await storage.getProposalsByClientId(req.user.userId);
+      res.json(proposals);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch proposals" });
+    }
+  });
+
   app.post("/api/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'client') {
