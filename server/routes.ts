@@ -1156,6 +1156,167 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Additional Finder Profile Management Routes
+  app.get('/api/finder/profile', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: 'Access denied. Finder role required.' });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: 'Finder profile not found' });
+      }
+      
+      res.json(finder);
+    } catch (error) {
+      console.error('Error fetching finder profile:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.patch('/api/finder/profile', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: 'Access denied. Finder role required.' });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: 'Finder profile not found' });
+      }
+
+      const updatedFinder = await storage.updateFinder(finder.id, req.body);
+      res.json(updatedFinder);
+    } catch (error) {
+      console.error('Error updating finder profile:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/finder/transactions', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: 'Access denied. Finder role required.' });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: 'Finder profile not found' });
+      }
+      
+      const transactions = await storage.getTransactionsByFinderId(finder.id);
+      res.json(transactions);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/finder/withdrawal-settings', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: 'Access denied. Finder role required.' });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: 'Finder profile not found' });
+      }
+      
+      const settings = await storage.getWithdrawalSettings(finder.id);
+      res.json(settings);
+    } catch (error) {
+      console.error('Error fetching withdrawal settings:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/finder/withdrawal-settings', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: 'Access denied. Finder role required.' });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: 'Finder profile not found' });
+      }
+
+      const settings = await storage.updateWithdrawalSettings(finder.id, req.body);
+      res.json(settings);
+    } catch (error) {
+      console.error('Error updating withdrawal settings:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/finder/withdrawals', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: 'Access denied. Finder role required.' });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: 'Finder profile not found' });
+      }
+      
+      const withdrawals = await storage.getWithdrawalsByFinderId(finder.id);
+      res.json(withdrawals);
+    } catch (error) {
+      console.error('Error fetching withdrawals:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/finder/security-settings', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: 'Access denied. Finder role required.' });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: 'Finder profile not found' });
+      }
+
+      const settings = await storage.updateSecuritySettings(finder.id, req.body);
+      res.json(settings);
+    } catch (error) {
+      console.error('Error updating security settings:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/auth/change-password', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: 'Current and new password are required' });
+      }
+
+      const user = await storage.getUserById(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isCurrentPasswordValid) {
+        return res.status(400).json({ message: 'Current password is incorrect' });
+      }
+
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      await storage.updateUser(req.user.userId, { password: hashedNewPassword });
+      
+      res.json({ message: 'Password updated successfully' });
+    } catch (error) {
+      console.error('Error changing password:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

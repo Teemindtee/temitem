@@ -5,25 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAuth } from "@/hooks/use-auth";
-import { Handshake, Search, Filter, Calendar, DollarSign, ArrowLeft } from "lucide-react";
+import { FinderHeader } from "@/components/finder-header";
+import { Search, Filter, Calendar, DollarSign, ArrowLeft } from "lucide-react";
 import type { Request } from "@shared/schema";
 
 export default function BrowseRequests() {
-  const { user, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [budgetFilter, setBudgetFilter] = useState("all");
 
   const { data: requests = [], isLoading } = useQuery<Request[]>({
-    queryKey: ['/api/finder/requests'],
-    enabled: !!user
+    queryKey: ['/api/finder/requests']
   });
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/";
-  };
 
   // Filter requests based on search and filters
   const filteredRequests = requests.filter(request => {
@@ -51,27 +44,7 @@ export default function BrowseRequests() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-red-600 text-white px-4 sm:px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
-            <span className="text-lg sm:text-xl font-bold">FinderMeister</span>
-          </Link>
-          <nav className="flex items-center space-x-2 sm:space-x-6">
-            <Link href="/finder/dashboard" className="hidden sm:inline hover:underline">Dashboard</Link>
-            <span className="bg-white text-red-600 px-2 sm:px-3 py-1 rounded text-sm sm:text-base font-medium">Browse</span>
-            <Button 
-              onClick={handleLogout}
-              variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-red-600 px-2 sm:px-4 text-sm"
-            >
-              <span className="hidden sm:inline">Log Out</span>
-              <span className="sm:hidden">Exit</span>
-            </Button>
-          </nav>
-        </div>
-      </header>
+      <FinderHeader currentPage="browse" />
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto py-4 sm:py-8 px-4 sm:px-6">

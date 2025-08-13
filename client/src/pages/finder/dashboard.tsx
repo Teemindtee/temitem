@@ -1,16 +1,14 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FinderHeader } from "@/components/finder-header";
 import { useAuth } from "@/hooks/use-auth";
-import { useToast } from "@/hooks/use-toast";
-import { Handshake, Search, DollarSign, Clock, Trophy, Plus } from "lucide-react";
+import { Search, DollarSign, Clock, Trophy, Plus, Coins } from "lucide-react";
 import type { Request, Proposal, User } from "@shared/schema";
 
 export default function FinderDashboard() {
-  const { user, logout } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const { data: availableRequests = [], isLoading: requestsLoading } = useQuery<Request[]>({
     queryKey: ['/api/finder/requests'],
@@ -22,17 +20,20 @@ export default function FinderDashboard() {
     enabled: !!user
   });
 
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/";
-  };
+  const { data: finder } = useQuery({
+    queryKey: ['/api/finder/profile'],
+    enabled: !!user
+  });
 
   if (requestsLoading || proposalsLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading...</p>
+      <div className="min-h-screen bg-gray-50">
+        <FinderHeader currentPage="dashboard" />
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading dashboard...</p>
+          </div>
         </div>
       </div>
     );
@@ -40,66 +41,58 @@ export default function FinderDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
-            <span className="text-xl font-bold">FinderMeister</span>
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Dashboard</span>
-            <Link href="/finder/browse-requests" className="hover:underline">Browse Requests</Link>
-            <Button 
-              onClick={handleLogout}
-              variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-red-600"
-            >
-              Log Out
-            </Button>
-          </nav>
-        </div>
-      </header>
+      <FinderHeader currentPage="dashboard" />
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto py-8 px-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user?.firstName}!</h1>
-          <p className="text-gray-600">Find opportunities and grow your finder business.</p>
+      <div className="max-w-6xl mx-auto py-4 sm:py-8 px-4 sm:px-6">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome back, {user?.name}!</h1>
+          <p className="text-gray-600 text-sm sm:text-base">Find opportunities and grow your finder business.</p>
         </div>
 
         {/* Stats Overview */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <Card className="border-green-200">
-            <CardContent className="p-6 text-center">
-              <div className="bg-green-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <DollarSign className="w-6 h-6 text-white" />
+            <CardContent className="p-4 sm:p-6 text-center">
+              <div className="bg-green-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Total Earnings</h3>
-              <p className="text-2xl font-bold text-green-600">$0</p>
-              <p className="text-gray-600 text-sm">This month</p>
+              <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Total Earnings</h3>
+              <p className="text-xl sm:text-2xl font-bold text-green-600">${finder?.totalEarnings || 0}</p>
+              <p className="text-gray-600 text-xs sm:text-sm">All time</p>
             </CardContent>
           </Card>
 
           <Card className="border-blue-200">
-            <CardContent className="p-6 text-center">
-              <div className="bg-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-white" />
+            <CardContent className="p-4 sm:p-6 text-center">
+              <div className="bg-blue-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Active Projects</h3>
-              <p className="text-2xl font-bold text-blue-600">{myProposals.filter(p => p.status === 'accepted').length}</p>
-              <p className="text-gray-600 text-sm">In progress</p>
+              <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Active Projects</h3>
+              <p className="text-xl sm:text-2xl font-bold text-blue-600">{myProposals.filter(p => p.status === 'accepted').length}</p>
+              <p className="text-gray-600 text-xs sm:text-sm">In progress</p>
             </CardContent>
           </Card>
 
           <Card className="border-purple-200">
-            <CardContent className="p-6 text-center">
-              <div className="bg-purple-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Trophy className="w-6 h-6 text-white" />
+            <CardContent className="p-4 sm:p-6 text-center">
+              <div className="bg-purple-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Completed Jobs</h3>
-              <p className="text-2xl font-bold text-purple-600">0</p>
-              <p className="text-gray-600 text-sm">All time</p>
+              <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Completed Jobs</h3>
+              <p className="text-xl sm:text-2xl font-bold text-purple-600">{finder?.completedJobs || 0}</p>
+              <p className="text-gray-600 text-xs sm:text-sm">All time</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-orange-200">
+            <CardContent className="p-4 sm:p-6 text-center">
+              <div className="bg-orange-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Token Balance</h3>
+              <p className="text-xl sm:text-2xl font-bold text-orange-600">{finder?.tokenBalance || 0}</p>
+              <p className="text-gray-600 text-xs sm:text-sm">Available</p>
             </CardContent>
           </Card>
 

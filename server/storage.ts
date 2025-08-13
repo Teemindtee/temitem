@@ -721,6 +721,92 @@ export class DatabaseStorage implements IStorage {
     await db.delete(categories).where(eq(categories.id, id));
   }
 
+  // Finder Profile Management  
+  async updateFinder(finderId: string, updates: Partial<Finder>): Promise<Finder | null> {
+    const [finder] = await db
+      .update(finders)
+      .set(updates)
+      .where(eq(finders.id, finderId))
+      .returning();
+    return finder || null;
+  }
+
+  async getTransactionsByFinderId(finderId: string): Promise<Transaction[]> {
+    return await db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.finderId, finderId))
+      .orderBy(desc(transactions.createdAt));
+  }
+
+  async getWithdrawalSettings(finderId: string): Promise<any> {
+    // For now, return mock data since withdrawal settings aren't in schema
+    return {
+      paymentMethod: "bank_transfer",
+      minimumThreshold: 50,
+      bankDetails: {
+        bankName: "",
+        accountNumber: "",
+        routingNumber: "",
+        accountHolder: ""
+      },
+      paypalDetails: {
+        email: ""
+      }
+    };
+  }
+
+  async updateWithdrawalSettings(finderId: string, settings: any): Promise<any> {
+    // For now, just return the settings since withdrawal settings aren't in schema
+    return settings;
+  }
+
+  async getWithdrawalsByFinderId(finderId: string): Promise<WithdrawalRequest[]> {
+    return await db
+      .select()
+      .from(withdrawalRequests)
+      .where(eq(withdrawalRequests.finderId, finderId))
+      .orderBy(desc(withdrawalRequests.requestedAt));
+  }
+
+  async createWithdrawalRequest(finderId: string, amount: number): Promise<WithdrawalRequest> {
+    const [withdrawal] = await db
+      .insert(withdrawalRequests)
+      .values({
+        finderId,
+        amount: amount.toString(),
+        status: 'pending',
+        paymentMethod: 'bank_transfer',
+        paymentDetails: '',
+        requestedAt: new Date()
+      })
+      .returning();
+    return withdrawal;
+  }
+
+  async updateSecuritySettings(finderId: string, settings: any): Promise<any> {
+    // For now, just return the settings since security settings aren't in schema
+    return settings;
+  }
+
+  async updateUser(userId: string, updates: Partial<User>): Promise<User | null> {
+    const [user] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, userId))
+      .returning();
+    return user || null;
+  }
+
+  async getUserById(userId: string): Promise<User | null> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    return user || null;
+  }
+
   // User Ban Management
   async banUser(userId: string, reason: string): Promise<User | null> {
     const [user] = await db

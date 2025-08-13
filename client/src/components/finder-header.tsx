@@ -1,213 +1,127 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Handshake, Menu, X, User, Settings, Lock, LogOut } from "lucide-react";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/use-auth";
+import { 
+  Handshake, 
+  User, 
+  Wallet, 
+  CreditCard, 
+  Shield, 
+  Settings, 
+  LogOut,
+  ChevronDown
+} from "lucide-react";
 
-export default function FinderHeader() {
-  const [location] = useLocation();
+interface FinderHeaderProps {
+  currentPage?: string;
+}
+
+export function FinderHeader({ currentPage }: FinderHeaderProps) {
   const { user, logout } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
-    setMobileMenuOpen(false);
+    window.location.href = "/";
   };
 
-  const getCurrentPage = () => {
-    if (location.includes('/finder/dashboard')) return 'dashboard';
-    if (location.includes('/finder/browse-requests')) return 'browse-requests';
-    if (location.includes('/finder/proposals')) return 'proposals';
-    if (location.includes('/messages')) return 'messages';
-    return '';
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
-
-  const currentPage = getCurrentPage();
-
-  if (!user || user.role !== 'finder') {
-    return null;
-  }
 
   return (
-    <header className="bg-red-600 text-white px-6 py-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
-            <span className="text-xl font-bold">FinderMeister</span>
+    <header className="bg-red-600 text-white px-4 sm:px-6 py-4">
+      <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <Link href="/" className="flex items-center space-x-2">
+          <Handshake className="w-6 h-6" />
+          <span className="text-lg sm:text-xl font-bold">FinderMeister</span>
+        </Link>
+        
+        <nav className="flex items-center space-x-2 sm:space-x-6">
+          <Link 
+            href="/finder/dashboard" 
+            className={`hidden sm:inline hover:underline ${currentPage === 'dashboard' ? 'font-semibold' : ''}`}
+          >
+            Dashboard
+          </Link>
+          <Link 
+            href="/finder/browse-requests" 
+            className={`hidden sm:inline hover:underline ${currentPage === 'browse' ? 'font-semibold' : ''}`}
+          >
+            Browse Requests
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            {user ? (
-              <>
-                <Link 
-                  href="/finder/dashboard" 
-                  className={`hover:underline ${currentPage === 'dashboard' ? 'bg-white text-red-600 px-3 py-1 rounded font-medium' : ''}`}
-                >
-                  Dashboard
+          {/* User Dropdown Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                className="flex items-center space-x-2 text-white hover:bg-white/10 px-2 sm:px-3"
+              >
+                <Avatar className="w-8 h-8">
+                  <AvatarFallback className="bg-white text-red-600 text-sm font-semibold">
+                    {user?.name ? getInitials(user.name) : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:inline text-sm font-medium">{user?.name || 'User'}</span>
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{user?.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem asChild>
+                <Link href="/finder/profile" className="flex items-center cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  Profile Settings
                 </Link>
-                <Link 
-                  href="/finder/browse-requests" 
-                  className={`hover:underline ${currentPage === 'browse-requests' ? 'bg-white text-red-600 px-3 py-1 rounded font-medium' : ''}`}
-                >
-                  Browse Requests
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem asChild>
+                <Link href="/finder/tokens" className="flex items-center cursor-pointer">
+                  <Wallet className="mr-2 h-4 w-4" />
+                  Token Balance
                 </Link>
-                <Link 
-                  href="/finder/proposals" 
-                  className={`hover:underline ${currentPage === 'proposals' ? 'bg-white text-red-600 px-3 py-1 rounded font-medium' : ''}`}
-                >
-                  My Proposals
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem asChild>
+                <Link href="/finder/withdrawals" className="flex items-center cursor-pointer">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Withdrawal Settings
                 </Link>
-                <Link 
-                  href="/messages" 
-                  className={`hover:underline ${currentPage === 'messages' ? 'bg-white text-red-600 px-3 py-1 rounded font-medium' : ''}`}
-                >
-                  Messages
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem asChild>
+                <Link href="/finder/security" className="flex items-center cursor-pointer">
+                  <Shield className="mr-2 h-4 w-4" />
+                  Security Settings
                 </Link>
-                
-                {/* Profile Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="text-white hover:bg-red-700 p-2">
-                      <User className="w-5 h-5 mr-2" />
-                      {user.firstName || 'Profile'}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link href="/finder/profile" className="flex items-center w-full cursor-pointer">
-                        <Settings className="w-4 h-4 mr-2" />
-                        Edit Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/finder/change-password" className="flex items-center w-full cursor-pointer">
-                        <Lock className="w-4 h-4 mr-2" />
-                        Change Password
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="flex items-center cursor-pointer">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Log Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="ghost" className="text-white hover:bg-red-700">
-                    Log In
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button variant="outline" className="border-white text-white hover:bg-white hover:text-red-600">
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
-            )}
-          </nav>
-
-          {/* Mobile menu button */}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="md:hidden text-white hover:bg-red-700"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
-        </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-red-500 mt-4 pt-4">
-            <nav className="flex flex-col space-y-3">
-              {user ? (
-                <>
-                  <Link 
-                    href="/finder/dashboard" 
-                    className={`block py-2 px-3 rounded ${currentPage === 'dashboard' ? 'bg-white text-red-600 font-medium' : 'hover:bg-red-700'}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Dashboard
-                  </Link>
-                  <Link 
-                    href="/finder/browse-requests" 
-                    className={`block py-2 px-3 rounded ${currentPage === 'browse-requests' ? 'bg-white text-red-600 font-medium' : 'hover:bg-red-700'}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Browse Requests
-                  </Link>
-                  <Link 
-                    href="/finder/proposals" 
-                    className={`block py-2 px-3 rounded ${currentPage === 'proposals' ? 'bg-white text-red-600 font-medium' : 'hover:bg-red-700'}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    My Proposals
-                  </Link>
-                  <Link 
-                    href="/messages" 
-                    className={`block py-2 px-3 rounded ${currentPage === 'messages' ? 'bg-white text-red-600 font-medium' : 'hover:bg-red-700'}`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Messages
-                  </Link>
-                  <div className="border-t border-red-500 pt-3 mt-3">
-                    <div className="flex items-center py-2 px-3 text-white font-medium">
-                      <User className="w-5 h-5 mr-2" />
-                      {user.firstName || 'Profile'}
-                    </div>
-                    <Link 
-                      href="/finder/profile" 
-                      className="block py-2 px-6 hover:bg-red-700 rounded"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Settings className="w-4 h-4 mr-2 inline" />
-                      Edit Profile
-                    </Link>
-                    <Link 
-                      href="/finder/change-password" 
-                      className="block py-2 px-6 hover:bg-red-700 rounded"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Lock className="w-4 h-4 mr-2 inline" />
-                      Change Password
-                    </Link>
-                    <button 
-                      onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                      className="flex items-center w-full py-2 px-6 hover:bg-red-700 rounded text-left"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Log Out
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Link 
-                    href="/login" 
-                    className="block py-2 px-3 hover:bg-red-700 rounded"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Log In
-                  </Link>
-                  <Link 
-                    href="/register" 
-                    className="block py-2 px-3 hover:bg-red-700 rounded"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
-            </nav>
-          </div>
-        )}
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                Log Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </nav>
       </div>
     </header>
   );

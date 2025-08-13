@@ -28,7 +28,11 @@ import AdminSettings from "@/pages/admin/settings";
 import AdminWithdrawals from "@/pages/admin/withdrawals";
 import Messages from "@/pages/Messages";
 import ConversationDetail from "@/pages/ConversationDetail";
-import FinderProfile from "@/pages/finder-profile";
+import FinderPublicProfile from "@/pages/finder-profile";
+import FinderProfile from "@/pages/finder/profile";
+import FinderTokens from "@/pages/finder/tokens";
+import FinderWithdrawals from "@/pages/finder/withdrawals";
+import FinderSecurity from "@/pages/finder/security";
 import { AuthProvider } from "@/hooks/use-auth";
 
 function Router() {
@@ -51,6 +55,10 @@ function Router() {
       <Route path="/finder/requests/:id" component={FinderRequestDetails} />
       <Route path="/finder/proposals" component={FinderProposals} />
       <Route path="/finder/proposals/:id" component={FinderProposalDetails} />
+      <Route path="/finder/profile" component={FinderProfile} />
+      <Route path="/finder/tokens" component={FinderTokens} />
+      <Route path="/finder/withdrawals" component={FinderWithdrawals} />
+      <Route path="/finder/security" component={FinderSecurity} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/requests" component={AdminRequests} />
@@ -58,7 +66,7 @@ function Router() {
       <Route path="/admin/withdrawals" component={AdminWithdrawals} />
       <Route path="/messages" component={Messages} />
       <Route path="/messages/:conversationId" component={ConversationDetail} />
-      <Route path="/finder-profile/:finderId" component={FinderProfile} />
+      <Route path="/finder-profile/:finderId" component={FinderPublicProfile} />
       <Route component={NotFound} />
     </Switch>
   );
