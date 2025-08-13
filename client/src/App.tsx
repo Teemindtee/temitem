@@ -17,6 +17,7 @@ import ClientProfile from "@/pages/client/profile";
 import ChangePassword from "@/pages/client/change-password";
 import FinderDashboard from "@/pages/finder/dashboard";
 import FinderBrowseRequests from "@/pages/finder/browse-requests";
+import FinderRequestDetails from "@/pages/finder/request-details";
 import AdminDashboard from "@/pages/admin/dashboard";
 import { AuthProvider } from "@/hooks/use-auth";
 
@@ -36,6 +37,7 @@ function Router() {
       <Route path="/client/change-password" component={ChangePassword} />
       <Route path="/finder/dashboard" component={FinderDashboard} />
       <Route path="/finder/browse-requests" component={FinderBrowseRequests} />
+      <Route path="/finder/requests/:id" component={FinderRequestDetails} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>
