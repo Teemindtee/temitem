@@ -153,7 +153,7 @@ export default function ViewProposals() {
                             </Button>
                             <StartConversationButton 
                               proposalId={proposal.id} 
-                              className="w-full" 
+                              finderName={`Finder #${proposal.finderId}`}
                             />
                           </>
                         ) : (
@@ -161,7 +161,7 @@ export default function ViewProposals() {
                             <Badge variant="secondary">Hired</Badge>
                             <StartConversationButton 
                               proposalId={proposal.id} 
-                              className="w-full mt-2" 
+                              finderName={`Finder #${proposal.finderId}`}
                             />
                           </>
                         )}

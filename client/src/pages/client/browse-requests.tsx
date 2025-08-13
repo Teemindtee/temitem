@@ -86,7 +86,7 @@ export default function BrowseRequests() {
                       <User className="w-4 h-4" />
                       <span className="font-medium">Client Name</span>
                     </div>
-                    <span className="text-gray-500 text-sm">{getTimeAgo(request.createdAt || "")}</span>
+                    <span className="text-gray-500 text-sm">{getTimeAgo(request.createdAt ? request.createdAt.toString() : "")}</span>
                   </div>
                 </div>
               </Link>
