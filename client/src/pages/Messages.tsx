@@ -118,7 +118,7 @@ export default function Messages() {
                   </div>
                   {conversation.lastMessage && (
                     <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                      {conversation.lastMessage.senderId === user?.userId ? "You: " : ""}
+                      {conversation.lastMessage.senderId === user?.id ? "You: " : ""}
                       {conversation.lastMessage.content}
                     </p>
                   )}

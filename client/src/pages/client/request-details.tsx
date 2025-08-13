@@ -176,15 +176,15 @@ export default function RequestDetails() {
                             </div>
                             <div className="text-right">
                               <div className="text-lg font-semibold text-green-600">
-                                ${proposal.proposedBudget}
+                                ${proposal.price}
                               </div>
                               <div className="text-sm text-gray-600">
-                                {proposal.estimatedDays} days
+                                {proposal.timeline}
                               </div>
                             </div>
                           </div>
                           
-                          <p className="text-gray-700 mb-3">{proposal.coverLetter}</p>
+                          <p className="text-gray-700 mb-3">{proposal.approach}</p>
                           
                           <div className="flex items-center space-x-3">
                             <StartConversationButton 
