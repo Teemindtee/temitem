@@ -238,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Only finders can browse requests" });
       }
 
-      const requests = await storage.getAllActiveRequests();
+      const requests = await storage.getAvailableRequestsForFinders();
       res.json(requests);
     } catch (error) {
       console.error('Finder requests error:', error);
@@ -407,16 +407,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Finder profile not found" });
       }
 
+      const proposalData = insertProposalSchema.parse({
+        ...req.body,
+        finderId: finder.id
+      });
+
+      // Check if request has already been accepted by someone else
+      const hasAccepted = await storage.hasAcceptedProposal(proposalData.requestId);
+      if (hasAccepted) {
+        return res.status(400).json({ message: "This request has already been accepted by another finder" });
+      }
+
+      // Check if this finder has already submitted a proposal for this request
+      const existingProposal = await storage.getProposalByFinderAndRequest(finder.id, proposalData.requestId);
+      if (existingProposal) {
+        return res.status(400).json({ message: "You have already submitted a proposal for this request" });
+      }
+
       // Check token balance
       const tokenBalance = await storage.getTokenBalance(finder.id);
       if (!tokenBalance || (tokenBalance.balance ?? 0) < 1) {
         return res.status(400).json({ message: "Insufficient tokens to submit proposal" });
       }
-
-      const proposalData = insertProposalSchema.parse({
-        ...req.body,
-        finderId: finder.id
-      });
 
       const proposal = await storage.createProposal(proposalData);
 

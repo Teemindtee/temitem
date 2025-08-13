@@ -49,6 +49,7 @@ export interface IStorage {
   getRequest(id: string): Promise<Request | undefined>;
   getRequestsByClientId(clientId: string): Promise<Request[]>;
   getAllActiveRequests(): Promise<Request[]>;
+  getAvailableRequestsForFinders(): Promise<Request[]>;
   createRequest(request: InsertRequest): Promise<Request>;
   updateRequest(id: string, updates: Partial<Request>): Promise<Request | undefined>;
 
@@ -56,6 +57,8 @@ export interface IStorage {
   getProposal(id: string): Promise<Proposal | undefined>;
   getProposalsByRequestId(requestId: string): Promise<Proposal[]>;
   getProposalsByFinderId(finderId: string): Promise<Proposal[]>;
+  getProposalByFinderAndRequest(finderId: string, requestId: string): Promise<Proposal | undefined>;
+  hasAcceptedProposal(requestId: string): Promise<boolean>;
   createProposal(proposal: InsertProposal): Promise<Proposal>;
   updateProposal(id: string, updates: Partial<Proposal>): Promise<Proposal | undefined>;
 
@@ -172,6 +175,26 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(requests.createdAt));
   }
 
+  async getAvailableRequestsForFinders(): Promise<Request[]> {
+    // Get all active requests that don't have any accepted proposals
+    const availableRequests = await db
+      .select()
+      .from(requests)
+      .where(eq(requests.status, "active"))
+      .orderBy(desc(requests.createdAt));
+    
+    // Filter out requests that have accepted proposals
+    const filteredRequests = [];
+    for (const request of availableRequests) {
+      const hasAccepted = await this.hasAcceptedProposal(request.id);
+      if (!hasAccepted) {
+        filteredRequests.push(request);
+      }
+    }
+    
+    return filteredRequests;
+  }
+
   async createRequest(insertRequest: InsertRequest): Promise<Request> {
     const [request] = await db
       .insert(requests)
@@ -208,6 +231,23 @@ export class DatabaseStorage implements IStorage {
       .from(proposals)
       .where(eq(proposals.finderId, finderId))
       .orderBy(desc(proposals.createdAt));
+  }
+
+  async getProposalByFinderAndRequest(finderId: string, requestId: string): Promise<Proposal | undefined> {
+    const [proposal] = await db
+      .select()
+      .from(proposals)
+      .where(and(eq(proposals.finderId, finderId), eq(proposals.requestId, requestId)));
+    return proposal || undefined;
+  }
+
+  async hasAcceptedProposal(requestId: string): Promise<boolean> {
+    const [result] = await db
+      .select()
+      .from(proposals)
+      .where(and(eq(proposals.requestId, requestId), eq(proposals.status, 'accepted')))
+      .limit(1);
+    return !!result;
   }
 
   async createProposal(insertProposal: InsertProposal): Promise<Proposal> {
