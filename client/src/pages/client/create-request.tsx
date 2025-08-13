@@ -24,7 +24,7 @@ export default function CreateRequest() {
     category: "",
     minBudget: "",
     maxBudget: "",
-    deadline: "",
+    timeframe: "",
     location: "",
     requirements: ""
   });
@@ -77,9 +77,12 @@ export default function CreateRequest() {
     }
 
     createRequestMutation.mutate({
-      ...formData,
+      title: formData.title,
+      description: formData.description,
+      category: formData.category,
       budgetMin: minBudget.toString(),
       budgetMax: maxBudget.toString(),
+      timeframe: formData.timeframe,
       clientId: user?.id
     });
   };
@@ -200,15 +203,20 @@ export default function CreateRequest() {
               </div>
 
               <div>
-                <Label htmlFor="deadline" className="text-gray-700 font-medium">Preferred Deadline</Label>
-                <Input
-                  id="deadline"
-                  name="deadline"
-                  type="date"
-                  value={formData.deadline}
-                  onChange={handleInputChange}
-                  className="mt-1"
-                />
+                <Label htmlFor="timeframe" className="text-gray-700 font-medium">Timeline</Label>
+                <Select value={formData.timeframe} onValueChange={(value) => handleSelectChange("timeframe", value)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="How soon do you need this completed?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1-3 days">1-3 days (Urgent)</SelectItem>
+                    <SelectItem value="1 week">1 week</SelectItem>
+                    <SelectItem value="2 weeks">2 weeks</SelectItem>
+                    <SelectItem value="1 month">1 month</SelectItem>
+                    <SelectItem value="2-3 months">2-3 months</SelectItem>
+                    <SelectItem value="flexible">Flexible timeline</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
