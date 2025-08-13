@@ -379,29 +379,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const request = await storage.getRequest(id);
       
-      console.log('Fetching proposals for request:', id);
-      console.log('Request data:', request);
-      console.log('User data:', req.user);
-      
       if (!request) {
         return res.status(404).json({ message: "Request not found" });
       }
 
       // Only the client who posted the request can view proposals
       if (req.user.role === 'client' && request.clientId !== req.user.userId) {
-        console.log('Access denied - Client ID mismatch:', {
-          requestClientId: request.clientId,
-          userUserId: req.user.userId,
-          userRole: req.user.role
-        });
         return res.status(403).json({ message: "Access denied" });
       }
 
       const proposals = await storage.getProposalsByRequestId(id);
-      console.log('Proposals found:', proposals.length);
       res.json(proposals);
     } catch (error) {
-      console.error('Error fetching proposals:', error);
       res.status(500).json({ message: "Failed to fetch proposals" });
     }
   });
