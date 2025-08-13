@@ -875,6 +875,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get finder profile by ID
+  app.get("/api/finders/:finderId/profile", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { finderId } = req.params;
+      
+      const finderProfile = await storage.getFinderProfile(finderId);
+      
+      if (!finderProfile) {
+        return res.status(404).json({ message: "Finder profile not found" });
+      }
+      
+      res.json(finderProfile);
+    } catch (error) {
+      console.error('Get finder profile error:', error);
+      res.status(500).json({ message: "Failed to fetch finder profile" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

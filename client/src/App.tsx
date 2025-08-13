@@ -24,6 +24,7 @@ import ProposalDetail from "@/pages/client/proposal-detail";
 import AdminDashboard from "@/pages/admin/dashboard";
 import Messages from "@/pages/Messages";
 import ConversationDetail from "@/pages/ConversationDetail";
+import FinderProfile from "@/pages/finder-profile";
 import { AuthProvider } from "@/hooks/use-auth";
 
 function Router() {
@@ -49,6 +50,7 @@ function Router() {
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/messages" component={Messages} />
       <Route path="/messages/:conversationId" component={ConversationDetail} />
+      <Route path="/finder-profile/:finderId" component={FinderProfile} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -109,7 +109,15 @@ export default function ViewProposals() {
                           <User className="w-5 h-5 text-red-600" />
                         </div>
                         <div>
-                          <h3 className="font-medium text-gray-900">Alex Johnson</h3>
+                          <h3 className="font-medium text-gray-900">
+                            {proposal.finder ? (
+                              <Link href={`/finder-profile/${proposal.finder.id}`} className="text-red-600 hover:text-red-800 hover:underline cursor-pointer">
+                                {proposal.finder.user.firstName} {proposal.finder.user.lastName}
+                              </Link>
+                            ) : (
+                              "Unknown Finder"
+                            )}
+                          </h3>
                           <p className="text-sm text-gray-500">Professional Finder</p>
                         </div>
                       </div>
@@ -197,7 +205,11 @@ export default function ViewProposals() {
                         <User className="w-5 h-5 text-red-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900">Alex Johnson</h3>
+                        <h3 className="font-medium text-gray-900">
+                          <Link href={`/finder-profile/sample-finder-1`} className="text-red-600 hover:text-red-800 hover:underline cursor-pointer">
+                            Alex Johnson
+                          </Link>
+                        </h3>
                         <p className="text-sm text-gray-500">Proposed Price: $50-65</p>
                       </div>
                     </div>

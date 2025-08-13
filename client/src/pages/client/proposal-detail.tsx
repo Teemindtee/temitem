@@ -136,7 +136,12 @@ export default function ProposalDetail() {
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Proposal from {proposal.finder.user.firstName} {proposal.finder.user.lastName}</span>
+                <span>
+                  Proposal from{' '}
+                  <Link href={`/finder-profile/${proposal.finder.id}`} className="text-red-600 hover:text-red-800 hover:underline cursor-pointer">
+                    {proposal.finder.user.firstName} {proposal.finder.user.lastName}
+                  </Link>
+                </span>
                 <Badge variant={proposal.status === 'accepted' ? 'default' : 'secondary'}>
                   {proposal.status === 'pending' ? 'Active' : proposal.status}
                 </Badge>
@@ -150,7 +155,9 @@ export default function ProposalDetail() {
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900">
-                    {proposal.finder.user.firstName} {proposal.finder.user.lastName}
+                    <Link href={`/finder-profile/${proposal.finder.id}`} className="text-red-600 hover:text-red-800 hover:underline cursor-pointer">
+                      {proposal.finder.user.firstName} {proposal.finder.user.lastName}
+                    </Link>
                   </h3>
                   <p className="text-sm text-gray-600">
                     {proposal.finder.completedJobs || 0} jobs completed • {proposal.finder.rating || 5.0}★ rating

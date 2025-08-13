@@ -639,6 +639,39 @@ export class DatabaseStorage implements IStorage {
         eq(messages.isRead, false)
       ));
   }
+
+  async getFinderProfile(finderId: string) {
+    const result = await db
+      .select({
+        finder: finders,
+        user: users
+      })
+      .from(finders)
+      .innerJoin(users, eq(finders.userId, users.id))
+      .where(eq(finders.id, finderId))
+      .limit(1);
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    const { finder, user } = result[0];
+    return {
+      id: finder.id,
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone
+      },
+      completedJobs: finder.jobsCompleted || 0,
+      totalEarnings: finder.totalEarned || "0.00",
+      rating: parseFloat(finder.averageRating || "5.0"),
+      tokens: 10, // Default tokens since not in schema
+      createdAt: user.createdAt
+    };
+  }
 }
 
 export const storage = new DatabaseStorage();
