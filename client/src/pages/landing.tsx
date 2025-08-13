@@ -32,7 +32,7 @@ export default function Landing() {
             <a href="#how-it-works" className="hover:underline">How it Works</a>
             <Link href="/login" className="hover:underline">Log In</Link>
             <Link href="/register">
-              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-red-600 font-medium">
+              <Button variant="outline" className="border-white text-white bg-transparent hover:bg-white hover:text-red-600 font-medium">
                 Sign Up
               </Button>
             </Link>
