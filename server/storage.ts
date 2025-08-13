@@ -99,6 +99,24 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   getAdminSetting(key: string): Promise<AdminSetting | undefined>;
   setAdminSetting(key: string, value: string): Promise<AdminSetting>;
+  
+  // Category operations
+  getCategories(): Promise<Category[]>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  updateCategory(id: string, updates: Partial<Category>): Promise<Category | undefined>;
+  deleteCategory(id: string): Promise<void>;
+  
+  // User management operations
+  banUser(userId: string, reason: string): Promise<User | undefined>;
+  unbanUser(userId: string): Promise<User | undefined>;
+  verifyUser(userId: string): Promise<User | undefined>;
+  unverifyUser(userId: string): Promise<User | undefined>;
+  
+  // Withdrawal operations
+  createWithdrawalRequest(request: InsertWithdrawalRequest): Promise<WithdrawalRequest>;
+  getWithdrawalRequests(): Promise<any[]>;
+  updateWithdrawalRequest(id: string, updates: Partial<WithdrawalRequest>): Promise<WithdrawalRequest | undefined>;
+  updateFinderBalance(finderId: string, amount: string): Promise<void>;
 
   // Messaging operations
   getConversation(clientId: string, proposalId: string): Promise<Conversation | undefined>;

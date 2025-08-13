@@ -62,16 +62,21 @@ export default function AdminSettings() {
   });
 
   const updateSettingsMutation = useMutation({
-    mutationFn: (data: { proposalTokenCost: string }) =>
-      apiRequest('/api/admin/settings', { method: 'PUT', body: data }),
-    onSuccess: () => {
+    mutationFn: (data: { proposalTokenCost: string }) => {
+      console.log('Sending API request with data:', data);
+      return apiRequest('/api/admin/settings', { method: 'PUT', body: data });
+    },
+    onSuccess: (data) => {
+      console.log('Settings update successful:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
+      setProposalTokenCost(""); // Clear the local state to use the fetched value
       toast({
         title: "Success",
         description: "Settings updated successfully"
       });
     },
     onError: (error: any) => {
+      console.error('Settings update error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to update settings",
@@ -111,8 +116,10 @@ export default function AdminSettings() {
 
   const handleUpdateSettings = (e: React.FormEvent) => {
     e.preventDefault();
+    const costValue = proposalTokenCost || settings?.proposalTokenCost || '1';
+    console.log('Updating settings with:', { proposalTokenCost: costValue });
     updateSettingsMutation.mutate({
-      proposalTokenCost: proposalTokenCost || settings?.proposalTokenCost || '1'
+      proposalTokenCost: costValue
     });
   };
 
