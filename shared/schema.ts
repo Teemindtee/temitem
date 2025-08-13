@@ -98,6 +98,24 @@ export const adminSettings = pgTable("admin_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const conversations = pgTable("conversations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  clientId: varchar("client_id").references(() => users.id).notNull(),
+  finderId: varchar("finder_id").references(() => finders.id).notNull(),
+  proposalId: varchar("proposal_id").references(() => proposals.id).notNull(),
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const messages = pgTable("messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  conversationId: varchar("conversation_id").references(() => conversations.id).notNull(),
+  senderId: varchar("sender_id").references(() => users.id).notNull(),
+  content: text("content").notNull(),
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   finder: one(finders, {
@@ -109,6 +127,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   finderContracts: many(contracts, { relationName: "finderContracts" }),
   clientReviews: many(reviews, { relationName: "clientReviews" }),
   finderReviews: many(reviews, { relationName: "finderReviews" }),
+  clientConversations: many(conversations, { relationName: "clientConversations" }),
+  sentMessages: many(messages, { relationName: "sentMessages" }),
 }));
 
 export const findersRelations = relations(finders, ({ one, many }) => ({
@@ -121,6 +141,7 @@ export const findersRelations = relations(finders, ({ one, many }) => ({
   contracts: many(contracts, { relationName: "finderContracts" }),
   transactions: many(transactions),
   reviews: many(reviews, { relationName: "finderReviews" }),
+  finderConversations: many(conversations, { relationName: "finderConversations" }),
 }));
 
 export const requestsRelations = relations(requests, ({ one, many }) => ({
@@ -193,6 +214,36 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
   }),
 }));
 
+export const conversationsRelations = relations(conversations, ({ one, many }) => ({
+  client: one(users, {
+    fields: [conversations.clientId],
+    references: [users.id],
+    relationName: "clientConversations",
+  }),
+  finder: one(finders, {
+    fields: [conversations.finderId],
+    references: [finders.id],
+    relationName: "finderConversations",
+  }),
+  proposal: one(proposals, {
+    fields: [conversations.proposalId],
+    references: [proposals.id],
+  }),
+  messages: many(messages),
+}));
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+  conversation: one(conversations, {
+    fields: [messages.conversationId],
+    references: [conversations.id],
+  }),
+  sender: one(users, {
+    fields: [messages.senderId],
+    references: [users.id],
+    relationName: "sentMessages",
+  }),
+}));
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -212,6 +263,10 @@ export type Transaction = typeof transactions.$inferSelect;
 export type InsertTransaction = typeof transactions.$inferInsert;
 export type AdminSetting = typeof adminSettings.$inferSelect;
 export type InsertAdminSetting = typeof adminSettings.$inferInsert;
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = typeof conversations.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type InsertMessage = typeof messages.$inferInsert;
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -258,6 +313,17 @@ export const insertAdminSettingSchema = createInsertSchema(adminSettings).omit({
   updatedAt: true,
 });
 
+export const insertConversationSchema = createInsertSchema(conversations).omit({
+  id: true,
+  lastMessageAt: true,
+  createdAt: true,
+});
+
+export const insertMessageSchema = createInsertSchema(messages).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUserType = z.infer<typeof insertUserSchema>;
 export type InsertFinderType = z.infer<typeof insertFinderSchema>;
 export type InsertRequestType = z.infer<typeof insertRequestSchema>;
@@ -267,3 +333,5 @@ export type InsertReviewType = z.infer<typeof insertReviewSchema>;
 export type InsertTokenType = z.infer<typeof insertTokenSchema>;
 export type InsertTransactionType = z.infer<typeof insertTransactionSchema>;
 export type InsertAdminSettingType = z.infer<typeof insertAdminSettingSchema>;
+export type InsertConversationType = z.infer<typeof insertConversationSchema>;
+export type InsertMessageType = z.infer<typeof insertMessageSchema>;

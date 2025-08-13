@@ -48,6 +48,12 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
               >
                 View Proposals
               </Link>
+              <Link 
+                href="/messages" 
+                className={`hover:underline ${currentPage === 'messages' ? 'bg-white text-red-600 px-3 py-1 rounded font-medium' : ''}`}
+              >
+                Messages
+              </Link>
               
               {/* Profile Dropdown */}
               <DropdownMenu>
@@ -122,6 +128,13 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   View Proposals
+                </Link>
+                <Link 
+                  href="/messages" 
+                  className={`block py-2 px-3 rounded ${currentPage === 'messages' ? 'bg-white text-red-600 font-medium' : 'hover:bg-red-700'}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Messages
                 </Link>
                 <div className="border-t border-red-500 pt-3 mt-3">
                   <div className="flex items-center py-2 px-3 text-white font-medium">

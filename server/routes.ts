@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertReviewSchema } from "@shared/schema";
+import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema } from "@shared/schema";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -730,6 +730,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(setting);
     } catch (error) {
       res.status(500).json({ message: "Failed to update setting" });
+    }
+  });
+
+  // Messaging routes
+  // Only clients can initiate conversations
+  app.post("/api/messages/conversations", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can initiate conversations" });
+      }
+
+      const { proposalId } = req.body;
+      const proposal = await storage.getProposal(proposalId);
+      
+      if (!proposal) {
+        return res.status(404).json({ message: "Proposal not found" });
+      }
+
+      // Check if conversation already exists
+      const existingConversation = await storage.getConversation(req.user.userId, proposalId);
+      if (existingConversation) {
+        return res.json(existingConversation);
+      }
+
+      // Create new conversation
+      const conversation = await storage.createConversation({
+        clientId: req.user.userId,
+        finderId: proposal.finderId,
+        proposalId: proposalId
+      });
+
+      res.json(conversation);
+    } catch (error) {
+      console.error('Create conversation error:', error);
+      res.status(500).json({ message: "Failed to create conversation" });
+    }
+  });
+
+  // Get conversations for logged-in user (client or finder)
+  app.get("/api/messages/conversations", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      let conversations;
+      
+      if (req.user.role === 'client') {
+        conversations = await storage.getConversationsByClientId(req.user.userId);
+      } else if (req.user.role === 'finder') {
+        const finder = await storage.getFinderByUserId(req.user.userId);
+        if (!finder) {
+          return res.status(404).json({ message: "Finder profile not found" });
+        }
+        conversations = await storage.getConversationsByFinderId(finder.id);
+      } else {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      res.json(conversations);
+    } catch (error) {
+      console.error('Get conversations error:', error);
+      res.status(500).json({ message: "Failed to fetch conversations" });
+    }
+  });
+
+  // Get messages for a conversation
+  app.get("/api/messages/conversations/:conversationId/messages", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { conversationId } = req.params;
+      
+      // TODO: Add permission check to ensure user is part of the conversation
+      const messages = await storage.getMessages(conversationId);
+      
+      // Mark messages as read for the current user
+      await storage.markMessagesAsRead(conversationId, req.user.userId);
+      
+      res.json(messages);
+    } catch (error) {
+      console.error('Get messages error:', error);
+      res.status(500).json({ message: "Failed to fetch messages" });
+    }
+  });
+
+  // Send a message
+  app.post("/api/messages/conversations/:conversationId/messages", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { conversationId } = req.params;
+      const { content } = req.body;
+
+      if (!content || content.trim().length === 0) {
+        return res.status(400).json({ message: "Message content is required" });
+      }
+
+      // TODO: Add permission check to ensure user is part of the conversation
+
+      const message = await storage.createMessage({
+        conversationId,
+        senderId: req.user.userId,
+        content: content.trim()
+      });
+
+      res.json(message);
+    } catch (error) {
+      console.error('Send message error:', error);
+      res.status(500).json({ message: "Failed to send message" });
     }
   });
 

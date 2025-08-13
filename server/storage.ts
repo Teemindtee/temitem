@@ -17,6 +17,10 @@ import {
   type InsertTransaction,
   type AdminSetting,
   type InsertAdminSetting,
+  type Conversation,
+  type InsertConversation,
+  type Message,
+  type InsertMessage,
 
   users,
   finders,
@@ -26,7 +30,9 @@ import {
   reviews,
   tokens,
   transactions,
-  adminSettings
+  adminSettings,
+  conversations,
+  messages
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -87,6 +93,25 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   getAdminSetting(key: string): Promise<AdminSetting | undefined>;
   setAdminSetting(key: string, value: string): Promise<AdminSetting>;
+
+  // Messaging operations
+  getConversation(clientId: string, proposalId: string): Promise<Conversation | undefined>;
+  createConversation(conversation: InsertConversation): Promise<Conversation>;
+  getConversationsByClientId(clientId: string): Promise<Array<Conversation & {
+    proposal: { request: { title: string; }; }; 
+    finder: { user: { firstName: string; lastName: string; }; }; 
+    lastMessage?: { content: string; createdAt: Date; senderId: string; };
+    unreadCount: number;
+  }>>;
+  getConversationsByFinderId(finderId: string): Promise<Array<Conversation & {
+    proposal: { request: { title: string; }; }; 
+    client: { firstName: string; lastName: string; }; 
+    lastMessage?: { content: string; createdAt: Date; senderId: string; };
+    unreadCount: number;
+  }>>;
+  getMessages(conversationId: string): Promise<Array<Message & { sender: { firstName: string; lastName: string; }; }>>;
+  createMessage(message: InsertMessage): Promise<Message>;
+  markMessagesAsRead(conversationId: string, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -267,7 +292,14 @@ export class DatabaseStorage implements IStorage {
         eq(proposals.finderId, finderId),
         eq(proposals.status, 'accepted')
       ));
-    return result || undefined;
+    
+    if (result) {
+      return {
+        ...result,
+        phone: result.phone || undefined
+      };
+    }
+    return undefined;
   }
 
   async createProposal(insertProposal: InsertProposal): Promise<Proposal> {
@@ -418,6 +450,194 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return setting;
     }
+  }
+
+  // Messaging operations implementation
+  async getConversation(clientId: string, proposalId: string): Promise<Conversation | undefined> {
+    const [conversation] = await db
+      .select()
+      .from(conversations)
+      .where(and(eq(conversations.clientId, clientId), eq(conversations.proposalId, proposalId)));
+    return conversation || undefined;
+  }
+
+  async createConversation(insertConversation: InsertConversation): Promise<Conversation> {
+    const [conversation] = await db
+      .insert(conversations)
+      .values(insertConversation)
+      .returning();
+    return conversation;
+  }
+
+  async getConversationsByClientId(clientId: string): Promise<Array<Conversation & {
+    proposal: { request: { title: string; }; }; 
+    finder: { user: { firstName: string; lastName: string; }; }; 
+    lastMessage?: { content: string; createdAt: Date; senderId: string; };
+    unreadCount: number;
+  }>> {
+    const result = await db
+      .select({
+        conversation: conversations,
+        requestTitle: requests.title,
+        finderFirstName: users.firstName,
+        finderLastName: users.lastName,
+        lastMessageContent: sql<string>`(
+          SELECT content FROM messages 
+          WHERE conversation_id = conversations.id 
+          ORDER BY created_at DESC LIMIT 1
+        )`.as('lastMessageContent'),
+        lastMessageCreatedAt: sql<Date>`(
+          SELECT created_at FROM messages 
+          WHERE conversation_id = conversations.id 
+          ORDER BY created_at DESC LIMIT 1
+        )`.as('lastMessageCreatedAt'),
+        lastMessageSenderId: sql<string>`(
+          SELECT sender_id FROM messages 
+          WHERE conversation_id = conversations.id 
+          ORDER BY created_at DESC LIMIT 1
+        )`.as('lastMessageSenderId'),
+        unreadCount: sql<number>`(
+          SELECT COUNT(*) FROM messages 
+          WHERE conversation_id = conversations.id 
+            AND sender_id != ${clientId}
+            AND is_read = false
+        )`.as('unreadCount')
+      })
+      .from(conversations)
+      .innerJoin(proposals, eq(conversations.proposalId, proposals.id))
+      .innerJoin(requests, eq(proposals.requestId, requests.id))
+      .innerJoin(finders, eq(conversations.finderId, finders.id))
+      .innerJoin(users, eq(finders.userId, users.id))
+      .where(eq(conversations.clientId, clientId))
+      .orderBy(desc(conversations.lastMessageAt));
+
+    return result.map(row => ({
+      ...row.conversation,
+      proposal: {
+        request: {
+          title: row.requestTitle
+        }
+      },
+      finder: {
+        user: {
+          firstName: row.finderFirstName,
+          lastName: row.finderLastName
+        }
+      },
+      lastMessage: row.lastMessageContent ? {
+        content: row.lastMessageContent,
+        createdAt: row.lastMessageCreatedAt,
+        senderId: row.lastMessageSenderId
+      } : undefined,
+      unreadCount: row.unreadCount
+    }));
+  }
+
+  async getConversationsByFinderId(finderId: string): Promise<Array<Conversation & {
+    proposal: { request: { title: string; }; }; 
+    client: { firstName: string; lastName: string; }; 
+    lastMessage?: { content: string; createdAt: Date; senderId: string; };
+    unreadCount: number;
+  }>> {
+    const result = await db
+      .select({
+        conversation: conversations,
+        requestTitle: requests.title,
+        clientFirstName: users.firstName,
+        clientLastName: users.lastName,
+        lastMessageContent: sql<string>`(
+          SELECT content FROM messages 
+          WHERE conversation_id = conversations.id 
+          ORDER BY created_at DESC LIMIT 1
+        )`.as('lastMessageContent'),
+        lastMessageCreatedAt: sql<Date>`(
+          SELECT created_at FROM messages 
+          WHERE conversation_id = conversations.id 
+          ORDER BY created_at DESC LIMIT 1
+        )`.as('lastMessageCreatedAt'),
+        lastMessageSenderId: sql<string>`(
+          SELECT sender_id FROM messages 
+          WHERE conversation_id = conversations.id 
+          ORDER BY created_at DESC LIMIT 1
+        )`.as('lastMessageSenderId'),
+        unreadCount: sql<number>`(
+          SELECT COUNT(*) FROM messages 
+          WHERE conversation_id = conversations.id 
+            AND sender_id != (SELECT user_id FROM finders WHERE id = ${finderId})
+            AND is_read = false
+        )`.as('unreadCount')
+      })
+      .from(conversations)
+      .innerJoin(proposals, eq(conversations.proposalId, proposals.id))
+      .innerJoin(requests, eq(proposals.requestId, requests.id))
+      .innerJoin(users, eq(conversations.clientId, users.id))
+      .where(eq(conversations.finderId, finderId))
+      .orderBy(desc(conversations.lastMessageAt));
+
+    return result.map(row => ({
+      ...row.conversation,
+      proposal: {
+        request: {
+          title: row.requestTitle
+        }
+      },
+      client: {
+        firstName: row.clientFirstName,
+        lastName: row.clientLastName
+      },
+      lastMessage: row.lastMessageContent ? {
+        content: row.lastMessageContent,
+        createdAt: row.lastMessageCreatedAt,
+        senderId: row.lastMessageSenderId
+      } : undefined,
+      unreadCount: row.unreadCount
+    }));
+  }
+
+  async getMessages(conversationId: string): Promise<Array<Message & { sender: { firstName: string; lastName: string; }; }>> {
+    return await db
+      .select({
+        message: messages,
+        senderFirstName: users.firstName,
+        senderLastName: users.lastName
+      })
+      .from(messages)
+      .innerJoin(users, eq(messages.senderId, users.id))
+      .where(eq(messages.conversationId, conversationId))
+      .orderBy(messages.createdAt)
+      .then(result => result.map(row => ({
+        ...row.message,
+        sender: {
+          firstName: row.senderFirstName,
+          lastName: row.senderLastName
+        }
+      })));
+  }
+
+  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    const [message] = await db
+      .insert(messages)
+      .values(insertMessage)
+      .returning();
+
+    // Update conversation's lastMessageAt
+    await db
+      .update(conversations)
+      .set({ lastMessageAt: new Date() })
+      .where(eq(conversations.id, insertMessage.conversationId));
+
+    return message;
+  }
+
+  async markMessagesAsRead(conversationId: string, userId: string): Promise<void> {
+    await db
+      .update(messages)
+      .set({ isRead: true })
+      .where(and(
+        eq(messages.conversationId, conversationId),
+        sql`sender_id != ${userId}`,
+        eq(messages.isRead, false)
+      ));
   }
 }
 
