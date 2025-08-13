@@ -28,10 +28,12 @@ export default function FinderRequestDetails() {
 
   const requestId = params?.id;
 
-  const { data: request, isLoading: requestLoading } = useQuery<Request>({
+  const { data: request, isLoading: requestLoading, error: requestError } = useQuery<Request>({
     queryKey: ['/api/requests', requestId],
     enabled: !!requestId && !!user
   });
+
+
 
   // For finders, only show their own proposals (like comments under a post)
   const { data: proposals = [], isLoading: proposalsLoading } = useQuery<Proposal[]>({
@@ -94,6 +96,9 @@ export default function FinderRequestDetails() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Request Not Found</h1>
+          <p className="text-gray-600 mb-4">Request ID: {requestId}</p>
+          {!user && <p className="text-gray-600 mb-4">Please log in to view this request</p>}
+          {requestError && <p className="text-gray-600 mb-4">Error: {requestError?.message}</p>}
           <Link href="/finder/dashboard">
             <Button>Return to Dashboard</Button>
           </Link>

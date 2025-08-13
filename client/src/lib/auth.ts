@@ -30,7 +30,7 @@ export interface LoginData {
 }
 
 export class AuthService {
-  private static TOKEN_KEY = 'finder_token';
+  private static TOKEN_KEY = 'findermeister_token';
 
   static getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
