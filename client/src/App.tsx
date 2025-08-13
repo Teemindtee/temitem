@@ -12,8 +12,9 @@ import ClientDashboard from "@/pages/client/dashboard";
 import CreateRequest from "@/pages/client/create-request";
 import RequestDetails from "@/pages/client/request-details";
 import ViewProposals from "@/pages/client/view-proposals";
+import ClientBrowseRequests from "@/pages/client/browse-requests";
 import FinderDashboard from "@/pages/finder/dashboard";
-import BrowseRequests from "@/pages/finder/browse-requests";
+import FinderBrowseRequests from "@/pages/finder/browse-requests";
 import AdminDashboard from "@/pages/admin/dashboard";
 import { AuthProvider } from "@/hooks/use-auth";
 
@@ -28,8 +29,9 @@ function Router() {
       <Route path="/client/create-request" component={CreateRequest} />
       <Route path="/client/requests/:id" component={RequestDetails} />
       <Route path="/client/proposals" component={ViewProposals} />
+      <Route path="/client/browse-requests" component={ClientBrowseRequests} />
       <Route path="/finder/dashboard" component={FinderDashboard} />
-      <Route path="/finder/browse-requests" component={BrowseRequests} />
+      <Route path="/finder/browse-requests" component={FinderBrowseRequests} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route component={NotFound} />
     </Switch>

@@ -50,12 +50,12 @@ export default function ClientDashboard() {
           </Link>
           <nav className="flex items-center space-x-6">
             <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">My Requests</span>
-            <Link href="/finder/browse-requests" className="hover:underline">Browse Requests</Link>
-            <Link href="/client/proposals" className="hover:underline">View Proposals</Link>
+            <Link href="/client/browse-requests" className="text-white hover:underline cursor-pointer">Browse Requests</Link>
+            <Link href="/client/proposals" className="text-white hover:underline cursor-pointer">View Proposals</Link>
             <Button 
               onClick={handleLogout}
               variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-red-600"
+              className="border-white text-white hover:bg-white hover:text-red-600 bg-transparent"
             >
               Log Out
             </Button>
