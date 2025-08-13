@@ -35,10 +35,11 @@ export default function FinderProfile() {
   // Update form data when finder data changes
   useEffect(() => {
     if (finder) {
+      const fullName = finder.user ? `${finder.user.firstName} ${finder.user.lastName}` : "";
       setFormData({
-        name: finder.user?.firstName + ' ' + finder.user?.lastName || "",
+        name: fullName.trim(),
         bio: finder.bio || "",
-        skills: finder.skills?.join(", ") || "",
+        skills: Array.isArray(finder.skills) ? finder.skills.join(", ") : "",
         hourlyRate: finder.hourlyRate?.toString() || "",
         availability: finder.availability || "full-time"
       });
@@ -77,10 +78,11 @@ export default function FinderProfile() {
 
   const handleCancel = () => {
     if (finder) {
+      const fullName = finder.user ? `${finder.user.firstName} ${finder.user.lastName}` : "";
       setFormData({
-        name: finder.user?.firstName + ' ' + finder.user?.lastName || "",
+        name: fullName.trim(),
         bio: finder.bio || "",
-        skills: finder.skills?.join(", ") || "",
+        skills: Array.isArray(finder.skills) ? finder.skills.join(", ") : "",
         hourlyRate: finder.hourlyRate?.toString() || "",
         availability: finder.availability || "full-time"
       });
@@ -106,29 +108,29 @@ export default function FinderProfile() {
     <div className="min-h-screen bg-gray-50">
       <FinderHeader currentPage="profile" />
       
-      <div className="max-w-4xl mx-auto py-6 sm:py-8 px-4 sm:px-6">
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Profile Settings</h1>
-              <p className="text-gray-600 text-sm sm:text-base">Manage your profile information and preferences</p>
-            </div>
+      <div className="max-w-6xl mx-auto py-4 sm:py-6 lg:py-8 px-3 sm:px-4 lg:px-6">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6 sm:mb-8">
+          <div className="flex-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">Profile Settings</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Manage your personal information and professional details</p>
+          </div>
+          <div className="flex-shrink-0">
             {!isEditing ? (
-              <Button onClick={() => setIsEditing(true)} className="bg-red-600 hover:bg-red-700">
+              <Button onClick={() => setIsEditing(true)} className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-sm">
                 <Edit className="w-4 h-4 mr-2" />
                 Edit Profile
               </Button>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex flex-col xs:flex-row gap-2 sm:gap-3">
                 <Button 
                   onClick={handleSave} 
                   disabled={updateProfileMutation.isPending}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 text-sm"
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  Save
+                  {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
                 </Button>
-                <Button onClick={handleCancel} variant="outline">
+                <Button onClick={handleCancel} variant="outline" className="text-sm">
                   <X className="w-4 h-4 mr-2" />
                   Cancel
                 </Button>
@@ -137,7 +139,7 @@ export default function FinderProfile() {
           </div>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid gap-4 sm:gap-6">
           {/* Profile Overview */}
           <Card>
             <CardHeader>
@@ -146,42 +148,48 @@ export default function FinderProfile() {
                 Profile Overview
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="p-4 sm:p-6">
               {!isEditing && finder && (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600">{finder.jobsCompleted || 0}</div>
-                    <div className="text-sm text-gray-600">Jobs Completed</div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                  <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg">
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-red-600">{finder.jobsCompleted || 0}</div>
+                    <div className="text-xs sm:text-sm text-gray-600">Jobs Completed</div>
                   </div>
-                  <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">${finder.totalEarned || 0}</div>
-                    <div className="text-sm text-gray-600">Total Earnings</div>
+                  <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg">
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">${finder.totalEarned || 0}</div>
+                    <div className="text-xs sm:text-sm text-gray-600">Total Earnings</div>
                   </div>
-                  <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{parseFloat(finder.averageRating || "5.0").toFixed(1)}/5</div>
-                    <div className="text-sm text-gray-600">Average Rating</div>
+                  <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg">
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-600">{parseFloat(finder.averageRating || "5.0").toFixed(1)}/5</div>
+                    <div className="text-xs sm:text-sm text-gray-600">Average Rating</div>
                   </div>
-                  <div className="text-center p-4 bg-gray-50 rounded-lg">
-                    <Badge variant={finder.user?.isVerified ? "default" : "secondary"}>
-                      {finder.user?.isVerified ? "Verified" : "Unverified"}
-                    </Badge>
-                    <div className="text-sm text-gray-600 mt-1">Status</div>
+                  <div className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg">
+                    <div className="flex flex-col items-center">
+                      <Badge variant={finder.user?.isVerified ? "default" : "secondary"} className="mb-1">
+                        {finder.user?.isVerified ? "Verified" : "Unverified"}
+                      </Badge>
+                      <div className="text-xs sm:text-sm text-gray-600">Status</div>
+                    </div>
                   </div>
                 </div>
               )}
 
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="name">Full Name</Label>
+              <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium">Full Name</Label>
                   {isEditing ? (
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      className="mt-1"
+                      className="w-full"
+                      disabled
+                      placeholder="Name changes require admin approval"
                     />
                   ) : (
-                    <p className="mt-1 p-2 bg-gray-50 rounded border">{finder?.user?.firstName + ' ' + finder?.user?.lastName || "Not set"}</p>
+                    <p className="p-3 bg-gray-50 rounded-md border text-sm">
+                      {finder?.user ? `${finder.user.firstName} ${finder.user.lastName}`.trim() : "Not set"}
+                    </p>
                   )}
                 </div>
 

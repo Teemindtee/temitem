@@ -1168,7 +1168,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Finder profile not found' });
       }
       
-      res.json(finder);
+      // Get user information as well
+      const user = await storage.getUser(req.user.userId);
+      
+      res.json({
+        ...finder,
+        user: user ? {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          isVerified: user.isVerified
+        } : null
+      });
     } catch (error) {
       console.error('Error fetching finder profile:', error);
       res.status(500).json({ message: 'Internal server error' });
