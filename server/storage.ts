@@ -59,6 +59,7 @@ export interface IStorage {
   getProposalsByFinderId(finderId: string): Promise<Proposal[]>;
   getProposalByFinderAndRequest(finderId: string, requestId: string): Promise<Proposal | undefined>;
   hasAcceptedProposal(requestId: string): Promise<boolean>;
+  getClientContactForAcceptedProposal(proposalId: string, finderId: string): Promise<{firstName: string, lastName: string, email: string, phone?: string} | undefined>;
   createProposal(proposal: InsertProposal): Promise<Proposal>;
   updateProposal(id: string, updates: Partial<Proposal>): Promise<Proposal | undefined>;
 
@@ -248,6 +249,25 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(proposals.requestId, requestId), eq(proposals.status, 'accepted')))
       .limit(1);
     return !!result;
+  }
+
+  async getClientContactForAcceptedProposal(proposalId: string, finderId: string): Promise<{firstName: string, lastName: string, email: string, phone?: string} | undefined> {
+    const [result] = await db
+      .select({
+        firstName: users.firstName,
+        lastName: users.lastName,
+        email: users.email,
+        phone: users.phone
+      })
+      .from(proposals)
+      .innerJoin(requests, eq(proposals.requestId, requests.id))
+      .innerJoin(users, eq(requests.clientId, users.id))
+      .where(and(
+        eq(proposals.id, proposalId),
+        eq(proposals.finderId, finderId),
+        eq(proposals.status, 'accepted')
+      ));
+    return result || undefined;
   }
 
   async createProposal(insertProposal: InsertProposal): Promise<Proposal> {
