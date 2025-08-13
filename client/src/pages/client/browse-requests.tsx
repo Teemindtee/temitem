@@ -51,14 +51,31 @@ export default function BrowseRequests() {
       {/* Header */}
       <header className="bg-red-600 text-white px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2">
             <Search className="w-6 h-6" />
             <span className="text-xl font-bold">FinderMeister</span>
-          </div>
+          </Link>
           <nav className="flex items-center space-x-6">
-            <Link href="/client/dashboard" className="text-white hover:underline cursor-pointer">How it Works</Link>
-            <Link href="/login" className="text-white hover:underline cursor-pointer">Log In</Link>
-            <Link href="/register" className="text-white hover:underline cursor-pointer">Sign Up</Link>
+            {user ? (
+              <>
+                <Link href="/client/dashboard" className="text-white hover:underline cursor-pointer">Dashboard</Link>
+                <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Browse Requests</span>
+                <Link href="/client/proposals" className="text-white hover:underline cursor-pointer">View Proposals</Link>
+                <Button 
+                  onClick={handleLogout}
+                  variant="outline" 
+                  className="border-white text-white hover:bg-white hover:text-red-600 bg-transparent"
+                >
+                  Log Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="text-white hover:underline cursor-pointer">How it Works</Link>
+                <Link href="/login" className="text-white hover:underline cursor-pointer">Log In</Link>
+                <Link href="/register" className="text-white hover:underline cursor-pointer">Sign Up</Link>
+              </>
+            )}
           </nav>
         </div>
       </header>
