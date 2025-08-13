@@ -1,0 +1,100 @@
+Here is the rewritten prompt for a full-stack developer.
+
+### **Findermeister: A Full-Stack Service Marketplace**
+
+Findermeister is a secure, scalable, and feature-rich service marketplace connecting **clients** with **finders** (freelancers). The application requires a full-stack implementation using **React** for the frontend and **Node.js** for the backend. The system must support separate login functionalities for standard users and administrators.
+
+***
+
+### **Frontend: React Application**
+
+The React frontend must provide a responsive and intuitive user interface for all user roles. All client-side state management should be handled within React, and data should be fetched from the Node.js backend.
+
+#### **1. User & Admin Authentication**
+* **User Login/Signup:** Implement standard email/password authentication for both clients and finders. The application must have a clear sign-up flow that allows users to select their role (**Client** or **Finder**).
+* **Admin Login:** Create a separate login page for administrators that validates credentials against the admin database.
+
+#### **2. Core Functionality & UI**
+* **Client Dashboard:**
+    * A primary dashboard to view a list of all their posted **requests**.
+    * A button to **"Create a New Request"** which opens a form with fields for request title, description, budget, and other relevant details.
+    * Each request card should display the current **status** (**active**, **on hold**, or **approved**).
+* **Finder Dashboard:**
+    * A main dashboard displaying an aggregated feed of all available **requests** from clients.
+    * Each request card should show the request title, client name, token cost for a proposal, and the deadline.
+    * A **"Submit Proposal"** button on each request card. The button should only be active if the finder has a sufficient token balance and their account is verified.
+* **Proposals Page (Client View):**
+    * A dedicated page for each client request.
+    * List all **proposals** submitted by finders for that specific request.
+    * Each proposal card should display the finder's name, their average review grade, a link to their profile, and a **"Hire"** button.
+* **Finder Profile:**
+    * A public-facing profile page for each finder.
+    * This page must display key metrics: **number of jobs completed**, **total amount earned**, and **average review grade**.
+    * It should also show the finder's account verification status and a portfolio/bio section.
+* **Wallet & Tokens:**
+    * A dedicated page in the finder's account for managing their wallet.
+    * Display the finder's current **token balance**.
+    * A button to **"Buy Tokens"** that triggers the Paystack payment flow.
+    * A history of token transactions.
+* **Messaging System:**
+    * An integrated messaging component within each request's page.
+    * This component should allow a client to chat with a finder only after a proposal has been submitted.
+* **Admin Dashboard:**
+    * A secure dashboard accessible only to authenticated admins.
+    * Display a list of all users (**clients** and **finders**).
+    * A user management section with the ability to **ban** users and a toggle to enable/disable **verification requirements** for both roles.
+    * A token management section to set the **token cost** for new requests.
+    * A support section to view and assign support tickets.
+    * A blog management section to create, edit, or delete blog posts.
+
+***
+
+### **Backend: Node.js with a Relational Database**
+
+The Node.js backend must handle all business logic, data persistence, and API routing. The backend must be secure, scalable, and fully separated from the frontend.
+
+#### **1. API Endpoints**
+* `POST /auth/signup`: User registration (client or finder).
+* `POST /auth/login`: User login.
+* `POST /admin/login`: Admin login.
+* `GET /requests`: Get a list of all available requests.
+* `POST /requests`: Create a new request (Client only).
+* `GET /requests/:id/proposals`: Get all proposals for a specific request.
+* `POST /proposals`: Submit a new proposal (Finder only).
+* `POST /requests/:id/hire`: Hire a finder for a specific request.
+* `GET /finder_profile/:id`: Get a finder's public profile data.
+* `POST /payments/paystack`: Handle Paystack payment callbacks for token purchases.
+* `GET /finder/wallet`: Get a finder's token balance and transaction history.
+* `POST /admin/token_cost`: Update the token cost for new requests.
+* `POST /admin/toggle_verification`: Toggle the verification requirement for clients/finders.
+* `POST /admin/ban_user`: Ban a user.
+* `GET /admin/users`: Get a list of all users for the admin dashboard.
+* `POST /support/create_ticket`: Create a new support ticket.
+* `POST /admin/assign_support`: Assign a support ticket to an agent.
+* `GET /blog`: Get a list of blog posts.
+* `POST /blog`: Create a new blog post.
+
+#### **2. Core Business Logic**
+* **Authentication & Authorization:** Securely hash and store user passwords. Implement JWT-based authentication for both regular users and admins. All endpoints must enforce strict authorization checks based on user roles.
+* **Finder Levels:** The backend should automatically calculate and update a finder's level based on job completion, earnings, and average review grade.
+* **Request Status:** The system must handle the logic for changing a request's status based on user actions and admin-defined criteria for automatic approval.
+* **Secure Wallet:** A secure system to manage finder token balances, ensuring that tokens are debited upon proposal submission and credited upon purchase.
+* **Paystack Integration:** A robust integration with the Paystack API for token purchases, including webhook handling to confirm successful payments.
+* **Multi-level Admin:** The backend must handle different admin roles and permissions, ensuring admins can only perform actions relevant to their assigned departments.
+
+***
+
+### **Database Schema**
+
+The database should be designed to support the relationships between all entities. The following tables are required:
+
+* **`users`**: Stores user data, including `id`, `email`, `password`, `role` (`client` or `finder`), `is_verified` (`boolean`), `is_banned` (`boolean`).
+* **`finders`**: Stores finder-specific data: `user_id`, `jobs_completed`, `total_earned`, `average_review_grade`, `level`.
+* **`clients`**: Stores client-specific data: `user_id`.
+* **`requests`**: Stores service requests: `id`, `client_id`, `title`, `description`, `budget`, `status`, `token_cost`, `created_at`.
+* **`proposals`**: Stores submitted proposals: `id`, `request_id`, `finder_id`, `proposal_text`, `created_at`.
+* **`tokens`**: Stores token balances: `finder_id`, `balance`.
+* **`transactions`**: Stores all token transactions: `id`, `finder_id`, `amount`, `type` (`purchase` or `proposal`), `created_at`.
+* **`admins`**: Stores admin data: `user_id`, `admin_level`, `departments` (`array` of strings).
+* **`support_tickets`**: Stores customer support tickets: `id`, `user_id`, `assigned_to_admin_id`, `department`, `status`, `subject`, `message`.
+* **`blog_posts`**: Stores blog content: `id`, `title`, `content`, `author`, `published_at`.
