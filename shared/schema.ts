@@ -9,6 +9,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
+  phone: text("phone"),
   role: text("role").notNull(), // 'client', 'finder', 'admin'
   isVerified: boolean("is_verified").default(false),
   isBanned: boolean("is_banned").default(false),
