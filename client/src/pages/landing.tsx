@@ -1,16 +1,12 @@
 import { Link } from "wouter";
-import Navigation from "@/components/ui/navigation";
-import MobileNav from "@/components/ui/mobile-nav";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
-import { Handshake, Edit, Search, Check, User } from "lucide-react";
+import { Search, Star, Handshake } from "lucide-react";
 
 export default function Landing() {
   const { isAuthenticated, user } = useAuth();
 
   if (isAuthenticated && user) {
-    // Redirect to appropriate dashboard based on role
     if (user.role === 'client') {
       window.location.href = '/client/dashboard';
       return null;
@@ -24,189 +20,117 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navigation />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-red-600 text-white px-6 py-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Handshake className="w-6 h-6" />
+            <span className="text-xl font-bold">FinderMeister</span>
+          </div>
+          <nav className="flex items-center space-x-6">
+            <a href="#how-it-works" className="hover:underline">How it Works</a>
+            <Link href="/login" className="hover:underline">Log In</Link>
+            <Link href="/register">
+              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-red-600 font-medium">
+                Sign Up
+              </Button>
+            </Link>
+          </nav>
+        </div>
+      </header>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-finder-red to-finder-red-dark text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Trouble Finding a Product or Service?
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 text-red-100">
-            Connect with expert finders who can help you search for what you need.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-            <Link href="/register">
-              <Button 
-                size="lg" 
-                className="bg-white text-finder-red hover:bg-red-50 font-semibold px-8 py-4 text-lg shadow-lg"
-              >
-                Get Started as Client
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-finder-red font-semibold px-8 py-4 text-lg"
-              >
-                Become a Finder
-              </Button>
-            </Link>
-          </div>
-          <div className="mt-12 text-red-100">
-            <p className="text-lg font-medium">One successful find at a time</p>
+      <section className="bg-white py-16">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <h1 className="text-5xl font-bold text-gray-900 mb-4 leading-tight">
+                Trouble Finding a<br />
+                Product or Service?
+              </h1>
+              <p className="text-xl text-gray-600 mb-8">
+                Connect with finders who can help<br />
+                you search for what you need.
+              </p>
+              <Link href="/register">
+                <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg font-medium rounded-lg">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+            <div className="flex-1 flex justify-end">
+              <div className="bg-red-600 rounded-full w-48 h-48 flex items-center justify-center">
+                <Handshake className="w-24 h-24 text-white" />
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 bg-finder-gray">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center text-finder-text mb-16">
-            How FinderMeister Works
+      <section id="how-it-works" className="bg-white py-16">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-4xl font-bold text-center text-gray-900 mb-16">
+            How It Works
           </h2>
           <div className="grid md:grid-cols-3 gap-12">
             <div className="text-center">
-              <div className="bg-finder-red text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Edit className="w-8 h-8" />
+              <div className="bg-red-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                  <path d="M14 2v6h6"/>
+                  <path d="M16 13H8"/>
+                  <path d="M16 17H8"/>
+                  <path d="M10 9H8"/>
+                </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-finder-text">
-                1. Post Your Request
+              <h3 className="text-xl font-semibold mb-4 text-gray-900">
+                Post a Request
               </h3>
-              <p className="text-finder-text-light">
-                Describe what you're looking for, set your budget, and specify your requirements.
+              <p className="text-gray-600">
+                Clients describe the product or service they're looking for.
               </p>
             </div>
             <div className="text-center">
-              <div className="bg-finder-red text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="w-8 h-8" />
+              <div className="bg-red-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Star className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-finder-text">
-                2. Expert Finders Propose
+              <h3 className="text-xl font-semibold mb-4 text-gray-900">
+                Get Proposals
               </h3>
-              <p className="text-finder-text-light">
-                Professional finders review your request and submit detailed proposals.
+              <p className="text-gray-600">
+                Finders interested in your request will submit proposals.
               </p>
             </div>
             <div className="text-center">
-              <div className="bg-finder-red text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Check className="w-8 h-8" />
+              <div className="bg-red-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Handshake className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-finder-text">
-                3. Get Your Results
+              <h3 className="text-xl font-semibold mb-4 text-gray-900">
+                Choose a Finder
               </h3>
-              <p className="text-finder-text-light">
-                Choose the best proposal and let our finder locate exactly what you need.
+              <p className="text-gray-600">
+                Compare proposals and select the right finder for th job.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* User Type Selection */}
-      <section id="signup" className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center text-finder-text mb-16">
-            Join FinderMeister
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Client Registration */}
-            <Card className="border-2 border-gray-200 hover:border-finder-red transition-colors cursor-pointer">
-              <CardContent className="p-8">
-                <div className="text-center mb-6">
-                  <div className="bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <User className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-finder-text mb-2">
-                    I need something found
-                  </h3>
-                  <p className="text-finder-text-light">
-                    Post requests and connect with expert finders
-                  </p>
-                </div>
-                <Link href="/register?type=client">
-                  <Button className="w-full bg-finder-red text-white hover:bg-finder-red-dark font-semibold py-3">
-                    Sign Up as Client
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Finder Registration */}
-            <Card className="border-2 border-gray-200 hover:border-finder-red transition-colors cursor-pointer">
-              <CardContent className="p-8">
-                <div className="text-center mb-6">
-                  <div className="bg-green-100 text-green-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Search className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-finder-text mb-2">
-                    I can find things
-                  </h3>
-                  <p className="text-finder-text-light">
-                    Browse requests and earn money finding items
-                  </p>
-                </div>
-                <Link href="/register?type=finder">
-                  <Button className="w-full bg-finder-red text-white hover:bg-finder-red-dark font-semibold py-3">
-                    Sign Up as Finder
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-finder-text text-white py-12 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-6">
-                <Handshake className="w-8 h-8" />
-                <span className="text-xl font-bold">FinderMeister</span>
-              </div>
-              <p className="text-gray-400">
-                Connecting clients with expert finders for successful product and service discovery.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">For Clients</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#how-it-works" className="hover:text-white transition-colors">How it Works</a></li>
-                <li><Link href="/register?type=client" className="hover:text-white transition-colors">Post a Request</Link></li>
-                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Success Stories</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">For Finders</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link href="/register?type=finder" className="hover:text-white transition-colors">Become a Finder</Link></li>
-                <li><Link href="/finder/browse-requests" className="hover:text-white transition-colors">Browse Requests</Link></li>
-                <li><a href="#" className="hover:text-white transition-colors">Earnings</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Tips & Resources</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Safety</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-              </ul>
-            </div>
+      <footer className="bg-white py-8 border-t">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="flex justify-center space-x-8 text-gray-600">
+            <a href="#" className="hover:text-gray-900">About</a>
+            <a href="#" className="hover:text-gray-900">Contact</a>
+            <a href="#" className="hover:text-gray-900">FAQ</a>
           </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 FinderMeister. All rights reserved. One successful find at a time.</p>
+          <div className="text-center text-gray-600 mt-4">
+            <a href="#" className="hover:text-gray-900">Privacy</a>
           </div>
         </div>
       </footer>
-
-      <MobileNav />
     </div>
   );
 }

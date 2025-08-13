@@ -3,18 +3,17 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Handshake, User, Search } from "lucide-react";
+import { Handshake, User } from "lucide-react";
 
 export default function Register() {
-  const [, setLocation] = useLocation();
-  const { register, isAuthenticated, user } = useAuth();
+  const [, navigate] = useLocation();
+  const { register } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'client' | 'finder'>('client');
+  const [userType, setUserType] = useState<string>("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -22,238 +21,286 @@ export default function Register() {
     password: "",
     confirmPassword: "",
     phone: "",
+    role: "",
   });
 
-  // Check URL params for role type
+  // Get user type from URL params
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const type = urlParams.get('type');
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get('type');
     if (type === 'client' || type === 'finder') {
-      setSelectedRole(type);
+      setUserType(type);
+      setFormData(prev => ({ ...prev, role: type }));
     }
   }, []);
 
-  // Redirect if already authenticated
-  if (isAuthenticated && user) {
-    if (user.role === 'client') {
-      setLocation('/client/dashboard');
-    } else if (user.role === 'finder') {
-      setLocation('/finder/dashboard');
-    } else if (user.role === 'admin') {
-      setLocation('/admin/dashboard');
-    }
-    return null;
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
+    
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Password mismatch",
-        description: "Passwords do not match",
         variant: "destructive",
+        title: "Error",
+        description: "Passwords do not match",
       });
-      setIsLoading(false);
       return;
     }
 
-    try {
-      const registrationData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-        role: selectedRole,
-        ...(selectedRole === 'finder' && formData.phone && { phone: formData.phone }),
-      };
-
-      await register(registrationData);
+    if (!formData.role) {
       toast({
-        title: "Registration successful",
-        description: "Welcome to FinderMeister!",
-      });
-    } catch (error) {
-      toast({
-        title: "Registration failed",
-        description: error instanceof Error ? error.message : "Registration failed",
         variant: "destructive",
+        title: "Error",
+        description: "Please select your role",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      await register(formData);
+      toast({
+        title: "Success",
+        description: "Account created successfully!",
+      });
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Registration failed",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  return (
-    <div className="min-h-screen bg-finder-gray flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Handshake className="w-8 h-8 text-finder-red" />
-            <span className="text-2xl font-bold text-finder-text">FinderMeister</span>
+  const handleRoleChange = (value: string) => {
+    setFormData({ ...formData, role: value });
+  };
+
+  // If we have a specific user type from URL, show specialized form
+  if (userType === 'finder') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <header className="bg-red-600 text-white px-6 py-4">
+          <div className="max-w-4xl mx-auto flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-2">
+              <Handshake className="w-6 h-6" />
+              <span className="text-xl font-bold">FinderMeister</span>
+            </Link>
+            <nav className="flex items-center space-x-6">
+              <a href="#" className="hover:underline">How it Works</a>
+              <Link href="/login" className="hover:underline">Log In</Link>
+              <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Sign Up</span>
+            </nav>
           </div>
-          <CardTitle className="text-2xl font-bold text-finder-text">
-            Join FinderMeister
-          </CardTitle>
-          <p className="text-finder-text-light">
-            Create your account to get started
-          </p>
-        </CardHeader>
-        <CardContent>
-          {/* Role Selection */}
-          <div className="mb-6">
-            <Label className="text-base font-medium mb-3 block">I want to:</Label>
-            <RadioGroup
-              value={selectedRole}
-              onValueChange={(value: 'client' | 'finder') => setSelectedRole(value)}
-              className="grid grid-cols-1 gap-4"
-            >
-              <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-gray-50">
-                <RadioGroupItem value="client" id="client" />
-                <div className="flex items-center space-x-3">
-                  <div className="bg-blue-100 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <Label htmlFor="client" className="font-medium cursor-pointer">
-                      Find something I need
-                    </Label>
-                    <p className="text-sm text-finder-text-light">Post requests for items or services</p>
-                  </div>
+        </header>
+
+        <section className="py-16">
+          <div className="max-w-md mx-auto px-6">
+            <div className="bg-white rounded-lg shadow-sm border p-8">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Sign Up as a Finder</h1>
+                <p className="text-gray-600 mb-6">
+                  Create an account to find products and services for clients.
+                </p>
+                <div className="bg-red-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <User className="w-8 h-8 text-white" />
                 </div>
               </div>
-              
-              <div className="flex items-center space-x-3 border rounded-lg p-4 cursor-pointer hover:bg-gray-50">
-                <RadioGroupItem value="finder" id="finder" />
-                <div className="flex items-center space-x-3">
-                  <div className="bg-green-100 text-green-600 w-10 h-10 rounded-full flex items-center justify-center">
-                    <Search className="w-5 h-5" />
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Input
+                      name="firstName"
+                      type="text"
+                      required
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      placeholder="First name"
+                      className="bg-gray-50 border-gray-300"
+                    />
                   </div>
                   <div>
-                    <Label htmlFor="finder" className="font-medium cursor-pointer">
-                      Help others find things
-                    </Label>
-                    <p className="text-sm text-finder-text-light">Browse requests and earn money</p>
+                    <Input
+                      name="lastName"
+                      type="text"
+                      required
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      placeholder="Last name"
+                      className="bg-gray-50 border-gray-300"
+                    />
                   </div>
                 </div>
-              </div>
-            </RadioGroup>
-          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="firstName">First Name</Label>
                 <Input
-                  id="firstName"
-                  name="firstName"
-                  placeholder="John"
-                  value={formData.firstName}
-                  onChange={handleChange}
+                  name="email"
+                  type="email"
                   required
-                  className="focus:ring-finder-red focus:border-finder-red"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="Email"
+                  className="bg-gray-50 border-gray-300"
                 />
-              </div>
-              <div>
-                <Label htmlFor="lastName">Last Name</Label>
+
                 <Input
-                  id="lastName"
-                  name="lastName"
-                  placeholder="Doe"
-                  value={formData.lastName}
-                  onChange={handleChange}
+                  name="password"
+                  type="password"
                   required
-                  className="focus:ring-finder-red focus:border-finder-red"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Password"
+                  className="bg-gray-50 border-gray-300"
                 />
-              </div>
-            </div>
 
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="john@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="focus:ring-finder-red focus:border-finder-red"
-              />
-            </div>
-
-            {selectedRole === 'finder' && (
-              <div>
-                <Label htmlFor="phone">Phone Number</Label>
                 <Input
-                  id="phone"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  placeholder="Confirm password"
+                  className="bg-gray-50 border-gray-300"
+                />
+
+                <Input
                   name="phone"
                   type="tel"
-                  placeholder="+1 (555) 123-4567"
                   value={formData.phone}
-                  onChange={handleChange}
-                  className="focus:ring-finder-red focus:border-finder-red"
+                  onChange={handleInputChange}
+                  placeholder="Phone number"
+                  className="bg-gray-50 border-gray-300"
                 />
-              </div>
-            )}
-            
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Create a password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="focus:ring-finder-red focus:border-finder-red"
-              />
+
+                <Button
+                  type="submit"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white py-3 font-medium"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating Account..." : "Sign Up"}
+                </Button>
+
+                <p className="text-center text-gray-600">
+                  Already have an account?{" "}
+                  <Link href="/login" className="text-red-600 hover:underline font-medium">
+                    Log In
+                  </Link>
+                </p>
+              </form>
             </div>
-
-            <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                className="focus:ring-finder-red focus:border-finder-red"
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-finder-red hover:bg-finder-red-dark"
-              disabled={isLoading}
-            >
-              {isLoading ? "Creating Account..." : `Sign Up as ${selectedRole === 'client' ? 'Client' : 'Finder'}`}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-finder-text-light">
-              Already have an account?{" "}
-              <Link href="/login">
-                <a className="text-finder-red font-medium hover:underline">
-                  Sign in
-                </a>
-              </Link>
-            </p>
           </div>
-        </CardContent>
-      </Card>
+        </section>
+      </div>
+    );
+  }
+
+  // General registration page with role selection
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-red-600 text-white px-6 py-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center space-x-2">
+            <Handshake className="w-6 h-6" />
+            <span className="text-xl font-bold">FinderMeister</span>
+          </Link>
+          <nav className="flex items-center space-x-6">
+            <a href="#" className="hover:underline">Browse Requests</a>
+            <Link href="/register" className="hover:underline">Sign Up</Link>
+            <Link href="/login" className="hover:underline">Log In</Link>
+          </nav>
+        </div>
+      </header>
+
+      <section className="py-16">
+        <div className="max-w-2xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Sign Up Form */}
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Sign Up</h2>
+              <p className="text-gray-600 mb-6">
+                Already have an account?{" "}
+                <Link href="/login" className="text-red-600 hover:underline font-medium">
+                  Log In
+                </Link>
+              </p>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Select value={formData.role} onValueChange={handleRoleChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="I am a" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="client">Client - I need help finding things</SelectItem>
+                      <SelectItem value="finder">Finder - I can help find things</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Input
+                  name="firstName"
+                  placeholder="Name"
+                  required
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                />
+
+                <Input
+                  name="email"
+                  type="email"
+                  placeholder="Email"
+                  required
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
+
+                <Input
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  required
+                  value={formData.password}
+                  onChange={handleInputChange}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white py-3 font-medium"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating Account..." : "Sign Up"}
+                </Button>
+              </form>
+            </div>
+
+            {/* Log In Form */}
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Log In</h2>
+              <p className="text-gray-600 mb-6">
+                Don't have an account?{" "}
+                <span className="text-red-600 font-medium">Sign Up</span>
+              </p>
+
+              <div className="space-y-4">
+                <Input placeholder="Email" />
+                <Input type="password" placeholder="Password" />
+                <Link href="/login">
+                  <Button className="w-full bg-red-600 hover:bg-red-700 text-white py-3 font-medium">
+                    Log In
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

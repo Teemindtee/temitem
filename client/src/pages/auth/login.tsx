@@ -3,32 +3,19 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { Handshake } from "lucide-react";
 
 export default function Login() {
-  const [, setLocation] = useLocation();
-  const { login, isAuthenticated, user } = useAuth();
+  const [, navigate] = useLocation();
+  const { login } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
-  // Redirect if already authenticated
-  if (isAuthenticated && user) {
-    if (user.role === 'client') {
-      setLocation('/client/dashboard');
-    } else if (user.role === 'finder') {
-      setLocation('/finder/dashboard');
-    } else if (user.role === 'admin') {
-      setLocation('/admin/dashboard');
-    }
-    return null;
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,93 +24,96 @@ export default function Login() {
     try {
       await login(formData.email, formData.password);
       toast({
-        title: "Login successful",
-        description: "Welcome back to FinderMeister!",
+        title: "Success",
+        description: "Logged in successfully!",
       });
-    } catch (error) {
+      navigate("/");
+    } catch (error: any) {
       toast({
-        title: "Login failed",
-        description: error instanceof Error ? error.message : "Invalid credentials",
         variant: "destructive",
+        title: "Error",
+        description: error.message || "Login failed",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
-    <div className="min-h-screen bg-finder-gray flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Handshake className="w-8 h-8 text-finder-red" />
-            <span className="text-2xl font-bold text-finder-text">FinderMeister</span>
-          </div>
-          <CardTitle className="text-2xl font-bold text-finder-text">
-            Welcome Back
-          </CardTitle>
-          <p className="text-finder-text-light">
-            Sign in to your account
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="focus:ring-finder-red focus:border-finder-red"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="focus:ring-finder-red focus:border-finder-red"
-              />
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-red-600 text-white px-6 py-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center space-x-2">
+            <Handshake className="w-6 h-6" />
+            <span className="text-xl font-bold">FinderMeister</span>
+          </Link>
+          <nav className="flex items-center space-x-6">
+            <a href="#" className="hover:underline">Browse Requests</a>
+            <Link href="/register" className="hover:underline">Sign Up</Link>
+            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Log In</span>
+          </nav>
+        </div>
+      </header>
+
+      {/* Login Section */}
+      <section className="py-16">
+        <div className="max-w-md mx-auto px-6">
+          <div className="bg-white rounded-lg shadow-sm border p-8">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Log In</h1>
+              <p className="text-gray-600">
+                Don't have an account?{" "}
+                <Link href="/register" className="text-red-600 hover:underline font-medium">
+                  Sign Up
+                </Link>
+              </p>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-finder-red hover:bg-finder-red-dark"
-              disabled={isLoading}
-            >
-              {isLoading ? "Signing in..." : "Sign In"}
-            </Button>
-          </form>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                  placeholder=""
+                />
+              </div>
 
-          <div className="mt-6 text-center">
-            <p className="text-finder-text-light">
-              Don't have an account?{" "}
-              <Link href="/register">
-                <a className="text-finder-red font-medium hover:underline">
-                  Sign up
-                </a>
-              </Link>
-            </p>
+              <div>
+                <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className="mt-1"
+                  placeholder=""
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 font-medium"
+                disabled={isLoading}
+              >
+                {isLoading ? "Logging in..." : "Log In"}
+              </Button>
+            </form>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
     </div>
   );
 }

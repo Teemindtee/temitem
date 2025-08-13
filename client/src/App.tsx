@@ -8,7 +8,7 @@ import Landing from "@/pages/landing";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
 import ClientDashboard from "@/pages/client/dashboard";
-import PostRequest from "@/pages/client/post-request";
+import CreateRequest from "@/pages/client/create-request";
 import FinderDashboard from "@/pages/finder/dashboard";
 import BrowseRequests from "@/pages/finder/browse-requests";
 import AdminDashboard from "@/pages/admin/dashboard";
@@ -21,7 +21,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/client/dashboard" component={ClientDashboard} />
-      <Route path="/client/post-request" component={PostRequest} />
+      <Route path="/client/create-request" component={CreateRequest} />
       <Route path="/finder/dashboard" component={FinderDashboard} />
       <Route path="/finder/browse-requests" component={BrowseRequests} />
       <Route path="/admin/dashboard" component={AdminDashboard} />

@@ -38,10 +38,10 @@ export const requests = pgTable("requests", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   category: text("category").notNull(),
-  budgetMin: decimal("budget_min", { precision: 10, scale: 2 }),
-  budgetMax: decimal("budget_max", { precision: 10, scale: 2 }),
+  budgetMin: text("budget_min"),
+  budgetMax: text("budget_max"),
   timeframe: text("timeframe"),
-  status: text("status").default("active"), // 'active', 'on_hold', 'approved', 'completed'
+  status: text("status").default("open"), // 'open', 'in_progress', 'completed'
   tokenCost: integer("token_cost").default(1),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -51,7 +51,7 @@ export const proposals = pgTable("proposals", {
   requestId: varchar("request_id").references(() => requests.id).notNull(),
   finderId: varchar("finder_id").references(() => finders.id).notNull(),
   approach: text("approach").notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  price: text("price").notNull(),
   timeline: text("timeline").notNull(),
   notes: text("notes"),
   status: text("status").default("pending"), // 'pending', 'accepted', 'rejected'
@@ -140,10 +140,9 @@ export const proposalsRelations = relations(proposals, ({ one }) => ({
     fields: [proposals.finderId],
     references: [finders.id],
   }),
-  contract: one(contracts),
 }));
 
-export const contractsRelations = relations(contracts, ({ one, many }) => ({
+export const contractsRelations = relations(contracts, ({ one }) => ({
   request: one(requests, {
     fields: [contracts.requestId],
     references: [requests.id],
@@ -155,14 +154,11 @@ export const contractsRelations = relations(contracts, ({ one, many }) => ({
   client: one(users, {
     fields: [contracts.clientId],
     references: [users.id],
-    relationName: "clientContracts",
   }),
-  finder: one(users, {
+  finder: one(finders, {
     fields: [contracts.finderId],
-    references: [users.id],
-    relationName: "finderContracts",
+    references: [finders.id],
   }),
-  reviews: many(reviews),
 }));
 
 export const reviewsRelations = relations(reviews, ({ one }) => ({
@@ -196,6 +192,20 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
   }),
 }));
 
+// Export types
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+export type Finder = typeof finders.$inferSelect;
+export type InsertFinder = typeof finders.$inferInsert;
+export type Request = typeof requests.$inferSelect;
+export type InsertRequest = typeof requests.$inferInsert;
+export type Proposal = typeof proposals.$inferSelect;
+export type InsertProposal = typeof proposals.$inferInsert;
+export type Contract = typeof contracts.$inferSelect;
+export type InsertContract = typeof contracts.$inferInsert;
+export type Review = typeof reviews.$inferSelect;
+export type InsertReview = typeof reviews.$inferInsert;
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -227,25 +237,9 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
 });
 
-export const insertTransactionSchema = createInsertSchema(transactions).omit({
-  id: true,
-  createdAt: true,
-});
-
-// Types
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type Finder = typeof finders.$inferSelect;
-export type InsertFinder = z.infer<typeof insertFinderSchema>;
-export type Request = typeof requests.$inferSelect;
-export type InsertRequest = z.infer<typeof insertRequestSchema>;
-export type Proposal = typeof proposals.$inferSelect;
-export type InsertProposal = z.infer<typeof insertProposalSchema>;
-export type Contract = typeof contracts.$inferSelect;
-export type InsertContract = z.infer<typeof insertContractSchema>;
-export type Review = typeof reviews.$inferSelect;
-export type InsertReview = z.infer<typeof insertReviewSchema>;
-export type Token = typeof tokens.$inferSelect;
-export type Transaction = typeof transactions.$inferSelect;
-export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
-export type AdminSetting = typeof adminSettings.$inferSelect;
+export type InsertUserType = z.infer<typeof insertUserSchema>;
+export type InsertFinderType = z.infer<typeof insertFinderSchema>;
+export type InsertRequestType = z.infer<typeof insertRequestSchema>;
+export type InsertProposalType = z.infer<typeof insertProposalSchema>;
+export type InsertContractType = z.infer<typeof insertContractSchema>;
+export type InsertReviewType = z.infer<typeof insertReviewSchema>;
