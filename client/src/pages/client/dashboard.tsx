@@ -49,8 +49,9 @@ export default function ClientDashboard() {
             <span className="text-xl font-bold">FinderMeister</span>
           </Link>
           <nav className="flex items-center space-x-6">
-            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Dashboard</span>
-            <a href="#" className="hover:underline">Browse Finders</a>
+            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">My Requests</span>
+            <Link href="/finder/browse-requests" className="hover:underline">Browse Requests</Link>
+            <Link href="/client/proposals" className="hover:underline">View Proposals</Link>
             <Button 
               onClick={handleLogout}
               variant="outline" 
