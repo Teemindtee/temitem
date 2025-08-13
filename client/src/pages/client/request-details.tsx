@@ -91,7 +91,7 @@ export default function RequestDetails() {
             <Button 
               onClick={handleLogout}
               variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-red-600"
+              className="border-white text-white hover:bg-white hover:text-red-600 bg-transparent"
             >
               Log Out
             </Button>
