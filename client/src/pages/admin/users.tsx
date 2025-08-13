@@ -19,13 +19,87 @@ import {
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { User } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function AdminUsers() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [banReason, setBanReason] = useState("");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  const verifyUserMutation = useMutation({
+    mutationFn: ({ userId, action }: { userId: string; action: 'verify' | 'unverify' }) =>
+      apiRequest(`/api/admin/users/${userId}/${action}`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      toast({
+        title: "Success",
+        description: "User verification status updated successfully"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update user verification",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const banUserMutation = useMutation({
+    mutationFn: ({ userId, action, reason }: { userId: string; action: 'ban' | 'unban'; reason?: string }) =>
+      apiRequest(`/api/admin/users/${userId}/${action}`, { 
+        method: 'POST', 
+        body: action === 'ban' ? { reason } : undefined 
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      setSelectedUser(null);
+      setBanReason("");
+      toast({
+        title: "Success",
+        description: "User ban status updated successfully"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update user ban status",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleVerifyUser = (userId: string, shouldVerify: boolean) => {
+    verifyUserMutation.mutate({
+      userId,
+      action: shouldVerify ? 'verify' : 'unverify'
+    });
+  };
+
+  const handleBanUser = (userId: string, shouldBan: boolean) => {
+    if (shouldBan) {
+      const user = users.find(u => u.id === userId);
+      setSelectedUser(user || null);
+    } else {
+      banUserMutation.mutate({ userId, action: 'unban' });
+    }
+  };
+
+  const confirmBanUser = () => {
+    if (!selectedUser || !banReason.trim()) return;
+    
+    banUserMutation.mutate({
+      userId: selectedUser.id,
+      action: 'ban',
+      reason: banReason
+    });
+  };
 
   const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ['/api/admin/users'],
@@ -209,9 +283,14 @@ export default function AdminUsers() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit User</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            Suspend User
+                          <DropdownMenuItem onClick={() => handleVerifyUser(userData.id, !userData.isVerified)}>
+                            {userData.isVerified ? "Unverify" : "Verify"} User
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className={userData.isBanned ? "text-green-600" : "text-red-600"}
+                            onClick={() => handleBanUser(userData.id, !userData.isBanned)}
+                          >
+                            {userData.isBanned ? "Unban" : "Ban"} User
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -222,6 +301,43 @@ export default function AdminUsers() {
             )}
           </CardContent>
         </Card>
+
+        {/* Ban User Dialog */}
+        <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Ban User</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                You are about to ban <strong>{selectedUser?.firstName} {selectedUser?.lastName}</strong> ({selectedUser?.email}).
+                This will prevent them from accessing the platform.
+              </p>
+              <div>
+                <Label htmlFor="banReason">Reason for ban *</Label>
+                <Textarea
+                  id="banReason"
+                  value={banReason}
+                  onChange={(e) => setBanReason(e.target.value)}
+                  placeholder="Please provide a reason for banning this user..."
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setSelectedUser(null)}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={confirmBanUser}
+                  disabled={!banReason.trim() || banUserMutation.isPending}
+                >
+                  {banUserMutation.isPending ? "Banning..." : "Ban User"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

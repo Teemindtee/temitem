@@ -229,7 +229,7 @@ export default function AdminDashboard() {
             <CardTitle className="text-xl text-gray-900">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-4 gap-4">
               <Link href="/admin/users">
                 <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                   <Users className="w-4 h-4 mr-2" />
@@ -242,10 +242,16 @@ export default function AdminDashboard() {
                   Monitor Requests
                 </Button>
               </Link>
-              <Link href="/admin/reports">
+              <Link href="/admin/settings">
                 <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
                   <DollarSign className="w-4 h-4 mr-2" />
-                  View Reports
+                  Platform Settings
+                </Button>
+              </Link>
+              <Link href="/admin/withdrawals">
+                <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white">
+                  <DollarSign className="w-4 h-4 mr-2" />
+                  Withdrawals
                 </Button>
               </Link>
             </div>

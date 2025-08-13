@@ -21,6 +21,10 @@ import {
   type InsertConversation,
   type Message,
   type InsertMessage,
+  type Category,
+  type InsertCategory,
+  type WithdrawalRequest,
+  type InsertWithdrawalRequest,
 
   users,
   finders,
@@ -32,7 +36,9 @@ import {
   transactions,
   adminSettings,
   conversations,
-  messages
+  messages,
+  categories,
+  withdrawalRequests
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -667,10 +673,181 @@ export class DatabaseStorage implements IStorage {
       },
       completedJobs: finder.jobsCompleted || 0,
       totalEarnings: finder.totalEarned || "0.00",
+      availableBalance: finder.availableBalance || "0.00",
       rating: parseFloat(finder.averageRating || "5.0"),
       tokens: 10, // Default tokens since not in schema
       createdAt: user.createdAt
     };
+  }
+
+  // Categories Management
+  async createCategory(categoryData: InsertCategory): Promise<Category> {
+    const [category] = await db.insert(categories).values(categoryData).returning();
+    return category;
+  }
+
+  async getCategories(): Promise<Category[]> {
+    return await db.select().from(categories).orderBy(categories.name);
+  }
+
+  async updateCategory(id: string, updates: Partial<Category>): Promise<Category | null> {
+    const [category] = await db
+      .update(categories)
+      .set(updates)
+      .where(eq(categories.id, id))
+      .returning();
+    return category || null;
+  }
+
+  async deleteCategory(id: string): Promise<void> {
+    await db.delete(categories).where(eq(categories.id, id));
+  }
+
+  // User Ban Management
+  async banUser(userId: string, reason: string): Promise<User | null> {
+    const [user] = await db
+      .update(users)
+      .set({
+        isBanned: true,
+        bannedReason: reason,
+        bannedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user || null;
+  }
+
+  async unbanUser(userId: string): Promise<User | null> {
+    const [user] = await db
+      .update(users)
+      .set({
+        isBanned: false,
+        bannedReason: null,
+        bannedAt: null
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user || null;
+  }
+
+  // User Verification
+  async verifyUser(userId: string): Promise<User | null> {
+    const [user] = await db
+      .update(users)
+      .set({ isVerified: true })
+      .where(eq(users.id, userId))
+      .returning();
+    return user || null;
+  }
+
+  async unverifyUser(userId: string): Promise<User | null> {
+    const [user] = await db
+      .update(users)
+      .set({ isVerified: false })
+      .where(eq(users.id, userId))
+      .returning();
+    return user || null;
+  }
+
+  // Finder Verification
+  async verifyFinder(finderId: string): Promise<Finder | null> {
+    const [finder] = await db
+      .update(finders)
+      .set({ isVerified: true })
+      .where(eq(finders.id, finderId))
+      .returning();
+    return finder || null;
+  }
+
+  async unverifyFinder(finderId: string): Promise<Finder | null> {
+    const [finder] = await db
+      .update(finders)
+      .set({ isVerified: false })
+      .where(eq(finders.id, finderId))
+      .returning();
+    return finder || null;
+  }
+
+  // Admin Settings
+  async getAdminSetting(key: string): Promise<AdminSetting | null> {
+    const [setting] = await db
+      .select()
+      .from(adminSettings)
+      .where(eq(adminSettings.key, key))
+      .limit(1);
+    return setting || null;
+  }
+
+  async setAdminSetting(key: string, value: string): Promise<AdminSetting> {
+    const existing = await this.getAdminSetting(key);
+    
+    if (existing) {
+      const [updated] = await db
+        .update(adminSettings)
+        .set({ value, updatedAt: new Date() })
+        .where(eq(adminSettings.key, key))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(adminSettings)
+        .values({ key, value })
+        .returning();
+      return created;
+    }
+  }
+
+  // Withdrawal Requests
+  async createWithdrawalRequest(requestData: InsertWithdrawalRequest): Promise<WithdrawalRequest> {
+    const [request] = await db
+      .insert(withdrawalRequests)
+      .values(requestData)
+      .returning();
+    return request;
+  }
+
+  async getWithdrawalRequests(): Promise<Array<WithdrawalRequest & { finder: { user: { firstName: string; lastName: string; email: string; } } }>> {
+    return await db
+      .select({
+        id: withdrawalRequests.id,
+        amount: withdrawalRequests.amount,
+        status: withdrawalRequests.status,
+        paymentMethod: withdrawalRequests.paymentMethod,
+        paymentDetails: withdrawalRequests.paymentDetails,
+        adminNotes: withdrawalRequests.adminNotes,
+        requestedAt: withdrawalRequests.requestedAt,
+        processedAt: withdrawalRequests.processedAt,
+        finder: {
+          user: {
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email
+          }
+        }
+      })
+      .from(withdrawalRequests)
+      .innerJoin(finders, eq(withdrawalRequests.finderId, finders.id))
+      .innerJoin(users, eq(finders.userId, users.id))
+      .orderBy(desc(withdrawalRequests.requestedAt));
+  }
+
+  async updateWithdrawalRequest(id: string, updates: Partial<WithdrawalRequest>): Promise<WithdrawalRequest | null> {
+    const [request] = await db
+      .update(withdrawalRequests)
+      .set({ ...updates, processedAt: new Date() })
+      .where(eq(withdrawalRequests.id, id))
+      .returning();
+    return request || null;
+  }
+
+  // Update finder balance after withdrawal
+  async updateFinderBalance(finderId: string, amount: string): Promise<void> {
+    await db
+      .update(finders)
+      .set({
+        availableBalance: sql`available_balance - ${amount}`
+      })
+      .where(eq(finders.id, finderId));
   }
 }
 

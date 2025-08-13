@@ -13,6 +13,8 @@ export const users = pgTable("users", {
   role: text("role").notNull(), // 'client', 'finder', 'admin'
   isVerified: boolean("is_verified").default(false),
   isBanned: boolean("is_banned").default(false),
+  bannedReason: text("banned_reason"),
+  bannedAt: timestamp("banned_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -21,10 +23,13 @@ export const finders = pgTable("finders", {
   userId: varchar("user_id").references(() => users.id).notNull(),
   jobsCompleted: integer("jobs_completed").default(0),
   totalEarned: decimal("total_earned", { precision: 10, scale: 2 }).default("0.00"),
+  availableBalance: decimal("available_balance", { precision: 10, scale: 2 }).default("0.00"),
   averageRating: decimal("average_rating", { precision: 3, scale: 2 }).default("0.00"),
   level: text("level").default("Novice"), // 'Novice', 'Professional', 'Expert', 'Master'
   bio: text("bio"),
   phone: text("phone"),
+  isVerified: boolean("is_verified").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const tokens = pgTable("tokens", {
@@ -114,6 +119,27 @@ export const messages = pgTable("messages", {
   content: text("content").notNull(),
   isRead: boolean("is_read").default(false),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const categories = pgTable("categories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const withdrawalRequests = pgTable("withdrawal_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  finderId: varchar("finder_id").references(() => finders.id).notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  status: text("status").default("pending"), // 'pending', 'processing', 'approved', 'rejected'
+  paymentMethod: text("payment_method").notNull(), // 'bank_transfer', 'paypal', 'crypto'
+  paymentDetails: text("payment_details").notNull(), // JSON string with payment info
+  adminNotes: text("admin_notes"),
+  processedBy: varchar("processed_by").references(() => users.id),
+  requestedAt: timestamp("requested_at").defaultNow(),
+  processedAt: timestamp("processed_at"),
 });
 
 // Relations
@@ -266,6 +292,16 @@ export type InsertAdminSetting = typeof adminSettings.$inferInsert;
 export type Conversation = typeof conversations.$inferSelect;
 export type InsertConversation = typeof conversations.$inferInsert;
 export type Message = typeof messages.$inferSelect;
+
+// Categories
+export const insertCategorySchema = createInsertSchema(categories);
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type Category = typeof categories.$inferSelect;
+
+// Withdrawal Requests
+export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalRequests);
+export type InsertWithdrawalRequest = z.infer<typeof insertWithdrawalRequestSchema>;
+export type WithdrawalRequest = typeof withdrawalRequests.$inferSelect;
 export type InsertMessage = typeof messages.$inferInsert;
 
 // Insert schemas

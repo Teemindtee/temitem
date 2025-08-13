@@ -24,6 +24,8 @@ import ProposalDetail from "@/pages/client/proposal-detail";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminUsers from "@/pages/admin/users";
 import AdminRequests from "@/pages/admin/requests";
+import AdminSettings from "@/pages/admin/settings";
+import AdminWithdrawals from "@/pages/admin/withdrawals";
 import Messages from "@/pages/Messages";
 import ConversationDetail from "@/pages/ConversationDetail";
 import FinderProfile from "@/pages/finder-profile";
@@ -52,6 +54,8 @@ function Router() {
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/requests" component={AdminRequests} />
+      <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/withdrawals" component={AdminWithdrawals} />
       <Route path="/messages" component={Messages} />
       <Route path="/messages/:conversationId" component={ConversationDetail} />
       <Route path="/finder-profile/:finderId" component={FinderProfile} />

@@ -893,6 +893,269 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin management routes
+  app.get("/api/admin/categories", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  app.post("/api/admin/categories", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { name, description } = req.body;
+      const category = await storage.createCategory({
+        name,
+        description,
+        isActive: true
+      });
+
+      res.status(201).json(category);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to create category", error: error.message });
+    }
+  });
+
+  app.put("/api/admin/categories/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const category = await storage.updateCategory(id, req.body);
+
+      if (!category) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+
+      res.json(category);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to update category", error: error.message });
+    }
+  });
+
+  app.delete("/api/admin/categories/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      await storage.deleteCategory(id);
+      res.json({ message: "Category deleted successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to delete category", error: error.message });
+    }
+  });
+
+  // User management routes
+  app.post("/api/admin/users/:id/ban", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { reason } = req.body;
+
+      if (!reason) {
+        return res.status(400).json({ message: "Ban reason is required" });
+      }
+
+      const user = await storage.banUser(id, reason);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ message: "User banned successfully", user });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to ban user", error: error.message });
+    }
+  });
+
+  app.post("/api/admin/users/:id/unban", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const user = await storage.unbanUser(id);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ message: "User unbanned successfully", user });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to unban user", error: error.message });
+    }
+  });
+
+  app.post("/api/admin/users/:id/verify", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const user = await storage.verifyUser(id);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ message: "User verified successfully", user });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to verify user", error: error.message });
+    }
+  });
+
+  app.post("/api/admin/users/:id/unverify", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const user = await storage.unverifyUser(id);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({ message: "User unverified successfully", user });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to unverify user", error: error.message });
+    }
+  });
+
+  // Admin settings routes
+  app.get("/api/admin/settings", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const proposalTokenCost = await storage.getAdminSetting('proposal_token_cost');
+      
+      res.json({
+        proposalTokenCost: proposalTokenCost?.value || '1'
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch admin settings" });
+    }
+  });
+
+  app.put("/api/admin/settings", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { proposalTokenCost } = req.body;
+
+      if (proposalTokenCost !== undefined) {
+        await storage.setAdminSetting('proposal_token_cost', proposalTokenCost.toString());
+      }
+
+      res.json({ message: "Settings updated successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to update settings", error: error.message });
+    }
+  });
+
+  // Withdrawal management routes
+  app.get("/api/admin/withdrawals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const withdrawals = await storage.getWithdrawalRequests();
+      res.json(withdrawals);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch withdrawal requests" });
+    }
+  });
+
+  app.put("/api/admin/withdrawals/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { status, adminNotes } = req.body;
+
+      if (!['processing', 'approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+
+      const withdrawal = await storage.updateWithdrawalRequest(id, {
+        status,
+        adminNotes,
+        processedBy: req.user.userId
+      });
+
+      if (!withdrawal) {
+        return res.status(404).json({ message: "Withdrawal request not found" });
+      }
+
+      // If approved, deduct from finder balance
+      if (status === 'approved') {
+        await storage.updateFinderBalance(withdrawal.finderId, withdrawal.amount);
+      }
+
+      res.json({ message: "Withdrawal request updated successfully", withdrawal });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to update withdrawal request", error: error.message });
+    }
+  });
+
+  // Finder withdrawal request
+  app.post("/api/finder/withdraw", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: "Only finders can request withdrawals" });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder profile not found" });
+      }
+
+      const { amount, paymentMethod, paymentDetails } = req.body;
+
+      if (parseFloat(amount) > parseFloat(finder.availableBalance || '0')) {
+        return res.status(400).json({ message: "Insufficient balance" });
+      }
+
+      const withdrawal = await storage.createWithdrawalRequest({
+        finderId: finder.id,
+        amount,
+        paymentMethod,
+        paymentDetails: JSON.stringify(paymentDetails),
+        status: 'pending'
+      });
+
+      res.status(201).json({ message: "Withdrawal request submitted successfully", withdrawal });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to submit withdrawal request", error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
