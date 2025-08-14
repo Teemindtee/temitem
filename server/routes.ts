@@ -333,15 +333,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Only clients can view proposals" });
       }
 
-      const clientRequests = await storage.getRequestsByClientId(req.user.userId);
-      const requestIds = clientRequests.map(r => r.id);
-      const allProposals = [];
-      for (const requestId of requestIds) {
-        const proposals = await storage.getProposalsByRequestId(requestId);
-        allProposals.push(...proposals);
-      }
-      res.json(allProposals);
+      const proposals = await storage.getProposalsForClient(req.user.userId);
+      res.json(proposals);
     } catch (error) {
+      console.error('Failed to fetch client proposals:', error);
       res.status(500).json({ message: "Failed to fetch proposals" });
     }
   });

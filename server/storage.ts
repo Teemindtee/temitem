@@ -296,6 +296,42 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(proposals.createdAt));
   }
 
+  async getProposalsForClient(clientId: string): Promise<Array<Proposal & { finderName: string }>> {
+    const result = await db
+      .select({
+        id: proposals.id,
+        requestId: proposals.requestId,
+        finderId: proposals.finderId,
+        approach: proposals.approach,
+        price: proposals.price,
+        timeline: proposals.timeline,
+        notes: proposals.notes,
+        status: proposals.status,
+        createdAt: proposals.createdAt,
+        finderFirstName: users.firstName,
+        finderLastName: users.lastName,
+      })
+      .from(proposals)
+      .innerJoin(requests, eq(proposals.requestId, requests.id))
+      .innerJoin(finders, eq(proposals.finderId, finders.id))
+      .innerJoin(users, eq(finders.userId, users.id))
+      .where(eq(requests.clientId, clientId))
+      .orderBy(desc(proposals.createdAt));
+
+    return result.map(row => ({
+      id: row.id,
+      requestId: row.requestId,
+      finderId: row.finderId,
+      approach: row.approach,
+      price: row.price,
+      timeline: row.timeline,
+      notes: row.notes,
+      status: row.status,
+      createdAt: row.createdAt,
+      finderName: `${row.finderFirstName} ${row.finderLastName}`
+    }));
+  }
+
   async getProposalsByFinderId(finderId: string): Promise<Proposal[]> {
     return await db
       .select()

@@ -1,40 +1,50 @@
-import { useState } from "react";
+import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 type StartConversationButtonProps = {
   proposalId: string;
-  finderName: string;
+  finderName?: string;
+  className?: string;
+  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
+  children?: ReactNode;
 };
 
-export default function StartConversationButton({ proposalId, finderName }: StartConversationButtonProps) {
+export default function StartConversationButton({ 
+  proposalId, 
+  finderName = "Finder", 
+  className = "",
+  variant = "default",
+  children 
+}: StartConversationButtonProps) {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const createConversationMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/messages/conversations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ proposalId })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to create conversation');
-      }
-      
-      return response.json();
+      return apiRequest("POST", "/api/messages/conversations", { proposalId });
     },
     onSuccess: (conversation) => {
       queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations'] });
       setLocation(`/messages/${conversation.id}`);
+      toast({
+        title: "Success!",
+        description: "Conversation started successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to start conversation. Please try again.",
+      });
     }
   });
 
@@ -46,16 +56,21 @@ export default function StartConversationButton({ proposalId, finderName }: Star
     <Button
       onClick={() => createConversationMutation.mutate()}
       disabled={createConversationMutation.isPending}
-      className="flex items-center space-x-2"
+      className={className}
+      variant={variant}
       size="sm"
     >
-      <MessageCircle className="w-4 h-4" />
-      <span>
-        {createConversationMutation.isPending 
-          ? "Starting..." 
-          : `Message ${finderName}`
-        }
-      </span>
+      {children || (
+        <>
+          <MessageCircle className="w-4 h-4 mr-2" />
+          <span>
+            {createConversationMutation.isPending 
+              ? "Starting..." 
+              : `Message ${finderName}`
+            }
+          </span>
+        </>
+      )}
     </Button>
   );
 }
