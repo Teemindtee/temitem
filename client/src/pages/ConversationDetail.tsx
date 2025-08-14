@@ -5,16 +5,20 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Send, User } from "lucide-react";
+import { ArrowLeft, Send, User, Paperclip, Download, FileIcon } from "lucide-react";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import ClientHeader from "@/components/client-header";
+import { FileUploader } from "@/components/FileUploader";
+import { useToast } from "@/hooks/use-toast";
 
 type Message = {
   id: string;
   conversationId: string;
   senderId: string;
   content: string;
+  attachmentPaths?: string[];
+  attachmentNames?: string[];
   isRead: boolean;
   createdAt: Date;
   sender: { firstName: string; lastName: string; };
@@ -35,8 +39,10 @@ export default function ConversationDetail() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const conversationId = params.conversationId as string;
+  const { toast } = useToast();
   
   const [newMessage, setNewMessage] = useState("");
+  const [pendingAttachments, setPendingAttachments] = useState<{path: string; name: string}[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: messages = [], isLoading } = useQuery<Message[]>({
@@ -48,16 +54,30 @@ export default function ConversationDetail() {
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: async (content: string) => {
-      return await apiRequest('POST', `/api/messages/conversations/${conversationId}/messages`, { content });
+    mutationFn: async ({ content, attachmentPaths, attachmentNames }: {
+      content: string;
+      attachmentPaths?: string[];
+      attachmentNames?: string[];
+    }) => {
+      return await apiRequest('POST', `/api/messages/conversations/${conversationId}/messages`, {
+        content,
+        attachmentPaths,
+        attachmentNames
+      });
     },
     onSuccess: () => {
       setNewMessage("");
+      setPendingAttachments([]);
       // Invalidate messages to refresh the list
       queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations', conversationId, 'messages'] });
     },
     onError: (error: any) => {
       console.error('Message send error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive"
+      });
     }
   });
 
@@ -71,19 +91,85 @@ export default function ConversationDetail() {
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newMessage.trim() && !sendMessageMutation.isPending) {
-      sendMessageMutation.mutate(newMessage.trim());
+    if ((newMessage.trim() || pendingAttachments.length > 0) && !sendMessageMutation.isPending) {
+      sendMessageMutation.mutate({
+        content: newMessage.trim(),
+        attachmentPaths: pendingAttachments.map(att => att.path),
+        attachmentNames: pendingAttachments.map(att => att.name)
+      });
     }
+  };
+
+  const handleFileUpload = async () => {
+    try {
+      const response = await apiRequest('POST', '/api/messages/upload', {});
+      return { method: 'PUT' as const, url: response.uploadURL };
+    } catch (error) {
+      console.error('Failed to get upload URL:', error);
+      toast({
+        title: "Error",
+        description: "Failed to prepare file upload. Please try again.",
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  const handleFileComplete = async (result: any) => {
+    if (result.successful && result.successful.length > 0) {
+      try {
+        for (const file of result.successful) {
+          const response = await apiRequest('POST', '/api/messages/attach', {
+            fileUrl: file.uploadURL,
+            fileName: file.name
+          });
+          
+          if (response.success) {
+            setPendingAttachments(prev => [...prev, {
+              path: response.objectPath,
+              name: response.fileName
+            }]);
+          }
+        }
+        
+        toast({
+          title: "Success",
+          description: `${result.successful.length} file(s) attached successfully.`
+        });
+      } catch (error) {
+        console.error('Failed to process attachments:', error);
+        toast({
+          title: "Error",
+          description: "Failed to process file attachments. Please try again.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setPendingAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const downloadFile = (filePath: string, fileName: string) => {
+    const downloadUrl = filePath.startsWith('/objects/') ? filePath : `/objects/${filePath}`;
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = fileName;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (newMessage.trim() && !sendMessageMutation.isPending) {
-        sendMessageMutation.mutate(newMessage.trim());
-      }
+      handleSendMessage(e);
     }
   };
+
+
 
   const getOtherParty = () => {
     if (!messages.length) return null;
@@ -220,7 +306,56 @@ export default function ConversationDetail() {
                             : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md'
                         }`}
                       >
-                        <p className="text-sm md:text-base leading-relaxed break-words">{message.content}</p>
+                        {message.content && (
+                          <p className="text-sm md:text-base leading-relaxed break-words mb-2">
+                            {message.content}
+                          </p>
+                        )}
+                        
+                        {/* Message attachments */}
+                        {message.attachmentPaths && message.attachmentPaths.length > 0 && (
+                          <div className="space-y-2 mb-2">
+                            {message.attachmentPaths.map((filePath, index) => {
+                              const fileName = message.attachmentNames?.[index] || `File ${index + 1}`;
+                              const isImage = fileName.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/);
+                              
+                              return (
+                                <div key={index} className={`flex items-center space-x-2 p-2 rounded-lg ${
+                                  message.senderId === user?.id?.toString()
+                                    ? 'bg-red-700'
+                                    : 'bg-gray-200 dark:bg-gray-700'
+                                }`}>
+                                  {isImage ? (
+                                    <img
+                                      src={filePath.startsWith('/objects/') ? filePath : `/objects/${filePath}`}
+                                      alt={fileName}
+                                      className="max-w-48 max-h-32 rounded cursor-pointer"
+                                      onClick={() => downloadFile(filePath, fileName)}
+                                    />
+                                  ) : (
+                                    <>
+                                      <FileIcon className="w-4 h-4 flex-shrink-0" />
+                                      <span className="text-sm truncate flex-1">{fileName}</span>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => downloadFile(filePath, fileName)}
+                                        className={`h-6 px-2 ${
+                                          message.senderId === user?.id?.toString()
+                                            ? 'hover:bg-red-800 text-red-100'
+                                            : 'hover:bg-gray-300 dark:hover:bg-gray-600'
+                                        }`}
+                                      >
+                                        <Download className="w-3 h-3" />
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        
                         <p
                           className={`text-xs mt-1 ${
                             message.senderId === user?.id?.toString()
@@ -240,7 +375,47 @@ export default function ConversationDetail() {
             
             {/* Input area */}
             <div className="border-t border-gray-200 dark:border-gray-700 p-3 md:p-4 flex-shrink-0">
+              {/* Pending attachments */}
+              {pendingAttachments.length > 0 && (
+                <div className="mb-3 space-y-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Attached files ({pendingAttachments.length}):
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {pendingAttachments.map((attachment, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center space-x-2 bg-blue-50 dark:bg-blue-900/30 px-3 py-2 rounded-lg"
+                      >
+                        <FileIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-sm text-blue-800 dark:text-blue-200 truncate max-w-32">
+                          {attachment.name}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeAttachment(index)}
+                          className="h-6 w-6 p-0 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                        >
+                          ×
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               <form onSubmit={handleSendMessage} className="flex items-end space-x-2 md:space-x-3">
+                <FileUploader
+                  maxNumberOfFiles={5}
+                  maxFileSize={10485760}
+                  onGetUploadParameters={handleFileUpload}
+                  onComplete={handleFileComplete}
+                  buttonClassName="flex-shrink-0 p-2 md:p-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-full"
+                >
+                  <Paperclip className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                </FileUploader>
+                
                 <div className="flex-1 relative">
                   <Input
                     value={newMessage}
@@ -254,7 +429,7 @@ export default function ConversationDetail() {
                 </div>
                 <Button
                   type="submit"
-                  disabled={!newMessage.trim() || sendMessageMutation.isPending}
+                  disabled={(!newMessage.trim() && pendingAttachments.length === 0) || sendMessageMutation.isPending}
                   size="icon"
                   className="bg-red-600 hover:bg-red-700 rounded-full p-3 md:p-2 flex-shrink-0"
                 >

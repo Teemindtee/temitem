@@ -8,7 +8,8 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema } from "@shared/schema";
-import { ObjectStorageService } from "./objectStorage";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { ObjectPermission } from "./objectAcl";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -926,6 +927,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // File upload routes for messaging
+  app.post("/api/messages/upload", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error('Failed to get upload URL:', error);
+      res.status(500).json({ message: "Failed to get upload URL" });
+    }
+  });
+
+  app.post("/api/messages/attach", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { fileUrl, fileName } = req.body;
+      
+      if (!fileUrl || !fileName) {
+        return res.status(400).json({ message: "File URL and name are required" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        fileUrl,
+        {
+          owner: req.user.id,
+          visibility: "private", // Message attachments are private
+        }
+      );
+
+      res.json({ 
+        objectPath,
+        fileName,
+        success: true
+      });
+    } catch (error) {
+      console.error('Failed to set file ACL:', error);
+      res.status(500).json({ message: "Failed to process file attachment" });
+    }
+  });
+
+  // Serve private message attachments
+  app.get("/objects/:objectPath(*)", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      
+      // Check if user can access this file
+      const canAccess = await objectStorageService.canAccessObjectEntity({
+        objectFile,
+        userId: req.user.id,
+        requestedPermission: ObjectPermission.READ,
+      });
+      
+      if (!canAccess) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error accessing file:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.status(404).json({ message: "File not found" });
+      }
+      return res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  // Upload endpoint for messages
+  app.post("/api/messages/upload", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ message: "Failed to get upload URL" });
+    }
+  });
+
+  // Process attachment after upload
+  app.post("/api/messages/attach", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { fileUrl, fileName } = req.body;
+      
+      if (!fileUrl || !fileName) {
+        return res.status(400).json({ message: "File URL and name are required" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      
+      // Normalize the object path and set ACL policy
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(fileUrl, {
+        owner: req.user.id,
+        visibility: "private", // Message attachments are private
+        aclRules: [] // Only sender and receiver can access
+      });
+
+      res.json({
+        success: true,
+        objectPath,
+        fileName
+      });
+    } catch (error) {
+      console.error("Error processing attachment:", error);
+      res.status(500).json({ message: "Failed to process attachment" });
+    }
+  });
+
   // Messaging routes
   // Only clients can initiate conversations
   app.post("/api/messages/conversations", authenticateToken, async (req: AuthenticatedRequest, res) => {
@@ -1012,10 +1121,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/messages/conversations/:conversationId/messages", authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
       const { conversationId } = req.params;
-      const { content } = req.body;
+      const { content, attachmentPaths, attachmentNames } = req.body;
 
-      if (!content || content.trim().length === 0) {
-        return res.status(400).json({ message: "Message content is required" });
+      if ((!content || content.trim().length === 0) && (!attachmentPaths || attachmentPaths.length === 0)) {
+        return res.status(400).json({ message: "Message content or attachments are required" });
       }
 
       // TODO: Add permission check to ensure user is part of the conversation
@@ -1023,7 +1132,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const message = await storage.createMessage({
         conversationId,
         senderId: req.user.userId,
-        content: content.trim()
+        content: content ? content.trim() : '',
+        attachmentPaths: attachmentPaths || [],
+        attachmentNames: attachmentNames || []
       });
 
       res.json(message);

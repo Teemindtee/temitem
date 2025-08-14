@@ -122,6 +122,8 @@ export const messages = pgTable("messages", {
   conversationId: varchar("conversation_id").references(() => conversations.id).notNull(),
   senderId: varchar("sender_id").references(() => users.id).notNull(),
   content: text("content").notNull(),
+  attachmentPaths: text("attachment_paths").array(), // Array of file paths in object storage
+  attachmentNames: text("attachment_names").array(), // Array of original file names
   isRead: boolean("is_read").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
