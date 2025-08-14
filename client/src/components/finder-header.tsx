@@ -19,7 +19,11 @@ import {
   Shield, 
   Settings, 
   LogOut,
-  ChevronDown
+  ChevronDown,
+  Menu,
+  FileText,
+  Search,
+  Home
 } from "lucide-react";
 
 interface FinderHeaderProps {
@@ -28,6 +32,7 @@ interface FinderHeaderProps {
 
 export function FinderHeader({ currentPage }: FinderHeaderProps) {
   const { user, logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -47,6 +52,7 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
         </Link>
         
         <nav className="flex items-center space-x-2 sm:space-x-6">
+          {/* Desktop Navigation */}
           <Link 
             href="/finder/dashboard" 
             className={`hidden sm:inline hover:underline ${currentPage === 'dashboard' ? 'font-semibold' : ''}`}
@@ -66,6 +72,38 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
             My Contracts
           </Link>
 
+          {/* Mobile Navigation Menu */}
+          <DropdownMenu open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                className="sm:hidden text-white hover:bg-white/10 p-2"
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem asChild>
+                <Link href="/finder/dashboard" className="flex items-center cursor-pointer">
+                  <Home className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/finder/browse-requests" className="flex items-center cursor-pointer">
+                  <Search className="mr-2 h-4 w-4" />
+                  Browse Requests
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/finder/contracts" className="flex items-center cursor-pointer">
+                  <FileText className="mr-2 h-4 w-4" />
+                  My Contracts
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {/* User Dropdown Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -75,17 +113,17 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
               >
                 <Avatar className="w-8 h-8">
                   <AvatarFallback className="bg-white text-red-600 text-sm font-semibold">
-                    {user?.name ? getInitials(user.name) : 'U'}
+                    {user?.firstName ? getInitials(`${user.firstName} ${user.lastName}`) : 'U'}
                   </AvatarFallback>
                 </Avatar>
-                <span className="hidden sm:inline text-sm font-medium">{user?.name || 'User'}</span>
+                <span className="hidden sm:inline text-sm font-medium">{user?.firstName ? `${user.firstName} ${user.lastName}` : 'User'}</span>
                 <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.name}</p>
+                  <p className="text-sm font-medium leading-none">{user?.firstName} {user?.lastName}</p>
                   <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
                 </div>
               </DropdownMenuLabel>
