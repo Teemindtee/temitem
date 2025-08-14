@@ -211,10 +211,10 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          {/* Recent Requests */}
+          {/* Recent Finds */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg sm:text-xl text-gray-900">Recent Requests</CardTitle>
+              <CardTitle className="text-lg sm:text-xl text-gray-900">Recent Finds</CardTitle>
               <Link href="/admin/requests">
                 <Button variant="outline" size="sm" className="text-xs sm:text-sm">View All</Button>
               </Link>

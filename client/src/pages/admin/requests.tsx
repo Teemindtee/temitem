@@ -19,26 +19,26 @@ import {
   Flag
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import type { Request } from "@shared/schema";
+import type { Find } from "@shared/schema";
 import { useState } from "react";
 
-export default function AdminRequests() {
+export default function AdminFinds() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: requests = [], isLoading } = useQuery<Request[]>({
-    queryKey: ['/api/admin/requests'],
+  const { data: finds = [], isLoading } = useQuery<Find[]>({
+    queryKey: ['/api/admin/finds'],
     enabled: !!user && user.role === 'admin'
   });
 
-  // Filter requests based on search term
-  const filteredRequests = requests.filter(request => 
-    request.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    request.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    request.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (request.status && request.status.toLowerCase().includes(searchTerm.toLowerCase()))
+  // Filter finds based on search term
+  const filteredFinds = finds.filter(find => 
+    find.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    find.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    find.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (find.status && find.status.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (isLoading) {
@@ -46,16 +46,16 @@ export default function AdminRequests() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading requests...</p>
+          <p className="text-gray-600 mt-4">Loading finds...</p>
         </div>
       </div>
     );
   }
 
-  const totalRequests = requests.length;
-  const openRequests = requests.filter(r => r.status === 'open').length;
-  const inProgressRequests = requests.filter(r => r.status === 'in_progress').length;
-  const completedRequests = requests.filter(r => r.status === 'completed').length;
+  const totalFinds = finds.length;
+  const openFinds = finds.filter(r => r.status === 'open').length;
+  const inProgressFinds = finds.filter(r => r.status === 'in_progress').length;
+  const completedFinds = finds.filter(r => r.status === 'completed').length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -65,8 +65,8 @@ export default function AdminRequests() {
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 sm:mb-8">
           <div className="mb-4 sm:mb-0">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Request Management</h1>
-            <p className="text-gray-600">Monitor and manage all service requests</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Find Management</h1>
+            <p className="text-gray-600">Monitor and manage all service finds</p>
           </div>
         </div>
 
@@ -78,7 +78,7 @@ export default function AdminRequests() {
                 <TrendingUp className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Total</h3>
-              <p className="text-lg sm:text-2xl font-bold text-blue-600">{totalRequests}</p>
+              <p className="text-lg sm:text-2xl font-bold text-blue-600">{totalFinds}</p>
             </CardContent>
           </Card>
 
@@ -88,7 +88,7 @@ export default function AdminRequests() {
                 <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Open</h3>
-              <p className="text-lg sm:text-2xl font-bold text-green-600">{openRequests}</p>
+              <p className="text-lg sm:text-2xl font-bold text-green-600">{openFinds}</p>
             </CardContent>
           </Card>
 
@@ -98,7 +98,7 @@ export default function AdminRequests() {
                 <DollarSign className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">In Progress</h3>
-              <p className="text-lg sm:text-2xl font-bold text-yellow-600">{inProgressRequests}</p>
+              <p className="text-lg sm:text-2xl font-bold text-yellow-600">{inProgressFinds}</p>
             </CardContent>
           </Card>
 
@@ -108,7 +108,7 @@ export default function AdminRequests() {
                 <Shield className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Completed</h3>
-              <p className="text-lg sm:text-2xl font-bold text-purple-600">{completedRequests}</p>
+              <p className="text-lg sm:text-2xl font-bold text-purple-600">{completedFinds}</p>
             </CardContent>
           </Card>
         </div>
@@ -119,7 +119,7 @@ export default function AdminRequests() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search requests..."
+                placeholder="Search finds..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -128,57 +128,57 @@ export default function AdminRequests() {
           </CardContent>
         </Card>
 
-        {/* Requests Table */}
+        {/* Finds Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>All Requests ({filteredRequests.length})</span>
+              <span>All Finds ({filteredFinds.length})</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {filteredRequests.length === 0 ? (
+            {filteredFinds.length === 0 ? (
               <div className="text-center py-12">
                 <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No requests found</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No finds found</h3>
                 <p className="text-gray-600">
-                  {searchTerm ? "Try adjusting your search criteria." : "No requests have been submitted yet."}
+                  {searchTerm ? "Try adjusting your search criteria." : "No finds have been submitted yet."}
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredRequests.map((request: Request) => (
-                  <div key={request.id} className="border border-gray-200 rounded-lg hover:shadow-md transition-shadow bg-white">
+                {filteredFinds.map((find: Find) => (
+                  <div key={find.id} className="border border-gray-200 rounded-lg hover:shadow-md transition-shadow bg-white">
                     <div className="p-4 sm:p-6">
                       {/* Mobile Layout */}
                       <div className="block lg:hidden space-y-4">
                         <div className="flex items-start justify-between">
-                          <h3 className="text-base font-semibold text-gray-900 flex-1 pr-2">{request.title}</h3>
+                          <h3 className="text-base font-semibold text-gray-900 flex-1 pr-2">{find.title}</h3>
                           <Badge variant={
-                            request.status === 'open' ? 'default' :
-                            request.status === 'in_progress' ? 'secondary' :
-                            request.status === 'completed' ? 'default' :
+                            find.status === 'open' ? 'default' :
+                            find.status === 'in_progress' ? 'secondary' :
+                            find.status === 'completed' ? 'default' :
                             'outline'
                           } className="text-xs">
-                            {request.status || 'Unknown'}
+                            {find.status || 'Unknown'}
                           </Badge>
                         </div>
-                        <p className="text-gray-600 text-sm line-clamp-2">{request.description}</p>
+                        <p className="text-gray-600 text-sm line-clamp-2">{find.description}</p>
                         <div className="space-y-2 text-sm text-gray-500">
                           <div className="flex items-center">
                             <DollarSign className="w-4 h-4 mr-1 flex-shrink-0" />
-                            <span>${request.budgetMin} - ${request.budgetMax}</span>
+                            <span>${find.budgetMin} - ${find.budgetMax}</span>
                           </div>
                           <div className="flex items-center">
                             <Clock className="w-4 h-4 mr-1 flex-shrink-0" />
-                            <span>{request.timeframe || 'No timeframe'}</span>
+                            <span>{find.timeframe || 'No timeframe'}</span>
                           </div>
                           <Badge variant="outline" className="text-xs">
-                            {request.category}
+                            {find.category}
                           </Badge>
                         </div>
                         <div className="flex items-center justify-between pt-2">
                           <span className="text-xs text-gray-500">
-                            {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'N/A'}
+                            {find.createdAt ? new Date(find.createdAt).toLocaleDateString() : 'N/A'}
                           </span>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -188,13 +188,13 @@ export default function AdminRequests() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem asChild>
-                                <Link href={`/admin/requests/${request.id}`}>
+                                <Link href={`/admin/requests/${find.id}`}>
                                   <Eye className="w-4 h-4 mr-2" />
                                   View Details
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
-                                <Link href={`/admin/requests/${request.id}/proposals`}>
+                                <Link href={`/admin/requests/${find.id}/proposals`}>
                                   View Proposals
                                 </Link>
                               </DropdownMenuItem>
@@ -202,9 +202,9 @@ export default function AdminRequests() {
                                 <MessageCircle className="w-4 h-4 mr-2" />
                                 Contact Client
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-finder-red" onClick={() => toast({ title: "Flag Request", description: "Feature coming soon" })}>
+                              <DropdownMenuItem className="text-finder-red" onClick={() => toast({ title: "Flag Find", description: "Feature coming soon" })}>
                                 <Flag className="w-4 h-4 mr-2" />
-                                Flag Request
+                                Flag Find
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -215,34 +215,34 @@ export default function AdminRequests() {
                       <div className="hidden lg:flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">{request.title}</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">{find.title}</h3>
                             <Badge variant={
-                              request.status === 'open' ? 'default' :
-                              request.status === 'in_progress' ? 'secondary' :
-                              request.status === 'completed' ? 'default' :
+                              find.status === 'open' ? 'default' :
+                              find.status === 'in_progress' ? 'secondary' :
+                              find.status === 'completed' ? 'default' :
                               'outline'
                             }>
-                              {request.status || 'Unknown'}
+                              {find.status || 'Unknown'}
                             </Badge>
                           </div>
-                          <p className="text-gray-600 mb-3 line-clamp-2">{request.description}</p>
+                          <p className="text-gray-600 mb-3 line-clamp-2">{find.description}</p>
                           <div className="flex items-center space-x-6 text-sm text-gray-500">
                             <div className="flex items-center">
                               <DollarSign className="w-4 h-4 mr-1" />
-                              <span>Budget: ${request.budgetMin} - ${request.budgetMax}</span>
+                              <span>Budget: ${find.budgetMin} - ${find.budgetMax}</span>
                             </div>
                             <div className="flex items-center">
                               <Clock className="w-4 h-4 mr-1" />
-                              <span>{request.timeframe || 'No timeframe specified'}</span>
+                              <span>{find.timeframe || 'No timeframe specified'}</span>
                             </div>
                             <Badge variant="outline" className="text-xs">
-                              {request.category}
+                              {find.category}
                             </Badge>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2 ml-4">
                           <span className="text-sm text-gray-500">
-                            {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'N/A'}
+                            {find.createdAt ? new Date(find.createdAt).toLocaleDateString() : 'N/A'}
                           </span>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -252,13 +252,13 @@ export default function AdminRequests() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem asChild>
-                                <Link href={`/admin/requests/${request.id}`}>
+                                <Link href={`/admin/requests/${find.id}`}>
                                   <Eye className="w-4 h-4 mr-2" />
                                   View Details
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem asChild>
-                                <Link href={`/admin/requests/${request.id}/proposals`}>
+                                <Link href={`/admin/requests/${find.id}/proposals`}>
                                   View Proposals
                                 </Link>
                               </DropdownMenuItem>
@@ -266,9 +266,9 @@ export default function AdminRequests() {
                                 <MessageCircle className="w-4 h-4 mr-2" />
                                 Contact Client
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-finder-red" onClick={() => toast({ title: "Flag Request", description: "Feature coming soon" })}>
+                              <DropdownMenuItem className="text-finder-red" onClick={() => toast({ title: "Flag Find", description: "Feature coming soon" })}>
                                 <Flag className="w-4 h-4 mr-2" />
-                                Flag Request
+                                Flag Find
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

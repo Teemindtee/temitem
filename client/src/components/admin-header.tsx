@@ -22,7 +22,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
   const navItems = [
     { path: "/admin/dashboard", label: "Dashboard", icon: BarChart3, id: "dashboard" },
     { path: "/admin/users", label: "Users", icon: Users, id: "users" },
-    { path: "/admin/requests", label: "Requests", icon: FileText, id: "requests" },
+    { path: "/admin/requests", label: "Finds", icon: FileText, id: "finds" },
     { path: "/admin/categories", label: "Categories", icon: Tags, id: "categories" },
     { path: "/admin/withdrawals", label: "Withdrawals", icon: DollarSign, id: "withdrawals" },
     { path: "/admin/blog-posts", label: "Blog Posts", icon: Edit, id: "blog-posts" },
