@@ -32,6 +32,7 @@ export const finders = pgTable("finders", {
   availability: text("availability").default("full-time"),
   phone: text("phone"),
   isVerified: boolean("is_verified").default(false),
+  tokenBalance: integer("token_balance").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -94,10 +95,12 @@ export const reviews = pgTable("reviews", {
 
 export const transactions = pgTable("transactions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  finderId: varchar("finder_id").references(() => finders.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  finderId: varchar("finder_id").references(() => finders.id),
   amount: integer("amount").notNull(),
   type: text("type").notNull(), // 'purchase', 'proposal', 'refund'
   description: text("description"),
+  reference: text("reference"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

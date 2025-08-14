@@ -37,6 +37,7 @@ import ConversationDetail from "@/pages/ConversationDetail";
 import FinderPublicProfile from "@/pages/finder-profile";
 import FinderProfile from "@/pages/finder/profile";
 import FinderTokens from "@/pages/finder/tokens";
+import FinderTokenPurchase from "@/pages/finder/token-purchase";
 import FinderWithdrawals from "@/pages/finder/withdrawals";
 import FinderSecurity from "@/pages/finder/security";
 import FinderContracts from "@/pages/finder/contracts";
@@ -78,6 +79,7 @@ function Router() {
       <Route path="/finder/profile" component={FinderProfile} />
       <Route path="/finder-profile/:userId" component={FinderPublicProfile} />
       <Route path="/finder/tokens" component={FinderTokens} />
+      <Route path="/finder/token-purchase" component={FinderTokenPurchase} />
       <Route path="/finder/withdrawals" component={FinderWithdrawals} />
       <Route path="/finder/security" component={FinderSecurity} />
       <Route path="/orders/submit/:contractId" component={OrderSubmission} />

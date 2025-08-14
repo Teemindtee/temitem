@@ -688,6 +688,133 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Token packages endpoint
+  app.get("/api/tokens/packages", (req: Request, res: Response) => {
+    const { TOKEN_PACKAGES } = require('./paymentService');
+    res.json(TOKEN_PACKAGES);
+  });
+
+  // Initialize payment endpoint
+  app.post("/api/payments/initialize", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { packageId } = req.body;
+      const { PaystackService, TOKEN_PACKAGES } = require('./paymentService');
+      
+      const paystackService = new PaystackService();
+      const selectedPackage = TOKEN_PACKAGES.find((pkg: any) => pkg.id === packageId);
+      
+      if (!selectedPackage) {
+        return res.status(404).json({ message: "Package not found" });
+      }
+
+      const user = await storage.getUser(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const reference = paystackService.generateTransactionReference(req.user.userId);
+      
+      const transaction = await paystackService.initializeTransaction(
+        user.email,
+        selectedPackage.price,
+        reference,
+        {
+          userId: req.user.userId,
+          packageId: packageId,
+          tokens: selectedPackage.tokens
+        }
+      );
+
+      res.json(transaction);
+    } catch (error) {
+      console.error('Payment initialization error:', error);
+      res.status(500).json({ message: "Failed to initialize payment" });
+    }
+  });
+
+  // Payment webhook endpoint
+  app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+    try {
+      const { PaystackService } = require('./paymentService');
+      const paystackService = new PaystackService();
+      
+      const signature = req.headers['x-paystack-signature'] as string;
+      const payload = req.body.toString();
+      
+      if (!paystackService.verifyWebhookSignature(payload, signature)) {
+        return res.status(400).send('Invalid signature');
+      }
+
+      const event = JSON.parse(payload);
+      
+      if (event.event === 'charge.success') {
+        const { reference, metadata } = event.data;
+        const { userId, tokens } = metadata;
+        
+        // Update user's token balance
+        const finder = await storage.getFinderByUserId(userId);
+        if (finder) {
+          const currentBalance = finder.tokenBalance || 0;
+          await storage.updateFinder(finder.id, {
+            tokenBalance: currentBalance + tokens
+          });
+
+          // Create transaction record
+          await storage.createTransaction({
+            userId: userId,
+            type: 'purchase',
+            amount: tokens,
+            description: `Token purchase - ${tokens} tokens`,
+            reference: reference
+          });
+        }
+      }
+
+      res.status(200).send('OK');
+    } catch (error) {
+      console.error('Webhook error:', error);
+      res.status(500).send('Error processing webhook');
+    }
+  });
+
+  // Payment verification endpoint
+  app.get("/api/payments/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { reference } = req.params;
+      const { PaystackService } = require('./paymentService');
+      
+      const paystackService = new PaystackService();
+      const transaction = await paystackService.verifyTransaction(reference);
+      
+      if (transaction.status === 'success' && transaction.metadata.userId === req.user.userId) {
+        const { tokens } = transaction.metadata;
+        
+        // Update user's token balance
+        const finder = await storage.getFinderByUserId(req.user.userId);
+        if (finder) {
+          const currentBalance = finder.tokenBalance || 0;
+          await storage.updateFinder(finder.id, {
+            tokenBalance: currentBalance + tokens
+          });
+
+          // Create transaction record
+          await storage.createTransaction({
+            userId: req.user.userId,
+            type: 'purchase',
+            amount: tokens,
+            description: `Token purchase - ${tokens} tokens`,
+            reference: reference
+          });
+        }
+      }
+      
+      res.json(transaction);
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      res.status(500).json({ message: "Failed to verify payment" });
+    }
+  });
+
   // Client-specific contracts endpoint  
   app.get("/api/client/contracts", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
