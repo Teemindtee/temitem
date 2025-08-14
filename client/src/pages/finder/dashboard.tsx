@@ -63,16 +63,18 @@ export default function FinderDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-blue-200">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <div className="bg-blue-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Active Projects</h3>
-              <p className="text-xl sm:text-2xl font-bold text-blue-600">{myProposals.filter(p => p.status === 'accepted').length}</p>
-              <p className="text-gray-600 text-xs sm:text-sm">In progress</p>
-            </CardContent>
-          </Card>
+          <Link href="/finder/contracts">
+            <Card className="border-blue-200 hover:border-blue-400 transition-colors cursor-pointer">
+              <CardContent className="p-4 sm:p-6 text-center">
+                <div className="bg-blue-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Active Projects</h3>
+                <p className="text-xl sm:text-2xl font-bold text-blue-600">{myProposals.filter(p => p.status === 'accepted').length}</p>
+                <p className="text-gray-600 text-xs sm:text-sm">In progress</p>
+              </CardContent>
+            </Card>
+          </Link>
 
           <Card className="border-purple-200">
             <CardContent className="p-4 sm:p-6 text-center">
