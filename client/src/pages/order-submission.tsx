@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { FinderHeader } from "@/components/finder-header";
 import { Upload, FileText, Calendar, Clock, CheckCircle, XCircle } from "lucide-react";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { useToast } from "@/hooks/use-toast";
@@ -135,10 +136,13 @@ export default function OrderSubmissionPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+      <div className="min-h-screen bg-gray-50">
+        <FinderHeader />
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-64 bg-gray-200 rounded"></div>
+          </div>
         </div>
       </div>
     );
@@ -146,21 +150,26 @@ export default function OrderSubmissionPage() {
 
   if (!contract) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-gray-500">Contract not found</p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gray-50">
+        <FinderHeader />
+        <div className="container mx-auto px-4 py-8">
+          <Card>
+            <CardContent className="pt-6">
+              <p className="text-center text-gray-500">Contract not found</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8">Order Submission</h1>
+    <div className="min-h-screen bg-gray-50">
+      <FinderHeader />
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 className="text-3xl font-bold mb-8">Order Submission</h1>
 
-      <div className="grid gap-6">
+        <div className="grid gap-6">
         {/* Contract Info */}
         <Card>
           <CardHeader>
@@ -338,6 +347,7 @@ export default function OrderSubmissionPage() {
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
     </div>
   );
