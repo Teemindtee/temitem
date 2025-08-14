@@ -45,10 +45,7 @@ export default function AdminSettings() {
 
   const createCategoryMutation = useMutation({
     mutationFn: async (data: { name: string; description: string }) => {
-      return await apiRequest('/api/admin/categories', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      return await apiRequest('POST', '/api/admin/categories', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
@@ -71,10 +68,7 @@ export default function AdminSettings() {
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: { proposalTokenCost: string }) => {
       console.log('Sending API request with data:', data);
-      return await apiRequest('/api/admin/settings', {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
+      return await apiRequest('PUT', '/api/admin/settings', data);
     },
     onSuccess: (data) => {
       console.log('Settings update successful:', data);
@@ -97,10 +91,7 @@ export default function AdminSettings() {
 
   const updateCategoryMutation = useMutation({
     mutationFn: async (data: { id: string; name: string; description: string }) => {
-      return await apiRequest(`/api/admin/categories/${data.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ name: data.name, description: data.description }),
-      });
+      return await apiRequest('PUT', `/api/admin/categories/${data.id}`, { name: data.name, description: data.description });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
@@ -123,10 +114,7 @@ export default function AdminSettings() {
 
   const toggleCategoryMutation = useMutation({
     mutationFn: async (data: { id: string; isActive: boolean }) => {
-      return await apiRequest(`/api/admin/categories/${data.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ isActive: data.isActive }),
-      });
+      return await apiRequest('PUT', `/api/admin/categories/${data.id}`, { isActive: data.isActive });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
@@ -146,9 +134,7 @@ export default function AdminSettings() {
 
   const deleteCategoryMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/admin/categories/${id}`, {
-        method: 'DELETE',
-      });
+      return await apiRequest('DELETE', `/api/admin/categories/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
