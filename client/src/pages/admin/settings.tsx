@@ -29,6 +29,9 @@ export default function AdminSettings() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryDesc, setNewCategoryDesc] = useState("");
   const [proposalTokenCost, setProposalTokenCost] = useState("");
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editCategoryName, setEditCategoryName] = useState("");
+  const [editCategoryDesc, setEditCategoryDesc] = useState("");
 
   const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
     queryKey: ['/api/admin/categories'],
@@ -92,6 +95,55 @@ export default function AdminSettings() {
     }
   });
 
+  const updateCategoryMutation = useMutation({
+    mutationFn: async (data: { id: string; name: string; description: string }) => {
+      return await apiRequest(`/api/admin/categories/${data.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ name: data.name, description: data.description }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
+      setEditingCategory(null);
+      setEditCategoryName("");
+      setEditCategoryDesc("");
+      toast({
+        title: "Success",
+        description: "Category updated successfully"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update category",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const toggleCategoryMutation = useMutation({
+    mutationFn: async (data: { id: string; isActive: boolean }) => {
+      return await apiRequest(`/api/admin/categories/${data.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ isActive: data.isActive }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
+      toast({
+        title: "Success",
+        description: "Category status updated successfully"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update category status",
+        variant: "destructive"
+      });
+    }
+  });
+
   const deleteCategoryMutation = useMutation({
     mutationFn: async (id: string) => {
       return await apiRequest(`/api/admin/categories/${id}`, {
@@ -130,6 +182,30 @@ export default function AdminSettings() {
     console.log('Updating settings with:', { proposalTokenCost: costValue });
     updateSettingsMutation.mutate({
       proposalTokenCost: costValue
+    });
+  };
+
+  const handleEditCategory = (category: Category) => {
+    setEditingCategory(category);
+    setEditCategoryName(category.name);
+    setEditCategoryDesc(category.description || "");
+  };
+
+  const handleUpdateCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategory || !editCategoryName.trim()) return;
+    
+    updateCategoryMutation.mutate({
+      id: editingCategory.id,
+      name: editCategoryName,
+      description: editCategoryDesc
+    });
+  };
+
+  const handleToggleCategory = (category: Category) => {
+    toggleCategoryMutation.mutate({
+      id: category.id,
+      isActive: !category.isActive
     });
   };
 
@@ -281,8 +357,11 @@ export default function AdminSettings() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Edit Category</DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditCategory(category)}>
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit Category
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleToggleCategory(category)}>
                               {category.isActive ? "Deactivate" : "Activate"}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
@@ -302,6 +381,56 @@ export default function AdminSettings() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Edit Category Modal */}
+        {editingCategory && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-md">
+              <CardHeader>
+                <CardTitle>Edit Category</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleUpdateCategory} className="space-y-4">
+                  <div>
+                    <Label htmlFor="editCategoryName">Category Name</Label>
+                    <Input
+                      id="editCategoryName"
+                      value={editCategoryName}
+                      onChange={(e) => setEditCategoryName(e.target.value)}
+                      placeholder="e.g., Web Development"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="editCategoryDesc">Description</Label>
+                    <Input
+                      id="editCategoryDesc"
+                      value={editCategoryDesc}
+                      onChange={(e) => setEditCategoryDesc(e.target.value)}
+                      placeholder="Brief description of the category"
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => setEditingCategory(null)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={updateCategoryMutation.isPending}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {updateCategoryMutation.isPending ? "Updating..." : "Update Category"}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
