@@ -1044,7 +1044,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { proposalId } = req.body;
+      console.log('Creating conversation with proposalId:', proposalId, 'type:', typeof proposalId);
+      
       const proposal = await storage.getProposal(proposalId);
+      console.log('Found proposal:', proposal ? 'yes' : 'no', proposal?.id);
       
       if (!proposal) {
         return res.status(404).json({ message: "Proposal not found" });
