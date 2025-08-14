@@ -16,11 +16,11 @@ interface ContractDetails {
   hasSubmission: boolean;
   createdAt: string;
   completedAt?: string;
-  request: {
+  request?: {
     title: string;
     description: string;
   };
-  finder: {
+  finder?: {
     name: string;
   };
   orderSubmission?: {
@@ -36,7 +36,12 @@ export default function ContractDetails() {
   const { contractId } = useParams<{ contractId: string }>();
 
   const { data: contract, isLoading } = useQuery<ContractDetails>({
-    queryKey: ["/api/orders/contract", contractId],
+    queryKey: ["/api/client/contracts", contractId],
+    queryFn: () => fetch(`/api/client/contracts/${contractId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    }).then(res => res.json()),
     enabled: !!contractId,
   });
 
@@ -88,7 +93,7 @@ export default function ContractDetails() {
             </Button>
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Contract Details</h1>
-          <p className="text-gray-600">Manage your contract with {contract.finder.name}</p>
+          <p className="text-gray-600">Manage your contract with {contract.finder?.name || "Finder"}</p>
         </div>
 
         <div className="space-y-6">
@@ -96,7 +101,7 @@ export default function ContractDetails() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>{contract.request.title}</span>
+                <span>{contract.request?.title || "Contract"}</span>
                 <Badge 
                   variant={contract.isCompleted ? "default" : "secondary"}
                   className="ml-2"
@@ -134,16 +139,18 @@ export default function ContractDetails() {
                 </div>
               </div>
 
-              <div className="border-t pt-4">
-                <h4 className="font-medium text-gray-900 mb-2">Project Description</h4>
-                <p className="text-gray-600">{contract.request.description}</p>
-              </div>
+              {contract.request?.description && (
+                <div className="border-t pt-4">
+                  <h4 className="font-medium text-gray-900 mb-2">Project Description</h4>
+                  <p className="text-gray-600">{contract.request.description}</p>
+                </div>
+              )}
 
               <div className="flex items-center gap-3 mt-6">
                 <Link href={`/messages?proposalId=${contract.proposalId}`}>
                   <Button variant="outline">
                     <MessageCircle className="w-4 h-4 mr-2" />
-                    Message {contract.finder.name}
+                    Message {contract.finder?.name || "Finder"}
                   </Button>
                 </Link>
                 
@@ -202,7 +209,7 @@ export default function ContractDetails() {
                 <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="font-medium text-gray-900 mb-2">Waiting for Submission</h3>
                 <p className="text-gray-600 mb-4">
-                  {contract.finder.name} hasn't submitted their work yet. You can message them for updates.
+                  {contract.finder?.name || "The finder"} hasn't submitted their work yet. You can message them for updates.
                 </p>
                 <Link href={`/messages?proposalId=${contract.proposalId}`}>
                   <Button variant="outline">

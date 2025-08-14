@@ -581,6 +581,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get specific contract details for client
+  app.get("/api/client/contracts/:contractId", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can view contract details" });
+      }
+
+      const { contractId } = req.params;
+      const contracts = await storage.getContractsByClientId(req.user.userId);
+      const contract = contracts.find(c => c.id === contractId);
+      
+      if (!contract) {
+        return res.status(404).json({ message: "Contract not found or access denied" });
+      }
+
+      res.json(contract);
+    } catch (error) {
+      console.error('Failed to fetch contract details:', error);
+      res.status(500).json({ message: "Failed to fetch contract details" });
+    }
+  });
+
   // Contract routes
   app.get("/api/contracts/my", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
