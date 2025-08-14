@@ -59,6 +59,7 @@ function Router() {
       <Route path="/client/proposals" component={ViewProposals} />
       <Route path="/client/proposals/:id" component={ProposalDetail} />
       <Route path="/client/contracts" component={ClientContracts} />
+      <Route path="/client/contracts/:contractId" component={OrderReview} />
       <Route path="/client/browse-requests" component={ClientBrowseRequests} />
       <Route path="/client/profile" component={ClientProfile} />
       <Route path="/client/change-password" component={ChangePassword} />
