@@ -29,9 +29,19 @@ export default function StartConversationButton({
 
   const createConversationMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest("POST", "/api/messages/conversations", { proposalId });
+      console.log('Creating conversation with proposalId:', proposalId);
+      console.log('User role:', user?.role);
+      console.log('Auth token exists:', !!localStorage.getItem('findermeister_token'));
+      
+      try {
+        return await apiRequest("POST", "/api/messages/conversations", { proposalId });
+      } catch (error) {
+        console.error('API request failed:', error);
+        throw error;
+      }
     },
     onSuccess: (conversation) => {
+      console.log('Conversation created successfully:', conversation);
       queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations'] });
       setLocation(`/messages/${conversation.id}`);
       toast({
@@ -41,10 +51,12 @@ export default function StartConversationButton({
     },
     onError: (error: any) => {
       console.error('Conversation creation error:', error);
+      const errorMessage = error?.message || "Failed to start conversation. Please try again.";
+      console.log('Error message to show user:', errorMessage);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error?.message || "Failed to start conversation. Please try again.",
+        description: errorMessage,
       });
     }
   });

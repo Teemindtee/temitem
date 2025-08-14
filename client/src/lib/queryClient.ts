@@ -2,21 +2,34 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let errorMessage = res.statusText;
+    try {
+      const responseText = await res.text();
+      if (responseText) {
+        try {
+          const errorData = JSON.parse(responseText);
+          errorMessage = errorData.message || responseText;
+        } catch {
+          errorMessage = responseText;
+        }
+      }
+    } catch (e) {
+      // Use statusText if we can't read the response
+    }
+    throw new Error(`${res.status}: ${errorMessage}`);
   }
 }
 
 export async function apiRequest(
+  method: string,
   url: string,
+  data?: any,
   options: {
-    method?: string;
-    body?: string;
     headers?: Record<string, string>;
   } = {}
 ): Promise<any> {
   const token = localStorage.getItem('findermeister_token');
-  const { method = 'GET', body, headers = {} } = options;
+  const { headers = {} } = options;
   
   const res = await fetch(url, {
     method,
@@ -25,7 +38,7 @@ export async function apiRequest(
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
-    body,
+    body: data ? JSON.stringify(data) : undefined,
   });
 
   await throwIfResNotOk(res);
