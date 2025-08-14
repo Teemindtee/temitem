@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
 import { Handshake, User, Settings, Lock, LogOut, Menu, X } from "lucide-react";
+import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 
 interface ClientHeaderProps {
   currentPage?: string;
@@ -22,7 +23,11 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
     <header className="bg-red-600 text-white px-4 sm:px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <Handshake className="w-5 h-5 sm:w-6 sm:h-6" />
+          <img 
+            src={logoImage} 
+            alt="FinderMeister Logo" 
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-contain bg-white p-1" 
+          />
           <span className="text-lg sm:text-xl font-bold">FinderMeister</span>
         </Link>
         

@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { Handshake, Menu } from "lucide-react";
+import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 import { useState } from "react";
 
 export default function Navigation() {
@@ -14,7 +15,11 @@ export default function Navigation() {
         <div className="flex justify-between items-center h-16">
           <Link href="/">
             <div className="flex items-center space-x-2 cursor-pointer">
-              <Handshake className="w-8 h-8" />
+              <img 
+                src={logoImage} 
+                alt="FinderMeister Logo" 
+                className="w-8 h-8 rounded-full object-contain bg-white p-1" 
+              />
               <span className="text-xl font-bold">FinderMeister</span>
             </div>
           </Link>

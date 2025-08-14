@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { Search, Star, Handshake } from "lucide-react";
+import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 
 export default function Landing() {
   const { isAuthenticated, user } = useAuth();
@@ -29,9 +30,11 @@ export default function Landing() {
         <div className="max-w-sm mx-auto min-h-screen bg-white shadow-xl relative">
           {/* Header with Logo */}
           <div className="bg-red-600 px-6 py-4 flex items-center rounded-t-3xl">
-            <div className="bg-white p-2 rounded-lg mr-3">
-              <Search className="h-6 w-6 text-red-600" />
-            </div>
+            <img 
+              src={logoImage} 
+              alt="FinderMeister Logo" 
+              className="w-10 h-10 rounded-full object-contain bg-white p-1 mr-3" 
+            />
             <h1 className="text-2xl font-bold text-white">FinderMeister</h1>
           </div>
 
@@ -77,7 +80,11 @@ export default function Landing() {
       <header className="bg-red-600 text-white px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
+            <img 
+              src={logoImage} 
+              alt="FinderMeister Logo" 
+              className="w-8 h-8 rounded-full object-contain bg-white p-1" 
+            />
             <span className="text-xl font-bold">FinderMeister</span>
           </div>
           <nav className="flex items-center space-x-6">

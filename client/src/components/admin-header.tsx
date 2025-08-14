@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/use-auth";
 import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu } from "lucide-react";
+import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 
 interface AdminHeaderProps {
   currentPage?: string;
@@ -35,9 +36,11 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
           {/* Logo */}
           <Link href="/admin/dashboard">
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="bg-red-600 p-1.5 sm:p-2 rounded-lg">
-                <User className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
+              <img 
+                src={logoImage} 
+                alt="FinderMeister Logo" 
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-contain" 
+              />
               <div>
                 <span className="text-lg sm:text-xl font-bold text-gray-900">FinderMeister</span>
                 <span className="text-xs sm:text-sm text-gray-500 ml-1 sm:ml-2 hidden sm:inline">Admin</span>

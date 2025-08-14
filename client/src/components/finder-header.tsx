@@ -26,6 +26,7 @@ import {
   Home,
   MessageCircle
 } from "lucide-react";
+import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 
 interface FinderHeaderProps {
   currentPage?: string;
@@ -48,7 +49,11 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
     <header className="bg-red-600 text-white px-4 sm:px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <Handshake className="w-6 h-6" />
+          <img 
+            src={logoImage} 
+            alt="FinderMeister Logo" 
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-contain bg-white p-1" 
+          />
           <span className="text-lg sm:text-xl font-bold">FinderMeister</span>
         </Link>
         
