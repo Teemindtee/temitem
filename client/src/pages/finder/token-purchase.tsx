@@ -59,19 +59,12 @@ export default function TokenPurchase() {
   // Initialize payment
   const initializePayment = useMutation({
     mutationFn: async (packageId: string) => {
-      const response = await fetch('/api/payments/initialize', {
+      const response = await apiRequest('/api/payments/initialize', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ packageId })
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to initialize payment');
-      }
-      
-      return response.json();
+      return response;
     },
     onSuccess: (data: PaystackResponse) => {
       // Redirect to Paystack payment page
