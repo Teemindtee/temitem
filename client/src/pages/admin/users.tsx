@@ -265,7 +265,13 @@ export default function AdminUsers() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          {userData.role === 'finder' ? (
+                            <Link href={`/finder-profile/${userData.id}`}>
+                              <DropdownMenuItem>View Finder Profile</DropdownMenuItem>
+                            </Link>
+                          ) : (
+                            <DropdownMenuItem>View Details</DropdownMenuItem>
+                          )}
                           <DropdownMenuItem onClick={() => handleVerifyUser(userData.id, !userData.isVerified)}>
                             {userData.isVerified ? "Unverify" : "Verify"} User
                           </DropdownMenuItem>

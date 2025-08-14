@@ -72,6 +72,7 @@ function Router() {
       <Route path="/finder/proposals/:id" component={FinderProposalDetails} />
       <Route path="/finder/contracts" component={FinderContracts} />
       <Route path="/finder/profile" component={FinderProfile} />
+      <Route path="/finder-profile/:userId" component={FinderPublicProfile} />
       <Route path="/finder/tokens" component={FinderTokens} />
       <Route path="/finder/withdrawals" component={FinderWithdrawals} />
       <Route path="/finder/security" component={FinderSecurity} />

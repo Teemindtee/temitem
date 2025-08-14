@@ -1,209 +1,227 @@
-import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useRoute, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/use-auth";
-import { ArrowLeft, User, Star, Briefcase, DollarSign, Calendar } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { FinderLevelBadge } from "@/components/finder-level-badge";
+import { ArrowLeft, User, Star, Award, Clock, DollarSign, CheckCircle, XCircle } from "lucide-react";
+import type { Finder } from "@shared/schema";
 
-type FinderProfile = {
-  id: string;
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone?: string;
-  };
-  completedJobs: number;
-  totalEarnings: string;
-  rating: number;
-  tokens: number;
-  createdAt: string;
-};
+export default function FinderProfileView() {
+  const [match, params] = useRoute("/finder-profile/:userId");
+  const userId = params?.userId;
 
-export default function FinderProfile() {
-  const params = useParams();
-  const { user } = useAuth();
-  const finderId = params.finderId as string;
-  
-  const { data: finderProfile, isLoading } = useQuery<FinderProfile>({
-    queryKey: ['/api/finders', finderId, 'profile'],
-    enabled: !!finderId && !!user
+  const { data: finderData, isLoading } = useQuery<any>({
+    queryKey: [`/api/admin/finder-profile/${userId}`],
+    enabled: !!userId
   });
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center mb-6">
-              <Button variant="ghost" size="sm" className="mr-4" onClick={() => window.history.back()}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-              <div>
-                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 mt-2 animate-pulse"></div>
-              </div>
-            </div>
-            <Card>
-              <CardContent className="p-6">
-                <div className="animate-pulse space-y-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-                    <div className="space-y-2">
-                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-40"></div>
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <p className="text-gray-600 mt-4">Loading profile...</p>
         </div>
       </div>
     );
   }
 
-  if (!finderProfile) {
+  if (!finderData) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto py-8 text-center">
-          <div className="max-w-md mx-auto">
-            <User className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Finder Not Found</h2>
-            <p className="text-gray-600 mb-4">The finder profile you're looking for doesn't exist.</p>
-            <Button variant="outline" onClick={() => window.history.back()}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Go Back
-            </Button>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Finder not found</p>
+          <Link href="/admin/users">
+            <Button className="mt-4">Back to Users</Button>
+          </Link>
         </div>
       </div>
     );
   }
 
-  const finderName = `${finderProfile.user.firstName} ${finderProfile.user.lastName}`;
-  const memberSince = new Date(finderProfile.createdAt).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric'
-  });
+  const fullName = `${finderData.user?.firstName || 'Unknown'} ${finderData.user?.lastName || 'User'}`.trim();
+
+  // Get star rating display
+  const getStarRating = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star 
+        key={i} 
+        className={`w-6 h-6 ${i < rating ? 'text-red-600 fill-current' : 'text-gray-300'}`} 
+      />
+    ));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center mb-6">
-            <Button variant="ghost" size="sm" className="mr-4" onClick={() => window.history.back()}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">{finderName}</h1>
-              <p className="text-gray-600">Finder Profile</p>
+      {/* Header */}
+      <header className="bg-red-600 text-white px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Link href="/admin/users">
+              <Button variant="ghost" className="text-white hover:bg-red-700 p-2">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <div className="flex items-center space-x-2">
+              <User className="w-6 h-6" />
+              <span className="text-xl font-bold">Finder Profile</span>
             </div>
           </div>
+          <Link href="/admin/users">
+            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-red-600">
+              Back to Users
+            </Button>
+          </Link>
+        </div>
+      </header>
 
-          {/* Profile Card */}
+      <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6">
+        {/* Beautiful Profile Card - Like the Design */}
+        <div className="max-w-md mx-auto mb-8">
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            {/* Red Header */}
+            <div className="bg-red-600 px-8 py-6 text-center">
+              <h1 className="text-white text-2xl font-bold">FinderMeister</h1>
+            </div>
+            
+            {/* Profile Content */}
+            <div className="px-8 py-8 text-center bg-white">
+              {/* Profile Picture Placeholder */}
+              <div className="relative inline-block mb-6">
+                <div className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center">
+                  <User className="w-16 h-16 text-gray-400" />
+                </div>
+                {/* Level Badge */}
+                <div className="absolute -bottom-2 -right-2">
+                  <FinderLevelBadge 
+                    completedJobs={finderData.jobsCompleted || 0} 
+                    className="text-sm px-3 py-1"
+                  />
+                </div>
+              </div>
+              
+              {/* Name */}
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">{fullName}</h2>
+              
+              {/* Stars */}
+              <div className="flex justify-center mb-4">
+                {getStarRating(Math.round(parseFloat(finderData.averageRating || "5.0")))}
+              </div>
+              
+              {/* Completed Jobs */}
+              <p className="text-lg text-gray-600 mb-4 font-medium">
+                {finderData.jobsCompleted || 0} Completed Finds
+              </p>
+              
+              {/* Testimonials/Bio */}
+              <div className="space-y-2 mb-8">
+                {finderData.bio && (
+                  <p className="text-gray-700 italic">"{finderData.bio}"</p>
+                )}
+                {!finderData.bio && (
+                  <>
+                    <p className="text-gray-700 italic">"Extremely reliable and efficient"</p>
+                    <p className="text-gray-700 italic">"Went above and beyond to help me out!"</p>
+                  </>
+                )}
+              </div>
+              
+              {/* Admin View Badge */}
+              <Badge className="w-full bg-blue-600 text-white font-bold py-2 text-lg">
+                Admin View
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        {/* Detailed Information Cards */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Profile Details */}
           <Card>
             <CardHeader>
-              <div className="flex items-center space-x-4">
-                <Avatar className="w-16 h-16">
-                  <AvatarFallback className="text-lg font-semibold">
-                    {finderProfile.user.firstName.charAt(0)}
-                    {finderProfile.user.lastName.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <CardTitle className="text-xl">{finderName}</CardTitle>
-                  <p className="text-gray-600">Member since {memberSince}</p>
-                  <div className="flex items-center mt-2 space-x-2">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-4 h-4 ${
-                            i < Math.floor(finderProfile.rating)
-                              ? 'text-yellow-500 fill-yellow-500'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-gray-600">
-                      {finderProfile.rating.toFixed(1)} rating
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Profile Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Email</p>
+                  <p className="text-gray-900">{finderData.user?.email || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Phone</p>
+                  <p className="text-gray-900">{finderData.user?.phone || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Verified Status</p>
+                  <div className="flex items-center gap-2">
+                    {finderData.user?.isVerified ? (
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-red-600" />
+                    )}
+                    <span className={finderData.user?.isVerified ? 'text-green-600' : 'text-red-600'}>
+                      {finderData.user?.isVerified ? 'Verified' : 'Unverified'}
                     </span>
                   </div>
                 </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Availability</p>
+                  <p className="text-gray-900 capitalize">{finderData.availability || 'Not specified'}</p>
+                </div>
               </div>
+
+              {finderData.skills && finderData.skills.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500 mb-2">Skills</p>
+                  <div className="flex flex-wrap gap-2">
+                    {finderData.skills.map((skill: string, index: number) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Performance Stats */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="w-5 h-5" />
+                Performance Stats
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Jobs Completed */}
-                <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
-                  <div className="flex items-center">
-                    <Briefcase className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-3" />
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {finderProfile.completedJobs}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Jobs Completed</p>
-                    </div>
-                  </div>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-red-600">{finderData.jobsCompleted || 0}</div>
+                  <div className="text-sm text-gray-600">Jobs Completed</div>
                 </div>
-
-                {/* Total Earnings */}
-                <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
-                  <div className="flex items-center">
-                    <DollarSign className="w-8 h-8 text-green-600 dark:text-green-400 mr-3" />
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        ${finderProfile.totalEarnings}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Earnings</p>
-                    </div>
-                  </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">${finderData.totalEarned || 0}</div>
+                  <div className="text-sm text-gray-600">Total Earnings</div>
                 </div>
-
-                {/* Available Tokens */}
-                <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-lg">
-                  <div className="flex items-center">
-                    <Calendar className="w-8 h-8 text-purple-600 dark:text-purple-400 mr-3" />
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                        {finderProfile.tokens}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Available Tokens</p>
-                    </div>
-                  </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">{parseFloat(finderData.averageRating || "5.0").toFixed(1)}/5</div>
+                  <div className="text-sm text-gray-600">Average Rating</div>
+                </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <div className="text-2xl font-bold text-purple-600">${finderData.hourlyRate || 0}</div>
+                  <div className="text-sm text-gray-600">Hourly Rate</div>
                 </div>
               </div>
 
-              {/* Contact Information */}
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                  Contact Information
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex items-center text-gray-600 dark:text-gray-400">
-                    <User className="w-4 h-4 mr-2" />
-                    <span>{finderProfile.user.email}</span>
-                  </div>
-                  {finderProfile.user.phone && (
-                    <div className="flex items-center text-gray-600 dark:text-gray-400">
-                      <span className="w-4 h-4 mr-2">📱</span>
-                      <span>{finderProfile.user.phone}</span>
-                    </div>
-                  )}
-                </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-2">Member Since</p>
+                <p className="text-gray-900">
+                  {finderData.user?.createdAt ? new Date(finderData.user.createdAt).toLocaleDateString() : 'N/A'}
+                </p>
               </div>
             </CardContent>
           </Card>

@@ -817,6 +817,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin routes
+  app.get("/api/admin/finder-profile/:userId", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { userId } = req.params;
+      const finder = await storage.getFinderByUserId(userId);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder not found" });
+      }
+
+      const user = await storage.getUser(userId);
+      res.json({ ...finder, user });
+    } catch (error) {
+      console.error('Failed to fetch finder profile:', error);
+      res.status(500).json({ message: "Failed to fetch finder profile" });
+    }
+  });
+
   app.get("/api/admin/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {
