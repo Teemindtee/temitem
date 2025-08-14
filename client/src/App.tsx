@@ -74,6 +74,7 @@ function Router() {
       <Route path="/finder/dashboard" component={FinderDashboard} />
       <Route path="/finder/browse-finds" component={FinderBrowseRequests} />
       <Route path="/finder/browse-requests" component={FinderBrowseRequests} />
+      <Route path="/finder/finds/:id" component={FinderRequestDetails} />
       <Route path="/finder/requests/:id" component={FinderRequestDetails} />
       <Route path="/finder/proposals" component={FinderProposals} />
       <Route path="/finder/proposals/:id" component={FinderProposalDetails} />

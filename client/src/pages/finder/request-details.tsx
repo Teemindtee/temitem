@@ -12,10 +12,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Clock, DollarSign, MapPin, Send } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import type { Request, Proposal } from "@shared/schema";
+import type { Find, Proposal } from "@shared/schema";
 
 export default function FinderRequestDetails() {
-  const [match, params] = useRoute("/finder/requests/:id");
+  // Support both old and new routes
+  const [matchFinds, paramsFinds] = useRoute("/finder/finds/:id");
+  const [matchRequests, paramsRequests] = useRoute("/finder/requests/:id");
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -27,26 +29,26 @@ export default function FinderRequestDetails() {
     notes: ""
   });
 
-  const requestId = params?.id;
+  const findId = paramsFinds?.id || paramsRequests?.id;
 
-  const { data: request, isLoading: requestLoading, error: requestError } = useQuery<Request>({
-    queryKey: ['/api/requests', requestId],
-    enabled: !!requestId && !!user
+  const { data: find, isLoading: findLoading, error: findError } = useQuery<Find>({
+    queryKey: ['/api/finds', findId],
+    enabled: !!findId && !!user
   });
 
 
 
   // For finders, only show their own proposals (like comments under a post)
   const { data: proposals = [], isLoading: proposalsLoading } = useQuery<Proposal[]>({
-    queryKey: ['/api/finder/requests', requestId, 'proposals'],
-    enabled: !!requestId && !!user && !!request
+    queryKey: ['/api/finder/finds', findId, 'proposals'],
+    enabled: !!findId && !!user && !!find
   });
 
   const submitProposal = useMutation({
     mutationFn: async () => {
-      if (!requestId) throw new Error("No request ID");
+      if (!findId) throw new Error("No find ID");
       return apiRequest("POST", "/api/proposals", {
-        requestId,
+        requestId: findId, // Backend still expects requestId field
         approach: proposalData.approach,
         price: proposalData.price,
         timeline: proposalData.timeline,
@@ -54,7 +56,7 @@ export default function FinderRequestDetails() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/requests', requestId, 'proposals'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/finder/finds', findId, 'proposals'] });
       setShowProposalForm(false);
       setProposalData({ approach: "", price: "", timeline: "", notes: "" });
       toast({
@@ -76,7 +78,7 @@ export default function FinderRequestDetails() {
   // if proposals array has any item, it means the finder already submitted a proposal
   const userProposal = proposals.length > 0 ? proposals[0] : null;
 
-  if (requestLoading || proposalsLoading) {
+  if (findLoading || proposalsLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -87,14 +89,14 @@ export default function FinderRequestDetails() {
     );
   }
 
-  if (!request) {
+  if (!find) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Request Not Found</h1>
-          <p className="text-gray-600 mb-4">Request ID: {requestId}</p>
-          {!user && <p className="text-gray-600 mb-4">Please log in to view this request</p>}
-          {requestError && <p className="text-gray-600 mb-4">Error: {requestError?.message}</p>}
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Find Not Found</h1>
+          <p className="text-gray-600 mb-4">Find ID: {findId}</p>
+          {!user && <p className="text-gray-600 mb-4">Please log in to view this find</p>}
+          {findError && <p className="text-gray-600 mb-4">Error: {findError?.message}</p>}
           <Link href="/finder/dashboard">
             <Button>Return to Dashboard</Button>
           </Link>
@@ -109,10 +111,10 @@ export default function FinderRequestDetails() {
 
       {/* Back Button */}
       <div className="max-w-6xl mx-auto pt-4 sm:pt-6 px-4 sm:px-6">
-        <Link href="/finder/browse-requests">
+        <Link href="/finder/browse-finds">
           <Button variant="ghost" className="mb-4 sm:mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Browse Requests
+            Back to Browse Finds
           </Button>
         </Link>
       </div>
@@ -126,11 +128,11 @@ export default function FinderRequestDetails() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-2xl text-gray-900 mb-2">{request.title}</CardTitle>
+                    <CardTitle className="text-2xl text-gray-900 mb-2">{find.title}</CardTitle>
                     <div className="flex items-center space-x-4 text-sm text-gray-600">
                       <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-1" />
-                        {request.timeframe || "Flexible timeline"}
+                        {find.timeframe || "Flexible timeline"}
                       </div>
                       <div className="flex items-center">
                         <MapPin className="w-4 h-4 mr-1" />
@@ -138,8 +140,8 @@ export default function FinderRequestDetails() {
                       </div>
                     </div>
                   </div>
-                  <Badge variant={request.status === 'active' ? 'default' : 'secondary'}>
-                    {request.status}
+                  <Badge variant={find.status === 'open' ? 'default' : 'secondary'}>
+                    {find.status}
                   </Badge>
                 </div>
               </CardHeader>
@@ -147,19 +149,19 @@ export default function FinderRequestDetails() {
                 <div className="space-y-6">
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
-                    <p className="text-gray-700 leading-relaxed">{request.description}</p>
+                    <p className="text-gray-700 leading-relaxed">{find.description}</p>
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Category</h3>
-                      <Badge variant="outline">{request.category}</Badge>
+                      <Badge variant="outline">{find.category}</Badge>
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Budget Range</h3>
                       <div className="flex items-center text-lg font-semibold text-green-600">
                         <DollarSign className="w-5 h-5 mr-1" />
-                        ${request.budgetMin} - ${request.budgetMax}
+                        ${find.budgetMin} - ${find.budgetMax}
                       </div>
                     </div>
                   </div>
