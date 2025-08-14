@@ -407,7 +407,7 @@ export class DatabaseStorage implements IStorage {
 
     return result.map(row => ({
       id: row.id,
-      requestId: row.requestId,
+      findId: row.findId,
       finderId: row.finderId,
       approach: row.approach,
       price: row.price,
