@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { insertUserSchema, insertFindSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema } from "@shared/schema";
+import { insertUserSchema, insertFindSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema, type Find } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { PaystackService, TOKEN_PACKAGES } from "./paymentService";
@@ -60,8 +60,8 @@ const upload = multer({
   }
 });
 
-// Extended Find interface for authentication
-interface AuthenticatedRequest extends Find {
+// Extended Request interface for authentication
+interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
@@ -275,13 +275,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/finds/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
-      const request = await storage.getFind(id);
+      const find = await storage.getFind(id);
       
-      if (!request) {
+      if (!find) {
         return res.status(404).json({ message: "Find not found" });
       }
 
-      res.json(request);
+      res.json(find);
     } catch (error) {
       console.error('Get request error:', error);
       res.status(500).json({ message: "Failed to fetch request" });
@@ -1606,7 +1606,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const withdrawals = await storage.getWithdrawalFinds();
+      const withdrawals = await storage.getWithdrawals();
       res.json(withdrawals);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch withdrawal finds" });
@@ -1626,7 +1626,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid status" });
       }
 
-      const withdrawal = await storage.updateWithdrawalFind(id, {
+      const withdrawal = await storage.updateWithdrawal(id, {
         status,
         adminNotes,
         processedBy: req.user.userId
@@ -1665,7 +1665,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Insufficient balance" });
       }
 
-      const withdrawal = await storage.createWithdrawalFind({
+      const withdrawal = await storage.createWithdrawal({
         finderId: finder.id,
         amount,
         paymentMethod,
