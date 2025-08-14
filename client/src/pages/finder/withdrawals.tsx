@@ -4,27 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { FinderHeader } from "@/components/finder-header";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Edit, Save, X, CreditCard, Clock, DollarSign, AlertCircle } from "lucide-react";
+import { CreditCard, Clock, DollarSign, AlertCircle } from "lucide-react";
 import type { WithdrawalRequest } from "@shared/schema";
 
 export default function WithdrawalSettings() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    paymentMethod: "bank_transfer",
     bankName: "",
     accountNumber: "",
     routingNumber: "",
     accountHolder: "",
-    paypalEmail: "",
     minimumThreshold: "50"
   });
 
@@ -32,21 +28,6 @@ export default function WithdrawalSettings() {
     queryKey: ['/api/finder/withdrawal-settings'],
     enabled: !!user
   });
-
-  // Update form data when withdrawal settings change
-  useEffect(() => {
-    if (withdrawalSettings) {
-      setFormData({
-        paymentMethod: withdrawalSettings.paymentMethod || "bank_transfer",
-        bankName: withdrawalSettings.bankDetails?.bankName || "",
-        accountNumber: withdrawalSettings.bankDetails?.accountNumber || "",
-        routingNumber: withdrawalSettings.bankDetails?.routingNumber || "",
-        accountHolder: withdrawalSettings.bankDetails?.accountHolder || "",
-        paypalEmail: withdrawalSettings.paypalDetails?.email || "",
-        minimumThreshold: withdrawalSettings.minimumThreshold?.toString() || "50"
-      });
-    }
-  }, [withdrawalSettings]);
 
   const { data: withdrawalHistory = [], isLoading: historyLoading } = useQuery<WithdrawalRequest[]>({
     queryKey: ['/api/finder/withdrawals'],
@@ -58,14 +39,34 @@ export default function WithdrawalSettings() {
     enabled: !!user
   });
 
+  // Update form data when withdrawal settings change
+  useEffect(() => {
+    if (withdrawalSettings && withdrawalSettings.bankDetails) {
+      setFormData({
+        bankName: withdrawalSettings.bankDetails.bankName || "",
+        accountNumber: withdrawalSettings.bankDetails.accountNumber || "",
+        routingNumber: withdrawalSettings.bankDetails.routingNumber || "",
+        accountHolder: withdrawalSettings.bankDetails.accountHolder || "",
+        minimumThreshold: withdrawalSettings.minimumThreshold?.toString() || "50"
+      });
+    }
+  }, [withdrawalSettings]);
+
   const updateSettingsMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/finder/withdrawal-settings', {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+    mutationFn: async (data: any) => {
+      const response = await fetch('/api/finder/withdrawal-settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error('Failed to update settings');
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/withdrawal-settings'] });
-      setIsEditing(false);
       toast({
         title: "Settings updated",
         description: "Your withdrawal settings have been successfully updated.",
@@ -81,10 +82,22 @@ export default function WithdrawalSettings() {
   });
 
   const requestWithdrawalMutation = useMutation({
-    mutationFn: (amount: number) => apiRequest('/api/finder/withdraw', {
-      method: 'POST',
-      body: JSON.stringify({ amount }),
-    }),
+    mutationFn: async (amount: number) => {
+      const response = await fetch('/api/finder/withdraw', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ 
+          amount,
+          paymentMethod: 'bank_transfer',
+          paymentDetails: formData 
+        }),
+      });
+      if (!response.ok) throw new Error('Failed to request withdrawal');
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/withdrawals'] });
       toast({
@@ -101,28 +114,22 @@ export default function WithdrawalSettings() {
     },
   });
 
-  const handleSaveSettings = () => {
+  const handleUpdateSettings = () => {
     const settingsData = {
-      paymentMethod: formData.paymentMethod,
+      paymentMethod: "bank_transfer",
       minimumThreshold: parseInt(formData.minimumThreshold),
-      ...(formData.paymentMethod === 'bank_transfer' ? {
-        bankDetails: {
-          bankName: formData.bankName,
-          accountNumber: formData.accountNumber,
-          routingNumber: formData.routingNumber,
-          accountHolder: formData.accountHolder
-        }
-      } : {
-        paypalDetails: {
-          email: formData.paypalEmail
-        }
-      })
+      bankDetails: {
+        bankName: formData.bankName,
+        accountNumber: formData.accountNumber,
+        routingNumber: formData.routingNumber,
+        accountHolder: formData.accountHolder
+      }
     };
     updateSettingsMutation.mutate(settingsData);
   };
 
   const handleWithdrawalRequest = () => {
-    const availableBalance = finder?.totalEarnings || 0;
+    const availableBalance = parseFloat(finder?.totalEarned || '0');
     if (availableBalance >= parseInt(formData.minimumThreshold)) {
       requestWithdrawalMutation.mutate(availableBalance);
     } else {
@@ -164,7 +171,7 @@ export default function WithdrawalSettings() {
       <div className="max-w-4xl mx-auto py-6 sm:py-8 px-4 sm:px-6">
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Withdrawal Settings</h1>
-          <p className="text-gray-600 text-sm sm:text-base">Manage your payment methods and withdrawal preferences</p>
+          <p className="text-gray-600 text-sm sm:text-base">Manage your bank account and withdrawal preferences</p>
         </div>
 
         <div className="grid gap-6">
@@ -174,12 +181,12 @@ export default function WithdrawalSettings() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">Available Balance</h3>
-                  <p className="text-3xl font-bold text-green-600">${finder?.totalEarnings || 0}</p>
+                  <p className="text-3xl font-bold text-green-600">${finder?.totalEarned || 0}</p>
                   <p className="text-sm text-gray-600">Ready for withdrawal</p>
                 </div>
                 <Button 
                   onClick={handleWithdrawalRequest}
-                  disabled={!finder?.totalEarnings || finder.totalEarnings < parseInt(formData.minimumThreshold)}
+                  disabled={!finder?.totalEarned || parseFloat(finder.totalEarned) < parseInt(formData.minimumThreshold)}
                   className="bg-red-600 hover:bg-red-700"
                 >
                   Request Withdrawal
@@ -188,168 +195,92 @@ export default function WithdrawalSettings() {
             </CardContent>
           </Card>
 
-          {/* Payment Settings */}
+          {/* Bank Account Settings */}
           <Card>
             <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
-                  Payment Settings
-                </CardTitle>
-                {!isEditing ? (
-                  <Button onClick={() => setIsEditing(true)} variant="outline">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Settings
-                  </Button>
-                ) : (
-                  <div className="flex gap-2">
-                    <Button 
-                      onClick={handleSaveSettings}
-                      disabled={updateSettingsMutation.isPending}
-                      size="sm"
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Save
-                    </Button>
-                    <Button onClick={() => setIsEditing(false)} variant="outline" size="sm">
-                      <X className="w-4 h-4 mr-2" />
-                      Cancel
-                    </Button>
-                  </div>
-                )}
-              </div>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="w-5 h-5" />
+                Bank Account Settings
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div>
-                <Label htmlFor="paymentMethod">Payment Method</Label>
-                {isEditing ? (
-                  <Select value={formData.paymentMethod} onValueChange={(value) => setFormData(prev => ({ ...prev, paymentMethod: value }))}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                      <SelectItem value="paypal">PayPal</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <p className="mt-1 p-2 bg-gray-50 rounded border capitalize">
-                    {formData.paymentMethod.replace('_', ' ')}
-                  </p>
-                )}
-              </div>
-
-              {formData.paymentMethod === 'bank_transfer' && (
-                <div className="grid sm:grid-cols-2 gap-4">
+              {/* Bank Transfer Details */}
+              <div className="grid gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="bankName">Bank Name</Label>
-                    {isEditing ? (
-                      <Input
-                        id="bankName"
-                        value={formData.bankName}
-                        onChange={(e) => setFormData(prev => ({ ...prev, bankName: e.target.value }))}
-                        className="mt-1"
-                        placeholder="e.g., Chase Bank"
-                      />
-                    ) : (
-                      <p className="mt-1 p-2 bg-gray-50 rounded border">{formData.bankName || "Not set"}</p>
-                    )}
+                    <Input
+                      id="bankName"
+                      value={formData.bankName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, bankName: e.target.value }))}
+                      placeholder="Enter bank name"
+                      className="mt-1"
+                    />
                   </div>
                   <div>
-                    <Label htmlFor="accountHolder">Account Holder</Label>
-                    {isEditing ? (
-                      <Input
-                        id="accountHolder"
-                        value={formData.accountHolder}
-                        onChange={(e) => setFormData(prev => ({ ...prev, accountHolder: e.target.value }))}
-                        className="mt-1"
-                        placeholder="Full name on account"
-                      />
-                    ) : (
-                      <p className="mt-1 p-2 bg-gray-50 rounded border">{formData.accountHolder || "Not set"}</p>
-                    )}
+                    <Label htmlFor="accountHolder">Account Holder Name</Label>
+                    <Input
+                      id="accountHolder"
+                      value={formData.accountHolder}
+                      onChange={(e) => setFormData(prev => ({ ...prev, accountHolder: e.target.value }))}
+                      placeholder="Enter account holder name"
+                      className="mt-1"
+                    />
                   </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="accountNumber">Account Number</Label>
-                    {isEditing ? (
-                      <Input
-                        id="accountNumber"
-                        value={formData.accountNumber}
-                        onChange={(e) => setFormData(prev => ({ ...prev, accountNumber: e.target.value }))}
-                        className="mt-1"
-                        placeholder="Bank account number"
-                      />
-                    ) : (
-                      <p className="mt-1 p-2 bg-gray-50 rounded border">
-                        {formData.accountNumber ? `****${formData.accountNumber.slice(-4)}` : "Not set"}
-                      </p>
-                    )}
+                    <Input
+                      id="accountNumber"
+                      value={formData.accountNumber}
+                      onChange={(e) => setFormData(prev => ({ ...prev, accountNumber: e.target.value }))}
+                      placeholder="Enter account number"
+                      className="mt-1"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="routingNumber">Routing Number</Label>
-                    {isEditing ? (
-                      <Input
-                        id="routingNumber"
-                        value={formData.routingNumber}
-                        onChange={(e) => setFormData(prev => ({ ...prev, routingNumber: e.target.value }))}
-                        className="mt-1"
-                        placeholder="Bank routing number"
-                      />
-                    ) : (
-                      <p className="mt-1 p-2 bg-gray-50 rounded border">{formData.routingNumber || "Not set"}</p>
-                    )}
+                    <Input
+                      id="routingNumber"
+                      value={formData.routingNumber}
+                      onChange={(e) => setFormData(prev => ({ ...prev, routingNumber: e.target.value }))}
+                      placeholder="Enter routing number"
+                      className="mt-1"
+                    />
                   </div>
                 </div>
-              )}
+              </div>
 
-              {formData.paymentMethod === 'paypal' && (
-                <div>
-                  <Label htmlFor="paypalEmail">PayPal Email</Label>
-                  {isEditing ? (
-                    <Input
-                      id="paypalEmail"
-                      type="email"
-                      value={formData.paypalEmail}
-                      onChange={(e) => setFormData(prev => ({ ...prev, paypalEmail: e.target.value }))}
-                      className="mt-1"
-                      placeholder="your.email@paypal.com"
-                    />
-                  ) : (
-                    <p className="mt-1 p-2 bg-gray-50 rounded border">{formData.paypalEmail || "Not set"}</p>
-                  )}
-                </div>
-              )}
-
+              {/* Minimum Threshold */}
               <div>
-                <Label htmlFor="minimumThreshold">Minimum Withdrawal Amount ($)</Label>
-                {isEditing ? (
+                <Label htmlFor="minimumThreshold">Minimum Withdrawal Amount</Label>
+                <div className="relative mt-1">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <DollarSign className="h-4 w-4 text-gray-400" />
+                  </div>
                   <Input
                     id="minimumThreshold"
                     type="number"
                     value={formData.minimumThreshold}
                     onChange={(e) => setFormData(prev => ({ ...prev, minimumThreshold: e.target.value }))}
-                    className="mt-1"
-                    placeholder="50"
+                    className="pl-10"
                     min="10"
+                    max="1000"
                   />
-                ) : (
-                  <p className="mt-1 p-2 bg-gray-50 rounded border">${formData.minimumThreshold}</p>
-                )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Minimum amount before you can request a withdrawal (between $10 - $1000)</p>
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-blue-700">
-                    <p className="font-medium mb-1">Important Notes:</p>
-                    <ul className="space-y-1 text-xs">
-                      <li>• Withdrawals are processed within 3-5 business days</li>
-                      <li>• All withdrawal requests require admin approval</li>
-                      <li>• Minimum withdrawal amount is $10</li>
-                      <li>• Processing fees may apply depending on payment method</li>
-                    </ul>
-                  </div>
-                </div>
+              {/* Update Button */}
+              <div className="pt-4 border-t">
+                <Button 
+                  onClick={handleUpdateSettings}
+                  disabled={updateSettingsMutation.isPending}
+                  className="bg-red-600 hover:bg-red-700 w-full sm:w-auto"
+                >
+                  {updateSettingsMutation.isPending ? "Updating..." : "Update Settings"}
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -365,32 +296,35 @@ export default function WithdrawalSettings() {
             <CardContent>
               {withdrawalHistory.length === 0 ? (
                 <div className="text-center py-8">
-                  <DollarSign className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No withdrawals yet</h3>
-                  <p className="text-gray-600">Your withdrawal history will appear here</p>
+                  <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No withdrawal history</h3>
+                  <p className="text-gray-600">Your withdrawal requests will appear here once you make them.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {withdrawalHistory.map((withdrawal) => (
-                    <div key={withdrawal.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 rounded-full">
-                          <DollarSign className="w-4 h-4 text-green-600" />
+                    <div key={withdrawal.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-lg gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="flex items-center gap-2">
+                            <DollarSign className="w-4 h-4 text-gray-600" />
+                            <span className="font-semibold text-gray-900">${withdrawal.amount}</span>
+                          </div>
+                          <Badge className={getStatusColor(withdrawal.status)}>
+                            {withdrawal.status}
+                          </Badge>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-900">${withdrawal.amount}</p>
-                          <p className="text-sm text-gray-600">
-                            Requested on {new Date(withdrawal.requestedAt || "").toLocaleDateString()}
-                          </p>
-                          {withdrawal.adminNotes && (
-                            <p className="text-xs text-gray-500 mt-1">{withdrawal.adminNotes}</p>
+                        <p className="text-sm text-gray-600">
+                          Requested on {withdrawal.requestedAt ? new Date(withdrawal.requestedAt).toLocaleDateString() : 'Unknown'}
+                          {withdrawal.processedAt && (
+                            <span> • Processed on {new Date(withdrawal.processedAt).toLocaleDateString()}</span>
                           )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getStatusColor(withdrawal.status)}>
-                          {withdrawal.status}
-                        </Badge>
+                        </p>
+                        {withdrawal.adminNotes && (
+                          <p className="text-sm text-gray-700 mt-1">
+                            <span className="font-medium">Admin Notes:</span> {withdrawal.adminNotes}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))}
