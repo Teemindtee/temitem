@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Clock, User } from "lucide-react";
 import { format } from "date-fns";
+import ClientHeader from "@/components/client-header";
 
 type ConversationListItem = {
   id: string;
@@ -56,10 +57,11 @@ export default function Messages() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 flex-shrink-0">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <ClientHeader currentPage="messages" />
+      
+      <div className="container mx-auto py-8 px-4">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
             <MessageCircle className="w-6 h-6 md:w-8 md:h-8 text-red-600" />
             <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Messages</h1>
@@ -70,12 +72,10 @@ export default function Messages() {
             </div>
           )}
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {conversations.length === 0 ? (
-          <Card>
+        <div className="space-y-4">
+          {conversations.length === 0 ? (
+            <Card>
             <CardContent className="p-8 text-center">
               <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
               <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
@@ -86,14 +86,14 @@ export default function Messages() {
                 }
               </p>
               {user.role === 'client' && (
-                <Link href="/browse-requests">
-                  <Button>Browse Requests</Button>
+                <Link href="/client/browse-requests">
+                  <Button>View My Requests</Button>
                 </Link>
               )}
             </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
+            </Card>
+          ) : (
+            <div className="space-y-4">
             {conversations.map((conversation) => (
               <Link
                 key={conversation.id}
@@ -138,8 +138,9 @@ export default function Messages() {
                 </Card>
               </Link>
             ))}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ export default function BrowseRequests() {
   const [showFilters, setShowFilters] = useState(false);
 
   const { data: requests = [], isLoading } = useQuery<Request[]>({
-    queryKey: ['/api/requests'],
+    queryKey: ['/api/client/requests'],
     enabled: !!user
   });
 
@@ -22,8 +22,8 @@ export default function BrowseRequests() {
   };
 
   // Get time ago string
-  const getTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
+  const getTimeAgo = (dateInput: string | Date) => {
+    const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
     
@@ -55,7 +55,7 @@ export default function BrowseRequests() {
       <div className="max-w-4xl mx-auto py-12 px-6">
         {/* Title */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-6">Browse Requests</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-6">My Requests</h1>
           <Button 
             onClick={() => setShowFilters(!showFilters)}
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-2"
@@ -73,7 +73,7 @@ export default function BrowseRequests() {
               <p className="text-gray-600">Check back later for new requests.</p>
             </div>
           ) : (
-            requests.slice(0, 3).map((request: Request) => (
+            requests.map((request: Request) => (
               <Link key={request.id} href={`/client/requests/${request.id}`}>
                 <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                   <div className="mb-4">
@@ -84,7 +84,7 @@ export default function BrowseRequests() {
                   <div className="flex justify-between items-center">
                     <div className="flex items-center space-x-2 text-gray-600">
                       <User className="w-4 h-4" />
-                      <span className="font-medium">Client Name</span>
+                      <span className="font-medium">You</span>
                     </div>
                     <span className="text-gray-500 text-sm">{getTimeAgo(request.createdAt || "")}</span>
                   </div>
@@ -92,58 +92,6 @@ export default function BrowseRequests() {
               </Link>
             ))
           )}
-          
-          {/* Sample requests to match mockup exactly */}
-          <Link href="/client/requests/sample-1">
-            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-              <div className="mb-4">
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Prescription Medication</h3>
-                <p className="text-gray-700 leading-relaxed mb-4">I need a specific prescription medication that is currently out of stock at my local pharmacy.</p>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2 text-gray-600">
-                  <User className="w-4 h-4" />
-                  <span className="font-medium">John D.</span>
-                </div>
-                <span className="text-gray-500 text-sm">Posted 2 hours ago</span>
-              </div>
-            </div>
-          </Link>
-
-          <Link href="/client/requests/sample-2">
-            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-              <div className="mb-4">
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Grocery Shopping</h3>
-                <p className="text-gray-700 leading-relaxed mb-4">I'm looking for someone, to help with grocery shopping for fruits, vegetables, and household items.</p>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2 text-gray-600">
-                  <User className="w-4 h-4" />
-                  <span className="font-medium">Sarah W.</span>
-                </div>
-                <span className="text-gray-500 text-sm">Posted 5 hours ago</span>
-              </div>
-            </div>
-          </Link>
-
-          <Link href="/client/requests/sample-3">
-            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-              <div className="mb-4">
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Tour Guide for City Landmarks</h3>
-                <p className="text-gray-700 leading-relaxed mb-4">I need a tour guide to show me around the city's main landmarks and attractions.</p>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2 text-gray-600">
-                  <User className="w-4 h-4" />
-                  <span className="font-medium">Michael B.</span>
-                </div>
-                <span className="text-gray-500 text-sm">Posted 1 day ago</span>
-              </div>
-            </div>
-          </Link>
         </div>
       </div>
     </div>
