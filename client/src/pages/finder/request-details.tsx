@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FinderHeader } from "@/components/finder-header";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Clock, DollarSign, MapPin, Handshake, Send } from "lucide-react";
+import { ArrowLeft, Clock, DollarSign, MapPin, Send } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { Request, Proposal } from "@shared/schema";
 
@@ -40,11 +41,6 @@ export default function FinderRequestDetails() {
     queryKey: ['/api/finder/requests', requestId, 'proposals'],
     enabled: !!requestId && !!user && !!request
   });
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/";
-  };
 
   const submitProposal = useMutation({
     mutationFn: async () => {
@@ -109,37 +105,12 @@ export default function FinderRequestDetails() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
-            <span className="text-xl font-bold">FinderMeister</span>
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <Link href="/finder/dashboard" className="hover:text-red-200">Dashboard</Link>
-            <Link href="/finder/browse-requests" className="hover:text-red-200">Browse Requests</Link>
-            <div className="relative group">
-              <button className="flex items-center space-x-1 hover:text-red-200">
-                <span>{user?.firstName} {user?.lastName}</span>
-              </button>
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 invisible group-hover:visible">
-                <button 
-                  onClick={handleLogout}
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                >
-                  Sign out
-                </button>
-              </div>
-            </div>
-          </nav>
-        </div>
-      </header>
+      <FinderHeader />
 
       {/* Back Button */}
-      <div className="max-w-6xl mx-auto pt-6 px-6">
+      <div className="max-w-6xl mx-auto pt-4 sm:pt-6 px-4 sm:px-6">
         <Link href="/finder/browse-requests">
-          <Button variant="ghost" className="mb-6">
+          <Button variant="ghost" className="mb-4 sm:mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Browse Requests
           </Button>
@@ -147,7 +118,7 @@ export default function FinderRequestDetails() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto pb-8 px-6">
+      <div className="max-w-6xl mx-auto pb-8 px-4 sm:px-6">
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Request Details */}
           <div className="lg:col-span-2">
