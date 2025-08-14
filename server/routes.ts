@@ -668,6 +668,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Support ticket submission endpoint
+  app.post("/api/support/tickets", async (req: Request, res: Response) => {
+    try {
+      const { name, email, category, priority, subject, message } = req.body;
+      
+      // In a real application, you would save this to a database or send to a support system
+      console.log('Support ticket submitted:', { name, email, category, priority, subject, message });
+      
+      // For now, just return success
+      res.json({ 
+        success: true, 
+        ticketId: `TICKET-${Date.now()}`,
+        message: "Support ticket submitted successfully" 
+      });
+    } catch (error) {
+      console.error('Failed to submit support ticket:', error);
+      res.status(500).json({ message: "Failed to submit support ticket" });
+    }
+  });
+
   // Client-specific contracts endpoint  
   app.get("/api/client/contracts", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {

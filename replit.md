@@ -69,6 +69,13 @@ User feedback: Frustrated with back-and-forth iterations - requires working solu
 - **Admin Interface**: Comprehensive control panel with metrics and quick actions for user, category, settings, withdrawal, and request management.
 - **Profile Design**: Finder profile pages are designed as always-editable forms with a single update action.
 
+## Customer Support System
+- **Help Center**: Comprehensive FAQ system with contextual help organized by categories (Getting Started, Tokens & Payments, Communication, Work Completion, Account Management).
+- **Contact Support**: Ticket submission system with priority levels and response time expectations.
+- **Support Widget**: Context-aware floating help widget that appears on key pages (dashboard, contracts, proposals, etc.) with relevant tips and quick access to help resources.
+- **Contextual Help**: Page-specific guidance and common questions tailored to the current user workflow.
+- **Response Times**: Structured by priority levels from 2-3 business days (low) to 1-2 hours (urgent).
+
 # External Dependencies
 
 ## Database & Storage

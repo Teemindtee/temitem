@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FinderHeader } from "@/components/finder-header";
+import { SupportWidget } from "@/components/support-widget";
 import { useAuth } from "@/hooks/use-auth";
 import { Search, DollarSign, Clock, Trophy, Plus, Coins } from "lucide-react";
 import type { Request, Proposal, User } from "@shared/schema";
@@ -46,7 +47,7 @@ export default function FinderDashboard() {
       {/* Main Content */}
       <div className="max-w-6xl mx-auto py-4 sm:py-8 px-4 sm:px-6">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome back, {user?.name}!</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome back, {user?.firstName || 'Finder'}!</h1>
           <p className="text-gray-600 text-sm sm:text-base">Find opportunities and grow your finder business.</p>
         </div>
 
@@ -58,7 +59,7 @@ export default function FinderDashboard() {
                 <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Total Earnings</h3>
-              <p className="text-xl sm:text-2xl font-bold text-green-600">${finder?.totalEarnings || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-green-600">${(finder as any)?.totalEarnings || 0}</p>
               <p className="text-gray-600 text-xs sm:text-sm">All time</p>
             </CardContent>
           </Card>
@@ -82,7 +83,7 @@ export default function FinderDashboard() {
                 <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Completed Jobs</h3>
-              <p className="text-xl sm:text-2xl font-bold text-purple-600">{finder?.completedJobs || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-purple-600">{(finder as any)?.completedJobs || 0}</p>
               <p className="text-gray-600 text-xs sm:text-sm">All time</p>
             </CardContent>
           </Card>
@@ -93,7 +94,7 @@ export default function FinderDashboard() {
                 <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Token Balance</h3>
-              <p className="text-xl sm:text-2xl font-bold text-orange-600">{finder?.tokenBalance || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-orange-600">{(finder as any)?.tokenBalance || 0}</p>
               <p className="text-gray-600 text-xs sm:text-sm">Available</p>
             </CardContent>
           </Card>
@@ -196,6 +197,7 @@ export default function FinderDashboard() {
           </Card>
         </div>
       </div>
+      <SupportWidget context="dashboard" />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FinderHeader } from "@/components/finder-header";
+import { SupportWidget } from "@/components/support-widget";
 import { useAuth } from "@/hooks/use-auth";
 import { DollarSign, Clock, CheckCircle, Upload, ExternalLink } from "lucide-react";
 
@@ -153,6 +154,7 @@ export default function FinderContracts() {
           </div>
         )}
       </div>
+      <SupportWidget context="contracts" />
     </div>
   );
 }
