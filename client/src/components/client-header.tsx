@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
-import { Handshake, User, Settings, Lock, LogOut, Menu, X } from "lucide-react";
+import { Handshake, User, Settings, Lock, LogOut, Menu, X, FileText, MessageSquare, Search, HelpCircle, Plus } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 
 interface ClientHeaderProps {
@@ -32,32 +32,50 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
         </Link>
         
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center space-x-4 xl:space-x-6">
+        <nav className="hidden lg:flex items-center space-x-3 xl:space-x-4">
           {user ? (
             <>
               <Link 
                 href="/client/dashboard" 
-                className={`hover:underline ${currentPage === 'dashboard' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''}`}
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
-                Dashboard
+                <Handshake className="w-4 h-4" />
+                <span>Dashboard</span>
+              </Link>
+              <Link 
+                href="/client/create-request" 
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'create-request' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+              >
+                <Plus className="w-4 h-4" />
+                <span>Post Request</span>
+              </Link>
+              <Link 
+                href="/client/requests" 
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+              >
+                <FileText className="w-4 h-4" />
+                <span>My Requests</span>
               </Link>
               <Link 
                 href="/client/browse-requests" 
-                className={`hover:underline ${currentPage === 'browse-requests' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''}`}
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'browse-requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
-                Browse Requests
+                <Search className="w-4 h-4" />
+                <span>Browse Requests</span>
               </Link>
               <Link 
-                href="/client/proposals" 
-                className={`hover:underline ${currentPage === 'proposals' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''}`}
+                href="/client/contracts" 
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'contracts' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
-                View Proposals
+                <Handshake className="w-4 h-4" />
+                <span>Contracts</span>
               </Link>
               <Link 
                 href="/messages" 
-                className={`hover:underline ${currentPage === 'messages' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''}`}
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'messages' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
-                Messages
+                <MessageSquare className="w-4 h-4" />
+                <span>Messages</span>
               </Link>
               
               {/* Profile Dropdown */}
@@ -79,6 +97,13 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                     <Link href="/client/change-password" className="flex items-center w-full cursor-pointer">
                       <Lock className="w-4 h-4 mr-2" />
                       Change Password
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/support" className="flex items-center w-full cursor-pointer">
+                      <HelpCircle className="w-4 h-4 mr-2" />
+                      Help Center
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -115,31 +140,51 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
               <>
                 <Link 
                   href="/client/dashboard" 
-                  className={`block py-2 px-3 rounded ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Dashboard
+                  <Handshake className="w-4 h-4" />
+                  <span>Dashboard</span>
+                </Link>
+                <Link 
+                  href="/client/create-request" 
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'create-request' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Post Request</span>
+                </Link>
+                <Link 
+                  href="/client/requests" 
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>My Requests</span>
                 </Link>
                 <Link 
                   href="/client/browse-requests" 
-                  className={`block py-2 px-3 rounded ${currentPage === 'browse-requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'browse-requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Browse Requests
+                  <Search className="w-4 h-4" />
+                  <span>Browse Requests</span>
                 </Link>
                 <Link 
-                  href="/client/proposals" 
-                  className={`block py-2 px-3 rounded ${currentPage === 'proposals' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  href="/client/contracts" 
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'contracts' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  View Proposals
+                  <Handshake className="w-4 h-4" />
+                  <span>Contracts</span>
                 </Link>
                 <Link 
                   href="/messages" 
-                  className={`block py-2 px-3 rounded ${currentPage === 'messages' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'messages' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Messages
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Messages</span>
                 </Link>
                 <div className="border-t border-finder-red/70 pt-3 mt-3">
                   <div className="flex items-center py-2 px-3 text-white font-medium">
@@ -161,6 +206,14 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   >
                     <Lock className="w-4 h-4 mr-2 inline" />
                     Change Password
+                  </Link>
+                  <Link 
+                    href="/support" 
+                    className="block py-2 px-6 hover:bg-finder-red-dark rounded"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <HelpCircle className="w-4 h-4 mr-2 inline" />
+                    Help Center
                   </Link>
                   <button 
                     onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
