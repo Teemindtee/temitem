@@ -45,13 +45,14 @@ export default function OrderReviewPage() {
 
   const reviewSubmissionMutation = useMutation({
     mutationFn: async (data: { submissionId: string; status: string; clientFeedback?: string }) => {
-      return apiRequest(`/api/orders/submission/${data.submissionId}`, {
-        method: "PUT",
-        body: JSON.stringify({
+      return apiRequest(
+        "PUT",
+        `/api/orders/submission/${data.submissionId}`,
+        {
           status: data.status,
           clientFeedback: data.clientFeedback,
-        }),
-      });
+        }
+      );
     },
     onSuccess: (_, variables) => {
       toast({ 
