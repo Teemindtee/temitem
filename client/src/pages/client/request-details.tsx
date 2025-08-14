@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Clock, DollarSign, MapPin, User, Star, MessageCircle } from "lucide-react";
 import ClientHeader from "@/components/client-header";
+import FileDisplay from "@/components/file-display";
 import { apiRequest } from "@/lib/queryClient";
 import type { Request, Proposal } from "@shared/schema";
 
@@ -123,6 +124,15 @@ export default function RequestDetails() {
                     <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
                     <p className="text-gray-700 leading-relaxed">{request.description}</p>
                   </div>
+
+                  {/* Display attachments if any */}
+                  {request.attachments && request.attachments.length > 0 && (
+                    <FileDisplay 
+                      files={request.attachments} 
+                      title="Request Attachments"
+                      className="border-0 bg-gray-50"
+                    />
+                  )}
                   
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>

@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import FileUpload from "@/components/file-upload";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -29,16 +30,34 @@ export default function CreateRequest() {
     requirements: ""
   });
 
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
   const createRequestMutation = useMutation({
     mutationFn: async (data: any) => {
       const token = localStorage.getItem('findermeister_token');
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      
+      // Add text fields
+      Object.keys(data).forEach(key => {
+        if (key !== 'attachments') {
+          formData.append(key, data[key]);
+        }
+      });
+      
+      // Add files
+      selectedFiles.forEach((file) => {
+        formData.append('attachments', file);
+      });
+
       const response = await fetch("/api/client/requests", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          // Don't set Content-Type, let browser set it with boundary for multipart
         },
-        body: JSON.stringify(data),
+        body: formData,
       });
       if (!response.ok) {
         throw new Error("Failed to create request");
@@ -243,6 +262,15 @@ export default function CreateRequest() {
                   className="mt-1"
                 />
               </div>
+
+              {/* File Upload Section */}
+              <FileUpload
+                onFilesChange={setSelectedFiles}
+                maxFiles={5}
+                maxSizeInMB={10}
+                label="Supporting Files (Optional)"
+                description="Upload images, documents, or reference files to help finders understand your request better"
+              />
 
               <div className="flex gap-4 pt-4">
                 <Button

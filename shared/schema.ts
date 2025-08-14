@@ -49,6 +49,7 @@ export const requests = pgTable("requests", {
   timeframe: text("timeframe"),
   status: text("status").default("open"), // 'open', 'in_progress', 'completed'
   tokenCost: integer("token_cost").default(1),
+  attachments: text("attachments").array(), // Array of file paths stored locally
   createdAt: timestamp("created_at").defaultNow(),
 });
 

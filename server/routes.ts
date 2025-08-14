@@ -1,12 +1,61 @@
 import type { Express, Request, Response, NextFunction } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema } from "@shared/schema";
 import { ObjectStorageService } from "./objectStorage";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+
+// Configure multer for file uploads
+const storage_multer = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(process.cwd(), 'uploads');
+    // Ensure upload directory exists
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    // Generate unique filename with timestamp and random string
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const fileExtension = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + fileExtension);
+  }
+});
+
+const upload = multer({ 
+  storage: storage_multer,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 5 // Maximum 5 files
+  },
+  fileFilter: function (req, file, cb) {
+    // Allow specific file types
+    const allowedMimes = [
+      'image/jpeg',
+      'image/png', 
+      'image/gif',
+      'image/webp',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain'
+    ];
+    
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images, PDFs, and documents are allowed.'));
+    }
+  }
+});
 
 // Extended Request interface for authentication
 interface AuthenticatedRequest extends Request {
@@ -33,6 +82,8 @@ function authenticateToken(req: AuthenticatedRequest, res: Response, next: NextF
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded files statically
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
   // Authentication routes
   app.post("/api/auth/register", async (req, res) => {
     try {
@@ -309,15 +360,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/client/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.post("/api/client/requests", authenticateToken, upload.array('attachments', 5), async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'client') {
         return res.status(403).json({ message: "Only clients can create requests" });
       }
 
+      // Get uploaded file paths
+      const files = req.files as Express.Multer.File[];
+      const attachmentPaths = files ? files.map(file => `/uploads/${file.filename}`) : [];
+
       const requestData = insertRequestSchema.parse({
         ...req.body,
-        clientId: req.user.userId
+        clientId: req.user.userId,
+        attachments: attachmentPaths
       });
 
       const request = await storage.createRequest(requestData);
