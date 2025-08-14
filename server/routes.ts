@@ -10,6 +10,7 @@ import fs from "fs";
 import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
+import { PaystackService, TOKEN_PACKAGES } from "./paymentService";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -691,7 +692,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Token packages endpoint
   app.get("/api/tokens/packages", (req: Request, res: Response) => {
-    const { TOKEN_PACKAGES } = require('./paymentService');
     res.json(TOKEN_PACKAGES);
   });
 
@@ -699,7 +699,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/payments/initialize", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { packageId } = req.body;
-      const { PaystackService, TOKEN_PACKAGES } = require('./paymentService');
       
       const paystackService = new PaystackService();
       const selectedPackage = TOKEN_PACKAGES.find((pkg: any) => pkg.id === packageId);
@@ -736,7 +735,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Payment webhook endpoint
   app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
     try {
-      const { PaystackService } = require('./paymentService');
       const paystackService = new PaystackService();
       
       const signature = req.headers['x-paystack-signature'] as string;
@@ -782,7 +780,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/payments/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { reference } = req.params;
-      const { PaystackService } = require('./paymentService');
       
       const paystackService = new PaystackService();
       const transaction = await paystackService.verifyTransaction(reference);

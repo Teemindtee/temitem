@@ -210,7 +210,7 @@ export default function TokenPurchase() {
                     ₦{pkg.price.toLocaleString()}
                   </div>
                   <p className="text-gray-500 text-sm">
-                    ₦{Math.round(pkg.price / pkg.tokens)} per token
+                    ₦{Math.round(pkg.price / pkg.tokens).toLocaleString()} per token
                   </p>
                 </div>
 
