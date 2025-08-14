@@ -5,12 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
+import type { BlogPost } from "@shared/schema";
 
 export default function BlogPost() {
   const params = useParams();
   const slug = params?.slug;
 
-  const { data: post, isLoading, error } = useQuery({
+  const { data: post, isLoading, error } = useQuery<BlogPost>({
     queryKey: [`/api/blog/${slug}`],
     enabled: !!slug,
   });
@@ -66,38 +67,47 @@ export default function BlogPost() {
         </div>
 
         <Card className="overflow-hidden">
-          <CardContent className="p-8">
+          <CardContent className="p-4 sm:p-6 lg:p-8">
             <div className="mb-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Badge variant="default" className="bg-red-600">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+                <Badge variant="default" className="bg-red-600 w-fit">
                   Blog Post
                 </Badge>
                 {post.publishedAt && (
                   <div className="flex items-center text-sm text-gray-500">
                     <Calendar className="w-4 h-4 mr-1" />
-                    {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
+                    <span className="hidden sm:inline">
+                      {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </span>
+                    <span className="sm:hidden">
+                      {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
                   </div>
                 )}
               </div>
               
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
                 {post.title}
               </h1>
               
               {post.excerpt && (
-                <p className="text-xl text-gray-600 leading-relaxed mb-6">
+                <p className="text-lg sm:text-xl text-gray-600 leading-relaxed mb-6">
                   {post.excerpt}
                 </p>
               )}
             </div>
 
-            <div className="prose prose-lg max-w-none">
+            <div className="prose prose-sm sm:prose-lg max-w-none">
               <div 
-                className="text-gray-800 leading-relaxed"
+                className="text-gray-800 leading-relaxed break-words"
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
             </div>

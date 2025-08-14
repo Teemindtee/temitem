@@ -52,14 +52,14 @@ export default function AdminBlogPosts() {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader currentPage="blog-posts" />
       
-      <div className="max-w-6xl mx-auto py-8 px-6">
-        <div className="flex justify-between items-center mb-8">
+      <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Blog Posts</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Blog Posts</h1>
             <p className="text-gray-600">Create and manage blog posts for your platform</p>
           </div>
           <Link href="/admin/blog-posts/create">
-            <Button className="bg-red-600 hover:bg-red-700 text-white">
+            <Button className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Create Post
             </Button>
@@ -86,14 +86,14 @@ export default function AdminBlogPosts() {
           <div className="space-y-6">
             {posts.map((post) => (
               <Card key={post.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-semibold text-gray-900">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                           {post.title}
                         </h3>
-                        <Badge variant={post.isPublished ? "default" : "secondary"}>
+                        <Badge variant={post.isPublished ? "default" : "secondary"} className="w-fit">
                           {post.isPublished ? "Published" : "Draft"}
                         </Badge>
                       </div>
@@ -104,39 +104,43 @@ export default function AdminBlogPosts() {
                         </p>
                       )}
                       
-                      <div className="flex items-center text-sm text-gray-500 gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center text-sm text-gray-500 gap-2 sm:gap-4">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          Created {new Date(post.createdAt!).toLocaleDateString()}
+                          <span className="hidden sm:inline">Created </span>
+                          {new Date(post.createdAt!).toLocaleDateString()}
                         </div>
                         {post.publishedAt && (
                           <div className="flex items-center gap-1">
                             <Eye className="w-4 h-4" />
-                            Published {new Date(post.publishedAt).toLocaleDateString()}
+                            <span className="hidden sm:inline">Published </span>
+                            {new Date(post.publishedAt).toLocaleDateString()}
                           </div>
                         )}
                       </div>
                       
                       <div className="mt-3">
-                        <span className="text-sm text-blue-600 font-medium">
+                        <span className="text-sm text-blue-600 font-medium break-all">
                           /{post.slug}
                         </span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2 ml-4">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 lg:ml-4">
                       <Link href={`/admin/blog-posts/edit/${post.id}`}>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="w-full sm:w-auto">
                           <Edit className="w-4 h-4 mr-1" />
-                          Edit
+                          <span className="hidden sm:inline">Edit</span>
+                          <span className="sm:hidden">Edit Post</span>
                         </Button>
                       </Link>
                       
                       {post.isPublished && (
                         <Link href={`/blog/${post.slug}`}>
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" className="w-full sm:w-auto">
                             <Eye className="w-4 h-4 mr-1" />
-                            View
+                            <span className="hidden sm:inline">View</span>
+                            <span className="sm:hidden">View Post</span>
                           </Button>
                         </Link>
                       )}
@@ -146,10 +150,11 @@ export default function AdminBlogPosts() {
                         size="sm"
                         onClick={() => deleteMutation.mutate(post.id)}
                         disabled={deleteMutation.isPending}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full sm:w-auto"
                       >
                         <Trash2 className="w-4 h-4 mr-1" />
-                        Delete
+                        <span className="hidden sm:inline">Delete</span>
+                        <span className="sm:hidden">Delete Post</span>
                       </Button>
                     </div>
                   </div>
