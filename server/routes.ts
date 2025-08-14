@@ -3,7 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema } from "@shared/schema";
+import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema } from "@shared/schema";
+import { ObjectStorageService } from "./objectStorage";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -1459,6 +1460,146 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(post);
     } catch (error: any) {
       res.status(400).json({ message: "Failed to fetch blog post", error: error.message });
+    }
+  });
+
+  // Order submission routes
+  app.post('/api/orders/submit', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: 'Access denied. Finder role required.' });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: 'Finder profile not found' });
+      }
+
+      const submissionData = insertOrderSubmissionSchema.parse({
+        ...req.body,
+        finderId: finder.id
+      });
+
+      const submission = await storage.createOrderSubmission(submissionData);
+      res.status(201).json(submission);
+    } catch (error: any) {
+      console.error('Error submitting order:', error);
+      res.status(400).json({ message: 'Failed to submit order', error: error.message });
+    }
+  });
+
+  app.get('/api/orders/contract/:contractId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { contractId } = req.params;
+      
+      const contractWithSubmission = await storage.getContractWithSubmission(contractId);
+      if (!contractWithSubmission) {
+        return res.status(404).json({ message: 'Contract not found' });
+      }
+
+      // Check if user has access to this contract
+      if (req.user.role === 'finder') {
+        const finder = await storage.getFinderByUserId(req.user.userId);
+        if (!finder || contractWithSubmission.finderId !== finder.id) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+      } else if (req.user.role === 'client') {
+        if (contractWithSubmission.clientId !== req.user.userId) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+      } else if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      res.json(contractWithSubmission);
+    } catch (error: any) {
+      console.error('Error fetching contract with submission:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/orders/submission/:submissionId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: 'Access denied. Client role required.' });
+      }
+
+      const { submissionId } = req.params;
+      const { status, clientFeedback } = req.body;
+
+      if (!['accepted', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: 'Status must be "accepted" or "rejected"' });
+      }
+
+      const updatedSubmission = await storage.updateOrderSubmission(submissionId, {
+        status,
+        clientFeedback
+      });
+
+      if (!updatedSubmission) {
+        return res.status(404).json({ message: 'Submission not found' });
+      }
+
+      res.json(updatedSubmission);
+    } catch (error: any) {
+      console.error('Error updating submission:', error);
+      res.status(400).json({ message: 'Failed to update submission', error: error.message });
+    }
+  });
+
+  // Object storage routes for file uploads
+  app.post('/api/objects/upload', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error: any) {
+      console.error('Error getting upload URL:', error);
+      res.status(500).json({ message: 'Failed to get upload URL', error: error.message });
+    }
+  });
+
+  app.get('/objects/:objectPath(*)', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      const canAccess = await objectStorageService.canAccessObjectEntity({
+        objectFile,
+        userId: req.user.userId,
+      });
+      
+      if (!canAccess) {
+        return res.sendStatus(403);
+      }
+      
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error: any) {
+      console.error('Error accessing object:', error);
+      if (error.name === 'ObjectNotFoundError') {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
+  app.put('/api/objects/acl', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { objectURL, visibility = 'private' } = req.body;
+      
+      if (!objectURL) {
+        return res.status(400).json({ error: 'objectURL is required' });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(objectURL, {
+        owner: req.user.userId,
+        visibility
+      });
+
+      res.json({ objectPath });
+    } catch (error: any) {
+      console.error('Error setting object ACL:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 

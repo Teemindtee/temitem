@@ -39,6 +39,8 @@ import FinderWithdrawals from "@/pages/finder/withdrawals";
 import FinderSecurity from "@/pages/finder/security";
 import MobileLanding from "@/pages/mobile-landing";
 import ClientMobileDashboard from "@/pages/client/mobile-dashboard";
+import OrderSubmission from "@/pages/order-submission";
+import OrderReview from "@/pages/order-review";
 import { AuthProvider } from "@/hooks/use-auth";
 
 function Router() {
@@ -67,6 +69,8 @@ function Router() {
       <Route path="/finder/tokens" component={FinderTokens} />
       <Route path="/finder/withdrawals" component={FinderWithdrawals} />
       <Route path="/finder/security" component={FinderSecurity} />
+      <Route path="/orders/submit/:contractId" component={OrderSubmission} />
+      <Route path="/orders/review/:contractId" component={OrderReview} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/requests" component={AdminRequests} />

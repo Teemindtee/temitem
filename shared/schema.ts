@@ -73,6 +73,7 @@ export const contracts = pgTable("contracts", {
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   escrowStatus: text("escrow_status").default("held"), // 'held', 'in_progress', 'completed', 'released'
   isCompleted: boolean("is_completed").default(false),
+  hasSubmission: boolean("has_submission").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   completedAt: timestamp("completed_at"),
 });
@@ -155,6 +156,19 @@ export const blogPosts = pgTable("blog_posts", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const orderSubmissions = pgTable("order_submissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  contractId: varchar("contract_id").references(() => contracts.id).notNull(),
+  finderId: varchar("finder_id").references(() => finders.id).notNull(),
+  submissionText: text("submission_text"),
+  attachmentPaths: text("attachment_paths").array(), // array of file paths
+  status: text("status").default("submitted"), // 'submitted', 'accepted', 'rejected'
+  clientFeedback: text("client_feedback"),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+  autoReleaseDate: timestamp("auto_release_date"), // 3 days after acceptance or 5 days after submission
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   finder: one(finders, {
@@ -203,7 +217,7 @@ export const proposalsRelations = relations(proposals, ({ one }) => ({
   }),
 }));
 
-export const contractsRelations = relations(contracts, ({ one }) => ({
+export const contractsRelations = relations(contracts, ({ one, many }) => ({
   request: one(requests, {
     fields: [contracts.requestId],
     references: [requests.id],
@@ -220,6 +234,7 @@ export const contractsRelations = relations(contracts, ({ one }) => ({
     fields: [contracts.finderId],
     references: [finders.id],
   }),
+  orderSubmissions: many(orderSubmissions),
 }));
 
 export const reviewsRelations = relations(reviews, ({ one }) => ({
@@ -287,6 +302,17 @@ export const blogPostsRelations = relations(blogPosts, ({ one }) => ({
   author: one(users, {
     fields: [blogPosts.authorId],
     references: [users.id],
+  }),
+}));
+
+export const orderSubmissionsRelations = relations(orderSubmissions, ({ one }) => ({
+  contract: one(contracts, {
+    fields: [orderSubmissions.contractId],
+    references: [contracts.id],
+  }),
+  finder: one(finders, {
+    fields: [orderSubmissions.finderId],
+    references: [finders.id],
   }),
 }));
 
@@ -400,3 +426,14 @@ export type InsertMessageType = z.infer<typeof insertMessageSchema>;
 export type InsertBlogPostType = z.infer<typeof insertBlogPostSchema>;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
+// Order Submissions
+export const insertOrderSubmissionSchema = createInsertSchema(orderSubmissions).omit({
+  id: true,
+  submittedAt: true,
+  reviewedAt: true,
+  autoReleaseDate: true,
+});
+export type InsertOrderSubmissionType = z.infer<typeof insertOrderSubmissionSchema>;
+export type OrderSubmission = typeof orderSubmissions.$inferSelect;
+export type InsertOrderSubmission = typeof orderSubmissions.$inferInsert;

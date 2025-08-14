@@ -2,7 +2,19 @@
 
 FinderMeister is a full-stack service marketplace platform that connects clients who need help finding products or services with freelance "finders" who can assist them. The application features role-based authentication (clients, finders, and admins), a token-based proposal system, escrow functionality, and comprehensive admin management capabilities.
 
-## Recent Updates - Blog Posts System & Public View ✅ COMPLETED
+## Recent Updates - Order Submission System ✅ COMPLETED
+
+**Complete order submission workflow with file upload and auto-release**:
+- **Order Submission Page**: Full interface for finders to submit completed work with text descriptions and file attachments
+- **Order Review Page**: Client interface to accept/reject submissions with feedback system
+- **File Upload System**: Complete ObjectUploader component with object storage integration and ACL management
+- **Auto-Release Logic**: Automatic fund release after 3 days (acceptance) or 5 days (no decision)
+- **Database Schema**: orderSubmissions table with workflow states, auto-release dates, and file references
+- **API Integration**: Complete REST API for order submission, review, and file management
+- **Object Storage**: Fully configured bucket with proper ACL handling for private file uploads
+- **Frontend Routes**: /orders/submit/:contractId and /orders/review/:contractId integrated into routing system
+
+**Previous Updates - Blog Posts System ✅ COMPLETED**
 
 **Complete blog management and public viewing system**:
 - **Admin Blog Interface**: Full CRUD operations for blog posts in admin panel

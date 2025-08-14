@@ -27,6 +27,8 @@ import {
   type InsertWithdrawalRequest,
   type BlogPost,
   type InsertBlogPost,
+  type OrderSubmission,
+  type InsertOrderSubmission,
 
   users,
   finders,
@@ -41,7 +43,8 @@ import {
   messages,
   categories,
   withdrawalRequests,
-  blogPosts
+  blogPosts,
+  orderSubmissions
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -148,6 +151,12 @@ export interface IStorage {
   createBlogPost(post: InsertBlogPost): Promise<BlogPost>;
   updateBlogPost(id: string, updates: Partial<BlogPost>): Promise<BlogPost | undefined>;
   deleteBlogPost(id: string): Promise<boolean>;
+
+  // Order submission operations
+  createOrderSubmission(submission: InsertOrderSubmission): Promise<OrderSubmission>;
+  getOrderSubmissionByContractId(contractId: string): Promise<OrderSubmission | undefined>;
+  updateOrderSubmission(id: string, updates: Partial<OrderSubmission>): Promise<OrderSubmission | undefined>;
+  getContractWithSubmission(contractId: string): Promise<(Contract & {orderSubmission?: OrderSubmission}) | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1040,6 +1049,90 @@ export class DatabaseStorage implements IStorage {
       .where(eq(blogPosts.id, id))
       .returning();
     return result.length > 0;
+  }
+
+  // Order Submission Operations
+  async createOrderSubmission(submission: InsertOrderSubmission): Promise<OrderSubmission> {
+    // Calculate auto-release date: 5 days from now if no client decision
+    const autoReleaseDate = new Date();
+    autoReleaseDate.setDate(autoReleaseDate.getDate() + 5);
+
+    const [newSubmission] = await db
+      .insert(orderSubmissions)
+      .values({
+        ...submission,
+        autoReleaseDate
+      })
+      .returning();
+
+    // Update contract to indicate it has a submission
+    await db
+      .update(contracts)
+      .set({ hasSubmission: true })
+      .where(eq(contracts.id, submission.contractId));
+
+    return newSubmission;
+  }
+
+  async getOrderSubmissionByContractId(contractId: string): Promise<OrderSubmission | undefined> {
+    const [submission] = await db
+      .select()
+      .from(orderSubmissions)
+      .where(eq(orderSubmissions.contractId, contractId));
+    return submission || undefined;
+  }
+
+  async updateOrderSubmission(id: string, updates: Partial<OrderSubmission>): Promise<OrderSubmission | undefined> {
+    const [submission] = await db
+      .update(orderSubmissions)
+      .set({
+        ...updates,
+        reviewedAt: new Date(),
+        // If accepting, set auto-release date to 3 days from now
+        ...(updates.status === 'accepted' && {
+          autoReleaseDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+        })
+      })
+      .where(eq(orderSubmissions.id, id))
+      .returning();
+
+    // If accepting submission, update request status to completed and contract
+    if (updates.status === 'accepted' && submission) {
+      const contract = await this.getContract(submission.contractId);
+      if (contract) {
+        // Update request status to completed
+        await db
+          .update(requests)
+          .set({ status: 'completed' })
+          .where(eq(requests.id, contract.requestId));
+
+        // Update contract as completed
+        await db
+          .update(contracts)
+          .set({ isCompleted: true, completedAt: new Date() })
+          .where(eq(contracts.id, submission.contractId));
+      }
+    }
+
+    return submission || undefined;
+  }
+
+  async getContractWithSubmission(contractId: string): Promise<(Contract & {orderSubmission?: OrderSubmission}) | undefined> {
+    const [result] = await db
+      .select({
+        contract: contracts,
+        orderSubmission: orderSubmissions
+      })
+      .from(contracts)
+      .leftJoin(orderSubmissions, eq(orderSubmissions.contractId, contracts.id))
+      .where(eq(contracts.id, contractId));
+
+    if (!result) return undefined;
+
+    return {
+      ...result.contract,
+      orderSubmission: result.orderSubmission || undefined
+    };
   }
 }
 
