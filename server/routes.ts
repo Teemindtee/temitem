@@ -526,6 +526,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Record transaction
       await storage.createTransaction({
+        userId: req.user.userId,
         finderId: finder.id,
         amount: -1,
         type: 'proposal',

@@ -145,7 +145,12 @@ export default function TokenBalance() {
                     <div className="text-2xl font-bold text-gray-900 mb-1">10 Tokens</div>
                     <div className="text-lg font-semibold text-red-600 mb-2">$50</div>
                     <div className="text-sm text-gray-600 mb-3">Submit 10 proposals</div>
-                    <Button className="w-full bg-red-600 hover:bg-red-700">Purchase</Button>
+                    <Button 
+                      className="w-full bg-red-600 hover:bg-red-700"
+                      onClick={() => window.location.href = '/finder/token-purchase'}
+                    >
+                      Purchase
+                    </Button>
                   </CardContent>
                 </Card>
 
