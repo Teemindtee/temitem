@@ -53,6 +53,16 @@ User feedback: Frustrated with back-and-forth iterations - requires working solu
 - **Language**: Full TypeScript implementation across frontend, backend, and shared schemas.
 - **Structure**: Monorepo organization for shared types and schemas.
 
+## Database Export System
+- **Comprehensive Export**: Automated scripts for SQL, CSV, and JSON formats.
+- **Export Scripts**: `scripts/simple-export.mjs` for complete database exports.
+- **Multiple Formats**: 
+  - SQL dumps with INSERT statements for direct PostgreSQL import
+  - JSON exports with metadata and structured data
+  - CSV files (one per table) for spreadsheet analysis
+- **Export Statistics**: Detailed reporting of table counts and record statistics.
+- **Automated Timestamping**: All exports include timestamps for version tracking.
+
 ## UI/UX Decisions
 - **Color Scheme**: Consistent red branding for key interactive elements.
 - **Mobile Design**: Emphasis on full-screen layouts, larger touch targets, and modern chat UI (e.g., WhatsApp-style bubbles) for mobile responsiveness.

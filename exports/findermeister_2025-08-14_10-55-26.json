@@ -1,0 +1,1526 @@
+{
+  "metadata": {
+    "exportedAt": "2025-08-14T10:55:27.356Z",
+    "database": "FinderMeister Service Marketplace",
+    "totalTables": 16,
+    "totalRecords": 135
+  },
+  "data": {
+    "admin_settings": [
+      {
+        "id": "5956483e-54fa-499a-aef3-869aaebc5d86",
+        "key": "proposal_token_cost",
+        "value": "5666",
+        "updated_at": "2025-08-14T09:26:03.616Z"
+      }
+    ],
+    "blog_posts": [
+      {
+        "id": "893f48be-a601-4861-b99f-972d71e42795",
+        "title": "Thanksgiving for you",
+        "slug": "thanksgiving-for-you",
+        "content": "<p>This is a <strong>published blog post</strong> with rich content!</p><p>You can now view it publicly.</p>",
+        "excerpt": "A test blog post to demonstrate the public viewing functionality",
+        "author_id": "15365b28-5646-4f3b-b51f-45bc6276d453",
+        "is_published": true,
+        "published_at": "2025-08-14T09:33:39.277Z",
+        "created_at": "2025-08-13T23:27:31.194Z",
+        "updated_at": "2025-08-14T09:33:39.277Z"
+      },
+      {
+        "id": "86c72a9c-2a8c-44cb-93fe-3ce83771044b",
+        "title": "Oh I see shjsjjsjs",
+        "slug": "oh-i-see-shjsjjsjs",
+        "content": "<p>Hshshhshhs <strong>sjsjjse</strong></p>",
+        "excerpt": "Hshdhhs",
+        "author_id": "15365b28-5646-4f3b-b51f-45bc6276d453",
+        "is_published": true,
+        "published_at": "2025-08-14T09:42:39.757Z",
+        "created_at": "2025-08-14T09:34:08.290Z",
+        "updated_at": "2025-08-14T09:42:39.758Z"
+      }
+    ],
+    "categories": [
+      {
+        "id": "2909df3b-6c7c-4c14-af5a-6f8ee32d9071",
+        "name": "Web Development",
+        "description": "Website and web application development",
+        "is_active": true,
+        "created_at": "2025-08-13T18:26:50.111Z"
+      },
+      {
+        "id": "cat-tech",
+        "name": "Technology",
+        "description": "Software tools, apps, tech gadgets, and digital solutions",
+        "is_active": true,
+        "created_at": "2025-08-13T21:37:03.139Z"
+      },
+      {
+        "id": "bec035b3-ecf3-43a2-a117-f4b742bf3277",
+        "name": "Yeso",
+        "description": "Jsjjsjs",
+        "is_active": true,
+        "created_at": "2025-08-13T23:51:23.158Z"
+      },
+      {
+        "id": "4040a14d-ab77-4c75-b84d-6c8d2b6ad4ec",
+        "name": "Test Category",
+        "description": "Test description",
+        "is_active": true,
+        "created_at": "2025-08-13T23:52:50.704Z"
+      },
+      {
+        "id": "4468a190-a27a-4972-b541-3a7d650277eb",
+        "name": "Sport",
+        "description": "Sport",
+        "is_active": true,
+        "created_at": "2025-08-14T00:09:00.757Z"
+      },
+      {
+        "id": "554c1e54-eb32-4c38-b243-e55f74dc1b84",
+        "name": "Sportaa",
+        "description": "Ndjdd",
+        "is_active": true,
+        "created_at": "2025-08-14T00:15:04.604Z"
+      },
+      {
+        "id": "99c0174f-02a5-49e8-858d-243fbac37819",
+        "name": "Yogan",
+        "description": "Se",
+        "is_active": true,
+        "created_at": "2025-08-14T09:21:16.924Z"
+      },
+      {
+        "id": "cat-local",
+        "name": "Local Services In",
+        "description": "Local businesses, service providers, and community connections",
+        "is_active": true,
+        "created_at": "2025-08-13T21:37:03.139Z"
+      },
+      {
+        "id": "83f490c6-c624-4da4-8684-8bddc35269d7",
+        "name": "Sportaahhhshs",
+        "description": "Bzhjd",
+        "is_active": true,
+        "created_at": "2025-08-14T09:42:29.502Z"
+      }
+    ],
+    "contracts": [
+      {
+        "id": "f08eeea7-0398-4153-974f-0684b1ba375b",
+        "request_id": "4d43bdfa-150f-4254-88c0-eb4abd83f418",
+        "proposal_id": "19b290d5-df47-458d-bb89-9c243cdd7665",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "finder_id": "a8c15eec-08b9-4e93-b911-46af8887471b",
+        "amount": "650.00",
+        "escrow_status": "held",
+        "is_completed": false,
+        "created_at": "2025-08-13T17:07:50.886Z",
+        "completed_at": null,
+        "has_submission": false
+      },
+      {
+        "id": "contract-001",
+        "request_id": "req-002",
+        "proposal_id": "prop-003",
+        "client_id": "33333333-3333-3333-3333-333333333333",
+        "finder_id": "f1111111-1111-1111-1111-111111111111",
+        "amount": "50.00",
+        "escrow_status": "released",
+        "is_completed": true,
+        "created_at": "2025-08-08T21:37:49.714Z",
+        "completed_at": null,
+        "has_submission": false
+      },
+      {
+        "id": "7525c9a9-3ae5-4e0d-87c0-756a3eee2922",
+        "request_id": "259a2886-583c-40b7-9266-e60fdafe66da",
+        "proposal_id": "e4e7fdb4-9716-4f63-be76-ff2a20b5dd8a",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+        "amount": "1200.00",
+        "escrow_status": "held",
+        "is_completed": true,
+        "created_at": "2025-08-13T17:07:25.874Z",
+        "completed_at": "2025-08-14T00:46:22.617Z",
+        "has_submission": true
+      },
+      {
+        "id": "d5182236-348d-4dac-bbcf-22ccebf5f1ce",
+        "request_id": "259a2886-583c-40b7-9266-e60fdafe66da",
+        "proposal_id": "895ce98b-fe38-4cc8-9da4-e565bd637f37",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": "950.00",
+        "escrow_status": "held",
+        "is_completed": false,
+        "created_at": "2025-08-13T17:07:40.398Z",
+        "completed_at": null,
+        "has_submission": true
+      },
+      {
+        "id": "a6e85b44-8b67-4b3a-add6-522b25ad14e7",
+        "request_id": "e7ace354-637a-4fb2-8ddc-bf24ce3d1a76",
+        "proposal_id": "0d66c391-7a74-4152-9e65-d3b58128c1e3",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": "22.00",
+        "escrow_status": "held",
+        "is_completed": false,
+        "created_at": "2025-08-13T17:24:03.759Z",
+        "completed_at": null,
+        "has_submission": true
+      },
+      {
+        "id": "contract-002",
+        "request_id": "req-003",
+        "proposal_id": "prop-004",
+        "client_id": "77777777-7777-7777-7777-777777777777",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": "500.00",
+        "escrow_status": "in_progress",
+        "is_completed": false,
+        "created_at": "2025-08-11T21:37:49.714Z",
+        "completed_at": null,
+        "has_submission": false
+      },
+      {
+        "id": "44ae9ad1-0c18-4dc6-937c-32e94284ff2d",
+        "request_id": "c9547ce8-7950-489f-9f93-25aa3c5be082",
+        "proposal_id": "af758b50-0239-4749-a135-dc196698d0e4",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": "150.00",
+        "escrow_status": "held",
+        "is_completed": true,
+        "created_at": "2025-08-14T01:09:20.490Z",
+        "completed_at": "2025-08-14T10:50:20.197Z",
+        "has_submission": true
+      }
+    ],
+    "conversations": [
+      {
+        "id": "6f9387c1-0d10-4c75-afcb-ab80c6ade4f4",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+        "proposal_id": "e4e7fdb4-9716-4f63-be76-ff2a20b5dd8a",
+        "last_message_at": "2025-08-13T17:56:03.802Z",
+        "created_at": "2025-08-13T17:16:26.335Z"
+      },
+      {
+        "id": "conv-001",
+        "client_id": "11111111-1111-1111-1111-111111111111",
+        "finder_id": "f2222222-2222-2222-2222-222222222222",
+        "proposal_id": "prop-001",
+        "last_message_at": "2025-08-13T17:38:00.105Z",
+        "created_at": "2025-08-12T21:38:00.105Z"
+      },
+      {
+        "id": "conv-002",
+        "client_id": "33333333-3333-3333-3333-333333333333",
+        "finder_id": "f1111111-1111-1111-1111-111111111111",
+        "proposal_id": "prop-003",
+        "last_message_at": "2025-08-13T19:38:00.105Z",
+        "created_at": "2025-08-13T09:38:00.105Z"
+      },
+      {
+        "id": "297d7e8a-d8f0-4ebb-9a22-d8aba55c0ca0",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "finder_id": "a8c15eec-08b9-4e93-b911-46af8887471b",
+        "proposal_id": "19b290d5-df47-458d-bb89-9c243cdd7665",
+        "last_message_at": "2025-08-14T07:08:09.299Z",
+        "created_at": "2025-08-14T06:47:54.156Z"
+      },
+      {
+        "id": "conv-003",
+        "client_id": "77777777-7777-7777-7777-777777777777",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "proposal_id": "prop-004",
+        "last_message_at": "2025-08-13T20:38:00.105Z",
+        "created_at": "2025-08-11T21:38:00.105Z"
+      },
+      {
+        "id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "proposal_id": "af758b50-0239-4749-a135-dc196698d0e4",
+        "last_message_at": "2025-08-14T10:17:06.523Z",
+        "created_at": "2025-08-14T00:53:45.045Z"
+      }
+    ],
+    "finders": [
+      {
+        "id": "a174fbbf-9c34-4788-8df7-38682459a2a9",
+        "user_id": "78763947-ef7a-400c-a185-aba5864e962a",
+        "jobs_completed": 0,
+        "total_earned": "0.00",
+        "average_rating": "0.00",
+        "level": "Novice",
+        "bio": null,
+        "phone": null,
+        "available_balance": "0.00",
+        "is_verified": false,
+        "created_at": "2025-08-13T18:21:39.338Z",
+        "skills": null,
+        "hourly_rate": null,
+        "availability": "full-time"
+      },
+      {
+        "id": "a8c15eec-08b9-4e93-b911-46af8887471b",
+        "user_id": "9e32aaf4-c007-4f89-84fb-7c2cccbf3f80",
+        "jobs_completed": 0,
+        "total_earned": "0.00",
+        "average_rating": "0.00",
+        "level": "Novice",
+        "bio": null,
+        "phone": null,
+        "available_balance": "0.00",
+        "is_verified": false,
+        "created_at": "2025-08-13T18:21:39.338Z",
+        "skills": null,
+        "hourly_rate": null,
+        "availability": "full-time"
+      },
+      {
+        "id": "f2222222-2222-2222-2222-222222222222",
+        "user_id": "22222222-2222-2222-2222-222222222222",
+        "jobs_completed": 15,
+        "total_earned": "2850.00",
+        "average_rating": "4.80",
+        "level": "Professional",
+        "bio": "Experienced product researcher specializing in electronics and home goods. I have connections with major suppliers.",
+        "phone": null,
+        "available_balance": "420.50",
+        "is_verified": false,
+        "created_at": "2025-08-13T21:36:57.389Z",
+        "skills": null,
+        "hourly_rate": null,
+        "availability": "full-time"
+      },
+      {
+        "id": "f4444444-4444-4444-4444-444444444444",
+        "user_id": "44444444-4444-4444-4444-444444444444",
+        "jobs_completed": 8,
+        "total_earned": "1200.00",
+        "average_rating": "4.50",
+        "level": "Professional",
+        "bio": "Tech-savvy finder with expertise in software tools and digital solutions.",
+        "phone": null,
+        "available_balance": "180.00",
+        "is_verified": false,
+        "created_at": "2025-08-13T21:36:57.389Z",
+        "skills": null,
+        "hourly_rate": null,
+        "availability": "full-time"
+      },
+      {
+        "id": "f6666666-6666-6666-6666-666666666666",
+        "user_id": "66666666-6666-6666-6666-666666666666",
+        "jobs_completed": 3,
+        "total_earned": "450.00",
+        "average_rating": "3.80",
+        "level": "Novice",
+        "bio": "New to the platform! Specializing in local services in the Chicago area.",
+        "phone": null,
+        "available_balance": "75.00",
+        "is_verified": false,
+        "created_at": "2025-08-13T21:36:57.389Z",
+        "skills": null,
+        "hourly_rate": null,
+        "availability": "full-time"
+      },
+      {
+        "id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+        "user_id": "d9da0f88-c3e8-488f-bc4e-5c68f6a2ca01",
+        "jobs_completed": 0,
+        "total_earned": "0.00",
+        "average_rating": "0.00",
+        "level": "Novice",
+        "bio": "Updated finder bio - experienced full-stack developer",
+        "phone": "+1234567890",
+        "available_balance": "0.00",
+        "is_verified": false,
+        "created_at": "2025-08-13T18:21:39.338Z",
+        "skills": null,
+        "hourly_rate": null,
+        "availability": "full-time"
+      },
+      {
+        "id": "finder-demo-001",
+        "user_id": "test-finder-001",
+        "jobs_completed": 8,
+        "total_earned": "250.00",
+        "average_rating": "4.80",
+        "level": "Novice",
+        "bio": "Experienced finder ready to help",
+        "phone": null,
+        "available_balance": "0.00",
+        "is_verified": false,
+        "created_at": "2025-08-14T09:41:32.714Z",
+        "skills": [
+          "Research",
+          "Data Analysis"
+        ],
+        "hourly_rate": "25.00",
+        "availability": "full-time"
+      },
+      {
+        "id": "f1111111-1111-1111-1111-111111111111",
+        "user_id": "d9da0f88-c3e8-488f-bc4e-5c68f6a2ca01",
+        "jobs_completed": 25,
+        "total_earned": "4500.00",
+        "average_rating": "4.90",
+        "level": "Expert",
+        "bio": "Updated bio - Full-stack developer and problem solver",
+        "phone": null,
+        "available_balance": "850.00",
+        "is_verified": false,
+        "created_at": "2025-08-13T21:36:57.389Z",
+        "skills": null,
+        "hourly_rate": null,
+        "availability": "full-time"
+      },
+      {
+        "id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "user_id": "f27f2cf2-5c76-4673-8fd3-50cd34ce2a71",
+        "jobs_completed": 0,
+        "total_earned": "0.00",
+        "average_rating": "0.00",
+        "level": "Novice",
+        "bio": "Experienced finder ready to help clients find anything they need me jobma",
+        "phone": "555-0123",
+        "available_balance": "-250.00",
+        "is_verified": false,
+        "created_at": "2025-08-13T18:21:39.338Z",
+        "skills": [
+          "Jsj"
+        ],
+        "hourly_rate": "25.00",
+        "availability": "weekends"
+      }
+    ],
+    "messages": [
+      {
+        "id": "62e1b232-ec77-411e-8625-074411ccb6fd",
+        "conversation_id": "6f9387c1-0d10-4c75-afcb-ab80c6ade4f4",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Test message from curl",
+        "is_read": false,
+        "created_at": "2025-08-13T17:46:19.611Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "2c5135ee-fbe8-4227-956c-c9b3a50d002b",
+        "conversation_id": "6f9387c1-0d10-4c75-afcb-ab80c6ade4f4",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Testing message fix!",
+        "is_read": false,
+        "created_at": "2025-08-13T17:48:03.059Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "479fb2f6-7a4c-452c-b5d2-8bbdc0269898",
+        "conversation_id": "6f9387c1-0d10-4c75-afcb-ab80c6ade4f4",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Enter key test message",
+        "is_read": false,
+        "created_at": "2025-08-13T17:53:40.649Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "eed47cd3-f668-4779-af6d-c103791b97eb",
+        "conversation_id": "6f9387c1-0d10-4c75-afcb-ab80c6ade4f4",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Simple test after fix",
+        "is_read": false,
+        "created_at": "2025-08-13T17:56:03.771Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "msg-001",
+        "conversation_id": "conv-001",
+        "sender_id": "11111111-1111-1111-1111-111111111111",
+        "content": "Hi Mike! I saw your proposal for the CRM software. Can you tell me more about the HubSpot setup process?",
+        "is_read": false,
+        "created_at": "2025-08-13T15:38:10.182Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "msg-002",
+        "conversation_id": "conv-001",
+        "sender_id": "22222222-2222-2222-2222-222222222222",
+        "content": "Hi Sarah! I would be happy to walk you through the HubSpot setup. It typically takes 3-4 days for full implementation including data migration and team training.",
+        "is_read": false,
+        "created_at": "2025-08-13T17:38:10.182Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "msg-003",
+        "conversation_id": "conv-002",
+        "sender_id": "33333333-3333-3333-3333-333333333333",
+        "content": "Thank you for finding the rice suppliers! The quality samples look excellent. Can we proceed with the first supplier?",
+        "is_read": false,
+        "created_at": "2025-08-13T18:38:10.182Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "msg-004",
+        "conversation_id": "conv-002",
+        "sender_id": "d9da0f88-c3e8-488f-bc4e-5c68f6a2ca01",
+        "content": "Absolutely! I will arrange the contract and delivery schedule. They offer a 10% discount for orders over 1000kg. Shall I negotiate that for you?",
+        "is_read": false,
+        "created_at": "2025-08-13T19:38:10.182Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "msg-005",
+        "conversation_id": "conv-003",
+        "sender_id": "77777777-7777-7777-7777-777777777777",
+        "content": "Your social media portfolio is impressive! When can we start the Instagram strategy?",
+        "is_read": false,
+        "created_at": "2025-08-13T19:38:10.182Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "msg-006",
+        "conversation_id": "conv-003",
+        "sender_id": "f27f2cf2-5c76-4673-8fd3-50cd34ce2a71",
+        "content": "Thank you! I can start immediately. I will send you the content calendar and strategy document by tomorrow morning.",
+        "is_read": false,
+        "created_at": "2025-08-13T20:38:10.182Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "73330d13-a6f4-4e6c-967d-ffea0d97734c",
+        "conversation_id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Hi there! I saw your proposal for my request and would like to discuss the project details. Could we schedule a call to go over the requirements?",
+        "is_read": false,
+        "created_at": "2025-08-14T00:53:51.354Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "3ec86fb5-1ced-42f0-804a-7f8a2fc21e51",
+        "conversation_id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "sender_id": "d9da0f88-c3e8-488f-bc4e-5c68f6a2ca01",
+        "content": "Thank you for reaching out! I would be happy to discuss your project. I have availability tomorrow afternoon or Friday morning. Based on your requirements, I can provide a detailed timeline and approach. When works best for you?",
+        "is_read": true,
+        "created_at": "2025-08-14T00:54:03.556Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "8adcd85e-f72c-4f2c-a4b8-e7c53d1bd4a6",
+        "conversation_id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "sender_id": "f27f2cf2-5c76-4673-8fd3-50cd34ce2a71",
+        "content": "Perfect! Friday morning works great for me. I can show you my portfolio of similar projects and discuss your specific requirements in detail. Looking forward to it!",
+        "is_read": true,
+        "created_at": "2025-08-14T00:54:58.493Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "e1b66dc8-b43c-47de-89e4-8a8412cb04a8",
+        "conversation_id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Hi",
+        "is_read": false,
+        "created_at": "2025-08-14T06:52:19.077Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "99f0e5cc-5ba1-4c9e-9a5a-b7ddc10344f2",
+        "conversation_id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Send notice",
+        "is_read": false,
+        "created_at": "2025-08-14T06:52:36.043Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "e84e3c94-eb95-4f4c-92fd-f6f2691eed41",
+        "conversation_id": "297d7e8a-d8f0-4ebb-9a22-d8aba55c0ca0",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Ajala o",
+        "is_read": false,
+        "created_at": "2025-08-14T06:52:48.644Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "24b3b96f-8150-4402-8e13-0cd65a404673",
+        "conversation_id": "297d7e8a-d8f0-4ebb-9a22-d8aba55c0ca0",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Hi",
+        "is_read": false,
+        "created_at": "2025-08-14T07:00:55.353Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "eb1ae9ad-0362-45bc-84a0-d21119c1358d",
+        "conversation_id": "297d7e8a-d8f0-4ebb-9a22-d8aba55c0ca0",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Hi",
+        "is_read": false,
+        "created_at": "2025-08-14T07:07:58.635Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "db65c4be-551c-4b3a-80bf-f864a37e1fb2",
+        "conversation_id": "297d7e8a-d8f0-4ebb-9a22-d8aba55c0ca0",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Temiooo",
+        "is_read": false,
+        "created_at": "2025-08-14T07:08:09.274Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "1c5abc8b-2e9b-4311-a4af-13bf98eab7f6",
+        "conversation_id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "I know",
+        "is_read": false,
+        "created_at": "2025-08-14T07:08:31.929Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "a1551a99-6d08-4fa9-bd57-7825173eaf03",
+        "conversation_id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Hi",
+        "is_read": false,
+        "created_at": "2025-08-14T07:15:31.199Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "3e94678b-c5ef-4603-a4df-ff3f9db159c7",
+        "conversation_id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Hi",
+        "is_read": false,
+        "created_at": "2025-08-14T07:21:59.355Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "024d2ff3-2c96-4a12-9541-39e4140ae358",
+        "conversation_id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Hi",
+        "is_read": false,
+        "created_at": "2025-08-14T07:46:50.909Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      },
+      {
+        "id": "2a038893-4b5a-45ca-95fe-bffa9b265ea9",
+        "conversation_id": "f9d0fce8-33f4-4890-9de4-633c05241671",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "See that image right?",
+        "is_read": false,
+        "created_at": "2025-08-14T10:17:06.478Z",
+        "attachment_paths": [
+          "/objects/uploads/9de11b11-5e90-450e-b7e6-5bbcfb56ed27"
+        ],
+        "attachment_names": [
+          "Screenshot_2025-08-14-09-35-20-044_com.android.chrome.jpg"
+        ]
+      }
+    ],
+    "order_submissions": [
+      {
+        "id": "0f235c37-e556-4888-911f-eb6fe5e112e5",
+        "contract_id": "7525c9a9-3ae5-4e0d-87c0-756a3eee2922",
+        "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+        "submission_text": "I have completed the website design as requested. The design includes:\n\n- Modern responsive layout\n- E-commerce functionality\n- Payment integration\n- Mobile optimization\n- SEO-friendly structure\n\nPlease review the attached files for the complete design mockups and documentation.",
+        "attachment_paths": [],
+        "status": "accepted",
+        "client_feedback": "Excellent work! The website design exceeds our expectations. The responsive layout and e-commerce functionality are perfect. Thank you for the detailed documentation as well.",
+        "submitted_at": "2025-08-14T00:46:10.590Z",
+        "reviewed_at": "2025-08-14T00:46:22.478Z",
+        "auto_release_date": "2025-08-17T00:46:22.478Z"
+      },
+      {
+        "id": "8f039acc-a96a-4081-8bc9-7e98e8122749",
+        "contract_id": "d5182236-348d-4dac-bbcf-22ccebf5f1ce",
+        "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+        "submission_text": "Here is the initial version of the website design. Please review and let me know if you need any changes.",
+        "attachment_paths": [],
+        "status": "rejected",
+        "client_feedback": "Thanks for the initial submission. However, I need the following changes:\n\n1. Add more modern color scheme\n2. Improve the navigation layout\n3. Add social media integration\n4. Include a contact form\n\nPlease resubmit with these modifications.",
+        "submitted_at": "2025-08-14T00:46:35.509Z",
+        "reviewed_at": "2025-08-14T00:46:41.157Z",
+        "auto_release_date": "2025-08-19T00:46:35.490Z"
+      },
+      {
+        "id": "7aeed221-2103-4bd1-b7b0-6d8777afed3d",
+        "contract_id": "a6e85b44-8b67-4b3a-add6-522b25ad14e7",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "submission_text": "I think I am done",
+        "attachment_paths": [],
+        "status": "submitted",
+        "client_feedback": null,
+        "submitted_at": "2025-08-14T08:39:33.734Z",
+        "reviewed_at": null,
+        "auto_release_date": "2025-08-19T08:39:33.716Z"
+      },
+      {
+        "id": "12505150-2740-4204-b075-acc375a790b0",
+        "contract_id": "44ae9ad1-0c18-4dc6-937c-32e94284ff2d",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "submission_text": "I am done",
+        "attachment_paths": [
+          "/objects/uploads/297d3b64-3022-48e0-9ae6-d29a677c5707"
+        ],
+        "status": "accepted",
+        "client_feedback": null,
+        "submitted_at": "2025-08-14T08:34:22.313Z",
+        "reviewed_at": "2025-08-14T10:50:20.048Z",
+        "auto_release_date": "2025-08-17T10:50:20.048Z"
+      }
+    ],
+    "proposals": [
+      {
+        "id": "87951fff-e356-4803-b3b3-7955ef0db6e4",
+        "request_id": "4ae22984-fcf2-469d-be20-6f685cee46e9",
+        "finder_id": "a174fbbf-9c34-4788-8df7-38682459a2a9",
+        "approach": "I am a React Native expert with 8+ years of experience. I will build a cross-platform food delivery app with real-time tracking, payment integration, and admin panel.",
+        "price": "3800",
+        "timeline": "6 weeks",
+        "notes": "Includes source code, documentation, and deployment assistance.",
+        "status": "pending",
+        "created_at": "2025-08-13T16:57:24.294Z"
+      },
+      {
+        "id": "e4e7fdb4-9716-4f63-be76-ff2a20b5dd8a",
+        "request_id": "259a2886-583c-40b7-9266-e60fdafe66da",
+        "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+        "approach": "I will create a modern, mobile-responsive e-commerce website using the latest design trends. I have 5+ years of experience in e-commerce design and will provide you with wireframes, mockups, and the final design files.",
+        "price": "1200",
+        "timeline": "3 weeks",
+        "notes": "I can also provide ongoing support for 30 days after delivery.",
+        "status": "accepted",
+        "created_at": "2025-08-13T16:57:24.294Z"
+      },
+      {
+        "id": "895ce98b-fe38-4cc8-9da4-e565bd637f37",
+        "request_id": "259a2886-583c-40b7-9266-e60fdafe66da",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "approach": "I specialize in e-commerce website design and have worked with over 50 online stores. My approach includes user research, competitor analysis, and conversion-optimized design.",
+        "price": "950",
+        "timeline": "2.5 weeks",
+        "notes": "Portfolio available upon request. I offer 2 rounds of revisions.",
+        "status": "accepted",
+        "created_at": "2025-08-13T16:57:24.294Z"
+      },
+      {
+        "id": "19b290d5-df47-458d-bb89-9c243cdd7665",
+        "request_id": "4d43bdfa-150f-4254-88c0-eb4abd83f418",
+        "finder_id": "a8c15eec-08b9-4e93-b911-46af8887471b",
+        "approach": "I am a professional graphic designer specializing in startup branding. I will create a unique logo, brand guidelines, business cards, and letterhead design.",
+        "price": "650",
+        "timeline": "1 week",
+        "notes": "Unlimited revisions until you are 100% satisfied.",
+        "status": "accepted",
+        "created_at": "2025-08-13T16:57:24.294Z"
+      },
+      {
+        "id": "0d66c391-7a74-4152-9e65-d3b58128c1e3",
+        "request_id": "e7ace354-637a-4fb2-8ddc-bf24ce3d1a76",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "approach": "I know you",
+        "price": "22",
+        "timeline": "44",
+        "notes": "dddd",
+        "status": "accepted",
+        "created_at": "2025-08-13T17:22:07.665Z"
+      },
+      {
+        "id": "prop-001",
+        "request_id": "req-001",
+        "finder_id": "f2222222-2222-2222-2222-222222222222",
+        "approach": "I recommend HubSpot CRM for your needs. It has excellent contact management, email integration, and reporting. I can help you set it up and train your team.",
+        "price": "$150",
+        "timeline": "1 week",
+        "notes": "I have experience setting up HubSpot for 20+ small businesses. Includes training and customization.",
+        "status": "pending",
+        "created_at": "2025-08-12T21:37:41.973Z"
+      },
+      {
+        "id": "prop-002",
+        "request_id": "req-001",
+        "finder_id": "f4444444-4444-4444-4444-444444444444",
+        "approach": "For your requirements, I suggest Pipedrive or Zoho CRM. Both are cost-effective and user-friendly. I can provide demo and implementation support.",
+        "price": "$200",
+        "timeline": "10 days",
+        "notes": "Includes full setup, data migration, and 2-week support period.",
+        "status": "pending",
+        "created_at": "2025-08-13T03:37:41.973Z"
+      },
+      {
+        "id": "prop-003",
+        "request_id": "req-002",
+        "finder_id": "f1111111-1111-1111-1111-111111111111",
+        "approach": "I have direct connections with 3 premium rice suppliers in Lagos. All are certified and can handle large volume orders. I can arrange visits and negotiate pricing.",
+        "price": "$50",
+        "timeline": "3 days",
+        "notes": "I will provide detailed supplier profiles, pricing comparison, and quality certifications.",
+        "status": "accepted",
+        "created_at": "2025-08-13T09:37:41.973Z"
+      },
+      {
+        "id": "prop-005",
+        "request_id": "req-004",
+        "finder_id": "f4444444-4444-4444-4444-444444444444",
+        "approach": "I can develop your fitness app for both iOS and Android using React Native. I have experience with Apple HealthKit and Google Fit integration.",
+        "price": "$4500",
+        "timeline": "6 weeks",
+        "notes": "Portfolio includes 3 health apps with 50K+ downloads. Includes UI/UX design, development, and app store submission.",
+        "status": "pending",
+        "created_at": "2025-08-13T18:37:41.973Z"
+      },
+      {
+        "id": "prop-006",
+        "request_id": "req-006",
+        "finder_id": "f6666666-6666-6666-6666-666666666666",
+        "approach": "I can connect you with top team building facilitators in Chicago area. I work with several corporate event specialists who focus on leadership development.",
+        "price": "$1200",
+        "timeline": "2 weeks",
+        "notes": "I will provide 3 qualified facilitator options with portfolios and client testimonials.",
+        "status": "pending",
+        "created_at": "2025-08-13T17:37:41.973Z"
+      },
+      {
+        "id": "af758b50-0239-4749-a135-dc196698d0e4",
+        "request_id": "c9547ce8-7950-489f-9f93-25aa3c5be082",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "approach": "Jjdjdjd djkdjdd ",
+        "price": "150",
+        "timeline": "2 weeks",
+        "notes": "Thanks",
+        "status": "accepted",
+        "created_at": "2025-08-13T21:48:57.622Z"
+      },
+      {
+        "id": "d00d240c-ad30-4402-a4a8-f18a75008109",
+        "request_id": "req-001",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "approach": "Test approach",
+        "price": "100",
+        "timeline": "1 week",
+        "notes": "Test notes",
+        "status": "pending",
+        "created_at": "2025-08-14T06:16:54.990Z"
+      },
+      {
+        "id": "prop-004",
+        "request_id": "req-003",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "approach": "I specialize in beauty brand social media marketing. I can create content strategy, manage posting schedule, and run targeted ad campaigns for Instagram and TikTok.",
+        "price": "$500",
+        "timeline": "2 weeks",
+        "notes": "Portfolio includes 15+ beauty brands with 200%+ engagement growth. Includes content calendar and analytics reports.",
+        "status": "accepted",
+        "created_at": "2025-08-11T21:37:41.973Z"
+      }
+    ],
+    "requests": [
+      {
+        "id": "4ae22984-fcf2-469d-be20-6f685cee46e9",
+        "client_id": "a26fb44a-1534-4fe9-9a36-dd3b28572d7a",
+        "title": "Mobile App Development",
+        "description": "Looking for an experienced developer to build a React Native app for food delivery. Need both iOS and Android versions.",
+        "category": "Mobile Development",
+        "budget_min": "2000",
+        "budget_max": "5000",
+        "timeframe": "1-2 months",
+        "status": "open",
+        "token_cost": 2,
+        "created_at": "2025-08-13T16:57:11.158Z",
+        "attachments": null
+      },
+      {
+        "id": "90ba1679-672a-494d-a65e-6e8f08e0cd2a",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "title": "Give me a new apartment ",
+        "description": "Yes o",
+        "category": "location",
+        "budget_min": "200",
+        "budget_max": "250",
+        "timeframe": "2 weeks",
+        "status": "open",
+        "token_cost": 1,
+        "created_at": "2025-08-14T07:14:08.804Z",
+        "attachments": null
+      },
+      {
+        "id": "3e8cc841-579c-450c-8438-030a1f24c87d",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "title": "I will need a house",
+        "description": "Gyuuuui",
+        "category": "vendor",
+        "budget_min": "25",
+        "budget_max": "30",
+        "timeframe": "2 weeks",
+        "status": "open",
+        "token_cost": 1,
+        "created_at": "2025-08-14T07:35:33.855Z",
+        "attachments": null
+      },
+      {
+        "id": "827e04d3-06e5-4af7-927e-d498813a424c",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "title": "I need a new house",
+        "description": "shshs",
+        "category": "location",
+        "budget_min": "200",
+        "budget_max": "300",
+        "timeframe": "1-3 days",
+        "status": "open",
+        "token_cost": 1,
+        "created_at": "2025-08-13T17:08:49.245Z",
+        "attachments": null
+      },
+      {
+        "id": "457a929f-a7e7-4b88-9b36-1f6d7ff090a8",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "title": "Hello ",
+        "description": "Hahhah",
+        "category": "location",
+        "budget_min": "25",
+        "budget_max": "36",
+        "timeframe": "2-3 months",
+        "status": "open",
+        "token_cost": 1,
+        "created_at": "2025-08-14T08:15:12.587Z",
+        "attachments": [
+          "/uploads/attachments-1755159310910-691138823.jpg"
+        ]
+      },
+      {
+        "id": "4d43bdfa-150f-4254-88c0-eb4abd83f418",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "title": "Logo Design and Branding",
+        "description": "Need a professional logo design and complete branding package for my startup. Should include business cards and letterhead.",
+        "category": "Graphic Design",
+        "budget_min": "200",
+        "budget_max": "800",
+        "timeframe": "1 week",
+        "status": "open",
+        "token_cost": 1,
+        "created_at": "2025-08-13T16:57:11.158Z",
+        "attachments": null
+      },
+      {
+        "id": "e7ace354-637a-4fb2-8ddc-bf24ce3d1a76",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "title": "bhuihdihd",
+        "description": "dnihdu dkjiodj dknmd ",
+        "category": "product",
+        "budget_min": "22",
+        "budget_max": "222",
+        "timeframe": "1-3 days",
+        "status": "approved",
+        "token_cost": 1,
+        "created_at": "2025-08-13T17:17:57.399Z",
+        "attachments": null
+      },
+      {
+        "id": "req-001",
+        "client_id": "11111111-1111-1111-1111-111111111111",
+        "title": "Need a reliable CRM software for small business",
+        "description": "Looking for a customer relationship management software that can handle 200+ contacts, email integration, and reporting features. Should be affordable and easy to use for a team of 5.",
+        "category": "technology",
+        "budget_min": "50",
+        "budget_max": "300",
+        "timeframe": "2 weeks",
+        "status": "open",
+        "token_cost": 2,
+        "created_at": "2025-08-11T21:37:30.217Z",
+        "attachments": null
+      },
+      {
+        "id": "req-002",
+        "client_id": "33333333-3333-3333-3333-333333333333",
+        "title": "Find industrial rice supplier in Lagos",
+        "description": "Need a wholesale rice supplier for restaurant chain. Looking for premium quality rice, competitive pricing, and reliable delivery schedule. Must have proper certifications.",
+        "category": "retail",
+        "budget_min": "500",
+        "budget_max": "2000",
+        "timeframe": "1 week",
+        "status": "open",
+        "token_cost": 1,
+        "created_at": "2025-08-12T21:37:30.217Z",
+        "attachments": null
+      },
+      {
+        "id": "req-003",
+        "client_id": "77777777-7777-7777-7777-777777777777",
+        "title": "Social media marketing consultant needed",
+        "description": "Looking for an experienced social media marketing consultant to help grow Instagram and TikTok presence for beauty brand. Need portfolio of similar work.",
+        "category": "creative",
+        "budget_min": "200",
+        "budget_max": "800",
+        "timeframe": "3 weeks",
+        "status": "in_progress",
+        "token_cost": 2,
+        "created_at": "2025-08-10T21:37:30.217Z",
+        "attachments": null
+      },
+      {
+        "id": "req-004",
+        "client_id": "11111111-1111-1111-1111-111111111111",
+        "title": "Custom mobile app developer",
+        "description": "Need iOS/Android developer to create a fitness tracking app with wearable integration. Looking for someone with health app experience and good portfolio.",
+        "category": "technology",
+        "budget_min": "2000",
+        "budget_max": "8000",
+        "timeframe": "2 months",
+        "status": "open",
+        "token_cost": 3,
+        "created_at": "2025-08-13T16:37:30.217Z",
+        "attachments": null
+      },
+      {
+        "id": "req-005",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "title": "Local plumber for office renovation",
+        "description": "Need experienced plumber for office bathroom renovation in downtown Chicago. Must be licensed, insured, and available next week.",
+        "category": "local",
+        "budget_min": "300",
+        "budget_max": "800",
+        "timeframe": "1 week",
+        "status": "completed",
+        "token_cost": 1,
+        "created_at": "2025-08-06T21:37:30.217Z",
+        "attachments": null
+      },
+      {
+        "id": "req-006",
+        "client_id": "33333333-3333-3333-3333-333333333333",
+        "title": "Corporate team building facilitator",
+        "description": "Looking for professional team building facilitator for 50-person company retreat. Need creative activities and leadership development focus.",
+        "category": "business",
+        "budget_min": "1000",
+        "budget_max": "3000",
+        "timeframe": "1 month",
+        "status": "open",
+        "token_cost": 2,
+        "created_at": "2025-08-13T15:37:30.217Z",
+        "attachments": null
+      },
+      {
+        "id": "259a2886-583c-40b7-9266-e60fdafe66da",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "title": "Website Design for E-commerce Store",
+        "description": "Need a modern, responsive website design for my online clothing store. Looking for someone with experience in e-commerce UI/UX.",
+        "category": "Web Design",
+        "budget_min": "500",
+        "budget_max": "1500",
+        "timeframe": "2-3 weeks",
+        "status": "completed",
+        "token_cost": 1,
+        "created_at": "2025-08-13T16:57:11.158Z",
+        "attachments": null
+      },
+      {
+        "id": "ae949936-064e-4ffa-aeb3-0f567cf249bb",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "title": "I need ne truck",
+        "description": "Hello ",
+        "category": "information",
+        "budget_min": "600",
+        "budget_max": "900",
+        "timeframe": "1 month",
+        "status": "open",
+        "token_cost": 1,
+        "created_at": "2025-08-14T08:16:46.781Z",
+        "attachments": [
+          "/uploads/attachments-1755159405235-282637196.jpg"
+        ]
+      },
+      {
+        "id": "c9547ce8-7950-489f-9f93-25aa3c5be082",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "title": "I need a new rice supplier",
+        "description": "Naira",
+        "category": "information",
+        "budget_min": "20",
+        "budget_max": "200",
+        "timeframe": "1 week",
+        "status": "completed",
+        "token_cost": 1,
+        "created_at": "2025-08-13T18:54:31.170Z",
+        "attachments": null
+      }
+    ],
+    "reviews": [
+      {
+        "id": "review-001",
+        "contract_id": "contract-001",
+        "client_id": "33333333-3333-3333-3333-333333333333",
+        "finder_id": "f1111111-1111-1111-1111-111111111111",
+        "rating": 5,
+        "comment": "Excellent work! John found the perfect rice supplier with competitive pricing and excellent quality. Highly recommend his services.",
+        "created_at": "2025-08-10T21:38:26.029Z"
+      },
+      {
+        "id": "review-002",
+        "contract_id": "contract-002",
+        "client_id": "77777777-7777-7777-7777-777777777777",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "rating": 4,
+        "comment": "Great social media strategy and very responsive communication. Looking forward to seeing the results of the campaign.",
+        "created_at": "2025-08-12T21:38:26.029Z"
+      }
+    ],
+    "tokens": [
+      {
+        "id": "b19dc52f-2190-41f3-870a-ae5cd0f690dd",
+        "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+        "balance": 5
+      },
+      {
+        "id": "c1757c2a-dbcf-48ad-9f40-2f9a222ead54",
+        "finder_id": "a174fbbf-9c34-4788-8df7-38682459a2a9",
+        "balance": 5
+      },
+      {
+        "id": "230b28c2-9119-45d6-9782-3b549eb66360",
+        "finder_id": "a8c15eec-08b9-4e93-b911-46af8887471b",
+        "balance": 4
+      },
+      {
+        "id": "t2222222-2222-2222-2222-222222222222",
+        "finder_id": "f2222222-2222-2222-2222-222222222222",
+        "balance": 15
+      },
+      {
+        "id": "t4444444-4444-4444-4444-444444444444",
+        "finder_id": "f4444444-4444-4444-4444-444444444444",
+        "balance": 8
+      },
+      {
+        "id": "t6666666-6666-6666-6666-666666666666",
+        "finder_id": "f6666666-6666-6666-6666-666666666666",
+        "balance": 3
+      },
+      {
+        "id": "t1111111-1111-1111-1111-111111111111",
+        "finder_id": "f1111111-1111-1111-1111-111111111111",
+        "balance": 25
+      },
+      {
+        "id": "0dbb2cde-7117-4d4c-9726-00c57b2bc052",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "balance": 3
+      }
+    ],
+    "transactions": [
+      {
+        "id": "8f561aef-ec2c-45b8-9073-53c0ac9709b6",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": -1,
+        "type": "proposal",
+        "description": "Proposal submitted for request: e65be172-af49-440d-b1cd-9616d6a3428d",
+        "created_at": "2025-08-13T16:18:16.591Z"
+      },
+      {
+        "id": "2fcaec64-2993-4e92-b66a-c9e408b3910b",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": -1,
+        "type": "proposal",
+        "description": "Proposal submitted for request: e65be172-af49-440d-b1cd-9616d6a3428d",
+        "created_at": "2025-08-13T16:19:07.581Z"
+      },
+      {
+        "id": "0dd668dd-9449-41bc-93e8-e1e99f402b3a",
+        "finder_id": "a8c15eec-08b9-4e93-b911-46af8887471b",
+        "amount": -1,
+        "type": "proposal",
+        "description": "Proposal submitted for request: 0091b198-2f07-4b12-906c-3fe87650af9c",
+        "created_at": "2025-08-13T16:32:14.125Z"
+      },
+      {
+        "id": "9b141851-1094-41aa-a97c-55640de575d7",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": -1,
+        "type": "proposal",
+        "description": "Proposal submitted for request: 0091b198-2f07-4b12-906c-3fe87650af9c",
+        "created_at": "2025-08-13T16:40:54.178Z"
+      },
+      {
+        "id": "58b69c38-788f-42ee-855f-d75f676bf820",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": -1,
+        "type": "proposal",
+        "description": "Proposal submitted for request: 5b9763f8-82ec-467f-b384-9da64d4f14f8",
+        "created_at": "2025-08-13T16:42:08.270Z"
+      },
+      {
+        "id": "de083bfe-bcd9-4b1c-aed5-d1b9dd9d078c",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": -1,
+        "type": "proposal",
+        "description": "Proposal submitted for request: e7ace354-637a-4fb2-8ddc-bf24ce3d1a76",
+        "created_at": "2025-08-13T17:22:07.769Z"
+      },
+      {
+        "id": "tx-001",
+        "finder_id": "f2222222-2222-2222-2222-222222222222",
+        "amount": -2,
+        "type": "proposal",
+        "description": "Proposal submission for CRM Software request",
+        "created_at": "2025-08-12T21:38:31.210Z"
+      },
+      {
+        "id": "tx-002",
+        "finder_id": "f4444444-4444-4444-4444-444444444444",
+        "amount": -2,
+        "type": "proposal",
+        "description": "Proposal submission for CRM Software request",
+        "created_at": "2025-08-13T03:38:31.210Z"
+      },
+      {
+        "id": "tx-003",
+        "finder_id": "f1111111-1111-1111-1111-111111111111",
+        "amount": -1,
+        "type": "proposal",
+        "description": "Proposal submission for Rice Supplier request",
+        "created_at": "2025-08-13T09:38:31.210Z"
+      },
+      {
+        "id": "tx-005",
+        "finder_id": "f1111111-1111-1111-1111-111111111111",
+        "amount": 10,
+        "type": "purchase",
+        "description": "Token purchase - 10 tokens for $50",
+        "created_at": "2025-08-06T21:38:31.210Z"
+      },
+      {
+        "id": "tx-006",
+        "finder_id": "f2222222-2222-2222-2222-222222222222",
+        "amount": 20,
+        "type": "purchase",
+        "description": "Token purchase - 20 tokens for $100",
+        "created_at": "2025-08-08T21:38:31.210Z"
+      },
+      {
+        "id": "362205ec-c0a0-4593-9072-54690dd8d83a",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": -1,
+        "type": "proposal",
+        "description": "Proposal submitted for request: c9547ce8-7950-489f-9f93-25aa3c5be082",
+        "created_at": "2025-08-13T21:48:57.730Z"
+      },
+      {
+        "id": "e31df736-00b0-43e8-a232-ace8df85796b",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": -1,
+        "type": "proposal",
+        "description": "Proposal submitted for request: req-001",
+        "created_at": "2025-08-14T06:16:55.105Z"
+      },
+      {
+        "id": "tx-004",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": -2,
+        "type": "proposal",
+        "description": "Proposal submission for Social Media Marketing request",
+        "created_at": "2025-08-11T21:38:31.210Z"
+      }
+    ],
+    "users": [
+      {
+        "id": "a26fb44a-1534-4fe9-9a36-dd3b28572d7a",
+        "email": "webintayo@gmail.com",
+        "password": "$2b$10$XxbpAsaRjYkopHgrOaTiXOt41d7IkIHPBncvX1xLYVSiivWz0y3uK",
+        "first_name": "Hammed",
+        "last_name": "Temitayo",
+        "role": "client",
+        "is_verified": false,
+        "is_banned": false,
+        "created_at": "2025-08-13T14:34:39.169Z",
+        "phone": null,
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "33333333-3333-3333-3333-333333333333",
+        "email": "lisa.client@demo.com",
+        "password": "$2b$12$LQv3c1yqBWVHxkd0LQ4YCOuZiUiIJ9oCHY8DQoWt3WnWaoDuTbZxG",
+        "first_name": "Lisa",
+        "last_name": "Chen",
+        "role": "client",
+        "is_verified": true,
+        "is_banned": false,
+        "created_at": "2025-08-13T21:36:31.824Z",
+        "phone": "+1-555-0125",
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "test-finder-001",
+        "email": "finder@demo.com",
+        "password": "$2b$10$EpRg0CKkNOQZQFLa4YUSwO6qFT4jTq.QJQ2hTl.ULXy2E8r08oJOu",
+        "first_name": "Demo",
+        "last_name": "Finder",
+        "role": "finder",
+        "is_verified": true,
+        "is_banned": false,
+        "created_at": "2025-08-14T09:41:30.548Z",
+        "phone": "555-0123",
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "66666666-6666-6666-6666-666666666666",
+        "email": "david.finder@demo.com",
+        "password": "$2b$12$LQv3c1yqBWVHxkd0LQ4YCOuZiUiIJ9oCHY8DQoWt3WnWaoDuTbZxG",
+        "first_name": "David",
+        "last_name": "Kim",
+        "role": "finder",
+        "is_verified": false,
+        "is_banned": true,
+        "created_at": "2025-08-13T21:36:31.824Z",
+        "phone": "+1-555-0128",
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "email": "client@test.com",
+        "password": "$2b$10$8JlKL7V.BNvFGAfydxVWC.yE3JpA62.ibm0Pc46nzH1/g.m5qlo3G",
+        "first_name": "Terry",
+        "last_name": "Johnston ",
+        "role": "client",
+        "is_verified": false,
+        "is_banned": false,
+        "created_at": "2025-08-13T15:05:48.418Z",
+        "phone": "3565353539996666",
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "78763947-ef7a-400c-a185-aba5864e962a",
+        "email": "client1@test.com",
+        "password": "$2b$10$TztTm5Z2Hf.y2/O92Wmsb.tyhHf1yUS/bmUVItPwjNnN0pu3qf8wm",
+        "first_name": "Hammed",
+        "last_name": "Client Teemma",
+        "role": "finder",
+        "is_verified": false,
+        "is_banned": false,
+        "created_at": "2025-08-13T16:09:40.611Z",
+        "phone": null,
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "9e32aaf4-c007-4f89-84fb-7c2cccbf3f80",
+        "email": "terstfinder@example.com",
+        "password": "$2b$10$lFRATIalbMEpSVRJm3eiOuqJKc1WWjoTtG0znLFj71Ki.6rzSckze",
+        "first_name": "Ajala",
+        "last_name": "Temitayo",
+        "role": "finder",
+        "is_verified": false,
+        "is_banned": false,
+        "created_at": "2025-08-13T16:31:16.274Z",
+        "phone": null,
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "15365b28-5646-4f3b-b51f-45bc6276d453",
+        "email": "admin@findermeister.com",
+        "password": "$2b$10$PNn1SkqhHrKWfY6mBNhMoO6VqyJZUrZH/ll08W4XI6eefurvphF.y",
+        "first_name": "Admin",
+        "last_name": "User",
+        "role": "admin",
+        "is_verified": false,
+        "is_banned": false,
+        "created_at": "2025-08-13T18:04:12.102Z",
+        "phone": null,
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "11111111-1111-1111-1111-111111111111",
+        "email": "sarah.client@demo.com",
+        "password": "$2b$12$LQv3c1yqBWVHxkd0LQ4YCOuZiUiIJ9oCHY8DQoWt3WnWaoDuTbZxG",
+        "first_name": "Sarah",
+        "last_name": "Williams",
+        "role": "client",
+        "is_verified": true,
+        "is_banned": false,
+        "created_at": "2025-08-13T21:36:31.824Z",
+        "phone": "+1-555-0123",
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "22222222-2222-2222-2222-222222222222",
+        "email": "mike.finder@demo.com",
+        "password": "$2b$12$LQv3c1yqBWVHxkd0LQ4YCOuZiUiIJ9oCHY8DQoWt3WnWaoDuTbZxG",
+        "first_name": "Mike",
+        "last_name": "Johnson",
+        "role": "finder",
+        "is_verified": true,
+        "is_banned": false,
+        "created_at": "2025-08-13T21:36:31.824Z",
+        "phone": "+1-555-0124",
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "44444444-4444-4444-4444-444444444444",
+        "email": "alex.finder@demo.com",
+        "password": "$2b$12$LQv3c1yqBWVHxkd0LQ4YCOuZiUiIJ9oCHY8DQoWt3WnWaoDuTbZxG",
+        "first_name": "Alex",
+        "last_name": "Rodriguez",
+        "role": "finder",
+        "is_verified": true,
+        "is_banned": false,
+        "created_at": "2025-08-13T21:36:31.824Z",
+        "phone": "+1-555-0126",
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "77777777-7777-7777-7777-777777777777",
+        "email": "jane.client@demo.com",
+        "password": "$2b$12$LQv3c1yqBWVHxkd0LQ4YCOuZiUiIJ9oCHY8DQoWt3WnWaoDuTbZxG",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "role": "client",
+        "is_verified": true,
+        "is_banned": false,
+        "created_at": "2025-08-13T21:36:31.824Z",
+        "phone": "+1-555-0129",
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "f27f2cf2-5c76-4673-8fd3-50cd34ce2a71",
+        "email": "testfinder@example.com",
+        "password": "$2b$10$ElisiKkouxaVSQwxju.MK.3QhXxpAcFZIn6M3M/AUE5UEllp6HNd6",
+        "first_name": "Test",
+        "last_name": "Finder",
+        "role": "finder",
+        "is_verified": false,
+        "is_banned": false,
+        "created_at": "2025-08-13T16:08:17.521Z",
+        "phone": "555-0123",
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "d9da0f88-c3e8-488f-bc4e-5c68f6a2ca01",
+        "email": "john.finder@test.com",
+        "password": "$2b$10$FaNhzHo/Wgihj/tr36RJAOSkFCkV.vbspl4uGptEF.ljB4LMo8XPC",
+        "first_name": "John",
+        "last_name": "Finder",
+        "role": "finder",
+        "is_verified": true,
+        "is_banned": false,
+        "created_at": "2025-08-13T15:01:01.322Z",
+        "phone": null,
+        "banned_reason": null,
+        "banned_at": null
+      },
+      {
+        "id": "55555555-5555-5555-5555-555555555555",
+        "email": "emma.client@demo.com",
+        "password": "$2b$12$LQv3c1yqBWVHxkd0LQ4YCOuZiUiIJ9oCHY8DQoWt3WnWaoDuTbZxG",
+        "first_name": "Emma",
+        "last_name": "Thompson",
+        "role": "client",
+        "is_verified": true,
+        "is_banned": false,
+        "created_at": "2025-08-13T21:36:31.824Z",
+        "phone": "+1-555-0127",
+        "banned_reason": null,
+        "banned_at": null
+      }
+    ],
+    "withdrawal_requests": [
+      {
+        "id": "withdraw-001",
+        "finder_id": "f1111111-1111-1111-1111-111111111111",
+        "amount": "500.00",
+        "status": "pending",
+        "payment_method": "bank_transfer",
+        "payment_details": "{\"bank_name\": \"Chase Bank\", \"account_number\": \"*****1234\", \"routing_number\": \"021000021\", \"account_holder\": \"John Finder\"}",
+        "admin_notes": null,
+        "processed_by": null,
+        "requested_at": "2025-08-10T21:38:22.479Z",
+        "processed_at": null
+      },
+      {
+        "id": "withdraw-002",
+        "finder_id": "f2222222-2222-2222-2222-222222222222",
+        "amount": "250.00",
+        "status": "approved",
+        "payment_method": "bank_transfer",
+        "payment_details": "{\"bank_name\": \"Bank of America\", \"account_number\": \"*****5678\", \"routing_number\": \"011401533\", \"account_holder\": \"Mike Johnson\"}",
+        "admin_notes": "Processed successfully - payment sent via ACH",
+        "processed_by": null,
+        "requested_at": "2025-08-06T21:38:22.479Z",
+        "processed_at": null
+      },
+      {
+        "id": "withdraw-004",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": "125.00",
+        "status": "approved",
+        "payment_method": "bank_transfer",
+        "payment_details": "{\"bank_name\": \"Wells Fargo\", \"account_number\": \"*****9012\", \"routing_number\": \"121042882\", \"account_holder\": \"Test Finder\"}",
+        "admin_notes": "Under review by finance team",
+        "processed_by": "15365b28-5646-4f3b-b51f-45bc6276d453",
+        "requested_at": "2025-08-12T21:38:22.479Z",
+        "processed_at": "2025-08-14T09:16:38.167Z"
+      },
+      {
+        "id": "withdraw-003",
+        "finder_id": "f4444444-4444-4444-4444-444444444444",
+        "amount": "180.00",
+        "status": "processing",
+        "payment_method": "paypal",
+        "payment_details": "{\"email\": \"alex.finder@paypal.com\", \"account_verified\": true}",
+        "admin_notes": "",
+        "processed_by": "15365b28-5646-4f3b-b51f-45bc6276d453",
+        "requested_at": "2025-08-11T21:38:22.479Z",
+        "processed_at": "2025-08-14T09:33:24.220Z"
+      }
+    ],
+    "withdrawal_settings": [
+      {
+        "id": "8c52e1ff-c1bb-45bf-aee9-d796ddf1615f",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "payment_method": "bank_transfer",
+        "minimum_threshold": 500,
+        "bank_details": "{\"bankName\":\"Hhdhhd\",\"accountNumber\":\"0122661841\",\"routingNumber\":\"777\",\"accountHolder\":\"Hsjsjjshs\"}",
+        "paypal_details": null,
+        "created_at": "2025-08-14T08:53:08.735Z",
+        "updated_at": "2025-08-14T09:06:22.164Z"
+      }
+    ]
+  }
+}

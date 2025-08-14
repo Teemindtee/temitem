@@ -1,0 +1,244 @@
+{
+  "exportSummary": {
+    "totalTables": 16,
+    "tablesWithData": 16,
+    "totalRecords": 135,
+    "tableRecordCounts": {
+      "admin_settings": 1,
+      "blog_posts": 2,
+      "categories": 9,
+      "contracts": 7,
+      "conversations": 6,
+      "finders": 9,
+      "messages": 24,
+      "order_submissions": 4,
+      "proposals": 13,
+      "requests": 16,
+      "reviews": 2,
+      "tokens": 8,
+      "transactions": 14,
+      "users": 15,
+      "withdrawal_requests": 4,
+      "withdrawal_settings": 1
+    },
+    "exportedAt": "2025-08-14T10:56:04.392Z",
+    "database": "FinderMeister Service Marketplace"
+  },
+  "tablePreview": {
+    "admin_settings": {
+      "recordCount": 1,
+      "sampleRecord": {
+        "id": "5956483e-54fa-499a-aef3-869aaebc5d86",
+        "key": "proposal_token_cost",
+        "value": "5666",
+        "updated_at": "2025-08-14T09:26:03.616Z"
+      }
+    },
+    "blog_posts": {
+      "recordCount": 2,
+      "sampleRecord": {
+        "id": "893f48be-a601-4861-b99f-972d71e42795",
+        "title": "Thanksgiving for you",
+        "slug": "thanksgiving-for-you",
+        "content": "<p>This is a <strong>published blog post</strong> with rich content!</p><p>You can now view it publicly.</p>",
+        "excerpt": "A test blog post to demonstrate the public viewing functionality",
+        "author_id": "15365b28-5646-4f3b-b51f-45bc6276d453",
+        "is_published": true,
+        "published_at": "2025-08-14T09:33:39.277Z",
+        "created_at": "2025-08-13T23:27:31.194Z",
+        "updated_at": "2025-08-14T09:33:39.277Z"
+      }
+    },
+    "categories": {
+      "recordCount": 9,
+      "sampleRecord": {
+        "id": "2909df3b-6c7c-4c14-af5a-6f8ee32d9071",
+        "name": "Web Development",
+        "description": "Website and web application development",
+        "is_active": true,
+        "created_at": "2025-08-13T18:26:50.111Z"
+      }
+    },
+    "contracts": {
+      "recordCount": 7,
+      "sampleRecord": {
+        "id": "f08eeea7-0398-4153-974f-0684b1ba375b",
+        "request_id": "4d43bdfa-150f-4254-88c0-eb4abd83f418",
+        "proposal_id": "19b290d5-df47-458d-bb89-9c243cdd7665",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "finder_id": "a8c15eec-08b9-4e93-b911-46af8887471b",
+        "amount": "650.00",
+        "escrow_status": "held",
+        "is_completed": false,
+        "created_at": "2025-08-13T17:07:50.886Z",
+        "completed_at": null,
+        "has_submission": false
+      }
+    },
+    "conversations": {
+      "recordCount": 6,
+      "sampleRecord": {
+        "id": "6f9387c1-0d10-4c75-afcb-ab80c6ade4f4",
+        "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+        "proposal_id": "e4e7fdb4-9716-4f63-be76-ff2a20b5dd8a",
+        "last_message_at": "2025-08-13T17:56:03.802Z",
+        "created_at": "2025-08-13T17:16:26.335Z"
+      }
+    },
+    "finders": {
+      "recordCount": 9,
+      "sampleRecord": {
+        "id": "a174fbbf-9c34-4788-8df7-38682459a2a9",
+        "user_id": "78763947-ef7a-400c-a185-aba5864e962a",
+        "jobs_completed": 0,
+        "total_earned": "0.00",
+        "average_rating": "0.00",
+        "level": "Novice",
+        "bio": null,
+        "phone": null,
+        "available_balance": "0.00",
+        "is_verified": false,
+        "created_at": "2025-08-13T18:21:39.338Z",
+        "skills": null,
+        "hourly_rate": null,
+        "availability": "full-time"
+      }
+    },
+    "messages": {
+      "recordCount": 24,
+      "sampleRecord": {
+        "id": "62e1b232-ec77-411e-8625-074411ccb6fd",
+        "conversation_id": "6f9387c1-0d10-4c75-afcb-ab80c6ade4f4",
+        "sender_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+        "content": "Test message from curl",
+        "is_read": false,
+        "created_at": "2025-08-13T17:46:19.611Z",
+        "attachment_paths": null,
+        "attachment_names": null
+      }
+    },
+    "order_submissions": {
+      "recordCount": 4,
+      "sampleRecord": {
+        "id": "0f235c37-e556-4888-911f-eb6fe5e112e5",
+        "contract_id": "7525c9a9-3ae5-4e0d-87c0-756a3eee2922",
+        "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+        "submission_text": "I have completed the website design as requested. The design includes:\n\n- Modern responsive layout\n- E-commerce functionality\n- Payment integration\n- Mobile optimization\n- SEO-friendly structure\n\nPlease review the attached files for the complete design mockups and documentation.",
+        "attachment_paths": [],
+        "status": "accepted",
+        "client_feedback": "Excellent work! The website design exceeds our expectations. The responsive layout and e-commerce functionality are perfect. Thank you for the detailed documentation as well.",
+        "submitted_at": "2025-08-14T00:46:10.590Z",
+        "reviewed_at": "2025-08-14T00:46:22.478Z",
+        "auto_release_date": "2025-08-17T00:46:22.478Z"
+      }
+    },
+    "proposals": {
+      "recordCount": 13,
+      "sampleRecord": {
+        "id": "87951fff-e356-4803-b3b3-7955ef0db6e4",
+        "request_id": "4ae22984-fcf2-469d-be20-6f685cee46e9",
+        "finder_id": "a174fbbf-9c34-4788-8df7-38682459a2a9",
+        "approach": "I am a React Native expert with 8+ years of experience. I will build a cross-platform food delivery app with real-time tracking, payment integration, and admin panel.",
+        "price": "3800",
+        "timeline": "6 weeks",
+        "notes": "Includes source code, documentation, and deployment assistance.",
+        "status": "pending",
+        "created_at": "2025-08-13T16:57:24.294Z"
+      }
+    },
+    "requests": {
+      "recordCount": 16,
+      "sampleRecord": {
+        "id": "4ae22984-fcf2-469d-be20-6f685cee46e9",
+        "client_id": "a26fb44a-1534-4fe9-9a36-dd3b28572d7a",
+        "title": "Mobile App Development",
+        "description": "Looking for an experienced developer to build a React Native app for food delivery. Need both iOS and Android versions.",
+        "category": "Mobile Development",
+        "budget_min": "2000",
+        "budget_max": "5000",
+        "timeframe": "1-2 months",
+        "status": "open",
+        "token_cost": 2,
+        "created_at": "2025-08-13T16:57:11.158Z",
+        "attachments": null
+      }
+    },
+    "reviews": {
+      "recordCount": 2,
+      "sampleRecord": {
+        "id": "review-001",
+        "contract_id": "contract-001",
+        "client_id": "33333333-3333-3333-3333-333333333333",
+        "finder_id": "f1111111-1111-1111-1111-111111111111",
+        "rating": 5,
+        "comment": "Excellent work! John found the perfect rice supplier with competitive pricing and excellent quality. Highly recommend his services.",
+        "created_at": "2025-08-10T21:38:26.029Z"
+      }
+    },
+    "tokens": {
+      "recordCount": 8,
+      "sampleRecord": {
+        "id": "b19dc52f-2190-41f3-870a-ae5cd0f690dd",
+        "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+        "balance": 5
+      }
+    },
+    "transactions": {
+      "recordCount": 14,
+      "sampleRecord": {
+        "id": "8f561aef-ec2c-45b8-9073-53c0ac9709b6",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "amount": -1,
+        "type": "proposal",
+        "description": "Proposal submitted for request: e65be172-af49-440d-b1cd-9616d6a3428d",
+        "created_at": "2025-08-13T16:18:16.591Z"
+      }
+    },
+    "users": {
+      "recordCount": 15,
+      "sampleRecord": {
+        "id": "a26fb44a-1534-4fe9-9a36-dd3b28572d7a",
+        "email": "webintayo@gmail.com",
+        "password": "$2b$10$XxbpAsaRjYkopHgrOaTiXOt41d7IkIHPBncvX1xLYVSiivWz0y3uK",
+        "first_name": "Hammed",
+        "last_name": "Temitayo",
+        "role": "client",
+        "is_verified": false,
+        "is_banned": false,
+        "created_at": "2025-08-13T14:34:39.169Z",
+        "phone": null,
+        "banned_reason": null,
+        "banned_at": null
+      }
+    },
+    "withdrawal_requests": {
+      "recordCount": 4,
+      "sampleRecord": {
+        "id": "withdraw-001",
+        "finder_id": "f1111111-1111-1111-1111-111111111111",
+        "amount": "500.00",
+        "status": "pending",
+        "payment_method": "bank_transfer",
+        "payment_details": "{\"bank_name\": \"Chase Bank\", \"account_number\": \"*****1234\", \"routing_number\": \"021000021\", \"account_holder\": \"John Finder\"}",
+        "admin_notes": null,
+        "processed_by": null,
+        "requested_at": "2025-08-10T21:38:22.479Z",
+        "processed_at": null
+      }
+    },
+    "withdrawal_settings": {
+      "recordCount": 1,
+      "sampleRecord": {
+        "id": "8c52e1ff-c1bb-45bf-aee9-d796ddf1615f",
+        "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+        "payment_method": "bank_transfer",
+        "minimum_threshold": 500,
+        "bank_details": "{\"bankName\":\"Hhdhhd\",\"accountNumber\":\"0122661841\",\"routingNumber\":\"777\",\"accountHolder\":\"Hsjsjjshs\"}",
+        "paypal_details": null,
+        "created_at": "2025-08-14T08:53:08.735Z",
+        "updated_at": "2025-08-14T09:06:22.164Z"
+      }
+    }
+  }
+}

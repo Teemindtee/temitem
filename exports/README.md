@@ -1,88 +1,124 @@
-# FinderMeister Database Export
+# FinderMeister Database Exports
 
-Export Date: 2025-08-14T09:59:23.656Z
+This directory contains database exports in multiple formats for the FinderMeister Service Marketplace platform.
 
-## Files Included
+## Latest Export Summary
 
-### CSV Files (exports/csv/)
-- users.csv (15 records)
-- finders.csv (9 records)
-- requests.csv (16 records)
-- proposals.csv (13 records)
-- contracts.csv (7 records)
-- conversations.csv (6 records)
-- messages.csv (23 records)
-- reviews.csv (2 records)
-- tokens.csv (8 records)
-- transactions.csv (14 records)
-- withdrawal_requests.csv (4 records)
-- withdrawal_settings.csv (1 records)
-- categories.csv (9 records)
-- admin_settings.csv (1 records)
-- blog_posts.csv (2 records)
-- order_submissions.csv (4 records)
+- **Export Date**: August 14, 2025
+- **Total Tables**: 16
+- **Total Records**: 135
+- **Database**: FinderMeister Service Marketplace
 
-### JSON Files (exports/json/)
-- users.json (15 records)
-- finders.json (9 records)
-- requests.json (16 records)
-- proposals.json (13 records)
-- contracts.json (7 records)
-- conversations.json (6 records)
-- messages.json (23 records)
-- reviews.json (2 records)
-- tokens.json (8 records)
-- transactions.json (14 records)
-- withdrawal_requests.json (4 records)
-- withdrawal_settings.json (1 records)
-- categories.json (9 records)
-- admin_settings.json (1 records)
-- blog_posts.json (2 records)
-- order_submissions.json (4 records)
+## Available Export Formats
 
-### Complete Export
-- complete_database_export.json - All tables in a single JSON file
+### 📄 SQL Format
+Complete database dump with structure and data:
+- `findermeister_[timestamp].sql` - Full SQL dump with INSERT statements
+- Can be imported directly into PostgreSQL
+- Includes foreign key constraint handling
 
-## Database Schema Summary
+### 📊 JSON Format
+Structured data export in JSON format:
+- `findermeister_[timestamp].json` - Complete database export with metadata
+- `findermeister_[timestamp]_summary.json` - Summary with preview data
+- Includes export metadata and statistics
+- Easy to parse programmatically
 
-### Users & Authentication
-- **users** - User accounts (clients, finders, admins)
-- **finders** - Finder profiles with stats and skills
+### 📈 CSV Format
+Individual CSV files for each table:
+- `csv_[timestamp]/` directory containing:
+  - `users.csv` - User accounts (15 records)
+  - `finders.csv` - Finder profiles (9 records)
+  - `requests.csv` - Service requests (16 records)
+  - `proposals.csv` - Finder proposals (13 records)
+  - `contracts.csv` - Active contracts (7 records)
+  - `messages.csv` - Chat messages (24 records)
+  - `conversations.csv` - Message threads (6 records)
+  - And more...
 
-### Marketplace
-- **requests** - Client service requests
-- **proposals** - Finder proposals for requests  
-- **contracts** - Accepted proposals and work agreements
-- **reviews** - Rating and feedback system
+## Tables with Data
 
-### Communication
-- **conversations** - Message threads between users
-- **messages** - Individual messages in conversations
+| Table | Records | Description |
+|-------|---------|-------------|
+| users | 15 | User accounts (clients, finders, admins) |
+| finders | 9 | Finder profiles and performance data |
+| requests | 16 | Service requests from clients |
+| proposals | 13 | Finder proposals for requests |
+| contracts | 7 | Active contracts between clients and finders |
+| messages | 24 | Chat messages in conversations |
+| conversations | 6 | Message threads between users |
+| transactions | 14 | Financial transactions and payments |
+| tokens | 8 | Finder token balances |
+| categories | 9 | Service categories |
+| order_submissions | 4 | Work submissions from finders |
+| withdrawal_requests | 4 | Payout requests from finders |
+| reviews | 2 | Client reviews of finder work |
+| blog_posts | 2 | Platform blog content |
+| admin_settings | 1 | Platform configuration |
+| withdrawal_settings | 1 | Payout system settings |
 
-### Financial
-- **tokens** - Finder proposal tokens
-- **transactions** - Payment history
-- **withdrawal_requests** - Finder withdrawal requests
-- **withdrawal_settings** - Payment method settings
+## How to Use
 
-### Platform Management
-- **categories** - Request categories
-- **admin_settings** - Platform configuration
-- **blog_posts** - Content management
-- **order_submissions** - Work deliverable submissions
-
-## Import Instructions
-
-### PostgreSQL Import (CSV)
-```sql
-COPY table_name FROM '/path/to/table_name.csv' DELIMITER ',' CSV HEADER;
+### Import SQL Data
+```bash
+# Into PostgreSQL
+psql -h your_host -d your_database -U your_user -f findermeister_[timestamp].sql
 ```
 
-### JSON Import (Application Level)
-Use the JSON files for application-level imports or data analysis tools.
+### Process JSON Data
+```javascript
+// Node.js example
+const fs = require('fs');
+const data = JSON.parse(fs.readFileSync('findermeister_[timestamp].json', 'utf8'));
+console.log(data.metadata); // Export info
+console.log(data.data.users); // User records
+```
 
-## Notes
-- Passwords are bcrypt hashed for security
-- Array fields are JSON formatted in CSV exports
-- All timestamps are in ISO 8601 format
-- NULL values appear as empty strings in CSV format
+### Analyze CSV Data
+```bash
+# View user data
+cat csv_[timestamp]/users.csv
+
+# Count records in each table
+wc -l csv_[timestamp]/*.csv
+```
+
+## Export Script
+
+To create new exports, run:
+```bash
+node scripts/simple-export.mjs
+```
+
+This will generate fresh exports with current data in all three formats.
+
+## Data Privacy
+
+These exports contain production data including:
+- User information (emails, names, phone numbers)
+- Financial data (transactions, balances)
+- Private messages and conversations
+- Contract details and payments
+
+⚠️ **Handle with care and follow data protection regulations**
+
+## File Structure
+
+```
+exports/
+├── README.md                                    # This file
+├── findermeister_2025-08-14_10-56-01.sql      # SQL dump
+├── findermeister_2025-08-14_10-56-01.json     # Full JSON export
+├── findermeister_2025-08-14_10-56-01_summary.json # JSON summary
+└── csv_2025-08-14_10-56-01/                   # CSV directory
+    ├── users.csv
+    ├── finders.csv
+    ├── requests.csv
+    ├── proposals.csv
+    ├── contracts.csv
+    └── ... (all other tables)
+```
+
+---
+
+*Generated by FinderMeister Database Export System*
