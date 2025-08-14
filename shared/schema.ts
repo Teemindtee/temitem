@@ -131,6 +131,17 @@ export const categories = pgTable("categories", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const withdrawalSettings = pgTable("withdrawal_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  finderId: varchar("finder_id").references(() => finders.id).notNull().unique(),
+  paymentMethod: text("payment_method").notNull().default("bank_transfer"), // 'bank_transfer', 'paypal'
+  minimumThreshold: integer("minimum_threshold").notNull().default(50),
+  bankDetails: text("bank_details"), // JSON string with bank info
+  paypalDetails: text("paypal_details"), // JSON string with paypal info
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const withdrawalRequests = pgTable("withdrawal_requests", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   finderId: varchar("finder_id").references(() => finders.id).notNull(),
@@ -191,11 +202,13 @@ export const findersRelations = relations(finders, ({ one, many }) => ({
     references: [users.id],
   }),
   tokens: one(tokens),
+  withdrawalSettings: one(withdrawalSettings),
   proposals: many(proposals),
   contracts: many(contracts, { relationName: "finderContracts" }),
   transactions: many(transactions),
   reviews: many(reviews, { relationName: "finderReviews" }),
   finderConversations: many(conversations, { relationName: "finderConversations" }),
+  withdrawalRequests: many(withdrawalRequests),
 }));
 
 export const requestsRelations = relations(requests, ({ one, many }) => ({
@@ -317,6 +330,24 @@ export const orderSubmissionsRelations = relations(orderSubmissions, ({ one }) =
   }),
 }));
 
+export const withdrawalSettingsRelations = relations(withdrawalSettings, ({ one }) => ({
+  finder: one(finders, {
+    fields: [withdrawalSettings.finderId],
+    references: [finders.id],
+  }),
+}));
+
+export const withdrawalRequestsRelations = relations(withdrawalRequests, ({ one }) => ({
+  finder: one(finders, {
+    fields: [withdrawalRequests.finderId],
+    references: [finders.id],
+  }),
+  processedBy: one(users, {
+    fields: [withdrawalRequests.processedBy],
+    references: [users.id],
+  }),
+}));
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -344,6 +375,15 @@ export type Message = typeof messages.$inferSelect;
 export const insertCategorySchema = createInsertSchema(categories);
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Category = typeof categories.$inferSelect;
+
+// Withdrawal Settings
+export const insertWithdrawalSettingsSchema = createInsertSchema(withdrawalSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertWithdrawalSettings = z.infer<typeof insertWithdrawalSettingsSchema>;
+export type WithdrawalSettings = typeof withdrawalSettings.$inferSelect;
 
 // Withdrawal Requests
 export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalRequests);

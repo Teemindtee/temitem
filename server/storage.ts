@@ -43,6 +43,7 @@ import {
   messages,
   categories,
   withdrawalRequests,
+  withdrawalSettings,
   blogPosts,
   orderSubmissions
 } from "@shared/schema";
@@ -836,25 +837,67 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getWithdrawalSettings(finderId: string): Promise<any> {
-    // For now, return mock data since withdrawal settings aren't in schema
+    const [result] = await db
+      .select()
+      .from(withdrawalSettings)
+      .where(eq(withdrawalSettings.finderId, finderId));
+
+    if (!result) {
+      // Return default settings if none exist
+      return {
+        paymentMethod: "bank_transfer",
+        minimumThreshold: 50,
+        bankDetails: {
+          bankName: "",
+          accountNumber: "",
+          routingNumber: "",
+          accountHolder: ""
+        },
+        paypalDetails: {
+          email: ""
+        }
+      };
+    }
+
     return {
-      paymentMethod: "bank_transfer",
-      minimumThreshold: 50,
-      bankDetails: {
-        bankName: "",
-        accountNumber: "",
-        routingNumber: "",
-        accountHolder: ""
-      },
-      paypalDetails: {
-        email: ""
-      }
+      paymentMethod: result.paymentMethod,
+      minimumThreshold: result.minimumThreshold,
+      bankDetails: result.bankDetails ? JSON.parse(result.bankDetails) : null,
+      paypalDetails: result.paypalDetails ? JSON.parse(result.paypalDetails) : null
     };
   }
 
   async updateWithdrawalSettings(finderId: string, settings: any): Promise<any> {
-    // For now, just return the settings since withdrawal settings aren't in schema
-    return settings;
+    const updateData = {
+      paymentMethod: settings.paymentMethod,
+      minimumThreshold: settings.minimumThreshold,
+      bankDetails: settings.bankDetails ? JSON.stringify(settings.bankDetails) : null,
+      paypalDetails: settings.paypalDetails ? JSON.stringify(settings.paypalDetails) : null,
+      updatedAt: new Date()
+    };
+
+    const [existing] = await db
+      .select()
+      .from(withdrawalSettings)
+      .where(eq(withdrawalSettings.finderId, finderId));
+
+    if (existing) {
+      const [updated] = await db
+        .update(withdrawalSettings)
+        .set(updateData)
+        .where(eq(withdrawalSettings.finderId, finderId))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db
+        .insert(withdrawalSettings)
+        .values({
+          ...updateData,
+          finderId
+        })
+        .returning();
+      return created;
+    }
   }
 
   async getWithdrawalsByFinderId(finderId: string): Promise<WithdrawalRequest[]> {
