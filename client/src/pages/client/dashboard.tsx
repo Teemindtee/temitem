@@ -11,6 +11,26 @@ import type { Request, Proposal, User } from "@shared/schema";
 
 export default function ClientDashboard() {
   const { user, logout } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Check if mobile view is needed
+  const isMobile = window.innerWidth < 640;
+
+  const { data: requests = [], isLoading: requestsLoading } = useQuery<Request[]>({
+    queryKey: ['/api/client/requests'],
+    enabled: !!user && user.role === 'client'
+  });
+
+  const { data: proposals = [], isLoading: proposalsLoading } = useQuery<any[]>({
+    queryKey: ['/api/client/proposals'],
+    enabled: !!user && user.role === 'client'
+  });
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/";
+  };
 
   // Check if user is a client, redirect if not
   if (user && user.role !== 'client') {
@@ -26,26 +46,6 @@ export default function ClientDashboard() {
       </div>
     );
   }
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Check if mobile view is needed
-  const isMobile = window.innerWidth < 640;
-
-  const { data: requests = [], isLoading: requestsLoading } = useQuery<Request[]>({
-    queryKey: ['/api/client/requests'],
-    enabled: !!user
-  });
-
-  const { data: proposals = [], isLoading: proposalsLoading } = useQuery<any[]>({
-    queryKey: ['/api/client/proposals'],
-    enabled: !!user
-  });
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/";
-  };
 
   if (requestsLoading || proposalsLoading) {
     return (

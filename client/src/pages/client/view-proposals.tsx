@@ -16,24 +16,9 @@ export default function ViewProposals() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Check if user is a client, redirect if not
-  if (user && user.role !== 'client') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-4">This page is only available for clients.</p>
-          <Link href="/finder/dashboard">
-            <Button>Go to Finder Dashboard</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   const { data: proposals = [], isLoading: proposalsLoading } = useQuery<any[]>({
     queryKey: ['/api/client/proposals'],
-    enabled: !!user
+    enabled: !!user && user.role === 'client'
   });
 
   const handleLogout = () => {
@@ -60,6 +45,21 @@ export default function ViewProposals() {
       });
     }
   });
+
+  // Check if user is a client, redirect if not
+  if (user && user.role !== 'client') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-4">This page is only available for clients.</p>
+          <Link href="/finder/dashboard">
+            <Button>Go to Finder Dashboard</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (proposalsLoading) {
     return (
