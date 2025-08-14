@@ -211,12 +211,11 @@ export default function ContractDetails() {
                 <p className="text-gray-600 mb-4">
                   {contract.finder?.name || "The finder"} hasn't submitted their work yet. You can message them for updates.
                 </p>
-                <Link href={`/messages?proposalId=${contract.proposalId}`}>
-                  <Button variant="outline">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Send Message
-                  </Button>
-                </Link>
+                <StartConversationButton 
+                  proposalId={contract.proposalId}
+                  finderName={contract.finder?.name || "Finder"}
+                  variant="outline"
+                />
               </CardContent>
             </Card>
           )}
