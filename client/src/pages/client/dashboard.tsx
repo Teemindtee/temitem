@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Clock, CheckCircle, Search, User as UserIcon, FileText, Eye, Cog, ChevronRight, FileEdit } from "lucide-react";
+import { Plus, Clock, CheckCircle, Search, User as UserIcon, FileText, Eye, Cog, ChevronRight, FileEdit, MessageCircle } from "lucide-react";
 import ClientHeader from "@/components/client-header";
 import { apiRequest } from "@/lib/queryClient";
 import type { Request, Proposal, User } from "@shared/schema";
@@ -106,19 +106,21 @@ export default function ClientDashboard() {
                 </div>
               </Link>
 
-              {/* My Contracts - Bottom Left */}
-              <Link href="/client/browse-requests">
+              {/* Messages - Bottom Left */}
+              <Link href="/messages">
                 <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
-                    <div className="flex flex-col space-y-1">
-                      <div className="w-8 h-1 bg-white rounded"></div>
-                      <div className="w-6 h-1 bg-white rounded"></div>
-                      <div className="w-7 h-1 bg-white rounded"></div>
+                    <div className="w-8 h-6 border-2 border-white rounded-lg flex flex-col justify-center items-center relative">
+                      <div className="w-4 h-0.5 bg-white rounded mb-0.5"></div>
+                      <div className="w-3 h-0.5 bg-white rounded mb-0.5"></div>
+                      <div className="w-5 h-0.5 bg-white rounded"></div>
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 border-2 border-white rounded-full flex items-center justify-center">
+                        <div className="w-1 h-1 bg-white rounded-full"></div>
+                      </div>
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-gray-900 font-semibold text-sm leading-tight">My</div>
-                    <div className="text-gray-900 font-semibold text-sm leading-tight">Contracts</div>
+                    <div className="text-gray-900 font-semibold text-sm leading-tight">Messages</div>
                   </div>
                 </div>
               </Link>
@@ -174,7 +176,7 @@ export default function ClientDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
           <Card className="border-red-200 hover:border-red-400 transition-colors">
             <CardContent className="p-6 text-center">
               <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
@@ -209,6 +211,21 @@ export default function ClientDashboard() {
               <h3 className="font-semibold text-gray-900 mb-2">Completed</h3>
               <p className="text-2xl font-bold text-green-600 mb-2">{requests.filter((r: Request) => r.status === 'completed').length}</p>
               <p className="text-gray-600 text-sm">Successfully completed requests</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-purple-200 hover:border-purple-400 transition-colors">
+            <CardContent className="p-6 text-center">
+              <div className="bg-purple-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                <MessageCircle className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Messages</h3>
+              <p className="text-gray-600 mb-4 text-sm">Chat with finders who submitted proposals.</p>
+              <Link href="/messages">
+                <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                  View Messages
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>

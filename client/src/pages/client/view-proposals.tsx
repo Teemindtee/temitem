@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, User } from "lucide-react";
+import { ArrowLeft, User, MessageCircle } from "lucide-react";
 import ClientHeader from "@/components/client-header";
 import StartConversationButton from "@/components/StartConversationButton";
 import { apiRequest } from "@/lib/queryClient";
@@ -224,9 +224,19 @@ export default function ViewProposals() {
                     <div className="text-lg font-semibold text-green-600">$50-65</div>
                   </div>
                   <div className="col-span-3 text-right">
-                    <Button className="bg-red-600 hover:bg-red-700 text-white px-6">
-                      Hire Finder
-                    </Button>
+                    <div className="space-y-2">
+                      <Button className="bg-red-600 hover:bg-red-700 text-white px-6 w-full">
+                        Hire Finder
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-red-600 text-red-600 hover:bg-red-50"
+                        onClick={() => window.location.href = '/messages'}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Message Alex
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -257,9 +267,19 @@ export default function ViewProposals() {
                     <div className="text-lg font-semibold text-green-600">$75-100</div>
                   </div>
                   <div className="col-span-3 text-right">
-                    <Button className="bg-red-600 hover:bg-red-700 text-white px-6">
-                      Hire Finder
-                    </Button>
+                    <div className="space-y-2">
+                      <Button className="bg-red-600 hover:bg-red-700 text-white px-6 w-full">
+                        Hire Finder
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-red-600 text-red-600 hover:bg-red-50"
+                        onClick={() => window.location.href = '/messages'}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Message Amy
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
