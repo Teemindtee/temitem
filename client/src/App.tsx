@@ -72,6 +72,7 @@ function Router() {
       <Route path="/client/profile" component={ClientProfile} />
       <Route path="/client/change-password" component={ChangePassword} />
       <Route path="/finder/dashboard" component={FinderDashboard} />
+      <Route path="/finder/browse-finds" component={FinderBrowseRequests} />
       <Route path="/finder/browse-requests" component={FinderBrowseRequests} />
       <Route path="/finder/requests/:id" component={FinderRequestDetails} />
       <Route path="/finder/proposals" component={FinderProposals} />

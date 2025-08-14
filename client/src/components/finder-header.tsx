@@ -66,10 +66,10 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
             Dashboard
           </Link>
           <Link 
-            href="/finder/browse-requests" 
+            href="/finder/browse-finds" 
             className={`hidden sm:inline hover:underline ${currentPage === 'browse' ? 'font-semibold' : ''}`}
           >
-            Browse Requests
+            Browse Finds
           </Link>
           <Link 
             href="/finder/contracts" 
@@ -96,9 +96,9 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/finder/browse-requests" className="flex items-center cursor-pointer">
+                <Link href="/finder/browse-finds" className="flex items-center cursor-pointer">
                   <Search className="mr-2 h-4 w-4" />
-                  Browse Requests
+                  Browse Finds
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>

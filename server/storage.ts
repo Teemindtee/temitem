@@ -274,10 +274,10 @@ export class DatabaseStorage implements IStorage {
     
     // Filter out finds that have accepted proposals
     const filteredFinds = [];
-    for (const request of availableFinds) {
+    for (const find of availableFinds) {
       const hasAccepted = await this.hasAcceptedProposal(find.id);
       if (!hasAccepted) {
-        filteredFinds.push(request);
+        filteredFinds.push(find);
       }
     }
     

@@ -7,26 +7,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FinderHeader } from "@/components/finder-header";
 import { Search, Filter, Calendar, DollarSign, ArrowLeft } from "lucide-react";
-import type { Request } from "@shared/schema";
+import type { Find } from "@shared/schema";
 
-export default function BrowseRequests() {
+export default function BrowseFinds() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [budgetFilter, setBudgetFilter] = useState("all");
 
-  const { data: requests = [], isLoading } = useQuery<Request[]>({
-    queryKey: ['/api/finder/requests']
+  const { data: finds = [], isLoading } = useQuery<Find[]>({
+    queryKey: ['/api/finder/finds']
   });
 
-  // Filter requests based on search and filters
-  const filteredRequests = requests.filter(request => {
-    const matchesSearch = request.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         request.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || request.category === categoryFilter;
+  // Filter finds based on search and filters
+  const filteredFinds = finds.filter(find => {
+    const matchesSearch = find.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         find.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === "all" || find.category === categoryFilter;
     const matchesBudget = budgetFilter === "all" || 
-      (budgetFilter === "under-100" && parseInt(request.budgetMax || "0") < 100) ||
-      (budgetFilter === "100-500" && parseInt(request.budgetMax || "0") >= 100 && parseInt(request.budgetMax || "0") <= 500) ||
-      (budgetFilter === "over-500" && parseInt(request.budgetMax || "0") > 500);
+      (budgetFilter === "under-100" && parseInt(find.budgetMax || "0") < 100) ||
+      (budgetFilter === "100-500" && parseInt(find.budgetMax || "0") >= 100 && parseInt(find.budgetMax || "0") <= 500) ||
+      (budgetFilter === "over-500" && parseInt(find.budgetMax || "0") > 500);
     
     return matchesSearch && matchesCategory && matchesBudget;
   });
@@ -36,7 +36,7 @@ export default function BrowseRequests() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading requests...</p>
+          <p className="text-gray-600 mt-4">Loading finds...</p>
         </div>
       </div>
     );
@@ -53,7 +53,7 @@ export default function BrowseRequests() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Browse Requests</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Browse Finds</h1>
           <p className="text-gray-600 text-sm sm:text-base">Find opportunities that match your skills and interests.</p>
         </div>
 
@@ -65,7 +65,7 @@ export default function BrowseRequests() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
-                    placeholder="Search requests..."
+                    placeholder="Search finds..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
@@ -108,35 +108,35 @@ export default function BrowseRequests() {
         {/* Results Summary */}
         <div className="mb-6">
           <p className="text-gray-600">
-            Showing {filteredRequests.length} request{filteredRequests.length !== 1 ? 's' : ''}
+            Showing {filteredFinds.length} find{filteredFinds.length !== 1 ? 's' : ''}
             {searchQuery && ` matching "${searchQuery}"`}
           </p>
         </div>
 
         {/* Request List */}
         <div className="space-y-6">
-          {filteredRequests.length === 0 ? (
+          {filteredFinds.length === 0 ? (
             <div className="text-center py-12">
               <Search className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No requests found</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No finds found</h3>
               <p className="text-gray-600">Try adjusting your search criteria or check back later for new opportunities.</p>
             </div>
           ) : (
-            filteredRequests.map((request: Request) => (
-              <Card key={request.id} className="hover:shadow-md transition-shadow">
+            filteredFinds.map((find: Find) => (
+              <Card key={find.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4 sm:p-6">
                   <div className="space-y-4">
                     <div className="flex justify-between items-start gap-4">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 break-words">{request.title}</h3>
-                        <p className="text-gray-600 mb-4 text-sm sm:text-base line-clamp-3">{request.description}</p>
+                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 break-words">{find.title}</h3>
+                        <p className="text-gray-600 mb-4 text-sm sm:text-base line-clamp-3">{find.description}</p>
                       </div>
                       <div className="flex-shrink-0">
                         <span className={`px-2 sm:px-3 py-1 text-xs rounded-full font-medium whitespace-nowrap ${
-                          request.status === 'open' ? 'bg-green-100 text-green-700' :
+                          find.status === 'open' ? 'bg-green-100 text-green-700' :
                           'bg-yellow-100 text-yellow-700'
                         }`}>
-                          {request.status === 'open' ? 'Open' : 'In Progress'}
+                          {find.status === 'open' ? 'Open' : 'In Progress'}
                         </span>
                       </div>
                     </div>
@@ -144,20 +144,20 @@ export default function BrowseRequests() {
                     <div className="flex flex-wrap gap-3 sm:gap-4 text-sm text-gray-600">
                       <div className="flex items-center">
                         <DollarSign className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span>${request.budgetMin} - ${request.budgetMax}</span>
+                        <span>${find.budgetMin} - ${find.budgetMax}</span>
                       </div>
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span>{new Date(request.createdAt || "").toLocaleDateString()}</span>
+                        <span>{new Date(find.createdAt || "").toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center">
                         <Filter className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span className="capitalize">{request.category.replace('_', ' ')}</span>
+                        <span className="capitalize">{find.category.replace('_', ' ')}</span>
                       </div>
                     </div>
                     
                     <div className="flex justify-end pt-2">
-                      <Link href={`/finder/requests/${request.id}`}>
+                      <Link href={`/finder/finds/${find.id}`}>
                         <Button className="bg-finder-red hover:bg-finder-red-dark text-white w-full sm:w-auto">
                           <span className="sm:hidden">View</span>
                           <span className="hidden sm:inline">View Details</span>

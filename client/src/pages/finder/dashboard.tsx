@@ -106,7 +106,7 @@ export default function FinderDashboard() {
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Submit Proposal</h3>
               <p className="text-gray-600 mb-4 text-sm">Find new opportunities</p>
-              <Link href="/finder/browse-requests">
+              <Link href="/finder/browse-finds">
                 <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
                   Browse Finds
                 </Button>
@@ -120,7 +120,7 @@ export default function FinderDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-xl text-gray-900">New Finds</CardTitle>
-              <Link href="/finder/browse-requests">
+              <Link href="/finder/browse-finds">
                 <Button variant="outline" size="sm">View All</Button>
               </Link>
             </CardHeader>
@@ -166,7 +166,7 @@ export default function FinderDashboard() {
                 <div className="text-center py-8 text-gray-500">
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>No proposals submitted yet.</p>
-                  <Link href="/finder/browse-requests" className="text-finder-red hover:underline font-medium">
+                  <Link href="/finder/browse-finds" className="text-finder-red hover:underline font-medium">
                     Browse finds to get started
                   </Link>
                 </div>
