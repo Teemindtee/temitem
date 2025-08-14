@@ -81,7 +81,7 @@ export default function RegisterFinder() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
+      <header className="bg-finder-red text-white px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <Handshake className="w-6 h-6" />
@@ -90,7 +90,7 @@ export default function RegisterFinder() {
           <nav className="flex items-center space-x-6">
             <Link href="#" className="hover:underline">How it Works</Link>
             <Link href="/login" className="hover:underline">Log In</Link>
-            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Sign Up</span>
+            <span className="bg-white text-finder-red px-3 py-1 rounded font-medium">Sign Up</span>
           </nav>
         </div>
       </header>
@@ -104,7 +104,7 @@ export default function RegisterFinder() {
 
         {/* User Icon */}
         <div className="flex justify-center mb-8">
-          <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center">
+          <div className="w-16 h-16 bg-finder-red/100 rounded-full flex items-center justify-center">
             <UserPlus className="w-8 h-8 text-white" />
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function RegisterFinder() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 bg-red-600 hover:bg-red-700 text-white font-medium text-lg rounded-md mt-6"
+                className="w-full h-12 bg-finder-red hover:bg-finder-red-dark text-white font-medium text-lg rounded-md mt-6"
               >
                 {isLoading ? "Creating Account..." : "Sign Up"}
               </Button>
@@ -209,7 +209,7 @@ export default function RegisterFinder() {
             <div className="text-center mt-6">
               <p className="text-gray-600">
                 Already have an account?{" "}
-                <Link href="/login" className="text-red-600 hover:underline font-medium">
+                <Link href="/login" className="text-finder-red hover:underline font-medium">
                   Log In
                 </Link>
               </p>

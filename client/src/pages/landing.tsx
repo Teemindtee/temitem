@@ -29,7 +29,7 @@ export default function Landing() {
         {/* Mobile-First Layout */}
         <div className="max-w-sm mx-auto min-h-screen bg-white shadow-xl relative">
           {/* Header with Logo */}
-          <div className="bg-red-600 px-6 py-4 flex items-center rounded-t-3xl">
+          <div className="bg-finder-red px-6 py-4 flex items-center rounded-t-3xl">
             <img 
               src={logoImage} 
               alt="FinderMeister Logo" 
@@ -55,7 +55,7 @@ export default function Landing() {
             {/* CTA Button */}
             <div className="mb-16">
               <Link href="/register">
-                <Button className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg">
+                <Button className="w-full bg-finder-red hover:bg-finder-red-dark text-white py-4 text-lg font-semibold rounded-xl shadow-lg">
                   Get Started
                 </Button>
               </Link>
@@ -77,7 +77,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
+      <header className="bg-finder-red text-white px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <img 
@@ -91,7 +91,7 @@ export default function Landing() {
             <a href="#how-it-works" className="hover:underline">How it Works</a>
             <Link href="/login" className="hover:underline">Log In</Link>
             <Link href="/register">
-              <Button variant="outline" className="border-white text-white bg-transparent hover:bg-white hover:text-red-600 font-medium">
+              <Button variant="outline" className="border-white text-white bg-transparent hover:bg-white hover:text-finder-red font-medium">
                 Sign Up
               </Button>
             </Link>
@@ -113,13 +113,13 @@ export default function Landing() {
                 you search for what you need.
               </p>
               <Link href="/register">
-                <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg font-medium rounded-lg">
+                <Button className="bg-finder-red hover:bg-finder-red-dark text-white px-8 py-3 text-lg font-medium rounded-lg">
                   Get Started
                 </Button>
               </Link>
             </div>
             <div className="flex-1 flex justify-end">
-              <div className="bg-red-600 rounded-full w-48 h-48 flex items-center justify-center">
+              <div className="bg-finder-red rounded-full w-48 h-48 flex items-center justify-center">
                 <Handshake className="w-24 h-24 text-white" />
               </div>
             </div>
@@ -135,7 +135,7 @@ export default function Landing() {
           </h2>
           <div className="grid md:grid-cols-3 gap-12">
             <div className="text-center">
-              <div className="bg-red-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-finder-red text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
                   <path d="M14 2v6h6"/>
@@ -152,7 +152,7 @@ export default function Landing() {
               </p>
             </div>
             <div className="text-center">
-              <div className="bg-red-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-finder-red text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Star className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-semibold mb-4 text-gray-900">
@@ -163,7 +163,7 @@ export default function Landing() {
               </p>
             </div>
             <div className="text-center">
-              <div className="bg-red-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="bg-finder-red text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Handshake className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-semibold mb-4 text-gray-900">

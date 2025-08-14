@@ -113,7 +113,7 @@ export default function TokenPurchase() {
         <FinderHeader />
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading token packages...</p>
           </div>
         </div>
@@ -165,13 +165,13 @@ export default function TokenPurchase() {
               key={pkg.id}
               className={`relative border-2 transition-all duration-200 hover:shadow-lg ${
                 pkg.popular 
-                  ? 'border-red-500 shadow-md' 
-                  : 'border-gray-200 hover:border-red-300'
+                  ? 'border-finder-red/70 shadow-md' 
+                  : 'border-gray-200 hover:border-finder-red/50'
               }`}
             >
               {pkg.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-red-600 text-white px-3 py-1">
+                  <Badge className="bg-finder-red text-white px-3 py-1">
                     <Star className="w-3 h-3 mr-1" />
                     Most Popular
                   </Badge>
@@ -207,7 +207,7 @@ export default function TokenPurchase() {
                   disabled={isProcessing}
                   className={`w-full ${
                     pkg.popular 
-                      ? 'bg-red-600 hover:bg-red-700' 
+                      ? 'bg-finder-red hover:bg-finder-red-dark' 
                       : 'bg-gray-900 hover:bg-gray-800'
                   }`}
                 >

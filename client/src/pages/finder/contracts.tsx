@@ -36,7 +36,7 @@ export default function FinderContracts() {
         <FinderHeader currentPage="contracts" />
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading your contracts...</p>
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function FinderContracts() {
                           </Button>
                         </div>
                       ) : (
-                        <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={(e) => {
+                        <Button className="bg-finder-red hover:bg-finder-red-dark text-white" onClick={(e) => {
                           e.preventDefault();
                           window.location.href = `/orders/submit/${contract.id}`;
                         }}>

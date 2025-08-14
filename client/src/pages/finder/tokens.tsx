@@ -34,7 +34,7 @@ export default function TokenBalance() {
   const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'purchase': return <Plus className="w-4 h-4 text-green-600" />;
-      case 'proposal': return <Minus className="w-4 h-4 text-red-600" />;
+      case 'proposal': return <Minus className="w-4 h-4 text-finder-red" />;
       case 'refund': return <Plus className="w-4 h-4 text-blue-600" />;
       default: return <Clock className="w-4 h-4 text-gray-600" />;
     }
@@ -43,7 +43,7 @@ export default function TokenBalance() {
   const getTransactionColor = (type: string) => {
     switch (type) {
       case 'purchase': return 'text-green-600';
-      case 'proposal': return 'text-red-600';
+      case 'proposal': return 'text-finder-red';
       case 'refund': return 'text-blue-600';
       default: return 'text-gray-600';
     }
@@ -59,7 +59,7 @@ export default function TokenBalance() {
         <FinderHeader />
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading token balance...</p>
           </div>
         </div>
@@ -88,8 +88,8 @@ export default function TokenBalance() {
                     <p className="text-3xl font-bold text-gray-900">{currentBalance}</p>
                     <p className="text-sm text-gray-500">Proposal Tokens</p>
                   </div>
-                  <div className="p-3 bg-red-100 rounded-full">
-                    <Wallet className="w-6 h-6 text-red-600" />
+                  <div className="p-3 bg-finder-red/20 rounded-full">
+                    <Wallet className="w-6 h-6 text-finder-red" />
                   </div>
                 </div>
               </CardContent>
@@ -140,13 +140,13 @@ export default function TokenBalance() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid sm:grid-cols-3 gap-4">
-                <Card className="border-2 hover:border-red-200 cursor-pointer transition-colors">
+                <Card className="border-2 hover:border-finder-red/30 cursor-pointer transition-colors">
                   <CardContent className="p-4 text-center">
                     <div className="text-2xl font-bold text-gray-900 mb-1">10 Tokens</div>
-                    <div className="text-lg font-semibold text-red-600 mb-2">₦5,000</div>
+                    <div className="text-lg font-semibold text-finder-red mb-2">₦5,000</div>
                     <div className="text-sm text-gray-600 mb-3">Submit 10 proposals</div>
                     <Button 
-                      className="w-full bg-red-600 hover:bg-red-700"
+                      className="w-full bg-finder-red hover:bg-finder-red-dark"
                       onClick={() => window.location.href = '/finder/token-purchase'}
                     >
                       Purchase
@@ -154,16 +154,16 @@ export default function TokenBalance() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 border-red-200 bg-red-50 relative">
+                <Card className="border-2 border-finder-red/30 bg-finder-red/10 relative">
                   <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-red-600">Most Popular</Badge>
+                    <Badge className="bg-finder-red">Most Popular</Badge>
                   </div>
                   <CardContent className="p-4 text-center">
                     <div className="text-2xl font-bold text-gray-900 mb-1">25 Tokens</div>
-                    <div className="text-lg font-semibold text-red-600 mb-2">₦10,000</div>
+                    <div className="text-lg font-semibold text-finder-red mb-2">₦10,000</div>
                     <div className="text-sm text-gray-600 mb-3">Submit 25 proposals</div>
                     <Button 
-                      className="w-full bg-red-600 hover:bg-red-700"
+                      className="w-full bg-finder-red hover:bg-finder-red-dark"
                       onClick={() => window.location.href = '/finder/token-purchase'}
                     >
                       Purchase
@@ -171,13 +171,13 @@ export default function TokenBalance() {
                   </CardContent>
                 </Card>
 
-                <Card className="border-2 hover:border-red-200 cursor-pointer transition-colors">
+                <Card className="border-2 hover:border-finder-red/30 cursor-pointer transition-colors">
                   <CardContent className="p-4 text-center">
                     <div className="text-2xl font-bold text-gray-900 mb-1">50 Tokens</div>
-                    <div className="text-lg font-semibold text-red-600 mb-2">₦18,000</div>
+                    <div className="text-lg font-semibold text-finder-red mb-2">₦18,000</div>
                     <div className="text-sm text-gray-600 mb-3">Submit 50 proposals</div>
                     <Button 
-                      className="w-full bg-red-600 hover:bg-red-700"
+                      className="w-full bg-finder-red hover:bg-finder-red-dark"
                       onClick={() => window.location.href = '/finder/token-purchase'}
                     >
                       Purchase

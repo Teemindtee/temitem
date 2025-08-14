@@ -103,7 +103,7 @@ export default function BrowseRequests() {
               {searchTerm ? 'No requests match your search.' : 'No open requests available.'}
             </div>
             <Link href="/register?type=client">
-              <Button className="bg-red-600 hover:bg-red-700">
+              <Button className="bg-finder-red hover:bg-finder-red-dark">
                 Post a Request
               </Button>
             </Link>
@@ -114,7 +114,7 @@ export default function BrowseRequests() {
               <Card key={request.id} className="hover:shadow-lg transition-shadow duration-200">
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
-                    <Badge variant="secondary" className="bg-red-100 text-red-700">
+                    <Badge variant="secondary" className="bg-finder-red/20 text-finder-red-dark">
                       {request.category}
                     </Badge>
                     <div className="text-sm text-gray-500 flex items-center">
@@ -155,7 +155,7 @@ export default function BrowseRequests() {
 
                   <div className="flex gap-2">
                     <Link href="/register?type=finder" className="flex-1">
-                      <Button className="w-full bg-red-600 hover:bg-red-700">
+                      <Button className="w-full bg-finder-red hover:bg-finder-red-dark">
                         Sign Up to Bid
                       </Button>
                     </Link>
@@ -173,7 +173,7 @@ export default function BrowseRequests() {
       </section>
 
       {/* Call to Action */}
-      <section className="bg-red-600 text-white py-12 mt-12">
+      <section className="bg-finder-red text-white py-12 mt-12">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">
             Ready to Start Finding?
@@ -183,12 +183,12 @@ export default function BrowseRequests() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register?type=finder">
-              <Button size="lg" className="bg-white text-red-600 hover:bg-gray-100">
+              <Button size="lg" className="bg-white text-finder-red hover:bg-gray-100">
                 Sign Up as Finder
               </Button>
             </Link>
             <Link href="/register?type=client">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-red-600">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-finder-red">
                 Post a Request
               </Button>
             </Link>

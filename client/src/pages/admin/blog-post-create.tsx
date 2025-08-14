@@ -237,7 +237,7 @@ export default function AdminBlogPostCreate() {
               </Link>
               <Button 
                 type="submit" 
-                className="bg-red-600 hover:bg-red-700 w-full sm:w-auto"
+                className="bg-finder-red hover:bg-finder-red-dark w-full sm:w-auto"
                 disabled={createMutation.isPending}
               >
                 {createMutation.isPending ? (

@@ -123,7 +123,7 @@ export default function WithdrawalSettings() {
     switch (status) {
       case 'approved': return 'bg-green-100 text-green-700';
       case 'processing': return 'bg-yellow-100 text-yellow-700';
-      case 'rejected': return 'bg-red-100 text-red-700';
+      case 'rejected': return 'bg-finder-red/20 text-finder-red-dark';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
@@ -134,7 +134,7 @@ export default function WithdrawalSettings() {
         <FinderHeader />
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading withdrawal settings...</p>
           </div>
         </div>
@@ -165,7 +165,7 @@ export default function WithdrawalSettings() {
                 <Button 
                   onClick={handleWithdrawalRequest}
                   disabled={!finder?.totalEarned || parseFloat(finder.totalEarned) < parseInt(formData.minimumThreshold)}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-finder-red hover:bg-finder-red-dark"
                 >
                   Request Withdrawal
                 </Button>
@@ -255,7 +255,7 @@ export default function WithdrawalSettings() {
                 <Button 
                   onClick={handleUpdateSettings}
                   disabled={updateSettingsMutation.isPending}
-                  className="bg-red-600 hover:bg-red-700 w-full sm:w-auto"
+                  className="bg-finder-red hover:bg-finder-red-dark w-full sm:w-auto"
                 >
                   {updateSettingsMutation.isPending ? "Updating..." : "Update Settings"}
                 </Button>

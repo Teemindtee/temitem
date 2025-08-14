@@ -51,7 +51,7 @@ export default function ClientDashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading...</p>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function ClientDashboard() {
         {/* Mobile Phone Frame */}
         <div className="max-w-sm mx-auto min-h-screen bg-white shadow-2xl border border-gray-200 rounded-2xl overflow-hidden">
           {/* Header with User Profile */}
-          <div className="bg-red-600 px-4 py-3 flex items-center justify-between">
+          <div className="bg-finder-red px-4 py-3 flex items-center justify-between">
             <div className="flex items-center">
               <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3 shadow-sm">
                 <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center">
@@ -86,12 +86,12 @@ export default function ClientDashboard() {
               {/* Post a Request - Top Left */}
               <Link href="/client/create-request">
                 <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                  <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                  <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                     <div className="flex flex-col items-center">
                       <div className="w-8 h-1 bg-white rounded mb-1"></div>
                       <div className="w-6 h-1 bg-white rounded mb-1"></div>
                       <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                        <span className="text-red-600 text-xs font-bold">+</span>
+                        <span className="text-finder-red text-xs font-bold">+</span>
                       </div>
                     </div>
                   </div>
@@ -105,7 +105,7 @@ export default function ClientDashboard() {
               {/* View Proposals - Top Right */}
               <Link href="/client/proposals">
                 <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                  <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                  <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                     <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center relative">
                       <div className="w-3 h-3 bg-white rounded-full"></div>
                       <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full"></div>
@@ -124,7 +124,7 @@ export default function ClientDashboard() {
               {/* Contracts - Bottom Left */}
               <Link href="/client/contracts">
                 <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                  <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                  <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                     <div className="w-8 h-6 border-2 border-white rounded-lg flex flex-col justify-center items-center relative">
                       <div className="w-4 h-0.5 bg-white rounded mb-0.5"></div>
                       <div className="w-3 h-0.5 bg-white rounded mb-0.5"></div>
@@ -140,7 +140,7 @@ export default function ClientDashboard() {
               {/* Settings - Bottom Right */}
               <Link href="/client/profile">
                 <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                  <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                  <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                     <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center relative">
                       <div className="w-2 h-2 bg-white rounded-full"></div>
                       <div className="absolute -top-1 w-1 h-3 bg-white rounded"></div>
@@ -189,15 +189,15 @@ export default function ClientDashboard() {
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card className="border-red-200 hover:border-red-400 transition-colors">
+          <Card className="border-finder-red/30 hover:border-finder-red/60 transition-colors">
             <CardContent className="p-6 text-center">
-              <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+              <div className="bg-finder-red rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <Plus className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Post New Request</h3>
               <p className="text-gray-600 mb-4 text-sm">Need help finding something? Create a new request.</p>
               <Link href="/client/create-request">
-                <Button className="bg-red-600 hover:bg-red-700 text-white">
+                <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
                   Create Request
                 </Button>
               </Link>
@@ -256,7 +256,7 @@ export default function ClientDashboard() {
                 <div className="text-center py-8 text-gray-500">
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>You haven't created any requests yet.</p>
-                  <Link href="/client/create-request" className="text-red-600 hover:underline font-medium">
+                  <Link href="/client/create-request" className="text-finder-red hover:underline font-medium">
                     Create your first request
                   </Link>
                 </div>

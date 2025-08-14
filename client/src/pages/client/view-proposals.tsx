@@ -65,7 +65,7 @@ export default function ViewProposals() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading...</p>
         </div>
       </div>
@@ -91,7 +91,7 @@ export default function ViewProposals() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">View Proposals</h1>
           <div className="flex items-center justify-between">
             <p className="text-gray-600">Review and manage proposals from finders</p>
-            <Link href="/client/browse-requests" className="text-red-600 hover:underline text-sm">
+            <Link href="/client/browse-requests" className="text-finder-red hover:underline text-sm">
               View All Requests →
             </Link>
           </div>
@@ -106,7 +106,7 @@ export default function ViewProposals() {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No proposals yet</h3>
                 <p className="text-gray-600 mb-4">Finders will submit their proposals for your requests here.</p>
                 <Link href="/client/create-request">
-                  <Button className="bg-red-600 hover:bg-red-700 text-white">
+                  <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
                     Post a New Request
                   </Button>
                 </Link>
@@ -121,8 +121,8 @@ export default function ViewProposals() {
                     {/* Finder Info */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-red-600" />
+                        <div className="w-10 h-10 bg-finder-red/20 rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-finder-red" />
                         </div>
                         <div>
                           <h3 className="font-medium text-gray-900">
@@ -158,7 +158,7 @@ export default function ViewProposals() {
                           <Button 
                             onClick={() => acceptProposal.mutate(proposal.id)}
                             disabled={acceptProposal.isPending}
-                            className="bg-red-600 hover:bg-red-700 text-white w-full"
+                            className="bg-finder-red hover:bg-finder-red-dark text-white w-full"
                           >
                             {acceptProposal.isPending ? 'Hiring...' : 'Hire Finder'}
                           </Button>
@@ -192,8 +192,8 @@ export default function ViewProposals() {
                     {/* Finder Name */}
                     <div className="col-span-3">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-red-600" />
+                        <div className="w-10 h-10 bg-finder-red/20 rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-finder-red" />
                         </div>
                         <div>
                           <h3 className="font-medium text-gray-900">
@@ -236,7 +236,7 @@ export default function ViewProposals() {
                             <Button 
                               onClick={() => acceptProposal.mutate(proposal.id)}
                               disabled={acceptProposal.isPending}
-                              className="bg-red-600 hover:bg-red-700 text-white px-6 w-full"
+                              className="bg-finder-red hover:bg-finder-red-dark text-white px-6 w-full"
                             >
                               {acceptProposal.isPending ? 'Hiring...' : 'Hire Finder'}
                             </Button>
@@ -290,12 +290,12 @@ export default function ViewProposals() {
                 <div className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-3">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-red-600" />
+                      <div className="w-10 h-10 bg-finder-red/20 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-finder-red" />
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-900">
-                          <Link href={`/finder-profile/sample-finder-1`} className="text-red-600 hover:text-red-800 hover:underline cursor-pointer">
+                          <Link href={`/finder-profile/sample-finder-1`} className="text-finder-red hover:text-red-800 hover:underline cursor-pointer">
                             Alex Johnson
                           </Link>
                         </h3>
@@ -314,12 +314,12 @@ export default function ViewProposals() {
                   </div>
                   <div className="col-span-3 text-right">
                     <div className="space-y-2">
-                      <Button className="bg-red-600 hover:bg-red-700 text-white px-6 w-full">
+                      <Button className="bg-finder-red hover:bg-finder-red-dark text-white px-6 w-full">
                         Hire Finder
                       </Button>
                       <Button 
                         variant="outline" 
-                        className="w-full border-red-600 text-red-600 hover:bg-red-50"
+                        className="w-full border-finder-red text-finder-red hover:bg-finder-red/10"
                         onClick={() => window.location.href = '/messages'}
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />
@@ -337,8 +337,8 @@ export default function ViewProposals() {
                 <div className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-3">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-red-600" />
+                      <div className="w-10 h-10 bg-finder-red/20 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-finder-red" />
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-900">Amy Johnson</h3>
@@ -357,12 +357,12 @@ export default function ViewProposals() {
                   </div>
                   <div className="col-span-3 text-right">
                     <div className="space-y-2">
-                      <Button className="bg-red-600 hover:bg-red-700 text-white px-6 w-full">
+                      <Button className="bg-finder-red hover:bg-finder-red-dark text-white px-6 w-full">
                         Hire Finder
                       </Button>
                       <Button 
                         variant="outline" 
-                        className="w-full border-red-600 text-red-600 hover:bg-red-50"
+                        className="w-full border-finder-red text-finder-red hover:bg-finder-red/10"
                         onClick={() => window.location.href = '/messages'}
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />

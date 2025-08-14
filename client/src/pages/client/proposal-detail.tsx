@@ -172,7 +172,7 @@ export default function ProposalDetail() {
               <CardTitle className="flex items-center justify-between">
                 <span>
                   Proposal from{' '}
-                  <Link href={`/finder-profile/${proposal.finder.id}`} className="text-red-600 hover:text-red-800 hover:underline cursor-pointer">
+                  <Link href={`/finder-profile/${proposal.finder.id}`} className="text-finder-red hover:text-red-800 hover:underline cursor-pointer">
                     {proposal.finder.user.firstName} {proposal.finder.user.lastName}
                   </Link>
                 </span>
@@ -184,12 +184,12 @@ export default function ProposalDetail() {
             <CardContent className="space-y-6">
               {/* Finder Profile Summary */}
               <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                  <User className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 bg-finder-red/20 rounded-full flex items-center justify-center">
+                  <User className="w-6 h-6 text-finder-red" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-medium text-gray-900">
-                    <Link href={`/finder-profile/${proposal.finder.id}`} className="text-red-600 hover:text-red-800 hover:underline cursor-pointer">
+                    <Link href={`/finder-profile/${proposal.finder.id}`} className="text-finder-red hover:text-red-800 hover:underline cursor-pointer">
                       {proposal.finder.user.firstName} {proposal.finder.user.lastName}
                     </Link>
                   </h3>
@@ -247,7 +247,7 @@ export default function ProposalDetail() {
                 {proposal.status === 'pending' && (
                   <Button 
                     onClick={() => handleAcceptProposal(proposal.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white flex-1"
+                    className="bg-finder-red hover:bg-finder-red-dark text-white flex-1"
                     disabled={acceptProposalMutation.isPending}
                   >
                     {acceptProposalMutation.isPending ? "Accepting..." : "Accept Proposal"}

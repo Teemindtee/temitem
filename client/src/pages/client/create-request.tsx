@@ -139,7 +139,7 @@ export default function CreateRequest() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
+      <header className="bg-finder-red text-white px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <Handshake className="w-6 h-6" />
@@ -147,7 +147,7 @@ export default function CreateRequest() {
           </Link>
           <nav className="flex items-center space-x-6">
             <Link href="/client/dashboard" className="hover:underline">Dashboard</Link>
-            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Post Request</span>
+            <span className="bg-white text-finder-red px-3 py-1 rounded font-medium">Post Request</span>
           </nav>
         </div>
       </header>
@@ -296,7 +296,7 @@ export default function CreateRequest() {
               <div className="flex gap-4 pt-4">
                 <Button
                   type="submit"
-                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 font-medium"
+                  className="bg-finder-red hover:bg-finder-red-dark text-white px-8 py-3 font-medium"
                   disabled={createRequestMutation.isPending}
                 >
                   {createRequestMutation.isPending ? "Posting..." : "Post Request"}

@@ -102,7 +102,7 @@ export function SupportWidget({ context }: SupportWidgetProps) {
       <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => setIsOpen(true)}
-          className="bg-red-600 hover:bg-red-700 text-white rounded-full p-4 shadow-lg"
+          className="bg-finder-red hover:bg-finder-red-dark text-white rounded-full p-4 shadow-lg"
         >
           <HelpCircle className="w-6 h-6" />
         </Button>

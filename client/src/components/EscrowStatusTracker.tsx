@@ -16,11 +16,11 @@ export default function EscrowStatusTracker({ escrowStatus, isCompleted, hasSubm
   };
 
   const getStepColor = (step: number) => {
-    return getStepStatus(step) ? "text-red-600 bg-red-100" : "text-gray-400 bg-gray-100";
+    return getStepStatus(step) ? "text-finder-red bg-finder-red/20" : "text-gray-400 bg-gray-100";
   };
 
   const getConnectorColor = (step: number) => {
-    return getStepStatus(step + 1) ? "bg-red-600" : "bg-gray-300";
+    return getStepStatus(step + 1) ? "bg-finder-red" : "bg-gray-300";
   };
 
   return (

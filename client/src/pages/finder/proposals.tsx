@@ -25,7 +25,7 @@ export default function FinderProposals() {
       case 'accepted':
         return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'rejected':
-        return <XCircle className="w-4 h-4 text-red-600" />;
+        return <XCircle className="w-4 h-4 text-finder-red" />;
       default:
         return <Clock className="w-4 h-4 text-yellow-600" />;
     }
@@ -46,7 +46,7 @@ export default function FinderProposals() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading your proposals...</p>
         </div>
       </div>
@@ -56,18 +56,18 @@ export default function FinderProposals() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
+      <header className="bg-finder-red text-white px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <Handshake className="w-6 h-6" />
             <span className="text-xl font-bold">FinderMeister</span>
           </Link>
           <nav className="flex items-center space-x-6">
-            <Link href="/finder/dashboard" className="hover:text-red-200">Dashboard</Link>
-            <Link href="/finder/browse-requests" className="hover:text-red-200">Browse Requests</Link>
-            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">My Proposals</span>
+            <Link href="/finder/dashboard" className="hover:text-finder-red/70">Dashboard</Link>
+            <Link href="/finder/browse-requests" className="hover:text-finder-red/70">Browse Requests</Link>
+            <span className="bg-white text-finder-red px-3 py-1 rounded font-medium">My Proposals</span>
             <div className="relative group">
-              <button className="flex items-center space-x-1 hover:text-red-200">
+              <button className="flex items-center space-x-1 hover:text-finder-red/70">
                 <span>{user?.firstName} {user?.lastName}</span>
               </button>
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 invisible group-hover:visible">
@@ -139,13 +139,13 @@ export default function FinderProposals() {
             </CardContent>
           </Card>
 
-          <Card className="border-red-200">
+          <Card className="border-finder-red/30">
             <CardContent className="p-6 text-center">
-              <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+              <div className="bg-finder-red rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <XCircle className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Rejected</h3>
-              <p className="text-2xl font-bold text-red-600">
+              <p className="text-2xl font-bold text-finder-red">
                 {proposals.filter(p => p.status === 'rejected').length}
               </p>
               <p className="text-gray-600 text-sm">Not selected</p>
@@ -165,7 +165,7 @@ export default function FinderProposals() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No proposals yet</h3>
                 <p className="text-gray-600 mb-6">Start by browsing available requests and submitting your first proposal.</p>
                 <Link href="/finder/browse-requests">
-                  <Button className="bg-red-600 hover:bg-red-700 text-white">
+                  <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
                     Browse Requests
                   </Button>
                 </Link>
@@ -209,7 +209,7 @@ export default function FinderProposals() {
                       
                       <div className="ml-6 flex gap-2">
                         <Link href={`/finder/proposals/${proposal.id}`}>
-                          <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+                          <Button size="sm" className="bg-finder-red hover:bg-finder-red-dark text-white">
                             View Details
                           </Button>
                         </Link>

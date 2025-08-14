@@ -11,9 +11,9 @@ export default function MobileLanding() {
       {/* Mobile-First Layout */}
       <div className="max-w-sm mx-auto min-h-screen bg-white shadow-xl relative">
         {/* Header with Logo */}
-        <div className="bg-red-600 px-6 py-4 flex items-center rounded-t-3xl">
+        <div className="bg-finder-red px-6 py-4 flex items-center rounded-t-3xl">
           <div className="bg-white p-2 rounded-lg mr-3">
-            <Search className="h-6 w-6 text-red-600" />
+            <Search className="h-6 w-6 text-finder-red" />
           </div>
           <h1 className="text-2xl font-bold text-white">FinderMeister</h1>
         </div>
@@ -36,13 +36,13 @@ export default function MobileLanding() {
           <div className="mb-16">
             {user ? (
               <Link href={user.role === 'client' ? '/client/dashboard' : user.role === 'finder' ? '/finder/dashboard' : '/admin/dashboard'}>
-                <Button className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg">
+                <Button className="w-full bg-finder-red hover:bg-finder-red-dark text-white py-4 text-lg font-semibold rounded-xl shadow-lg">
                   Go to Dashboard
                 </Button>
               </Link>
             ) : (
               <Link href="/auth/register">
-                <Button className="w-full bg-red-600 hover:bg-red-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg">
+                <Button className="w-full bg-finder-red hover:bg-finder-red-dark text-white py-4 text-lg font-semibold rounded-xl shadow-lg">
                   Get Started
                 </Button>
               </Link>

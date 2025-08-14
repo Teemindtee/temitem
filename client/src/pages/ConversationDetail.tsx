@@ -302,7 +302,7 @@ export default function ConversationDetail() {
                       <div
                         className={`px-3 py-2 md:px-4 md:py-2 rounded-2xl md:rounded-lg ${
                           message.senderId === user?.id?.toString()
-                            ? 'bg-red-600 text-white rounded-br-md'
+                            ? 'bg-finder-red text-white rounded-br-md'
                             : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md'
                         }`}
                       >
@@ -395,7 +395,7 @@ export default function ConversationDetail() {
                           variant="ghost"
                           size="sm"
                           onClick={() => removeAttachment(index)}
-                          className="h-6 w-6 p-0 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                          className="h-6 w-6 p-0 text-finder-red hover:bg-finder-red/20 dark:hover:bg-red-900/30"
                         >
                           ×
                         </Button>
@@ -431,7 +431,7 @@ export default function ConversationDetail() {
                   type="submit"
                   disabled={(!newMessage.trim() && pendingAttachments.length === 0) || sendMessageMutation.isPending}
                   size="icon"
-                  className="bg-red-600 hover:bg-red-700 rounded-full p-3 md:p-2 flex-shrink-0"
+                  className="bg-finder-red hover:bg-finder-red-dark rounded-full p-3 md:p-2 flex-shrink-0"
                 >
                   <Send className="w-4 h-4 md:w-4 md:h-4" />
                 </Button>

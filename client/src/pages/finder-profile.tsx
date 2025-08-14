@@ -20,7 +20,7 @@ export default function FinderProfileView() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading profile...</p>
         </div>
       </div>
@@ -47,7 +47,7 @@ export default function FinderProfileView() {
     return Array.from({ length: 5 }, (_, i) => (
       <Star 
         key={i} 
-        className={`w-6 h-6 ${i < rating ? 'text-red-600 fill-current' : 'text-gray-300'}`} 
+        className={`w-6 h-6 ${i < rating ? 'text-finder-red fill-current' : 'text-gray-300'}`} 
       />
     ));
   };
@@ -55,11 +55,11 @@ export default function FinderProfileView() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
+      <header className="bg-finder-red text-white px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link href="/admin/users">
-              <Button variant="ghost" className="text-white hover:bg-red-700 p-2">
+              <Button variant="ghost" className="text-white hover:bg-finder-red-dark p-2">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
@@ -69,7 +69,7 @@ export default function FinderProfileView() {
             </div>
           </div>
           <Link href="/admin/users">
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-red-600">
+            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-finder-red">
               Back to Users
             </Button>
           </Link>
@@ -81,7 +81,7 @@ export default function FinderProfileView() {
         <div className="max-w-md mx-auto mb-8">
           <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
             {/* Red Header */}
-            <div className="bg-red-600 px-8 py-6 text-center">
+            <div className="bg-finder-red px-8 py-6 text-center">
               <h1 className="text-white text-2xl font-bold">FinderMeister</h1>
             </div>
             
@@ -161,9 +161,9 @@ export default function FinderProfileView() {
                     {finderData.user?.isVerified ? (
                       <CheckCircle className="w-4 h-4 text-green-600" />
                     ) : (
-                      <XCircle className="w-4 h-4 text-red-600" />
+                      <XCircle className="w-4 h-4 text-finder-red" />
                     )}
-                    <span className={finderData.user?.isVerified ? 'text-green-600' : 'text-red-600'}>
+                    <span className={finderData.user?.isVerified ? 'text-green-600' : 'text-finder-red'}>
                       {finderData.user?.isVerified ? 'Verified' : 'Unverified'}
                     </span>
                   </div>
@@ -200,7 +200,7 @@ export default function FinderProfileView() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-red-600">{finderData.jobsCompleted || 0}</div>
+                  <div className="text-2xl font-bold text-finder-red">{finderData.jobsCompleted || 0}</div>
                   <div className="text-sm text-gray-600">Jobs Completed</div>
                 </div>
                 <div className="text-center p-4 bg-gray-50 rounded-lg">

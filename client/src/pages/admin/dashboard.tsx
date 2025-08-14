@@ -37,7 +37,7 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading admin data...</p>
         </div>
       </div>
@@ -98,13 +98,13 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-red-200">
+          <Card className="border-finder-red/30">
             <CardContent className="p-4 sm:p-6 text-center">
-              <div className="bg-red-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-4">
+              <div className="bg-finder-red rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-4">
                 <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Issues</h3>
-              <p className="text-xl sm:text-2xl font-bold text-red-600">0</p>
+              <p className="text-xl sm:text-2xl font-bold text-finder-red">0</p>
               <p className="text-gray-600 text-xs sm:text-sm">Reported issues</p>
             </CardContent>
           </Card>
@@ -195,7 +195,7 @@ export default function AdminDashboard() {
                       </h4>
                       <p className="text-gray-600 text-xs sm:text-sm truncate">{user.email}</p>
                       <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full font-medium ${
-                        user.role === 'admin' ? 'bg-red-100 text-red-700' :
+                        user.role === 'admin' ? 'bg-finder-red/20 text-finder-red-dark' :
                         user.role === 'finder' ? 'bg-blue-100 text-blue-700' :
                         'bg-green-100 text-green-700'
                       }`}>

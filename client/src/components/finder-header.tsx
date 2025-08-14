@@ -46,7 +46,7 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
   };
 
   return (
-    <header className="bg-red-600 text-white px-4 sm:px-6 py-4">
+    <header className="bg-finder-red text-white px-4 sm:px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
           <img 
@@ -118,7 +118,7 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
                 className="flex items-center space-x-2 text-white hover:bg-white/10 px-2 sm:px-3"
               >
                 <Avatar className="w-8 h-8">
-                  <AvatarFallback className="bg-white text-red-600 text-sm font-semibold">
+                  <AvatarFallback className="bg-white text-finder-red text-sm font-semibold">
                     {user?.firstName ? getInitials(`${user.firstName} ${user.lastName}`) : 'U'}
                   </AvatarFallback>
                 </Avatar>

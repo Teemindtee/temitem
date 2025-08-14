@@ -136,7 +136,7 @@ export default function FileUpload({
       <Card 
         className={`border-2 border-dashed transition-colors ${
           dragActive 
-            ? "border-red-400 bg-red-50" 
+            ? "border-finder-red/60 bg-finder-red/10" 
             : "border-gray-300 hover:border-gray-400"
         }`}
         onDrop={handleDrop}
@@ -205,7 +205,7 @@ export default function FileUpload({
                   variant="ghost"
                   size="sm"
                   onClick={() => removeFile(index)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-finder-red hover:text-finder-red-dark hover:bg-finder-red/10"
                 >
                   <X className="w-4 h-4" />
                 </Button>

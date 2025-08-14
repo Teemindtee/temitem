@@ -63,7 +63,7 @@ export default function Messages() {
       <div className="container mx-auto py-8 px-4">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <MessageCircle className="w-6 h-6 md:w-8 md:h-8 text-red-600" />
+            <MessageCircle className="w-6 h-6 md:w-8 md:h-8 text-finder-red" />
             <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Messages</h1>
           </div>
           {conversations.length > 0 && (
@@ -118,7 +118,7 @@ export default function Messages() {
                       </div>
                       <div className="flex items-center space-x-2">
                         {conversation.unreadCount > 0 && (
-                          <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
+                          <span className="bg-finder-red/100 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
                             {conversation.unreadCount}
                           </span>
                         )}

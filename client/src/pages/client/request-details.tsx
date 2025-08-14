@@ -58,7 +58,7 @@ export default function RequestDetails() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading...</p>
         </div>
       </div>
@@ -172,8 +172,8 @@ export default function RequestDetails() {
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-3">
                             <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                                <User className="w-5 h-5 text-red-600" />
+                              <div className="w-10 h-10 bg-finder-red/20 rounded-full flex items-center justify-center">
+                                <User className="w-5 h-5 text-finder-red" />
                               </div>
                               <div>
                                 <h4 className="font-medium text-gray-900">Finder #{proposal.finderId}</h4>
@@ -199,7 +199,7 @@ export default function RequestDetails() {
                             <Button 
                               onClick={() => acceptProposal.mutate(proposal.id)}
                               disabled={acceptProposal.isPending}
-                              className="bg-red-600 hover:bg-red-700 text-white"
+                              className="bg-finder-red hover:bg-finder-red-dark text-white"
                             >
                               {acceptProposal.isPending ? 'Accepting...' : 'Accept Proposal'}
                             </Button>

@@ -32,7 +32,7 @@ export default function FinderDashboard() {
         <FinderHeader currentPage="dashboard" />
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading dashboard...</p>
           </div>
         </div>
@@ -99,15 +99,15 @@ export default function FinderDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-red-200 hover:border-red-400 transition-colors">
+          <Card className="border-finder-red/30 hover:border-finder-red/60 transition-colors">
             <CardContent className="p-6 text-center">
-              <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+              <div className="bg-finder-red rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <Plus className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Submit Proposal</h3>
               <p className="text-gray-600 mb-4 text-sm">Find new opportunities</p>
               <Link href="/finder/browse-requests">
-                <Button className="bg-red-600 hover:bg-red-700 text-white">
+                <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
                   Browse Requests
                 </Button>
               </Link>
@@ -144,7 +144,7 @@ export default function FinderDashboard() {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Budget: ${request.budgetMin} - ${request.budgetMax}</span>
                       <Link href={`/finder/requests/${request.id}`}>
-                        <Button size="sm" className="bg-red-600 hover:bg-red-700">View</Button>
+                        <Button size="sm" className="bg-finder-red hover:bg-finder-red-dark">View</Button>
                       </Link>
                     </div>
                   </div>
@@ -166,7 +166,7 @@ export default function FinderDashboard() {
                 <div className="text-center py-8 text-gray-500">
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>No proposals submitted yet.</p>
-                  <Link href="/finder/browse-requests" className="text-red-600 hover:underline font-medium">
+                  <Link href="/finder/browse-requests" className="text-finder-red hover:underline font-medium">
                     Browse requests to get started
                   </Link>
                 </div>
@@ -178,7 +178,7 @@ export default function FinderDashboard() {
                       <span className={`px-2 py-1 text-xs rounded-full font-medium ${
                         proposal.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
                         proposal.status === 'accepted' ? 'bg-green-100 text-green-700' :
-                        'bg-red-100 text-red-700'
+                        'bg-finder-red/20 text-finder-red-dark'
                       }`}>
                         {proposal.status}
                       </span>

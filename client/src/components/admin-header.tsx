@@ -59,7 +59,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                     size="sm"
                     className={`flex items-center space-x-2 ${
                       currentPage === item.id 
-                        ? "bg-red-600 hover:bg-red-700 text-white" 
+                        ? "bg-finder-red hover:bg-finder-red-dark text-white" 
                         : "text-gray-700 hover:text-gray-900"
                     }`}
                   >
@@ -103,7 +103,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                           variant={currentPage === item.id ? "default" : "ghost"}
                           className={`w-full justify-start space-x-3 ${
                             currentPage === item.id 
-                              ? "bg-red-600 hover:bg-red-700 text-white" 
+                              ? "bg-finder-red hover:bg-finder-red-dark text-white" 
                               : "text-gray-700 hover:text-gray-900"
                           }`}
                           onClick={() => setIsOpen(false)}

@@ -179,7 +179,7 @@ export default function ChangePassword() {
                 </Link>
                 <Button 
                   type="submit" 
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  className="bg-finder-red hover:bg-finder-red-dark text-white"
                   disabled={!formData.currentPassword || !formData.newPassword || !formData.confirmPassword}
                 >
                   Update Password

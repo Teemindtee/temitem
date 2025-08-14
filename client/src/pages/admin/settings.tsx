@@ -198,7 +198,7 @@ export default function AdminSettings() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading settings...</p>
         </div>
       </div>
@@ -237,7 +237,7 @@ export default function AdminSettings() {
               <Button 
                 type="submit" 
                 disabled={updateSettingsMutation.isPending}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-finder-red hover:bg-finder-red-dark"
               >
                 {updateSettingsMutation.isPending ? "Updating..." : "Update Settings"}
               </Button>
@@ -330,7 +330,7 @@ export default function AdminSettings() {
                               {category.isActive ? "Deactivate" : "Activate"}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              className="text-red-600"
+                              className="text-finder-red"
                               onClick={() => deleteCategoryMutation.mutate(category.id)}
                             >
                               <Trash2 className="w-4 h-4 mr-2" />

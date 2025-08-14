@@ -70,7 +70,7 @@ export default function BlogPost() {
           <CardContent className="p-4 sm:p-6 lg:p-8">
             <div className="mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-                <Badge variant="default" className="bg-red-600 w-fit">
+                <Badge variant="default" className="bg-finder-red w-fit">
                   Blog Post
                 </Badge>
                 {post.publishedAt && (

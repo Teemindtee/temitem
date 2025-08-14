@@ -55,7 +55,7 @@ export default function Login() {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Log In</h1>
               <p className="text-gray-600">
                 Don't have an account?{" "}
-                <Link href="/register" className="text-red-600 hover:underline font-medium">
+                <Link href="/register" className="text-finder-red hover:underline font-medium">
                   Sign Up
                 </Link>
               </p>
@@ -92,7 +92,7 @@ export default function Login() {
 
               <Button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 font-medium"
+                className="w-full bg-finder-red hover:bg-finder-red-dark text-white py-3 font-medium"
                 disabled={isLoading}
               >
                 {isLoading ? "Logging in..." : "Log In"}

@@ -368,7 +368,7 @@ export default function OrderReviewPage() {
                       <AlertDialogAction 
                         onClick={handleReject}
                         disabled={reviewSubmissionMutation.isPending || !feedback.trim()}
-                        className="bg-red-600 hover:bg-red-700"
+                        className="bg-finder-red hover:bg-finder-red-dark"
                       >
                         {reviewSubmissionMutation.isPending ? "Processing..." : "Request Changes"}
                       </AlertDialogAction>

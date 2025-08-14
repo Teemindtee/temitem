@@ -79,7 +79,7 @@ export default function AdminWithdrawals() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading withdrawal requests...</p>
         </div>
       </div>
@@ -93,11 +93,11 @@ export default function AdminWithdrawals() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
+      <header className="bg-finder-red text-white px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link href="/admin/dashboard">
-              <Button variant="ghost" className="text-white hover:bg-red-700 p-2">
+              <Button variant="ghost" className="text-white hover:bg-finder-red-dark p-2">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             </Link>
@@ -107,7 +107,7 @@ export default function AdminWithdrawals() {
             </div>
           </div>
           <Link href="/admin/dashboard">
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-red-600">
+            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-finder-red">
               Back to Dashboard
             </Button>
           </Link>
@@ -151,11 +151,11 @@ export default function AdminWithdrawals() {
 
           <Card>
             <CardContent className="p-6 text-center">
-              <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+              <div className="bg-finder-red rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <XCircle className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Rejected</h3>
-              <p className="text-2xl font-bold text-red-600">
+              <p className="text-2xl font-bold text-finder-red">
                 {withdrawals.filter(w => w.status === 'rejected').length}
               </p>
             </CardContent>
@@ -303,7 +303,7 @@ export default function AdminWithdrawals() {
                                 <Button
                                   onClick={handleUpdateWithdrawal}
                                   disabled={updateWithdrawalMutation.isPending}
-                                  className="bg-red-600 hover:bg-red-700"
+                                  className="bg-finder-red hover:bg-finder-red-dark"
                                 >
                                   {updateWithdrawalMutation.isPending ? "Updating..." : "Update"}
                                 </Button>

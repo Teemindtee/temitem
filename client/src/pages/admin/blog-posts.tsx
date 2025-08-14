@@ -39,7 +39,7 @@ export default function AdminBlogPosts() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading...</p>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function AdminBlogPosts() {
             <p className="text-gray-600">Create and manage blog posts for your platform</p>
           </div>
           <Link href="/admin/blog-posts/create">
-            <Button className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto">
+            <Button className="bg-finder-red hover:bg-finder-red-dark text-white w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Create Post
             </Button>
@@ -73,7 +73,7 @@ export default function AdminBlogPosts() {
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No blog posts yet</h3>
               <p className="text-gray-600 mb-6">Start creating engaging content for your platform</p>
               <Link href="/admin/blog-posts/create">
-                <Button className="bg-red-600 hover:bg-red-700 text-white">
+                <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Create Your First Post
                 </Button>
@@ -148,7 +148,7 @@ export default function AdminBlogPosts() {
                         size="sm"
                         onClick={() => deleteMutation.mutate(post.id)}
                         disabled={deleteMutation.isPending}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 w-full sm:w-auto"
+                        className="text-finder-red hover:text-finder-red-dark hover:bg-finder-red/10 w-full sm:w-auto"
                       >
                         <Trash2 className="w-4 h-4 mr-1" />
                         <span className="hidden sm:inline">Delete</span>

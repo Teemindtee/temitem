@@ -20,7 +20,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
   };
 
   return (
-    <header className="bg-red-600 text-white px-4 sm:px-6 py-4">
+    <header className="bg-finder-red text-white px-4 sm:px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
           <img 
@@ -37,25 +37,25 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
             <>
               <Link 
                 href="/client/dashboard" 
-                className={`hover:underline ${currentPage === 'dashboard' ? 'bg-white text-red-600 px-3 py-1 rounded font-medium' : ''}`}
+                className={`hover:underline ${currentPage === 'dashboard' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''}`}
               >
                 Dashboard
               </Link>
               <Link 
                 href="/client/browse-requests" 
-                className={`hover:underline ${currentPage === 'browse-requests' ? 'bg-white text-red-600 px-3 py-1 rounded font-medium' : ''}`}
+                className={`hover:underline ${currentPage === 'browse-requests' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''}`}
               >
                 Browse Requests
               </Link>
               <Link 
                 href="/client/proposals" 
-                className={`hover:underline ${currentPage === 'proposals' ? 'bg-white text-red-600 px-3 py-1 rounded font-medium' : ''}`}
+                className={`hover:underline ${currentPage === 'proposals' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''}`}
               >
                 View Proposals
               </Link>
               <Link 
                 href="/messages" 
-                className={`hover:underline ${currentPage === 'messages' ? 'bg-white text-red-600 px-3 py-1 rounded font-medium' : ''}`}
+                className={`hover:underline ${currentPage === 'messages' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''}`}
               >
                 Messages
               </Link>
@@ -63,7 +63,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
               {/* Profile Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="text-white hover:bg-red-700 p-2">
+                  <Button variant="ghost" className="text-white hover:bg-finder-red-dark p-2">
                     <User className="w-5 h-5 mr-2" />
                     {user.firstName || 'Profile'}
                   </Button>
@@ -109,46 +109,46 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-red-500 mt-4 pt-4">
+        <div className="md:hidden border-t border-finder-red/70 mt-4 pt-4">
           <nav className="flex flex-col space-y-3">
             {user ? (
               <>
                 <Link 
                   href="/client/dashboard" 
-                  className={`block py-2 px-3 rounded ${currentPage === 'dashboard' ? 'bg-white text-red-600 font-medium' : 'hover:bg-red-700'}`}
+                  className={`block py-2 px-3 rounded ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
                 <Link 
                   href="/client/browse-requests" 
-                  className={`block py-2 px-3 rounded ${currentPage === 'browse-requests' ? 'bg-white text-red-600 font-medium' : 'hover:bg-red-700'}`}
+                  className={`block py-2 px-3 rounded ${currentPage === 'browse-requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Browse Requests
                 </Link>
                 <Link 
                   href="/client/proposals" 
-                  className={`block py-2 px-3 rounded ${currentPage === 'proposals' ? 'bg-white text-red-600 font-medium' : 'hover:bg-red-700'}`}
+                  className={`block py-2 px-3 rounded ${currentPage === 'proposals' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   View Proposals
                 </Link>
                 <Link 
                   href="/messages" 
-                  className={`block py-2 px-3 rounded ${currentPage === 'messages' ? 'bg-white text-red-600 font-medium' : 'hover:bg-red-700'}`}
+                  className={`block py-2 px-3 rounded ${currentPage === 'messages' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Messages
                 </Link>
-                <div className="border-t border-red-500 pt-3 mt-3">
+                <div className="border-t border-finder-red/70 pt-3 mt-3">
                   <div className="flex items-center py-2 px-3 text-white font-medium">
                     <User className="w-5 h-5 mr-2" />
                     {user.firstName || 'Profile'}
                   </div>
                   <Link 
                     href="/client/profile" 
-                    className="block py-2 px-6 hover:bg-red-700 rounded"
+                    className="block py-2 px-6 hover:bg-finder-red-dark rounded"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Settings className="w-4 h-4 mr-2 inline" />
@@ -156,7 +156,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   </Link>
                   <Link 
                     href="/client/change-password" 
-                    className="block py-2 px-6 hover:bg-red-700 rounded"
+                    className="block py-2 px-6 hover:bg-finder-red-dark rounded"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Lock className="w-4 h-4 mr-2 inline" />
@@ -164,7 +164,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   </Link>
                   <button 
                     onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                    className="flex items-center w-full py-2 px-6 hover:bg-red-700 rounded text-left"
+                    className="flex items-center w-full py-2 px-6 hover:bg-finder-red-dark rounded text-left"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Log Out
@@ -173,9 +173,9 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
               </>
             ) : (
               <>
-                <Link href="/login" className="block py-2 px-3 hover:bg-red-700 rounded" onClick={() => setMobileMenuOpen(false)}>How it Works</Link>
-                <Link href="/login" className="block py-2 px-3 hover:bg-red-700 rounded" onClick={() => setMobileMenuOpen(false)}>Log In</Link>
-                <Link href="/register" className="block py-2 px-3 hover:bg-red-700 rounded" onClick={() => setMobileMenuOpen(false)}>Sign Up</Link>
+                <Link href="/login" className="block py-2 px-3 hover:bg-finder-red-dark rounded" onClick={() => setMobileMenuOpen(false)}>How it Works</Link>
+                <Link href="/login" className="block py-2 px-3 hover:bg-finder-red-dark rounded" onClick={() => setMobileMenuOpen(false)}>Log In</Link>
+                <Link href="/register" className="block py-2 px-3 hover:bg-finder-red-dark rounded" onClick={() => setMobileMenuOpen(false)}>Sign Up</Link>
               </>
             )}
           </nav>

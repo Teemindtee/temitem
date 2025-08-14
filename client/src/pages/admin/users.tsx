@@ -120,7 +120,7 @@ export default function AdminUsers() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading users...</p>
         </div>
       </div>
@@ -179,11 +179,11 @@ export default function AdminUsers() {
 
           <Card>
             <CardContent className="p-4 sm:p-6 text-center">
-              <div className="bg-red-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+              <div className="bg-finder-red rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">Admins</h3>
-              <p className="text-xl sm:text-2xl font-bold text-red-600">{adminCount}</p>
+              <p className="text-xl sm:text-2xl font-bold text-finder-red">{adminCount}</p>
             </CardContent>
           </Card>
         </div>
@@ -248,7 +248,7 @@ export default function AdminUsers() {
                           {userData.isVerified ? (
                             <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                           ) : (
-                            <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
+                            <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-finder-red" />
                           )}
                         </div>
                       </div>
@@ -276,7 +276,7 @@ export default function AdminUsers() {
                             {userData.isVerified ? "Unverify" : "Verify"} User
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            className={userData.isBanned ? "text-green-600" : "text-red-600"}
+                            className={userData.isBanned ? "text-green-600" : "text-finder-red"}
                             onClick={() => handleBanUser(userData.id, !userData.isBanned)}
                           >
                             {userData.isBanned ? "Unban" : "Ban"} User

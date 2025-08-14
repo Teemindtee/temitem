@@ -265,7 +265,7 @@ export default function AdminBlogPostEdit() {
               <Button
                 type="submit"
                 disabled={updateMutation.isPending}
-                className="bg-red-600 hover:bg-red-700 text-white flex-1 sm:flex-none"
+                className="bg-finder-red hover:bg-finder-red-dark text-white flex-1 sm:flex-none"
               >
                 <Save className="w-4 h-4 mr-2" />
                 {updateMutation.isPending ? 'Updating...' : 'Update Post'}

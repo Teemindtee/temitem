@@ -25,11 +25,11 @@ export default function Navigation() {
           </Link>
           
           <nav className="hidden md:flex space-x-8">
-            <a href="#how-it-works" className="hover:text-red-200 transition-colors">
+            <a href="#how-it-works" className="hover:text-finder-red/70 transition-colors">
               How it Works
             </a>
             <Link href="/finder/browse-requests">
-              <a className="hover:text-red-200 transition-colors">Browse Requests</a>
+              <a className="hover:text-finder-red/70 transition-colors">Browse Requests</a>
             </Link>
             
             {isAuthenticated ? (
@@ -49,7 +49,7 @@ export default function Navigation() {
             ) : (
               <>
                 <Link href="/login">
-                  <a className="hover:text-red-200 transition-colors">Log In</a>
+                  <a className="hover:text-finder-red/70 transition-colors">Log In</a>
                 </Link>
                 <Link href="/register">
                   <Button 
@@ -74,13 +74,13 @@ export default function Navigation() {
         
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-red-400">
+          <div className="md:hidden py-4 border-t border-finder-red/60">
             <div className="flex flex-col space-y-2">
-              <a href="#how-it-works" className="py-2 hover:text-red-200 transition-colors">
+              <a href="#how-it-works" className="py-2 hover:text-finder-red/70 transition-colors">
                 How it Works
               </a>
               <Link href="/finder/browse-requests">
-                <a className="py-2 hover:text-red-200 transition-colors">Browse Requests</a>
+                <a className="py-2 hover:text-finder-red/70 transition-colors">Browse Requests</a>
               </Link>
               
               {isAuthenticated ? (
@@ -98,7 +98,7 @@ export default function Navigation() {
               ) : (
                 <>
                   <Link href="/login">
-                    <a className="py-2 hover:text-red-200 transition-colors">Log In</a>
+                    <a className="py-2 hover:text-finder-red/70 transition-colors">Log In</a>
                   </Link>
                   <Link href="/register">
                     <Button 

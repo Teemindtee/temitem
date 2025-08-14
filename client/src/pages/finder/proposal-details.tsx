@@ -32,7 +32,7 @@ export default function FinderProposalDetails() {
       case 'accepted':
         return <CheckCircle className="w-5 h-5 text-green-600" />;
       case 'rejected':
-        return <XCircle className="w-5 h-5 text-red-600" />;
+        return <XCircle className="w-5 h-5 text-finder-red" />;
       default:
         return <Clock className="w-5 h-5 text-yellow-600" />;
     }
@@ -53,7 +53,7 @@ export default function FinderProposalDetails() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading proposal details...</p>
         </div>
       </div>
@@ -76,18 +76,18 @@ export default function FinderProposalDetails() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
+      <header className="bg-finder-red text-white px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <Handshake className="w-6 h-6" />
             <span className="text-xl font-bold">FinderMeister</span>
           </Link>
           <nav className="flex items-center space-x-6">
-            <Link href="/finder/dashboard" className="hover:text-red-200">Dashboard</Link>
-            <Link href="/finder/browse-requests" className="hover:text-red-200">Browse Requests</Link>
-            <Link href="/finder/proposals" className="hover:text-red-200">My Proposals</Link>
+            <Link href="/finder/dashboard" className="hover:text-finder-red/70">Dashboard</Link>
+            <Link href="/finder/browse-requests" className="hover:text-finder-red/70">Browse Requests</Link>
+            <Link href="/finder/proposals" className="hover:text-finder-red/70">My Proposals</Link>
             <div className="relative group">
-              <button className="flex items-center space-x-1 hover:text-red-200">
+              <button className="flex items-center space-x-1 hover:text-finder-red/70">
                 <span>{user?.firstName} {user?.lastName}</span>
               </button>
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 invisible group-hover:visible">
@@ -259,9 +259,9 @@ export default function FinderProposalDetails() {
             )}
 
             {proposal.status === 'rejected' && (
-              <Card className="mt-6 border-red-200">
+              <Card className="mt-6 border-finder-red/30">
                 <CardHeader>
-                  <CardTitle className="text-lg text-red-700">Proposal Not Selected</CardTitle>
+                  <CardTitle className="text-lg text-finder-red-dark">Proposal Not Selected</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-700 mb-4">

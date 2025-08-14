@@ -35,7 +35,7 @@ export default function BrowseRequests() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading requests...</p>
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function BrowseRequests() {
                     
                     <div className="flex justify-end pt-2">
                       <Link href={`/finder/requests/${request.id}`}>
-                        <Button className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto">
+                        <Button className="bg-finder-red hover:bg-finder-red-dark text-white w-full sm:w-auto">
                           <span className="sm:hidden">View</span>
                           <span className="hidden sm:inline">View Details</span>
                         </Button>

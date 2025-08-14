@@ -98,7 +98,7 @@ export default function Register() {
                 <p className="text-gray-600 mb-6">
                   Create an account to find products and services for clients.
                 </p>
-                <div className="bg-red-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <div className="bg-finder-red rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                   <User className="w-8 h-8 text-white" />
                 </div>
               </div>
@@ -170,7 +170,7 @@ export default function Register() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-red-600 hover:bg-red-700 text-white py-3 font-medium"
+                  className="w-full bg-finder-red hover:bg-finder-red-dark text-white py-3 font-medium"
                   disabled={isLoading}
                 >
                   {isLoading ? "Creating Account..." : "Sign Up"}
@@ -178,7 +178,7 @@ export default function Register() {
 
                 <p className="text-center text-gray-600">
                   Already have an account?{" "}
-                  <Link href="/login" className="text-red-600 hover:underline font-medium">
+                  <Link href="/login" className="text-finder-red hover:underline font-medium">
                     Log In
                   </Link>
                 </p>
@@ -203,7 +203,7 @@ export default function Register() {
               <p className="text-gray-600 mb-6">
                 Join FinderMeister and start connecting with opportunities.
               </p>
-              <div className="bg-red-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <div className="bg-finder-red rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <User className="w-8 h-8 text-white" />
               </div>
             </div>
@@ -279,7 +279,7 @@ export default function Register() {
 
               <Button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 font-medium"
+                className="w-full bg-finder-red hover:bg-finder-red-dark text-white py-3 font-medium"
                 disabled={isLoading}
               >
                 {isLoading ? "Creating Account..." : "Create Account"}
@@ -287,7 +287,7 @@ export default function Register() {
 
               <p className="text-center text-gray-600">
                 Already have an account?{" "}
-                <Link href="/login" className="text-red-600 hover:underline font-medium">
+                <Link href="/login" className="text-finder-red hover:underline font-medium">
                   Log In
                 </Link>
               </p>

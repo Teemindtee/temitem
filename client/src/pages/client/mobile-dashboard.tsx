@@ -18,7 +18,7 @@ export default function ClientMobileDashboard() {
       {/* Mobile Phone Frame - Match exact mockup */}
       <div className="max-w-sm mx-auto min-h-screen bg-white shadow-2xl border border-gray-200 rounded-2xl overflow-hidden relative mt-4">
         {/* User Profile Section */}
-        <div className="bg-red-600 px-4 py-3 flex items-center justify-between">
+        <div className="bg-finder-red px-4 py-3 flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3 shadow-sm">
               <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center">
@@ -37,12 +37,12 @@ export default function ClientMobileDashboard() {
             {/* Post a Request - Top Left */}
             <Link href="/client/create-request">
               <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                   <div className="flex flex-col items-center">
                     <div className="w-8 h-1 bg-white rounded mb-1"></div>
                     <div className="w-6 h-1 bg-white rounded mb-1"></div>
                     <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                      <span className="text-red-600 text-xs font-bold">+</span>
+                      <span className="text-finder-red text-xs font-bold">+</span>
                     </div>
                   </div>
                 </div>
@@ -56,7 +56,7 @@ export default function ClientMobileDashboard() {
             {/* View Proposals - Top Right */}
             <Link href="/client/proposals">
               <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                   <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center relative">
                     <div className="w-3 h-3 bg-white rounded-full"></div>
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full"></div>
@@ -75,7 +75,7 @@ export default function ClientMobileDashboard() {
             {/* My Contracts - Bottom Left */}
             <Link href="/client/browse-requests">
               <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                   <div className="flex flex-col space-y-1">
                     <div className="w-8 h-1 bg-white rounded"></div>
                     <div className="w-6 h-1 bg-white rounded"></div>
@@ -92,7 +92,7 @@ export default function ClientMobileDashboard() {
             {/* Settings - Bottom Right */}
             <Link href="/client/profile">
               <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
+                <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                   <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center relative">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                     <div className="absolute -top-1 w-1 h-3 bg-white rounded"></div>

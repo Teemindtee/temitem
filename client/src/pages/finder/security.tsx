@@ -154,7 +154,7 @@ export default function SecuritySettings() {
               <Button 
                 onClick={handlePasswordChange}
                 disabled={!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword || changePasswordMutation.isPending}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-finder-red hover:bg-finder-red-dark"
               >
                 Update Password
               </Button>

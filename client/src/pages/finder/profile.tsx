@@ -76,7 +76,7 @@ export default function FinderProfile() {
     return Array.from({ length: 5 }, (_, i) => (
       <Star 
         key={i} 
-        className={`w-6 h-6 ${i < rating ? 'text-red-600 fill-current' : 'text-gray-300'}`} 
+        className={`w-6 h-6 ${i < rating ? 'text-finder-red fill-current' : 'text-gray-300'}`} 
       />
     ));
   };
@@ -87,7 +87,7 @@ export default function FinderProfile() {
         <FinderHeader currentPage="profile" />
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading profile...</p>
           </div>
         </div>
@@ -107,7 +107,7 @@ export default function FinderProfile() {
           <div className="max-w-md mx-auto mb-8">
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
               {/* Red Header */}
-              <div className="bg-red-600 px-8 py-6 text-center">
+              <div className="bg-finder-red px-8 py-6 text-center">
                 <h1 className="text-white text-2xl font-bold">FinderMeister</h1>
               </div>
               
@@ -154,7 +154,7 @@ export default function FinderProfile() {
                 </div>
                 
                 {/* Hire Button */}
-                <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 text-lg rounded-xl">
+                <Button className="w-full bg-finder-red hover:bg-finder-red-dark text-white font-bold py-4 text-lg rounded-xl">
                   Edit Profile
                 </Button>
               </div>
@@ -175,7 +175,7 @@ export default function FinderProfile() {
             {finder && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">{finder.jobsCompleted || 0}</div>
+                  <div className="text-2xl font-bold text-finder-red">{finder.jobsCompleted || 0}</div>
                   <div className="text-sm text-gray-600">Jobs Completed</div>
                 </div>
                 <div className="text-center">
@@ -268,7 +268,7 @@ export default function FinderProfile() {
                 <Button 
                   onClick={handleUpdateProfile}
                   disabled={updateProfileMutation.isPending}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white"
+                  className="w-full bg-finder-red hover:bg-finder-red-dark text-white"
                 >
                   {updateProfileMutation.isPending ? (
                     <>

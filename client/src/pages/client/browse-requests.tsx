@@ -40,7 +40,7 @@ export default function BrowseRequests() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading requests...</p>
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function BrowseRequests() {
           <h1 className="text-4xl font-bold text-gray-900 mb-6">My Requests</h1>
           <Button 
             onClick={() => setShowFilters(!showFilters)}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2"
+            className="bg-finder-red hover:bg-finder-red-dark text-white px-6 py-2"
           >
             Filter
           </Button>

@@ -45,7 +45,7 @@ export default function AdminRequests() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
           <p className="text-gray-600 mt-4">Loading requests...</p>
         </div>
       </div>
@@ -202,7 +202,7 @@ export default function AdminRequests() {
                                 <MessageCircle className="w-4 h-4 mr-2" />
                                 Contact Client
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600" onClick={() => toast({ title: "Flag Request", description: "Feature coming soon" })}>
+                              <DropdownMenuItem className="text-finder-red" onClick={() => toast({ title: "Flag Request", description: "Feature coming soon" })}>
                                 <Flag className="w-4 h-4 mr-2" />
                                 Flag Request
                               </DropdownMenuItem>
@@ -266,7 +266,7 @@ export default function AdminRequests() {
                                 <MessageCircle className="w-4 h-4 mr-2" />
                                 Contact Client
                               </DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600" onClick={() => toast({ title: "Flag Request", description: "Feature coming soon" })}>
+                              <DropdownMenuItem className="text-finder-red" onClick={() => toast({ title: "Flag Request", description: "Feature coming soon" })}>
                                 <Flag className="w-4 h-4 mr-2" />
                                 Flag Request
                               </DropdownMenuItem>

@@ -33,7 +33,7 @@ const priorityLevels = [
   { value: "low", label: "Low - General question", color: "text-green-600" },
   { value: "medium", label: "Medium - Account issue", color: "text-yellow-600" },
   { value: "high", label: "High - Can't access service", color: "text-orange-600" },
-  { value: "urgent", label: "Urgent - Payment/security issue", color: "text-red-600" }
+  { value: "urgent", label: "Urgent - Payment/security issue", color: "text-finder-red" }
 ];
 
 export default function ContactSupport() {
@@ -199,7 +199,7 @@ export default function ContactSupport() {
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-red-600 hover:bg-red-700"
+                    className="w-full bg-finder-red hover:bg-finder-red-dark"
                     disabled={submitTicket.isPending}
                   >
                     {submitTicket.isPending ? "Submitting..." : "Submit Support Ticket"}
@@ -218,7 +218,7 @@ export default function ContactSupport() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <Mail className="w-5 h-5 text-red-600 mt-0.5" />
+                  <Mail className="w-5 h-5 text-finder-red mt-0.5" />
                   <div>
                     <p className="font-medium">Email Support</p>
                     <p className="text-sm text-gray-600">support@findermeister.com</p>
@@ -226,7 +226,7 @@ export default function ContactSupport() {
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <Phone className="w-5 h-5 text-red-600 mt-0.5" />
+                  <Phone className="w-5 h-5 text-finder-red mt-0.5" />
                   <div>
                     <p className="font-medium">Phone Support</p>
                     <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
@@ -258,7 +258,7 @@ export default function ContactSupport() {
                   <span className="text-sm"><strong>High:</strong> 4-8 hours</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-finder-red/100 rounded-full"></div>
                   <span className="text-sm"><strong>Urgent:</strong> 1-2 hours</span>
                 </div>
               </CardContent>

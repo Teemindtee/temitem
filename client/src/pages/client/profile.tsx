@@ -151,7 +151,7 @@ export default function ClientProfile() {
                 <Link href="/client/dashboard">
                   <Button variant="outline">Cancel</Button>
                 </Link>
-                <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white">
+                <Button type="submit" className="bg-finder-red hover:bg-finder-red-dark text-white">
                   Save Changes
                 </Button>
               </div>

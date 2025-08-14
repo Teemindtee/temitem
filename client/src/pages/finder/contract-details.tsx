@@ -59,7 +59,7 @@ export default function FinderContractDetails() {
         <FinderHeader />
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading contract details...</p>
           </div>
         </div>
@@ -233,7 +233,7 @@ export default function FinderContractDetails() {
                   
                   <div className="pt-4">
                     <Link href={`/orders/submit/${contract.id}`}>
-                      <Button className="bg-red-600 hover:bg-red-700 text-white">
+                      <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
                         <Upload className="w-4 h-4 mr-2" />
                         Submit Work
                       </Button>
