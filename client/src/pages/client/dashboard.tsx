@@ -106,21 +106,18 @@ export default function ClientDashboard() {
                 </div>
               </Link>
 
-              {/* Messages - Bottom Left */}
-              <Link href="/messages">
+              {/* Contracts - Bottom Left */}
+              <Link href="/client/contracts">
                 <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mb-3 shadow-sm">
                     <div className="w-8 h-6 border-2 border-white rounded-lg flex flex-col justify-center items-center relative">
                       <div className="w-4 h-0.5 bg-white rounded mb-0.5"></div>
                       <div className="w-3 h-0.5 bg-white rounded mb-0.5"></div>
                       <div className="w-5 h-0.5 bg-white rounded"></div>
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 border-2 border-white rounded-full flex items-center justify-center">
-                        <div className="w-1 h-1 bg-white rounded-full"></div>
-                      </div>
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-gray-900 font-semibold text-sm leading-tight">Messages</div>
+                    <div className="text-gray-900 font-semibold text-sm leading-tight">Contracts</div>
                   </div>
                 </div>
               </Link>

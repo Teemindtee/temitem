@@ -39,11 +39,12 @@ export default function StartConversationButton({
         description: "Conversation started successfully.",
       });
     },
-    onError: () => {
+    onError: (error: any) => {
+      console.error('Conversation creation error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to start conversation. Please try again.",
+        description: error?.message || "Failed to start conversation. Please try again.",
       });
     }
   });

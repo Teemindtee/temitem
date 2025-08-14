@@ -14,6 +14,7 @@ import RequestDetails from "@/pages/client/request-details";
 import ViewProposals from "@/pages/client/view-proposals";
 import ClientBrowseRequests from "@/pages/client/browse-requests";
 import ClientProfile from "@/pages/client/profile";
+import ClientContracts from "@/pages/client/contracts";
 import ChangePassword from "@/pages/client/change-password";
 import FinderDashboard from "@/pages/finder/dashboard";
 import FinderBrowseRequests from "@/pages/finder/browse-requests";
@@ -57,6 +58,7 @@ function Router() {
       <Route path="/client/requests/:id" component={RequestDetails} />
       <Route path="/client/proposals" component={ViewProposals} />
       <Route path="/client/proposals/:id" component={ProposalDetail} />
+      <Route path="/client/contracts" component={ClientContracts} />
       <Route path="/client/browse-requests" component={ClientBrowseRequests} />
       <Route path="/client/profile" component={ClientProfile} />
       <Route path="/client/change-password" component={ChangePassword} />
