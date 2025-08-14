@@ -477,6 +477,19 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(contracts.createdAt));
   }
 
+  async getCompletedContractsByFinder(finderId: string): Promise<Contract[]> {
+    return await db
+      .select()
+      .from(contracts)
+      .where(
+        and(
+          eq(contracts.finderId, finderId),
+          eq(contracts.isCompleted, true)
+        )
+      )
+      .orderBy(desc(contracts.completedAt));
+  }
+
   async createContract(insertContract: InsertContract): Promise<Contract> {
     const [contract] = await db
       .insert(contracts)

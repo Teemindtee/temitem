@@ -1440,8 +1440,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get user information as well
       const user = await storage.getUser(req.user.userId);
       
+      // Calculate completed jobs from contracts
+      const completedContracts = await storage.getCompletedContractsByFinder(finder.id);
+      
       res.json({
         ...finder,
+        completedJobs: completedContracts.length,
         user: user ? {
           firstName: user.firstName,
           lastName: user.lastName,
