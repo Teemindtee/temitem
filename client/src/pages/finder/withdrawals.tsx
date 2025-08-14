@@ -53,10 +53,7 @@ export default function WithdrawalSettings() {
   }, [withdrawalSettings]);
 
   const updateSettingsMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/finder/withdrawal-settings', {
-      method: 'PUT',
-      body: data,
-    }),
+    mutationFn: (data: any) => apiRequest('PUT', '/api/finder/withdrawal-settings', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/withdrawal-settings'] });
       toast({
@@ -74,13 +71,10 @@ export default function WithdrawalSettings() {
   });
 
   const requestWithdrawalMutation = useMutation({
-    mutationFn: (amount: number) => apiRequest('/api/finder/withdraw', {
-      method: 'POST',
-      body: { 
-        amount,
-        paymentMethod: 'bank_transfer',
-        paymentDetails: formData 
-      },
+    mutationFn: (amount: number) => apiRequest('POST', '/api/finder/withdraw', { 
+      amount,
+      paymentMethod: 'bank_transfer',
+      paymentDetails: formData 
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/withdrawals'] });
