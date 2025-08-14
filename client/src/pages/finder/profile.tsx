@@ -8,10 +8,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FinderHeader } from "@/components/finder-header";
+import { FinderLevelBadge } from "@/components/finder-level-badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Save, Award } from "lucide-react";
+import { Save, Award, Star, User } from "lucide-react";
 import type { Finder } from "@shared/schema";
 
 export default function FinderProfile() {
@@ -70,6 +71,16 @@ export default function FinderProfile() {
     updateProfileMutation.mutate(formData);
   };
 
+  // Get star rating display
+  const getStarRating = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star 
+        key={i} 
+        className={`w-6 h-6 ${i < rating ? 'text-red-600 fill-current' : 'text-gray-300'}`} 
+      />
+    ));
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -91,16 +102,72 @@ export default function FinderProfile() {
       <FinderHeader currentPage="profile" />
       
       <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h1>
-          <p className="text-gray-600">Update your professional profile information</p>
-        </div>
+        {/* Beautiful Profile Card - Like the Design */}
+        {finder && (
+          <div className="max-w-md mx-auto mb-8">
+            <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+              {/* Red Header */}
+              <div className="bg-red-600 px-8 py-6 text-center">
+                <h1 className="text-white text-2xl font-bold">FinderMeister</h1>
+              </div>
+              
+              {/* Profile Content */}
+              <div className="px-8 py-8 text-center bg-white">
+                {/* Profile Picture Placeholder */}
+                <div className="relative inline-block mb-6">
+                  <div className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center">
+                    <User className="w-16 h-16 text-gray-400" />
+                  </div>
+                  {/* Level Badge */}
+                  <div className="absolute -bottom-2 -right-2">
+                    <FinderLevelBadge 
+                      completedJobs={finder.jobsCompleted || 0} 
+                      className="text-sm px-3 py-1"
+                    />
+                  </div>
+                </div>
+                
+                {/* Name */}
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">{fullName}</h2>
+                
+                {/* Stars */}
+                <div className="flex justify-center mb-4">
+                  {getStarRating(Math.round(parseFloat(finder.averageRating || "5.0")))}
+                </div>
+                
+                {/* Completed Jobs */}
+                <p className="text-lg text-gray-600 mb-4 font-medium">
+                  {finder.jobsCompleted || 0} Completed Finds
+                </p>
+                
+                {/* Testimonials/Bio */}
+                <div className="space-y-2 mb-8">
+                  {finder.bio && (
+                    <p className="text-gray-700 italic">"{finder.bio}"</p>
+                  )}
+                  {!finder.bio && (
+                    <>
+                      <p className="text-gray-700 italic">"Extremely reliable and efficient"</p>
+                      <p className="text-gray-700 italic">"Went above and beyond to help me out!"</p>
+                    </>
+                  )}
+                </div>
+                
+                {/* Hire Button */}
+                <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 text-lg rounded-xl">
+                  Edit Profile
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
+        {/* Profile Settings Form */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Award className="w-5 h-5" />
-              Your Profile
+              Profile Settings
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -178,9 +245,9 @@ export default function FinderProfile() {
                   id="bio"
                   value={formData.bio}
                   onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                  placeholder="Tell clients about yourself, your experience, and what makes you unique..."
-                  rows={4}
+                  placeholder="Tell us about your experience and expertise"
                   className="mt-1"
+                  rows={4}
                 />
               </div>
 
@@ -191,20 +258,29 @@ export default function FinderProfile() {
                   id="skills"
                   value={formData.skills}
                   onChange={(e) => setFormData(prev => ({ ...prev, skills: e.target.value }))}
-                  placeholder="e.g., Research, Data Analysis, Web Scraping, Market Research"
+                  placeholder="e.g., Research, Web Development, Content Writing"
                   className="mt-1"
                 />
               </div>
 
               {/* Update Button */}
-              <div className="flex justify-end pt-6 border-t">
+              <div className="pt-4">
                 <Button 
-                  onClick={handleUpdateProfile} 
+                  onClick={handleUpdateProfile}
                   disabled={updateProfileMutation.isPending}
-                  className="bg-green-600 hover:bg-green-700 px-8"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white"
                 >
-                  <Save className="w-4 h-4 mr-2" />
-                  {updateProfileMutation.isPending ? 'Updating...' : 'Update Profile'}
+                  {updateProfileMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 mr-2" />
+                      Update Profile
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
