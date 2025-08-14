@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { MessageCircle, Clock, CheckCircle, DollarSign } from "lucide-react";
+import { Clock, CheckCircle, DollarSign } from "lucide-react";
 import ClientHeader from "@/components/client-header";
+import StartConversationButton from "@/components/StartConversationButton";
 
 interface Contract {
   id: string;
@@ -117,12 +118,11 @@ export default function ClientContracts() {
                   </p>
 
                   <div className="flex items-center gap-3">
-                    <Link href={`/messages?proposalId=${contract.proposalId}`}>
-                      <Button variant="outline" size="sm">
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Message Finder
-                      </Button>
-                    </Link>
+                    <StartConversationButton 
+                      proposalId={contract.proposalId}
+                      finderName={contract.finder?.name || "Finder"}
+                      variant="outline"
+                    />
                     
                     {!contract.isCompleted && (
                       <Link href={`/client/contracts/${contract.id}`}>
