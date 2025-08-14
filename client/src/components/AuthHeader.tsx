@@ -29,20 +29,20 @@ export function AuthHeader({ currentPage }: AuthHeaderProps) {
             Browse Requests
           </Link>
           <Link 
-            href="/register" 
-            className={`hover:underline transition-all duration-200 ${
-              currentPage === 'register' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''
-            }`}
-          >
-            Sign Up
-          </Link>
-          <Link 
             href="/login" 
             className={`hover:underline transition-all duration-200 ${
               currentPage === 'login' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''
             }`}
           >
             Log In
+          </Link>
+          <Link 
+            href="/register" 
+            className={`hover:underline transition-all duration-200 ${
+              currentPage === 'register' ? 'bg-white text-finder-red px-3 py-1 rounded font-medium' : ''
+            }`}
+          >
+            Sign Up
           </Link>
         </nav>
 
@@ -71,15 +71,6 @@ export function AuthHeader({ currentPage }: AuthHeaderProps) {
               Browse Requests
             </Link>
             <Link 
-              href="/register" 
-              className={`hover:bg-finder-red-dark px-3 py-2 rounded transition-colors duration-200 ${
-                currentPage === 'register' ? 'bg-white text-finder-red font-medium' : ''
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sign Up
-            </Link>
-            <Link 
               href="/login" 
               className={`hover:bg-finder-red-dark px-3 py-2 rounded transition-colors duration-200 ${
                 currentPage === 'login' ? 'bg-white text-finder-red font-medium' : ''
@@ -87,6 +78,15 @@ export function AuthHeader({ currentPage }: AuthHeaderProps) {
               onClick={() => setIsMenuOpen(false)}
             >
               Log In
+            </Link>
+            <Link 
+              href="/register" 
+              className={`hover:bg-finder-red-dark px-3 py-2 rounded transition-colors duration-200 ${
+                currentPage === 'register' ? 'bg-white text-finder-red font-medium' : ''
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Sign Up
             </Link>
           </nav>
         </div>
