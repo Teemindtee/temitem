@@ -42,7 +42,7 @@ export default function ClientContracts() {
 
       <div className="max-w-4xl mx-auto py-8 px-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Contracts</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Contracts</h1>
           <p className="text-gray-600">Track your active and completed contracts with finders.</p>
         </div>
 
