@@ -48,6 +48,7 @@ import OrderSubmission from "@/pages/order-submission";
 import OrderReview from "@/pages/order-review";
 import HelpCenter from "@/pages/support/help-center";
 import ContactSupport from "@/pages/support/contact";
+import BrowseRequests from "@/pages/BrowseRequests";
 import { AuthProvider } from "@/hooks/use-auth";
 
 function Router() {
@@ -55,6 +56,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Landing} />
       <Route path="/mobile" component={MobileLanding} />
+      <Route path="/browse-requests" component={BrowseRequests} />
       <Route path="/client/mobile-dashboard" component={ClientMobileDashboard} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Handshake } from "lucide-react";
+import { AuthHeader } from "@/components/AuthHeader";
 
 export default function Login() {
   const [, navigate] = useLocation();
@@ -45,24 +45,11 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
-            <span className="text-xl font-bold">FinderMeister</span>
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <a href="#" className="hover:underline">Browse Requests</a>
-            <Link href="/register" className="hover:underline">Sign Up</Link>
-            <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Log In</span>
-          </nav>
-        </div>
-      </header>
+      <AuthHeader currentPage="login" />
 
       {/* Login Section */}
-      <section className="py-16">
-        <div className="max-w-md mx-auto px-6">
+      <section className="py-8 sm:py-16">
+        <div className="max-w-md mx-auto px-4 sm:px-6">
           <div className="bg-white rounded-lg shadow-sm border p-8">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Log In</h1>

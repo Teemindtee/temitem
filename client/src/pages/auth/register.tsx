@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Handshake, User } from "lucide-react";
+import { AuthHeader } from "@/components/AuthHeader";
+import { User } from "lucide-react";
 
 export default function Register() {
   const [, navigate] = useLocation();
@@ -87,22 +88,10 @@ export default function Register() {
   if (userType === 'finder') {
     return (
       <div className="min-h-screen bg-gray-50">
-        <header className="bg-red-600 text-white px-6 py-4">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2">
-              <Handshake className="w-6 h-6" />
-              <span className="text-xl font-bold">FinderMeister</span>
-            </Link>
-            <nav className="flex items-center space-x-6">
-              <a href="#" className="hover:underline">How it Works</a>
-              <Link href="/login" className="hover:underline">Log In</Link>
-              <span className="bg-white text-red-600 px-3 py-1 rounded font-medium">Sign Up</span>
-            </nav>
-          </div>
-        </header>
+        <AuthHeader currentPage="register" />
 
-        <section className="py-16">
-          <div className="max-w-md mx-auto px-6">
+        <section className="py-8 sm:py-16">
+          <div className="max-w-md mx-auto px-4 sm:px-6">
             <div className="bg-white rounded-lg shadow-sm border p-8">
               <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Sign Up as a Finder</h1>
@@ -204,22 +193,10 @@ export default function Register() {
   // General registration page with role selection
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-red-600 text-white px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
-            <span className="text-xl font-bold">FinderMeister</span>
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <a href="#" className="hover:underline">Browse Requests</a>
-            <Link href="/register" className="hover:underline">Sign Up</Link>
-            <Link href="/login" className="hover:underline">Log In</Link>
-          </nav>
-        </div>
-      </header>
+      <AuthHeader currentPage="register" />
 
-      <section className="py-16">
-        <div className="max-w-md mx-auto px-6">
+      <section className="py-8 sm:py-16">
+        <div className="max-w-md mx-auto px-4 sm:px-6">
           <div className="bg-white rounded-lg shadow-sm border p-8">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
