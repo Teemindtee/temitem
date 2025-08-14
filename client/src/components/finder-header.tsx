@@ -23,7 +23,8 @@ import {
   Menu,
   FileText,
   Search,
-  Home
+  Home,
+  MessageCircle
 } from "lucide-react";
 
 interface FinderHeaderProps {
@@ -128,6 +129,13 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              
+              <DropdownMenuItem asChild>
+                <Link href="/messages" className="flex items-center cursor-pointer">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  Messages
+                </Link>
+              </DropdownMenuItem>
               
               <DropdownMenuItem asChild>
                 <Link href="/finder/profile" className="flex items-center cursor-pointer">
