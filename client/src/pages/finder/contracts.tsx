@@ -6,27 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { FinderHeader } from "@/components/finder-header";
 import { SupportWidget } from "@/components/support-widget";
 import { useAuth } from "@/hooks/use-auth";
-import { DollarSign, Clock, CheckCircle, Upload, ExternalLink } from "lucide-react";
+import { DollarSign, Clock, CheckCircle, Upload, ExternalLink, MapPin } from "lucide-react";
+import type { Find } from "@shared/schema";
 
-interface Contract {
-  id: string;
-  requestId: string;
-  amount: number;
-  escrowStatus: string;
-  isCompleted: boolean;
-  hasSubmission: boolean;
-  createdAt: string;
-  request: {
-    title: string;
-    description: string;
-  };
-}
+
 
 export default function FinderContracts() {
   const { user } = useAuth();
 
-  const { data: contracts = [], isLoading } = useQuery<Contract[]>({
-    queryKey: ['/api/finder/contracts'],
+  const { data: finds = [], isLoading } = useQuery<Find[]>({
+    queryKey: ['/api/finder/finds'],
     enabled: !!user
   });
 
@@ -37,32 +26,14 @@ export default function FinderContracts() {
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
-            <p className="text-gray-600 mt-4">Loading your contracts...</p>
+            <p className="text-gray-600 mt-4">Loading available finds...</p>
           </div>
         </div>
       </div>
     );
   }
 
-  const getStatusBadge = (contract: Contract) => {
-    if (contract.isCompleted) {
-      return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
-    }
-    if (contract.hasSubmission) {
-      return <Badge className="bg-yellow-100 text-yellow-800">Under Review</Badge>;
-    }
-    return <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>;
-  };
 
-  const getTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays}d ago`;
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -70,37 +41,39 @@ export default function FinderContracts() {
 
       <div className="max-w-6xl mx-auto py-8 px-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Contracts</h1>
-          <p className="text-gray-600">Manage your active projects and submit completed work.</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Available Finds</h1>
+          <p className="text-gray-600">Browse and submit proposals for available opportunities.</p>
         </div>
 
-        {contracts.length === 0 ? (
+        {finds.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No contracts yet</h3>
-              <p className="text-gray-600 mb-6">When clients accept your proposals, contracts will appear here.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No finds available</h3>
+              <p className="text-gray-600 mb-6">Check back later for new opportunities to earn.</p>
               <Link href="/finder/dashboard">
-                <Button>View Available Finds</Button>
+                <Button>Back to Dashboard</Button>
               </Link>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-6">
-            {contracts.map((contract) => (
-              <Link key={contract.id} href={`/finder/contracts/${contract.id}`}>
+            {finds.map((find) => (
+              <Link key={find.id} href={`/finder/finds/${find.id}`}>
                 <Card className="border hover:shadow-md transition-shadow cursor-pointer">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <CardTitle className="text-xl text-gray-900 mb-2">
-                          {contract.request.title}
+                          {find.title}
                         </CardTitle>
                         <p className="text-gray-600 line-clamp-2">
-                          {contract.request.description}
+                          {find.description}
                         </p>
                       </div>
-                      {getStatusBadge(contract)}
+                      <Badge variant={find.status === 'open' ? 'default' : 'secondary'}>
+                        {find.status}
+                      </Badge>
                     </div>
                   </CardHeader>
                 <CardContent>
@@ -108,43 +81,22 @@ export default function FinderContracts() {
                     <div className="flex items-center space-x-6">
                       <div className="flex items-center text-green-600">
                         <DollarSign className="w-5 h-5 mr-1" />
-                        <span className="font-semibold text-lg">${contract.amount}</span>
+                        <span className="font-semibold text-lg">${find.budgetMin} - ${find.budgetMax}</span>
                       </div>
                       <div className="flex items-center text-gray-600 text-sm">
                         <Clock className="w-4 h-4 mr-1" />
-                        Started {getTimeAgo(contract.createdAt)}
+                        {find.timeframe || "Flexible"}
+                      </div>
+                      <div className="flex items-center text-gray-600 text-sm">
+                        <MapPin className="w-4 h-4 mr-1" />
+                        {find.category}
                       </div>
                     </div>
-
-                    <div className="flex items-center space-x-3" onClick={(e) => e.stopPropagation()}>
-                      {contract.isCompleted ? (
-                        <Button variant="outline" disabled>
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Completed
-                        </Button>
-                      ) : contract.hasSubmission ? (
-                        <div className="flex space-x-2">
-                          <Button variant="outline" disabled>
-                            <Clock className="w-4 h-4 mr-2" />
-                            Under Review
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={(e) => {
-                            e.preventDefault();
-                            window.location.href = `/orders/submit/${contract.id}`;
-                          }}>
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            View Submission
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button className="bg-finder-red hover:bg-finder-red-dark text-white" onClick={(e) => {
-                          e.preventDefault();
-                          window.location.href = `/orders/submit/${contract.id}`;
-                        }}>
-                          <Upload className="w-4 h-4 mr-2" />
-                          Submit Work
-                        </Button>
-                      )}
+                    <div className="flex items-center space-x-3">
+                      <Badge variant="outline" className="text-orange-600 border-orange-200">
+                        {find.tokenCost} token{find.tokenCost !== 1 ? 's' : ''}
+                      </Badge>
+                      <ExternalLink className="w-4 h-4 text-gray-400" />
                     </div>
                   </div>
                 </CardContent>
