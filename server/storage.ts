@@ -1093,16 +1093,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(finders.id, finderId));
   }
 
-  // TODO: Implement real withdrawal settings storage
-  async getWithdrawalSettings(finderId: string): Promise<any> {
-    // For now, return default settings since we don't have a withdrawal_settings table
-    return {
-      minWithdrawal: 10,
-      maxWithdrawal: 1000,
-      methods: ['bank_transfer', 'paypal'],
-      processingTime: '3-5 business days'
-    };
-  }
+
 
   // Blog post operations
   async getBlogPosts(): Promise<BlogPost[]> {
