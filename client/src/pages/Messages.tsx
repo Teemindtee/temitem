@@ -74,73 +74,73 @@ export default function Messages() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">
-
-      {conversations.length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-            <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {user.role === 'client' 
-                ? "Start a conversation by messaging a finder who submitted a proposal to your request."
-                : "Conversations will appear here when clients message you about your proposals."
-              }
-            </p>
-            {user.role === 'client' && (
-              <Link href="/browse-requests">
-                <Button>Browse Requests</Button>
+        {conversations.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <MessageCircle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+              <h3 className="text-lg font-semibold mb-2">No conversations yet</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                {user.role === 'client' 
+                  ? "Start a conversation by messaging a finder who submitted a proposal to your request."
+                  : "Conversations will appear here when clients message you about your proposals."
+                }
+              </p>
+              {user.role === 'client' && (
+                <Link href="/browse-requests">
+                  <Button>Browse Requests</Button>
+                </Link>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {conversations.map((conversation) => (
+              <Link
+                key={conversation.id}
+                href={`/messages/${conversation.id}`}
+              >
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-3">
+                        <User className="w-8 h-8 p-1 bg-blue-100 dark:bg-blue-900 text-blue-600 rounded-full" />
+                        <div>
+                          <h3 className="font-semibold">
+                            {user.role === 'client' 
+                              ? `${conversation.finder?.user.firstName} ${conversation.finder?.user.lastName}`
+                              : `${conversation.client?.firstName} ${conversation.client?.lastName}`
+                            }
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Re: {conversation.proposal.request.title}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {conversation.unreadCount > 0 && (
+                          <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
+                            {conversation.unreadCount}
+                          </span>
+                        )}
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Clock className="w-4 h-4 mr-1" />
+                          {format(new Date(conversation.lastMessageAt), 'MMM d')}
+                        </div>
+                      </div>
+                    </div>
+                    {conversation.lastMessage && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                        {conversation.lastMessage.senderId === user?.id.toString() ? "You: " : ""}
+                        {conversation.lastMessage.content}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
               </Link>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {conversations.map((conversation) => (
-            <Link
-              key={conversation.id}
-              href={`/messages/${conversation.id}`}
-            >
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-3">
-                      <User className="w-8 h-8 p-1 bg-blue-100 dark:bg-blue-900 text-blue-600 rounded-full" />
-                      <div>
-                        <h3 className="font-semibold">
-                          {user.role === 'client' 
-                            ? `${conversation.finder?.user.firstName} ${conversation.finder?.user.lastName}`
-                            : `${conversation.client?.firstName} ${conversation.client?.lastName}`
-                          }
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Re: {conversation.proposal.request.title}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      {conversation.unreadCount > 0 && (
-                        <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
-                          {conversation.unreadCount}
-                        </span>
-                      )}
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Clock className="w-4 h-4 mr-1" />
-                        {format(new Date(conversation.lastMessageAt), 'MMM d')}
-                      </div>
-                    </div>
-                  </div>
-                  {conversation.lastMessage && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                      {conversation.lastMessage.senderId === user?.id ? "You: " : ""}
-                      {conversation.lastMessage.content}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
