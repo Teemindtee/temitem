@@ -59,6 +59,12 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
           >
             Browse Requests
           </Link>
+          <Link 
+            href="/finder/contracts" 
+            className={`hidden sm:inline hover:underline ${currentPage === 'contracts' ? 'font-semibold' : ''}`}
+          >
+            My Contracts
+          </Link>
 
           {/* User Dropdown Menu */}
           <DropdownMenu>

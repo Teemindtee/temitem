@@ -435,10 +435,27 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(contracts.createdAt));
   }
 
-  async getContractsByFinderId(finderId: string): Promise<Contract[]> {
+  async getContractsByFinderId(finderId: string): Promise<any[]> {
     return await db
-      .select()
+      .select({
+        id: contracts.id,
+        requestId: contracts.requestId,
+        proposalId: contracts.proposalId,
+        clientId: contracts.clientId,
+        finderId: contracts.finderId,
+        amount: contracts.amount,
+        escrowStatus: contracts.escrowStatus,
+        isCompleted: contracts.isCompleted,
+        hasSubmission: contracts.hasSubmission,
+        createdAt: contracts.createdAt,
+        completedAt: contracts.completedAt,
+        request: {
+          title: requests.title,
+          description: requests.description
+        }
+      })
       .from(contracts)
+      .leftJoin(requests, eq(contracts.requestId, requests.id))
       .where(eq(contracts.finderId, finderId))
       .orderBy(desc(contracts.createdAt));
   }

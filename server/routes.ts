@@ -586,6 +586,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Finder contracts endpoint
+  app.get("/api/finder/contracts", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: "Only finders can view their contracts" });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder profile not found" });
+      }
+
+      const contracts = await storage.getContractsByFinderId(finder.id);
+      res.json(contracts);
+    } catch (error) {
+      console.error('Failed to fetch finder contracts:', error);
+      res.status(500).json({ message: "Failed to fetch your contracts" });
+    }
+  });
+
   app.post("/api/proposals/:id/accept", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
