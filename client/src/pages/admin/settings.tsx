@@ -8,9 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import AdminHeader from "@/components/admin-header";
 import { 
-  ArrowLeft,
-  Settings, 
   Shield, 
   Plus,
   Edit,
@@ -208,28 +207,8 @@ export default function AdminSettings() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-red-600 text-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link href="/admin/dashboard">
-              <Button variant="ghost" className="text-white hover:bg-red-700 p-2">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div className="flex items-center space-x-2">
-              <Settings className="w-6 h-6" />
-              <span className="text-xl font-bold">Admin Settings</span>
-            </div>
-          </div>
-          <Link href="/admin/dashboard">
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-red-600">
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
-
+      <AdminHeader currentPage="settings" />
+      
       <div className="max-w-6xl mx-auto py-8 px-6 space-y-8">
         {/* Platform Settings */}
         <Card>
