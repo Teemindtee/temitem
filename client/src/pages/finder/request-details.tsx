@@ -212,7 +212,7 @@ export default function FinderRequestDetails() {
                       </div>
                     )}
                   </div>
-                ) : request.status === 'open' ? (
+                ) : find.status === 'open' ? (
                   // Show proposal form
                   <div>
                     {!showProposalForm ? (
@@ -311,12 +311,12 @@ export default function FinderRequestDetails() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Token Cost:</span>
-                  <span className="font-semibold">{request.tokenCost} token{request.tokenCost !== 1 ? 's' : ''}</span>
+                  <span className="font-semibold">{find.tokenCost} token{find.tokenCost !== 1 ? 's' : ''}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Posted:</span>
                   <span className="font-semibold">
-                    {request.createdAt ? new Date(request.createdAt).toLocaleDateString() : 'Unknown date'}
+                    {find.createdAt ? new Date(find.createdAt).toLocaleDateString() : 'Unknown date'}
                   </span>
                 </div>
               </CardContent>
