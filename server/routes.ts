@@ -11,6 +11,7 @@ import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertRevi
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { PaystackService, TOKEN_PACKAGES } from "./paymentService";
+import { emailService } from "./emailService";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -534,6 +535,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description: `Proposal submitted for request: ${proposal.requestId}`
       });
 
+      // Send email notification to client about new proposal
+      try {
+        const request = await storage.getRequest(proposal.requestId);
+        if (request) {
+          const clientUser = await storage.getUser(request.clientId);
+          const finderUser = await storage.getUser(req.user.userId);
+          
+          if (clientUser && finderUser) {
+            await emailService.notifyClientNewProposal(
+              clientUser.email,
+              `${finderUser.firstName} ${finderUser.lastName}`,
+              request.title,
+              proposal.price.toString()
+            );
+          }
+        }
+      } catch (emailError) {
+        console.error('Failed to send new proposal notification email:', emailError);
+      }
+
       res.status(201).json(proposal);
     } catch (error: any) {
       res.status(400).json({ message: "Failed to submit proposal", error: error.message });
@@ -648,6 +669,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
+      // Get finder and client details for email notification
+      const finder = await storage.getFinder(proposal.finderId);
+      const finderUser = finder ? await storage.getUser(finder.userId) : null;
+      const clientUser = await storage.getUser(request.clientId);
+
       // Update proposal status
       await storage.updateProposal(id, { status: 'accepted' });
 
@@ -663,6 +689,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Update request status to in progress
       await storage.updateRequest(proposal.requestId, { status: 'in progress' });
+
+      // Send email notification to finder about being hired
+      if (finderUser && clientUser) {
+        try {
+          await emailService.notifyFinderHired(
+            finderUser.email,
+            `${clientUser.firstName} ${clientUser.lastName}`,
+            request.title,
+            proposal.price.toString()
+          );
+        } catch (emailError) {
+          console.error('Failed to send hire notification email:', emailError);
+        }
+      }
 
       res.json({ proposal, contract });
     } catch (error) {
@@ -1297,7 +1337,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Message content or attachments are required" });
       }
 
-      // TODO: Add permission check to ensure user is part of the conversation
+      // Get conversation details for email notification
+      const conversation = await storage.getConversationById(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
 
       const message = await storage.createMessage({
         conversationId,
@@ -1306,6 +1350,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         attachmentPaths: attachmentPaths || [],
         attachmentNames: attachmentNames || []
       });
+
+      // Send email notification to the recipient
+      try {
+        const senderUser = await storage.getUser(req.user.userId);
+        const proposal = await storage.getProposal(conversation.proposalId);
+        const request = proposal ? await storage.getRequest(proposal.requestId) : null;
+
+        if (senderUser && request) {
+          // Determine recipient based on sender role
+          let recipientUserId: string;
+          if (req.user.role === 'client') {
+            // Client is sending message to finder
+            const finder = await storage.getFinder(conversation.finderId);
+            if (finder) {
+              recipientUserId = finder.userId;
+              const finderUser = await storage.getUser(recipientUserId);
+              if (finderUser) {
+                await emailService.notifyFinderNewMessage(
+                  finderUser.email,
+                  `${senderUser.firstName} ${senderUser.lastName}`,
+                  request.title
+                );
+              }
+            }
+          } else if (req.user.role === 'finder') {
+            // Finder is sending message to client
+            recipientUserId = conversation.clientId;
+            const clientUser = await storage.getUser(recipientUserId);
+            if (clientUser) {
+              await emailService.notifyClientNewMessage(
+                clientUser.email,
+                `${senderUser.firstName} ${senderUser.lastName}`,
+                request.title
+              );
+            }
+          }
+        }
+      } catch (emailError) {
+        console.error('Failed to send message notification email:', emailError);
+      }
 
       res.json(message);
     } catch (error) {
@@ -1922,6 +2006,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const submission = await storage.createOrderSubmission(submissionData);
+      
+      // Send email notification to client about order submission
+      try {
+        const contract = await storage.getContract(submissionData.contractId);
+        if (contract) {
+          const clientUser = await storage.getUser(contract.clientId);
+          const finderUser = await storage.getUser(req.user.userId);
+          const proposal = await storage.getProposal(contract.proposalId);
+          const request = proposal ? await storage.getRequest(proposal.requestId) : null;
+          
+          if (clientUser && finderUser && request) {
+            await emailService.notifyClientOrderSubmission(
+              clientUser.email,
+              `${finderUser.firstName} ${finderUser.lastName}`,
+              request.title
+            );
+          }
+        }
+      } catch (emailError) {
+        console.error('Failed to send order submission notification email:', emailError);
+      }
+      
       res.status(201).json(submission);
     } catch (error: any) {
       console.error('Error submitting order:', error);
@@ -1979,6 +2085,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (!updatedSubmission) {
         return res.status(404).json({ message: 'Submission not found' });
+      }
+
+      // Send email notification to finder about submission status
+      try {
+        const contract = await storage.getContract(updatedSubmission.contractId);
+        if (contract) {
+          const finder = await storage.getFinder(contract.finderId);
+          const finderUser = finder ? await storage.getUser(finder.userId) : null;
+          const clientUser = await storage.getUser(req.user.userId);
+          const proposal = await storage.getProposal(contract.proposalId);
+          const request = proposal ? await storage.getRequest(proposal.requestId) : null;
+
+          if (finderUser && clientUser && request) {
+            if (status === 'accepted') {
+              await emailService.notifyFinderSubmissionApproved(
+                finderUser.email,
+                `${clientUser.firstName} ${clientUser.lastName}`,
+                request.title,
+                contract.amount.toString()
+              );
+            } else if (status === 'rejected') {
+              await emailService.notifyFinderSubmissionRejected(
+                finderUser.email,
+                `${clientUser.firstName} ${clientUser.lastName}`,
+                request.title,
+                clientFeedback || 'No specific feedback provided'
+              );
+            }
+          }
+        }
+      } catch (emailError) {
+        console.error('Failed to send submission status notification email:', emailError);
       }
 
       res.json(updatedSubmission);

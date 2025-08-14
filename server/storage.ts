@@ -129,6 +129,7 @@ export interface IStorage {
 
   // Messaging operations
   getConversation(clientId: string, proposalId: string): Promise<Conversation | undefined>;
+  getConversationById(conversationId: string): Promise<Conversation | undefined>;
   createConversation(conversation: InsertConversation): Promise<Conversation>;
   getConversationsByClientId(clientId: string): Promise<Array<Conversation & {
     proposal: { request: { title: string; }; }; 
@@ -661,6 +662,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(conversations)
       .where(and(eq(conversations.clientId, clientId), eq(conversations.proposalId, proposalId)));
+    return conversation || undefined;
+  }
+
+  async getConversationById(conversationId: string): Promise<Conversation | undefined> {
+    const [conversation] = await db
+      .select()
+      .from(conversations)
+      .where(eq(conversations.id, conversationId));
     return conversation || undefined;
   }
 
