@@ -13,7 +13,7 @@ import {
   Settings,
   Edit
 } from "lucide-react";
-import type { User, Request, Proposal } from "@shared/schema";
+import type { User, Find, Proposal } from "@shared/schema";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -23,8 +23,8 @@ export default function AdminDashboard() {
     enabled: !!user && user.role === 'admin'
   });
 
-  const { data: requests = [], isLoading: requestsLoading } = useQuery<Request[]>({
-    queryKey: ['/api/admin/requests'],
+  const { data: finds = [], isLoading: findsLoading } = useQuery<Find[]>({
+    queryKey: ['/api/admin/finds'],
     enabled: !!user && user.role === 'admin'
   });
 
@@ -33,7 +33,7 @@ export default function AdminDashboard() {
     enabled: !!user && user.role === 'admin'
   });
 
-  if (usersLoading || requestsLoading || proposalsLoading) {
+  if (usersLoading || findsLoading || proposalsLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -47,8 +47,8 @@ export default function AdminDashboard() {
   const totalUsers = users.length;
   const clientCount = users.filter(u => u.role === 'client').length;
   const finderCount = users.filter(u => u.role === 'finder').length;
-  const totalRequests = requests.length;
-  const openRequests = requests.filter(r => r.status === 'open').length;
+  const totalFinds = finds.length;
+  const openFinds = finds.filter(f => f.status === 'open').length;
   const totalProposals = proposals.length;
   const pendingProposals = proposals.filter(p => p.status === 'pending').length;
 
@@ -81,9 +81,9 @@ export default function AdminDashboard() {
               <div className="bg-green-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-4">
                 <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Total Requests</h3>
-              <p className="text-xl sm:text-2xl font-bold text-green-600">{totalRequests}</p>
-              <p className="text-gray-600 text-xs sm:text-sm">{openRequests} currently open</p>
+              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Total Finds</h3>
+              <p className="text-xl sm:text-2xl font-bold text-green-600">{totalFinds}</p>
+              <p className="text-gray-600 text-xs sm:text-sm">{openFinds} currently open</p>
             </CardContent>
           </Card>
 
@@ -127,7 +127,7 @@ export default function AdminDashboard() {
               <Card className="hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="p-4 text-center">
                   <FileText className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-green-600" />
-                  <p className="text-xs sm:text-sm font-medium text-gray-900">View Requests</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-900">View Finds</p>
                 </CardContent>
               </Card>
             </Link>
@@ -220,24 +220,24 @@ export default function AdminDashboard() {
               </Link>
             </CardHeader>
             <CardContent className="space-y-3 sm:space-y-4">
-              {requests.length === 0 ? (
+              {finds.length === 0 ? (
                 <div className="text-center py-6 sm:py-8 text-gray-500">
                   <FileText className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-4 text-gray-300" />
-                  <p className="text-sm sm:text-base">No requests submitted yet.</p>
+                  <p className="text-sm sm:text-base">No finds submitted yet.</p>
                 </div>
               ) : (
-                requests.slice(-5).reverse().map((request: Request) => (
-                  <div key={request.id} className="flex items-center justify-between p-3 sm:p-4 border rounded-lg">
+                finds.slice(-5).reverse().map((find: Find) => (
+                  <div key={find.id} className="flex items-center justify-between p-3 sm:p-4 border rounded-lg">
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">{request.title}</h4>
-                      <p className="text-gray-600 text-xs sm:text-sm">Budget: ${request.budgetMin} - ${request.budgetMax}</p>
+                      <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">{find.title}</h4>
+                      <p className="text-gray-600 text-xs sm:text-sm">Budget: ${find.budgetMin} - ${find.budgetMax}</p>
                       <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full font-medium ${
-                        request.status === 'open' ? 'bg-green-100 text-green-700' :
-                        request.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                        request.status === 'completed' ? 'bg-purple-100 text-purple-700' :
+                        find.status === 'open' ? 'bg-green-100 text-green-700' :
+                        find.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                        find.status === 'completed' ? 'bg-purple-100 text-purple-700' :
                         'bg-gray-100 text-gray-700'
                       }`}>
-                        {request.status}
+                        {find.status}
                       </span>
                     </div>
                   </div>
