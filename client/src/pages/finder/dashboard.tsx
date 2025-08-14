@@ -6,13 +6,13 @@ import { FinderHeader } from "@/components/finder-header";
 import { SupportWidget } from "@/components/support-widget";
 import { useAuth } from "@/hooks/use-auth";
 import { Search, DollarSign, Clock, Trophy, Plus, Coins } from "lucide-react";
-import type { Request, Proposal, User } from "@shared/schema";
+import type { Find, Proposal, User } from "@shared/schema";
 
 export default function FinderDashboard() {
   const { user } = useAuth();
 
-  const { data: availableRequests = [], isLoading: requestsLoading } = useQuery<Request[]>({
-    queryKey: ['/api/finder/requests'],
+  const { data: availableFinds = [], isLoading: findsLoading } = useQuery<Find[]>({
+    queryKey: ['/api/finder/finds'],
     enabled: !!user
   });
 
@@ -26,7 +26,7 @@ export default function FinderDashboard() {
     enabled: !!user
   });
 
-  if (requestsLoading || proposalsLoading) {
+  if (findsLoading || proposalsLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <FinderHeader currentPage="dashboard" />
@@ -108,7 +108,7 @@ export default function FinderDashboard() {
               <p className="text-gray-600 mb-4 text-sm">Find new opportunities</p>
               <Link href="/finder/browse-requests">
                 <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
-                  Browse Requests
+                  Browse Finds
                 </Button>
               </Link>
             </CardContent>
@@ -119,31 +119,31 @@ export default function FinderDashboard() {
           {/* Available Requests */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-xl text-gray-900">New Requests</CardTitle>
+              <CardTitle className="text-xl text-gray-900">New Finds</CardTitle>
               <Link href="/finder/browse-requests">
                 <Button variant="outline" size="sm">View All</Button>
               </Link>
             </CardHeader>
             <CardContent className="space-y-4">
-              {availableRequests.length === 0 ? (
+              {availableFinds.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>No new requests available.</p>
+                  <p>No new finds available.</p>
                   <p className="text-sm">Check back soon for new opportunities!</p>
                 </div>
               ) : (
-                availableRequests.slice(0, 3).map((request: Request) => (
-                  <div key={request.id} className="border rounded-lg p-4">
+                availableFinds.slice(0, 3).map((find: Find) => (
+                  <div key={find.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-gray-900">{request.title}</h4>
+                      <h4 className="font-medium text-gray-900">{find.title}</h4>
                       <span className="bg-green-100 text-green-700 px-2 py-1 text-xs rounded-full font-medium">
                         New
                       </span>
                     </div>
-                    <p className="text-gray-600 text-sm mb-3">{request.description.substring(0, 100)}...</p>
+                    <p className="text-gray-600 text-sm mb-3">{find.description.substring(0, 100)}...</p>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">Budget: ${request.budgetMin} - ${request.budgetMax}</span>
-                      <Link href={`/finder/requests/${request.id}`}>
+                      <span className="text-gray-600 text-sm">Budget: ${find.budgetMin} - ${find.budgetMax}</span>
+                      <Link href={`/finder/finds/${find.id}`}>
                         <Button size="sm" className="bg-finder-red hover:bg-finder-red-dark">View</Button>
                       </Link>
                     </div>
@@ -167,7 +167,7 @@ export default function FinderDashboard() {
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>No proposals submitted yet.</p>
                   <Link href="/finder/browse-requests" className="text-finder-red hover:underline font-medium">
-                    Browse requests to get started
+                    Browse finds to get started
                   </Link>
                 </div>
               ) : (
