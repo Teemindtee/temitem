@@ -142,50 +142,50 @@ export default function AdminUsers() {
         {/* Page Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Users</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Users</h1>
             <p className="text-gray-600">Manage all registered users on the platform</p>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
           <Card>
-            <CardContent className="p-6 text-center">
-              <div className="bg-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-white" />
+            <CardContent className="p-4 sm:p-6 text-center">
+              <div className="bg-blue-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Total Users</h3>
-              <p className="text-2xl font-bold text-blue-600">{totalUsers}</p>
+              <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">Total Users</h3>
+              <p className="text-xl sm:text-2xl font-bold text-blue-600">{totalUsers}</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6 text-center">
-              <div className="bg-green-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <UserCheck className="w-6 h-6 text-white" />
+            <CardContent className="p-4 sm:p-6 text-center">
+              <div className="bg-green-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <UserCheck className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Clients</h3>
-              <p className="text-2xl font-bold text-green-600">{clientCount}</p>
+              <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">Clients</h3>
+              <p className="text-xl sm:text-2xl font-bold text-green-600">{clientCount}</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6 text-center">
-              <div className="bg-purple-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Search className="w-6 h-6 text-white" />
+            <CardContent className="p-4 sm:p-6 text-center">
+              <div className="bg-purple-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Search className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Finders</h3>
-              <p className="text-2xl font-bold text-purple-600">{finderCount}</p>
+              <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">Finders</h3>
+              <p className="text-xl sm:text-2xl font-bold text-purple-600">{finderCount}</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6 text-center">
-              <div className="bg-red-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-6 h-6 text-white" />
+            <CardContent className="p-4 sm:p-6 text-center">
+              <div className="bg-red-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Admins</h3>
-              <p className="text-2xl font-bold text-red-600">{adminCount}</p>
+              <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">Admins</h3>
+              <p className="text-xl sm:text-2xl font-bold text-red-600">{adminCount}</p>
             </CardContent>
           </Card>
         </div>
@@ -224,39 +224,40 @@ export default function AdminUsers() {
             ) : (
               <div className="space-y-4">
                 {filteredUsers.map((userData: User) => (
-                  <div key={userData.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center space-x-4 flex-1">
-                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                        <Users className="w-6 h-6 text-gray-600" />
+                  <div key={userData.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg hover:bg-gray-50 gap-4">
+                    <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Users className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" />
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-gray-900 truncate">
                           {userData.firstName} {userData.lastName}
                         </h4>
-                        <p className="text-gray-600 text-sm">{userData.email}</p>
+                        <p className="text-gray-600 text-sm truncate">{userData.email}</p>
                         {userData.phone && (
-                          <p className="text-gray-500 text-xs">{userData.phone}</p>
+                          <p className="text-gray-500 text-xs truncate">{userData.phone}</p>
                         )}
                       </div>
-                      <div className="flex items-center space-x-4">
+                      <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                         <Badge variant={
                           userData.role === 'admin' ? 'destructive' :
                           userData.role === 'finder' ? 'default' :
                           'secondary'
-                        }>
+                        } className="w-fit">
                           {userData.role}
                         </Badge>
                         <div className="flex items-center">
                           {userData.isVerified ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
+                            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                           ) : (
-                            <XCircle className="w-5 h-5 text-red-600" />
+                            <XCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                           )}
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2 ml-4">
+                    <div className="flex items-center justify-between sm:justify-end space-x-2 sm:ml-4">
                       <span className="text-sm text-gray-500">
+                        <span className="hidden sm:inline">Joined </span>
                         {new Date(userData.createdAt).toLocaleDateString()}
                       </span>
                       <DropdownMenu>
