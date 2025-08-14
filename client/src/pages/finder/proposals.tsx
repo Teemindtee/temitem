@@ -163,10 +163,10 @@ export default function FinderProposals() {
               <div className="text-center py-12">
                 <Clock className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No proposals yet</h3>
-                <p className="text-gray-600 mb-6">Start by browsing available requests and submitting your first proposal.</p>
-                <Link href="/finder/browse-requests">
+                <p className="text-gray-600 mb-6">Start by browsing available finds and submitting your first proposal.</p>
+                <Link href="/finder/browse-finds">
                   <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
-                    Browse Requests
+                    Browse Finds
                   </Button>
                 </Link>
               </div>

@@ -81,7 +81,7 @@ export default function FinderContracts() {
               <h3 className="text-lg font-medium text-gray-900 mb-2">No contracts yet</h3>
               <p className="text-gray-600 mb-6">When clients accept your proposals, contracts will appear here.</p>
               <Link href="/finder/dashboard">
-                <Button>View Available Requests</Button>
+                <Button>View Available Finds</Button>
               </Link>
             </CardContent>
           </Card>

@@ -37,7 +37,7 @@ const faqs: FAQ[] = [
   {
     id: "2",
     question: "How do I become a finder?",
-    answer: "To become a finder: 1) Click 'Register as Finder' on the homepage, 2) Complete your profile with skills, experience, and portfolio, 3) Purchase proposal tokens to submit proposals, 4) Browse available requests and submit proposals to win contracts.",
+    answer: "To become a finder: 1) Click 'Register as Finder' on the homepage, 2) Complete your profile with skills, experience, and portfolio, 3) Purchase proposal tokens to submit proposals, 4) Browse available finds and submit proposals to win contracts.",
     category: "Getting Started",
     tags: ["finder", "registration", "profile"]
   },
@@ -58,7 +58,7 @@ const faqs: FAQ[] = [
   {
     id: "5",
     question: "How do I message other users?",
-    answer: "Clients can initiate conversations with finders who have submitted proposals for their requests. Go to your request details, view proposals, and click 'Message' next to any finder. All conversations are linked to specific proposals for context.",
+    answer: "Clients can initiate conversations with finders who have submitted proposals for their finds. Go to your find details, view proposals, and click 'Message' next to any finder. All conversations are linked to specific proposals for context.",
     category: "Communication",
     tags: ["messaging", "communication", "proposals"]
   },
