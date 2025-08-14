@@ -56,11 +56,24 @@ export default function Messages() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Messages</h1>
-        <MessageCircle className="w-8 h-8 text-blue-600" />
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-4 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <MessageCircle className="w-6 h-6 md:w-8 md:h-8 text-red-600" />
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Messages</h1>
+          </div>
+          {conversations.length > 0 && (
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {conversations.length} conversation{conversations.length !== 1 ? 's' : ''}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-4">
 
       {conversations.length === 0 ? (
         <Card>
