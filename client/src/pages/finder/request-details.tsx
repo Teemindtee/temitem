@@ -48,7 +48,7 @@ export default function FinderRequestDetails() {
     mutationFn: async () => {
       if (!findId) throw new Error("No find ID");
       return apiRequest("POST", "/api/proposals", {
-        requestId: findId, // Backend still expects requestId field
+        findId: findId, // Fixed: Backend expects findId field
         approach: proposalData.approach,
         price: proposalData.price,
         timeline: proposalData.timeline,
