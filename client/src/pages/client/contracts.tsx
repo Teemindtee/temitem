@@ -133,7 +133,7 @@ export default function ClientContracts() {
                     )}
                     
                     {contract.isCompleted && (
-                      <Link href={`/client/contracts/${contract.id}/review`}>
+                      <Link href={`/orders/review/${contract.id}`}>
                         <Button size="sm" variant="secondary">
                           Leave Review
                         </Button>
