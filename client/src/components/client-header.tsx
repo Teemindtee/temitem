@@ -43,7 +43,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 Browse Requests
               </Link>
               <Link 
-                href="/client/proposals" 
+                href="/client/view-proposals" 
                 className={`hover:underline ${currentPage === 'proposals' ? 'bg-white text-red-600 px-3 py-1 rounded font-medium' : ''}`}
               >
                 View Proposals
@@ -123,7 +123,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   Browse Requests
                 </Link>
                 <Link 
-                  href="/client/proposals" 
+                  href="/client/view-proposals" 
                   className={`block py-2 px-3 rounded ${currentPage === 'proposals' ? 'bg-white text-red-600 font-medium' : 'hover:bg-red-700'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
