@@ -44,14 +44,11 @@ export default function FinderProfile() {
   }, [finder]);
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/finder/profile', {
-      method: 'PATCH',
-      body: JSON.stringify({
-        bio: data.bio,
-        skills: data.skills.split(",").map((s: string) => s.trim()).filter(Boolean),
-        hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
-        availability: data.availability
-      })
+    mutationFn: (data: any) => apiRequest('PATCH', '/api/finder/profile', {
+      bio: data.bio,
+      skills: data.skills.split(",").map((s: string) => s.trim()).filter(Boolean),
+      hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
+      availability: data.availability
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });

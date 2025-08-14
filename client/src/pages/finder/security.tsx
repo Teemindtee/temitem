@@ -27,10 +27,7 @@ export default function SecuritySettings() {
   });
 
   const changePasswordMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/auth/change-password', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+    mutationFn: (data: any) => apiRequest('POST', '/api/auth/change-password', data),
     onSuccess: () => {
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
       toast({
@@ -48,10 +45,7 @@ export default function SecuritySettings() {
   });
 
   const updateSecuritySettingsMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/finder/security-settings', {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+    mutationFn: (data: any) => apiRequest('PUT', '/api/finder/security-settings', data),
     onSuccess: () => {
       toast({
         title: "Settings updated",

@@ -2,7 +2,18 @@
 
 FinderMeister is a full-stack service marketplace platform that connects clients who need help finding products or services with freelance "finders" who can assist them. The application features role-based authentication (clients, finders, and admins), a token-based proposal system, escrow functionality, and comprehensive admin management capabilities.
 
-## Latest Update - Mobile-Responsive Messaging ✅ COMPLETED
+## Latest Update - Withdrawal Settings Fixes ✅ COMPLETED
+
+**Fixed all withdrawal and settings update functionality**:
+- **Database Integration**: Added withdrawalSettings table to PostgreSQL with proper schema and relations
+- **Withdrawal Settings UI**: Completely redesigned without edit mode - form always visible with "Update Settings" button at bottom
+- **Removed PayPal**: Only bank transfer method available as requested
+- **Fixed API Calls**: Corrected apiRequest parameter order (method, url, data) across all finder pages
+- **Profile Updates**: Fixed finder profile update mutation to use correct API syntax
+- **Security Settings**: Fixed password change and security settings mutations
+- **Authentication**: All API calls now properly handle JWT tokens through apiRequest helper
+
+## Previous Update - Mobile-Responsive Messaging ✅ COMPLETED
 
 **Optimized messaging system for mobile devices**:
 - **Full-Screen Layout**: Converted chat to full-height mobile-first design taking entire viewport
