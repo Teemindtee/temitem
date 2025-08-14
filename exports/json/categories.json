@@ -1,0 +1,70 @@
+{
+  "table_name": "categories",
+  "export_date": "2025-08-14T09:59:23.514Z",
+  "record_count": 9,
+  "data": [
+    {
+      "id": "2909df3b-6c7c-4c14-af5a-6f8ee32d9071",
+      "name": "Web Development",
+      "description": "Website and web application development",
+      "is_active": true,
+      "created_at": "2025-08-13T18:26:50.111Z"
+    },
+    {
+      "id": "cat-tech",
+      "name": "Technology",
+      "description": "Software tools, apps, tech gadgets, and digital solutions",
+      "is_active": true,
+      "created_at": "2025-08-13T21:37:03.139Z"
+    },
+    {
+      "id": "bec035b3-ecf3-43a2-a117-f4b742bf3277",
+      "name": "Yeso",
+      "description": "Jsjjsjs",
+      "is_active": true,
+      "created_at": "2025-08-13T23:51:23.158Z"
+    },
+    {
+      "id": "4040a14d-ab77-4c75-b84d-6c8d2b6ad4ec",
+      "name": "Test Category",
+      "description": "Test description",
+      "is_active": true,
+      "created_at": "2025-08-13T23:52:50.704Z"
+    },
+    {
+      "id": "4468a190-a27a-4972-b541-3a7d650277eb",
+      "name": "Sport",
+      "description": "Sport",
+      "is_active": true,
+      "created_at": "2025-08-14T00:09:00.757Z"
+    },
+    {
+      "id": "554c1e54-eb32-4c38-b243-e55f74dc1b84",
+      "name": "Sportaa",
+      "description": "Ndjdd",
+      "is_active": true,
+      "created_at": "2025-08-14T00:15:04.604Z"
+    },
+    {
+      "id": "99c0174f-02a5-49e8-858d-243fbac37819",
+      "name": "Yogan",
+      "description": "Se",
+      "is_active": true,
+      "created_at": "2025-08-14T09:21:16.924Z"
+    },
+    {
+      "id": "cat-local",
+      "name": "Local Services In",
+      "description": "Local businesses, service providers, and community connections",
+      "is_active": true,
+      "created_at": "2025-08-13T21:37:03.139Z"
+    },
+    {
+      "id": "83f490c6-c624-4da4-8684-8bddc35269d7",
+      "name": "Sportaahhhshs",
+      "description": "Bzhjd",
+      "is_active": true,
+      "created_at": "2025-08-14T09:42:29.502Z"
+    }
+  ]
+}

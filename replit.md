@@ -2,7 +2,18 @@
 
 FinderMeister is a full-stack service marketplace platform that connects clients who need help finding products or services with freelance "finders" who can assist them. The application features role-based authentication (clients, finders, and admins), a token-based proposal system, escrow functionality, and comprehensive admin management capabilities.
 
-## Latest Update - Withdrawal Settings Fixes ✅ COMPLETED
+## Latest Update - Database Export System ✅ COMPLETED
+
+**Complete database export functionality in CSV and JSON formats**:
+- **Export Script**: Automated Node.js script exports all 16 tables
+- **Multiple Formats**: CSV files for spreadsheet use, JSON for applications  
+- **Complete Package**: 134 records across users, finders, requests, proposals, contracts, messages, etc.
+- **Documentation**: Comprehensive README with import instructions for PostgreSQL/MySQL
+- **Archive Ready**: Compressed tar.gz file for easy download and backup
+- **File Organization**: Separate CSV and JSON directories plus complete database JSON
+- **Export Location**: `/exports/` directory with all formats and documentation
+
+## Previous Update - Withdrawal Settings Fixes ✅ COMPLETED
 
 **Fixed all withdrawal and settings update functionality**:
 - **Database Integration**: Added withdrawalSettings table to PostgreSQL with proper schema and relations

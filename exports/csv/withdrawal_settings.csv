@@ -1,0 +1,2 @@
+id,finder_id,payment_method,minimum_threshold,bank_details,paypal_details,created_at,updated_at
+8c52e1ff-c1bb-45bf-aee9-d796ddf1615f,c88125ca-379a-4109-bfdb-86cb4f646d48,bank_transfer,500,"{""bankName"":""Hhdhhd"",""accountNumber"":""0122661841"",""routingNumber"":""777"",""accountHolder"":""Hsjsjjshs""}",,""2025-08-14T08:53:08.735Z"",""2025-08-14T09:06:22.164Z""

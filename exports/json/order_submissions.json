@@ -1,0 +1,57 @@
+{
+  "table_name": "order_submissions",
+  "export_date": "2025-08-14T09:59:23.654Z",
+  "record_count": 4,
+  "data": [
+    {
+      "id": "0f235c37-e556-4888-911f-eb6fe5e112e5",
+      "contract_id": "7525c9a9-3ae5-4e0d-87c0-756a3eee2922",
+      "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+      "submission_text": "I have completed the website design as requested. The design includes:\n\n- Modern responsive layout\n- E-commerce functionality\n- Payment integration\n- Mobile optimization\n- SEO-friendly structure\n\nPlease review the attached files for the complete design mockups and documentation.",
+      "attachment_paths": [],
+      "status": "accepted",
+      "client_feedback": "Excellent work! The website design exceeds our expectations. The responsive layout and e-commerce functionality are perfect. Thank you for the detailed documentation as well.",
+      "submitted_at": "2025-08-14T00:46:10.590Z",
+      "reviewed_at": "2025-08-14T00:46:22.478Z",
+      "auto_release_date": "2025-08-17T00:46:22.478Z"
+    },
+    {
+      "id": "8f039acc-a96a-4081-8bc9-7e98e8122749",
+      "contract_id": "d5182236-348d-4dac-bbcf-22ccebf5f1ce",
+      "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+      "submission_text": "Here is the initial version of the website design. Please review and let me know if you need any changes.",
+      "attachment_paths": [],
+      "status": "rejected",
+      "client_feedback": "Thanks for the initial submission. However, I need the following changes:\n\n1. Add more modern color scheme\n2. Improve the navigation layout\n3. Add social media integration\n4. Include a contact form\n\nPlease resubmit with these modifications.",
+      "submitted_at": "2025-08-14T00:46:35.509Z",
+      "reviewed_at": "2025-08-14T00:46:41.157Z",
+      "auto_release_date": "2025-08-19T00:46:35.490Z"
+    },
+    {
+      "id": "12505150-2740-4204-b075-acc375a790b0",
+      "contract_id": "44ae9ad1-0c18-4dc6-937c-32e94284ff2d",
+      "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+      "submission_text": "I am done",
+      "attachment_paths": [
+        "/objects/uploads/297d3b64-3022-48e0-9ae6-d29a677c5707"
+      ],
+      "status": "submitted",
+      "client_feedback": null,
+      "submitted_at": "2025-08-14T08:34:22.313Z",
+      "reviewed_at": null,
+      "auto_release_date": "2025-08-19T08:34:22.295Z"
+    },
+    {
+      "id": "7aeed221-2103-4bd1-b7b0-6d8777afed3d",
+      "contract_id": "a6e85b44-8b67-4b3a-add6-522b25ad14e7",
+      "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+      "submission_text": "I think I am done",
+      "attachment_paths": [],
+      "status": "submitted",
+      "client_feedback": null,
+      "submitted_at": "2025-08-14T08:39:33.734Z",
+      "reviewed_at": null,
+      "auto_release_date": "2025-08-19T08:39:33.716Z"
+    }
+  ]
+}

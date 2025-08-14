@@ -1,0 +1,55 @@
+{
+  "table_name": "withdrawal_requests",
+  "export_date": "2025-08-14T09:59:23.416Z",
+  "record_count": 4,
+  "data": [
+    {
+      "id": "withdraw-001",
+      "finder_id": "f1111111-1111-1111-1111-111111111111",
+      "amount": "500.00",
+      "status": "pending",
+      "payment_method": "bank_transfer",
+      "payment_details": "{\"bank_name\": \"Chase Bank\", \"account_number\": \"*****1234\", \"routing_number\": \"021000021\", \"account_holder\": \"John Finder\"}",
+      "admin_notes": null,
+      "processed_by": null,
+      "requested_at": "2025-08-10T21:38:22.479Z",
+      "processed_at": null
+    },
+    {
+      "id": "withdraw-002",
+      "finder_id": "f2222222-2222-2222-2222-222222222222",
+      "amount": "250.00",
+      "status": "approved",
+      "payment_method": "bank_transfer",
+      "payment_details": "{\"bank_name\": \"Bank of America\", \"account_number\": \"*****5678\", \"routing_number\": \"011401533\", \"account_holder\": \"Mike Johnson\"}",
+      "admin_notes": "Processed successfully - payment sent via ACH",
+      "processed_by": null,
+      "requested_at": "2025-08-06T21:38:22.479Z",
+      "processed_at": null
+    },
+    {
+      "id": "withdraw-004",
+      "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+      "amount": "125.00",
+      "status": "approved",
+      "payment_method": "bank_transfer",
+      "payment_details": "{\"bank_name\": \"Wells Fargo\", \"account_number\": \"*****9012\", \"routing_number\": \"121042882\", \"account_holder\": \"Test Finder\"}",
+      "admin_notes": "Under review by finance team",
+      "processed_by": "15365b28-5646-4f3b-b51f-45bc6276d453",
+      "requested_at": "2025-08-12T21:38:22.479Z",
+      "processed_at": "2025-08-14T09:16:38.167Z"
+    },
+    {
+      "id": "withdraw-003",
+      "finder_id": "f4444444-4444-4444-4444-444444444444",
+      "amount": "180.00",
+      "status": "processing",
+      "payment_method": "paypal",
+      "payment_details": "{\"email\": \"alex.finder@paypal.com\", \"account_verified\": true}",
+      "admin_notes": "",
+      "processed_by": "15365b28-5646-4f3b-b51f-45bc6276d453",
+      "requested_at": "2025-08-11T21:38:22.479Z",
+      "processed_at": "2025-08-14T09:33:24.220Z"
+    }
+  ]
+}

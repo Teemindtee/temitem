@@ -1,0 +1,25 @@
+{
+  "table_name": "reviews",
+  "export_date": "2025-08-14T09:59:23.276Z",
+  "record_count": 2,
+  "data": [
+    {
+      "id": "review-001",
+      "contract_id": "contract-001",
+      "client_id": "33333333-3333-3333-3333-333333333333",
+      "finder_id": "f1111111-1111-1111-1111-111111111111",
+      "rating": 5,
+      "comment": "Excellent work! John found the perfect rice supplier with competitive pricing and excellent quality. Highly recommend his services.",
+      "created_at": "2025-08-10T21:38:26.029Z"
+    },
+    {
+      "id": "review-002",
+      "contract_id": "contract-002",
+      "client_id": "77777777-7777-7777-7777-777777777777",
+      "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+      "rating": 4,
+      "comment": "Great social media strategy and very responsive communication. Looking forward to seeing the results of the campaign.",
+      "created_at": "2025-08-12T21:38:26.029Z"
+    }
+  ]
+}

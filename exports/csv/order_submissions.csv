@@ -1,0 +1,20 @@
+id,contract_id,finder_id,submission_text,attachment_paths,status,client_feedback,submitted_at,reviewed_at,auto_release_date
+0f235c37-e556-4888-911f-eb6fe5e112e5,7525c9a9-3ae5-4e0d-87c0-756a3eee2922,1cdc2486-666b-41dd-bac1-eb0034977492,I have completed the website design as requested. The design includes:
+
+- Modern responsive layout
+- E-commerce functionality
+- Payment integration
+- Mobile optimization
+- SEO-friendly structure
+
+Please review the attached files for the complete design mockups and documentation.,[],accepted,Excellent work! The website design exceeds our expectations. The responsive layout and e-commerce functionality are perfect. Thank you for the detailed documentation as well.,""2025-08-14T00:46:10.590Z"",""2025-08-14T00:46:22.478Z"",""2025-08-17T00:46:22.478Z""
+8f039acc-a96a-4081-8bc9-7e98e8122749,d5182236-348d-4dac-bbcf-22ccebf5f1ce,1cdc2486-666b-41dd-bac1-eb0034977492,Here is the initial version of the website design. Please review and let me know if you need any changes.,[],rejected,"Thanks for the initial submission. However, I need the following changes:
+
+1. Add more modern color scheme
+2. Improve the navigation layout
+3. Add social media integration
+4. Include a contact form
+
+Please resubmit with these modifications.",""2025-08-14T00:46:35.509Z"",""2025-08-14T00:46:41.157Z"",""2025-08-19T00:46:35.490Z""
+12505150-2740-4204-b075-acc375a790b0,44ae9ad1-0c18-4dc6-937c-32e94284ff2d,c88125ca-379a-4109-bfdb-86cb4f646d48,I am done,[""/objects/uploads/297d3b64-3022-48e0-9ae6-d29a677c5707""],submitted,,""2025-08-14T08:34:22.313Z"",,""2025-08-19T08:34:22.295Z""
+7aeed221-2103-4bd1-b7b0-6d8777afed3d,a6e85b44-8b67-4b3a-add6-522b25ad14e7,c88125ca-379a-4109-bfdb-86cb4f646d48,I think I am done,[],submitted,,""2025-08-14T08:39:33.734Z"",,""2025-08-19T08:39:33.716Z""

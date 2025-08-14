@@ -1,0 +1,98 @@
+{
+  "table_name": "contracts",
+  "export_date": "2025-08-14T09:59:23.133Z",
+  "record_count": 7,
+  "data": [
+    {
+      "id": "f08eeea7-0398-4153-974f-0684b1ba375b",
+      "request_id": "4d43bdfa-150f-4254-88c0-eb4abd83f418",
+      "proposal_id": "19b290d5-df47-458d-bb89-9c243cdd7665",
+      "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+      "finder_id": "a8c15eec-08b9-4e93-b911-46af8887471b",
+      "amount": "650.00",
+      "escrow_status": "held",
+      "is_completed": false,
+      "created_at": "2025-08-13T17:07:50.886Z",
+      "completed_at": null,
+      "has_submission": false
+    },
+    {
+      "id": "contract-001",
+      "request_id": "req-002",
+      "proposal_id": "prop-003",
+      "client_id": "33333333-3333-3333-3333-333333333333",
+      "finder_id": "f1111111-1111-1111-1111-111111111111",
+      "amount": "50.00",
+      "escrow_status": "released",
+      "is_completed": true,
+      "created_at": "2025-08-08T21:37:49.714Z",
+      "completed_at": null,
+      "has_submission": false
+    },
+    {
+      "id": "7525c9a9-3ae5-4e0d-87c0-756a3eee2922",
+      "request_id": "259a2886-583c-40b7-9266-e60fdafe66da",
+      "proposal_id": "e4e7fdb4-9716-4f63-be76-ff2a20b5dd8a",
+      "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+      "finder_id": "1cdc2486-666b-41dd-bac1-eb0034977492",
+      "amount": "1200.00",
+      "escrow_status": "held",
+      "is_completed": true,
+      "created_at": "2025-08-13T17:07:25.874Z",
+      "completed_at": "2025-08-14T00:46:22.617Z",
+      "has_submission": true
+    },
+    {
+      "id": "d5182236-348d-4dac-bbcf-22ccebf5f1ce",
+      "request_id": "259a2886-583c-40b7-9266-e60fdafe66da",
+      "proposal_id": "895ce98b-fe38-4cc8-9da4-e565bd637f37",
+      "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+      "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+      "amount": "950.00",
+      "escrow_status": "held",
+      "is_completed": false,
+      "created_at": "2025-08-13T17:07:40.398Z",
+      "completed_at": null,
+      "has_submission": true
+    },
+    {
+      "id": "44ae9ad1-0c18-4dc6-937c-32e94284ff2d",
+      "request_id": "c9547ce8-7950-489f-9f93-25aa3c5be082",
+      "proposal_id": "af758b50-0239-4749-a135-dc196698d0e4",
+      "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+      "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+      "amount": "150.00",
+      "escrow_status": "held",
+      "is_completed": false,
+      "created_at": "2025-08-14T01:09:20.490Z",
+      "completed_at": null,
+      "has_submission": true
+    },
+    {
+      "id": "a6e85b44-8b67-4b3a-add6-522b25ad14e7",
+      "request_id": "e7ace354-637a-4fb2-8ddc-bf24ce3d1a76",
+      "proposal_id": "0d66c391-7a74-4152-9e65-d3b58128c1e3",
+      "client_id": "2aa4873a-8040-42fb-b2eb-1841554f89bd",
+      "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+      "amount": "22.00",
+      "escrow_status": "held",
+      "is_completed": false,
+      "created_at": "2025-08-13T17:24:03.759Z",
+      "completed_at": null,
+      "has_submission": true
+    },
+    {
+      "id": "contract-002",
+      "request_id": "req-003",
+      "proposal_id": "prop-004",
+      "client_id": "77777777-7777-7777-7777-777777777777",
+      "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+      "amount": "500.00",
+      "escrow_status": "in_progress",
+      "is_completed": false,
+      "created_at": "2025-08-11T21:37:49.714Z",
+      "completed_at": null,
+      "has_submission": false
+    }
+  ]
+}

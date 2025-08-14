@@ -1,0 +1,13 @@
+{
+  "table_name": "admin_settings",
+  "export_date": "2025-08-14T09:59:23.562Z",
+  "record_count": 1,
+  "data": [
+    {
+      "id": "5956483e-54fa-499a-aef3-869aaebc5d86",
+      "key": "proposal_token_cost",
+      "value": "5666",
+      "updated_at": "2025-08-14T09:26:03.616Z"
+    }
+  ]
+}

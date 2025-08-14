@@ -1,0 +1,17 @@
+{
+  "table_name": "withdrawal_settings",
+  "export_date": "2025-08-14T09:59:23.468Z",
+  "record_count": 1,
+  "data": [
+    {
+      "id": "8c52e1ff-c1bb-45bf-aee9-d796ddf1615f",
+      "finder_id": "c88125ca-379a-4109-bfdb-86cb4f646d48",
+      "payment_method": "bank_transfer",
+      "minimum_threshold": 500,
+      "bank_details": "{\"bankName\":\"Hhdhhd\",\"accountNumber\":\"0122661841\",\"routingNumber\":\"777\",\"accountHolder\":\"Hsjsjjshs\"}",
+      "paypal_details": null,
+      "created_at": "2025-08-14T08:53:08.735Z",
+      "updated_at": "2025-08-14T09:06:22.164Z"
+    }
+  ]
+}
