@@ -306,6 +306,75 @@ export class DatabaseStorage implements IStorage {
     return proposal || undefined;
   }
 
+  async getProposalWithDetails(id: string): Promise<any | undefined> {
+    const result = await db
+      .select({
+        // Proposal fields
+        id: proposals.id,
+        requestId: proposals.requestId,
+        finderId: proposals.finderId,
+        approach: proposals.approach,
+        price: proposals.price,
+        timeline: proposals.timeline,
+        notes: proposals.notes,
+        status: proposals.status,
+        createdAt: proposals.createdAt,
+        // Request fields
+        requestTitle: requests.title,
+        requestDescription: requests.description,
+        requestCategory: requests.category,
+        requestBudgetMin: requests.budgetMin,
+        requestBudgetMax: requests.budgetMax,
+        // Finder user fields
+        finderFirstName: users.firstName,
+        finderLastName: users.lastName,
+        finderEmail: users.email,
+        // Finder profile fields
+        finderCompletedJobs: finders.jobsCompleted,
+        finderRating: finders.averageRating,
+      })
+      .from(proposals)
+      .innerJoin(requests, eq(proposals.requestId, requests.id))
+      .innerJoin(finders, eq(proposals.finderId, finders.id))
+      .innerJoin(users, eq(finders.userId, users.id))
+      .where(eq(proposals.id, id))
+      .limit(1);
+
+    if (result.length === 0) {
+      return undefined;
+    }
+
+    const row = result[0];
+    return {
+      id: row.id,
+      requestId: row.requestId,
+      finderId: row.finderId,
+      approach: row.approach,
+      price: row.price,
+      timeline: row.timeline,
+      notes: row.notes,
+      status: row.status,
+      createdAt: row.createdAt,
+      finder: {
+        id: row.finderId,
+        user: {
+          firstName: row.finderFirstName,
+          lastName: row.finderLastName,
+          email: row.finderEmail,
+        },
+        completedJobs: row.finderCompletedJobs || 0,
+        rating: row.finderRating || 5.0,
+      },
+      request: {
+        title: row.requestTitle,
+        description: row.requestDescription,
+        category: row.requestCategory,
+        budgetMin: row.requestBudgetMin,
+        budgetMax: row.requestBudgetMax,
+      },
+    };
+  }
+
   async getProposalsByRequestId(requestId: string): Promise<Proposal[]> {
     return await db
       .select()

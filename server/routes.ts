@@ -564,20 +564,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/proposals/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
-      const proposal = await storage.getProposal(id);
+      const proposalWithDetails = await storage.getProposalWithDetails(id);
       
-      if (!proposal) {
+      if (!proposalWithDetails) {
         return res.status(404).json({ message: "Proposal not found" });
       }
 
       // Authorization: only the finder who submitted it or the client who owns the request can view it
       if (req.user.role === 'finder') {
         const finder = await storage.getFinderByUserId(req.user.userId);
-        if (!finder || proposal.finderId !== finder.id) {
+        if (!finder || proposalWithDetails.finderId !== finder.id) {
           return res.status(403).json({ message: "Access denied" });
         }
       } else if (req.user.role === 'client') {
-        const request = await storage.getRequest(proposal.requestId);
+        const request = await storage.getRequest(proposalWithDetails.requestId);
         if (!request || request.clientId !== req.user.userId) {
           return res.status(403).json({ message: "Access denied" });
         }
@@ -585,7 +585,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      res.json(proposal);
+      res.json(proposalWithDetails);
     } catch (error) {
       console.error('Get proposal error:', error);
       res.status(500).json({ message: "Failed to fetch proposal" });
