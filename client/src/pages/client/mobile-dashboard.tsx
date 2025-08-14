@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Eye, Cog, ChevronRight, FileEdit } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import ClientHeader from "@/components/client-header";
 
 export default function ClientMobileDashboard() {
   const { user } = useAuth();
@@ -12,9 +13,11 @@ export default function ClientMobileDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <ClientHeader currentPage="dashboard" />
+      
       {/* Mobile Phone Frame - Match exact mockup */}
-      <div className="max-w-sm mx-auto min-h-screen bg-white shadow-2xl border border-gray-200 rounded-2xl overflow-hidden relative">
-        {/* Header with User Profile */}
+      <div className="max-w-sm mx-auto min-h-screen bg-white shadow-2xl border border-gray-200 rounded-2xl overflow-hidden relative mt-4">
+        {/* User Profile Section */}
         <div className="bg-red-600 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3 shadow-sm">
