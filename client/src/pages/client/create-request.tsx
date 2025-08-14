@@ -65,12 +65,33 @@ export default function CreateRequest() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/requests/my'] });
+      // Invalidate the client requests cache so the new request appears
+      queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
+      
       toast({
         title: "Success!",
         description: "Your request has been posted successfully.",
       });
-      navigate("/client/dashboard");
+      
+      // Reset form
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        minBudget: "",
+        maxBudget: "",
+        timeframe: "",
+        location: "",
+        requirements: ""
+      });
+      
+      // Reset selected files
+      setSelectedFiles([]);
+      
+      // Navigate to dashboard after a brief delay
+      setTimeout(() => {
+        window.location.href = "/client/dashboard";
+      }, 1500);
     },
     onError: (error: any) => {
       toast({
