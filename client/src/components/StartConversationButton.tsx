@@ -29,19 +29,9 @@ export default function StartConversationButton({
 
   const createConversationMutation = useMutation({
     mutationFn: async () => {
-      console.log('Creating conversation with proposalId:', proposalId);
-      console.log('User role:', user?.role);
-      console.log('Auth token exists:', !!localStorage.getItem('findermeister_token'));
-      
-      try {
-        return await apiRequest("POST", "/api/messages/conversations", { proposalId });
-      } catch (error) {
-        console.error('API request failed:', error);
-        throw error;
-      }
+      return await apiRequest("POST", "/api/messages/conversations", { proposalId });
     },
     onSuccess: (conversation) => {
-      console.log('Conversation created successfully:', conversation);
       queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations'] });
       setLocation(`/messages/${conversation.id}`);
       toast({

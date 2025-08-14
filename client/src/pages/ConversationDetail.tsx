@@ -49,24 +49,15 @@ export default function ConversationDetail() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
-      const response = await fetch(`/api/messages/conversations/${conversationId}/messages`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Cache-Control': 'no-cache'
-        },
-        body: JSON.stringify({ content })
-      });
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-      return response.json();
+      return await apiRequest('POST', `/api/messages/conversations/${conversationId}/messages`, { content });
     },
     onSuccess: () => {
       setNewMessage("");
-      // Simple cache invalidation
+      // Invalidate messages to refresh the list
       queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations', conversationId, 'messages'] });
+    },
+    onError: (error: any) => {
+      console.error('Message send error:', error);
     }
   });
 
