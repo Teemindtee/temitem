@@ -68,6 +68,7 @@ export interface IStorage {
   getRequest(id: string): Promise<Request | undefined>;
   getRequestsByClientId(clientId: string): Promise<Request[]>;
   getAllActiveRequests(): Promise<Request[]>;
+  getAllRequests(): Promise<Request[]>;
   getAvailableRequestsForFinders(): Promise<Request[]>;
   createRequest(request: InsertRequest): Promise<Request>;
   updateRequest(id: string, updates: Partial<Request>): Promise<Request | undefined>;
@@ -76,6 +77,7 @@ export interface IStorage {
   getProposal(id: string): Promise<Proposal | undefined>;
   getProposalsByRequestId(requestId: string): Promise<Proposal[]>;
   getProposalsByFinderId(finderId: string): Promise<Proposal[]>;
+  getAllProposals(): Promise<Proposal[]>;
   getProposalByFinderAndRequest(finderId: string, requestId: string): Promise<Proposal | undefined>;
   hasAcceptedProposal(requestId: string): Promise<boolean>;
   getClientContactForAcceptedProposal(proposalId: string, finderId: string): Promise<{firstName: string, lastName: string, email: string, phone?: string} | undefined>;
@@ -245,6 +247,20 @@ export class DatabaseStorage implements IStorage {
       .from(requests)
       .where(eq(requests.status, "open"))
       .orderBy(desc(requests.createdAt));
+  }
+
+  async getAllRequests(): Promise<Request[]> {
+    return await db
+      .select()
+      .from(requests)
+      .orderBy(desc(requests.createdAt));
+  }
+
+  async getAllProposals(): Promise<Proposal[]> {
+    return await db
+      .select()
+      .from(proposals)
+      .orderBy(desc(proposals.createdAt));
   }
 
   async getAvailableRequestsForFinders(): Promise<Request[]> {

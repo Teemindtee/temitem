@@ -817,6 +817,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin routes
+  app.get("/api/admin/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const requests = await storage.getAllRequests();
+      res.json(requests);
+    } catch (error) {
+      console.error('Failed to fetch admin requests:', error);
+      res.status(500).json({ message: "Failed to fetch requests" });
+    }
+  });
+
+  app.get("/api/admin/proposals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const proposals = await storage.getAllProposals();
+      res.json(proposals);
+    } catch (error) {
+      console.error('Failed to fetch admin proposals:', error);
+      res.status(500).json({ message: "Failed to fetch proposals" });
+    }
+  });
+
   app.get("/api/admin/users", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {

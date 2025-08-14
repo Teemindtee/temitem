@@ -36,8 +36,7 @@ export default function AdminUsers() {
 
   const verifyUserMutation = useMutation({
     mutationFn: async ({ userId, action }: { userId: string; action: 'verify' | 'unverify' }) => {
-      const response = await apiRequest('POST', `/api/admin/users/${userId}/${action}`);
-      return response.json();
+      return await apiRequest('POST', `/api/admin/users/${userId}/${action}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
@@ -57,9 +56,8 @@ export default function AdminUsers() {
 
   const banUserMutation = useMutation({
     mutationFn: async ({ userId, action, reason }: { userId: string; action: 'ban' | 'unban'; reason?: string }) => {
-      const response = await apiRequest('POST', `/api/admin/users/${userId}/${action}`, 
+      return await apiRequest('POST', `/api/admin/users/${userId}/${action}`, 
         action === 'ban' ? { reason } : undefined);
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
@@ -258,7 +256,7 @@ export default function AdminUsers() {
                     <div className="flex items-center justify-between sm:justify-end space-x-2 sm:ml-4">
                       <span className="text-sm text-gray-500">
                         <span className="hidden sm:inline">Joined </span>
-                        {new Date(userData.createdAt).toLocaleDateString()}
+                        {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A'}
                       </span>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

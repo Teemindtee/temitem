@@ -75,10 +75,7 @@ export default function AdminBlogPostEdit() {
         .replace(/--+/g, '-')
         .trim();
 
-      return apiRequest(`/api/admin/blog-posts/${postId}`, {
-        method: 'PUT',
-        body: JSON.stringify({ ...data, slug }),
-      });
+      return apiRequest('PUT', `/api/admin/blog-posts/${postId}`, { ...data, slug });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/blog-posts'] });
