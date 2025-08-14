@@ -66,7 +66,7 @@ export default function ClientContracts() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">No contracts yet</h3>
               <p className="text-gray-600 mb-6">Start by posting a request and accepting proposals from finders.</p>
-              <Link href="/client/requests/create">
+              <Link href="/client/create-request">
                 <Button>Post a Request</Button>
               </Link>
             </CardContent>
