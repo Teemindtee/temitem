@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { AuthService } from "@/lib/auth";
+import { apiRequest } from "@/lib/queryClient";
 
 interface Request {
   id: string;
@@ -45,21 +45,7 @@ export default function SubmitProposalModal({ isOpen, onClose, request }: Submit
 
   const submitProposalMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await fetch('/api/proposals', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...AuthService.getAuthHeaders(),
-        },
-        body: JSON.stringify(data),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message);
-      }
-      
-      return response.json();
+      return apiRequest("POST", "/api/proposals", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/proposals/my'] });
@@ -97,10 +83,10 @@ export default function SubmitProposalModal({ isOpen, onClose, request }: Submit
 
     submitProposalMutation.mutate({
       requestId: request.id,
-      approach: formData.approach,
-      price: price,
-      timeline: formData.timeline,
-      notes: formData.notes || undefined,
+      approach: formData.approach.trim(),
+      price: price.toString(),
+      timeline: formData.timeline.trim(),
+      notes: formData.notes.trim() || undefined,
     });
   };
 

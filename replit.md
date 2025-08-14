@@ -2,6 +2,17 @@
 
 FinderMeister is a full-stack service marketplace platform that connects clients who need help finding products or services with freelance "finders" who can assist them. The application features role-based authentication (clients, finders, and admins), a token-based proposal system, escrow functionality, and comprehensive admin management capabilities.
 
+## Latest Update - Proposal Submission Fix ✅ COMPLETED
+
+**Fixed proposal submission JSON parsing error**:
+- **API Error Resolution**: Replaced direct fetch calls with apiRequest helper for proper error handling
+- **Form Data Validation**: Fixed data type handling and trimmed form inputs 
+- **Backend API Testing**: Confirmed all proposal submission endpoints working correctly
+- **Mobile Responsiveness**: Enhanced view-proposals page with responsive grid layouts
+- **Finder Name Display**: Fixed "Unknown Finder" issue with proper database joins
+- **Message System**: Updated StartConversationButton to handle all prop variations correctly
+- **Acceptance Workflow**: Verified "Hire Finder" button creates contracts properly
+
 ## Recent Updates - Order Submission System ✅ COMPLETED
 
 **Complete order submission workflow with file upload and auto-release**:
