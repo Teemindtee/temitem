@@ -363,7 +363,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Alias for frontend compatibility
+  app.get("/api/client/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can view their finds" });
+      }
+
+      const finds = await storage.getFindsByClientId(req.user.userId);
+      res.json(finds);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch your finds" });
+    }
+  });
+
   app.post("/api/client/finds", authenticateToken, upload.array('attachments', 5), async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can create finds" });
+      }
+
+      // Get uploaded file paths
+      const files = req.files as Express.Multer.File[];
+      const attachmentPaths = files ? files.map(file => `/uploads/${file.filename}`) : [];
+
+      const requestData = insertFindSchema.parse({
+        ...req.body,
+        clientId: req.user.userId,
+        attachments: attachmentPaths
+      });
+
+      const request = await storage.createFind(requestData);
+      res.status(201).json(request);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to create request", error: error.message });
+    }
+  });
+
+  // Alias for frontend compatibility
+  app.post("/api/client/requests", authenticateToken, upload.array('attachments', 5), async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'client') {
         return res.status(403).json({ message: "Only clients can create finds" });
