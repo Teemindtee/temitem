@@ -42,7 +42,7 @@ export const tokens = pgTable("tokens", {
   balance: integer("balance").default(0),
 });
 
-export const requests = pgTable("requests", {
+export const finds = pgTable("finds", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   clientId: varchar("client_id").references(() => users.id).notNull(),
   title: text("title").notNull(),
@@ -59,7 +59,7 @@ export const requests = pgTable("requests", {
 
 export const proposals = pgTable("proposals", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  requestId: varchar("request_id").references(() => requests.id).notNull(),
+  findId: varchar("find_id").references(() => finds.id).notNull(),
   finderId: varchar("finder_id").references(() => finders.id).notNull(),
   approach: text("approach").notNull(),
   price: text("price").notNull(),
@@ -71,7 +71,7 @@ export const proposals = pgTable("proposals", {
 
 export const contracts = pgTable("contracts", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  requestId: varchar("request_id").references(() => requests.id).notNull(),
+  findId: varchar("find_id").references(() => finds.id).notNull(),
   proposalId: varchar("proposal_id").references(() => proposals.id).notNull(),
   clientId: varchar("client_id").references(() => users.id).notNull(),
   finderId: varchar("finder_id").references(() => finders.id).notNull(),
@@ -195,7 +195,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     fields: [users.id],
     references: [finders.userId],
   }),
-  requests: many(requests),
+  finds: many(finds),
   clientContracts: many(contracts, { relationName: "clientContracts" }),
   finderContracts: many(contracts, { relationName: "finderContracts" }),
   clientReviews: many(reviews, { relationName: "clientReviews" }),
@@ -219,9 +219,9 @@ export const findersRelations = relations(finders, ({ one, many }) => ({
   withdrawalRequests: many(withdrawalRequests),
 }));
 
-export const requestsRelations = relations(requests, ({ one, many }) => ({
+export const findsRelations = relations(finds, ({ one, many }) => ({
   client: one(users, {
-    fields: [requests.clientId],
+    fields: [finds.clientId],
     references: [users.id],
   }),
   proposals: many(proposals),
@@ -229,9 +229,9 @@ export const requestsRelations = relations(requests, ({ one, many }) => ({
 }));
 
 export const proposalsRelations = relations(proposals, ({ one }) => ({
-  request: one(requests, {
-    fields: [proposals.requestId],
-    references: [requests.id],
+  find: one(finds, {
+    fields: [proposals.findId],
+    references: [finds.id],
   }),
   finder: one(finders, {
     fields: [proposals.finderId],
@@ -240,9 +240,9 @@ export const proposalsRelations = relations(proposals, ({ one }) => ({
 }));
 
 export const contractsRelations = relations(contracts, ({ one, many }) => ({
-  request: one(requests, {
-    fields: [contracts.requestId],
-    references: [requests.id],
+  find: one(finds, {
+    fields: [contracts.findId],
+    references: [finds.id],
   }),
   proposal: one(proposals, {
     fields: [contracts.proposalId],
@@ -361,8 +361,8 @@ export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Finder = typeof finders.$inferSelect;
 export type InsertFinder = typeof finders.$inferInsert;
-export type Request = typeof requests.$inferSelect;
-export type InsertRequest = typeof requests.$inferInsert;
+export type Find = typeof finds.$inferSelect;
+export type InsertFind = typeof finds.$inferInsert;
 export type Proposal = typeof proposals.$inferSelect;
 export type InsertProposal = typeof proposals.$inferInsert;
 export type Contract = typeof contracts.$inferSelect;
@@ -409,7 +409,7 @@ export const insertFinderSchema = createInsertSchema(finders).omit({
   id: true,
 });
 
-export const insertRequestSchema = createInsertSchema(requests).omit({
+export const insertFindSchema = createInsertSchema(finds).omit({
   id: true,
   createdAt: true,
 });
@@ -463,7 +463,7 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
 
 export type InsertUserType = z.infer<typeof insertUserSchema>;
 export type InsertFinderType = z.infer<typeof insertFinderSchema>;
-export type InsertRequestType = z.infer<typeof insertRequestSchema>;
+export type InsertFindType = z.infer<typeof insertFindSchema>;
 export type InsertProposalType = z.infer<typeof insertProposalSchema>;
 export type InsertContractType = z.infer<typeof insertContractSchema>;
 export type InsertReviewType = z.infer<typeof insertReviewSchema>;

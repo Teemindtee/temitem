@@ -48,7 +48,7 @@ export default function ClientMobileDashboard() {
                 </div>
                 <div className="text-center">
                   <div className="text-gray-900 font-semibold text-sm leading-tight">Post a</div>
-                  <div className="text-gray-900 font-semibold text-sm leading-tight">Request</div>
+                  <div className="text-gray-900 font-semibold text-sm leading-tight">Find</div>
                 </div>
               </div>
             </Link>

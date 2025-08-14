@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { insertUserSchema, insertRequestSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema } from "@shared/schema";
+import { insertUserSchema, insertFindSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema } from "@shared/schema";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
 import { PaystackService, TOKEN_PACKAGES } from "./paymentService";
@@ -60,8 +60,8 @@ const upload = multer({
   }
 });
 
-// Extended Request interface for authentication
-interface AuthenticatedRequest extends Request {
+// Extended Find interface for authentication
+interface AuthenticatedRequest extends Find {
   user?: any;
 }
 
@@ -261,24 +261,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Request routes
-  app.get("/api/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  // Find routes
+  app.get("/api/finds", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const requests = await storage.getAllActiveRequests();
-      res.json(requests);
+      const finds = await storage.getAllActiveFinds();
+      res.json(finds);
     } catch (error) {
-      console.error('Failed to fetch requests:', error);
-      res.status(500).json({ message: "Failed to fetch requests" });
+      console.error('Failed to fetch finds:', error);
+      res.status(500).json({ message: "Failed to fetch finds" });
     }
   });
 
-  app.get("/api/requests/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.get("/api/finds/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
-      const request = await storage.getRequest(id);
+      const request = await storage.getFind(id);
       
       if (!request) {
-        return res.status(404).json({ message: "Request not found" });
+        return res.status(404).json({ message: "Find not found" });
       }
 
       res.json(request);
@@ -289,17 +289,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Finder-specific routes
-  app.get("/api/finder/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.get("/api/finder/finds", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'finder') {
-        return res.status(403).json({ message: "Only finders can browse requests" });
+        return res.status(403).json({ message: "Only finders can browse finds" });
       }
 
-      const requests = await storage.getAvailableRequestsForFinders();
-      res.json(requests);
+      const finds = await storage.getAvailableFindsForFinders();
+      res.json(finds);
     } catch (error) {
-      console.error('Finder requests error:', error);
-      res.status(500).json({ message: "Failed to fetch requests" });
+      console.error('Finder finds error:', error);
+      res.status(500).json({ message: "Failed to fetch finds" });
     }
   });
 
@@ -335,13 +335,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const tokenBalance = await storage.getTokenBalance(finder.id);
       const proposals = await storage.getProposalsByFinderId(finder.id);
-      const recentRequests = await storage.getAllActiveRequests();
+      const recentFinds = await storage.getAllActiveFinds();
 
       res.json({
         finder,
         tokenBalance: tokenBalance?.balance ?? 0,
         proposalsCount: proposals.length,
-        availableRequests: recentRequests.length
+        availableFinds: recentFinds.length
       });
     } catch (error) {
       console.error('Finder dashboard error:', error);
@@ -350,36 +350,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Client-specific routes
-  app.get("/api/client/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.get("/api/client/finds", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'client') {
-        return res.status(403).json({ message: "Only clients can view their requests" });
+        return res.status(403).json({ message: "Only clients can view their finds" });
       }
 
-      const requests = await storage.getRequestsByClientId(req.user.userId);
-      res.json(requests);
+      const finds = await storage.getFindsByClientId(req.user.userId);
+      res.json(finds);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch your requests" });
+      res.status(500).json({ message: "Failed to fetch your finds" });
     }
   });
 
-  app.post("/api/client/requests", authenticateToken, upload.array('attachments', 5), async (req: AuthenticatedRequest, res: Response) => {
+  app.post("/api/client/finds", authenticateToken, upload.array('attachments', 5), async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'client') {
-        return res.status(403).json({ message: "Only clients can create requests" });
+        return res.status(403).json({ message: "Only clients can create finds" });
       }
 
       // Get uploaded file paths
       const files = req.files as Express.Multer.File[];
       const attachmentPaths = files ? files.map(file => `/uploads/${file.filename}`) : [];
 
-      const requestData = insertRequestSchema.parse({
+      const requestData = insertFindSchema.parse({
         ...req.body,
         clientId: req.user.userId,
         attachments: attachmentPaths
       });
 
-      const request = await storage.createRequest(requestData);
+      const request = await storage.createFind(requestData);
       res.status(201).json(request);
     } catch (error: any) {
       res.status(400).json({ message: "Failed to create request", error: error.message });
@@ -400,44 +400,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.post("/api/finds", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'client') {
-        return res.status(403).json({ message: "Only clients can create requests" });
+        return res.status(403).json({ message: "Only clients can create finds" });
       }
 
-      const requestData = insertRequestSchema.parse({
+      const requestData = insertFindSchema.parse({
         ...req.body,
         clientId: req.user.userId
       });
 
-      const request = await storage.createRequest(requestData);
+      const request = await storage.createFind(requestData);
       res.status(201).json(request);
     } catch (error: any) {
       res.status(400).json({ message: "Failed to create request", error: error.message });
     }
   });
 
-  app.get("/api/requests/my", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.get("/api/finds/my", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'client') {
-        return res.status(403).json({ message: "Only clients can view their requests" });
+        return res.status(403).json({ message: "Only clients can view their finds" });
       }
 
-      const requests = await storage.getRequestsByClientId(req.user.userId);
-      res.json(requests);
+      const finds = await storage.getFindsByClientId(req.user.userId);
+      res.json(finds);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch your requests" });
+      res.status(500).json({ message: "Failed to fetch your finds" });
     }
   });
 
-  app.get("/api/requests/:id/proposals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.get("/api/finds/:id/proposals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
-      const request = await storage.getRequest(id);
+      const request = await storage.getFind(id);
       
       if (!request) {
-        return res.status(404).json({ message: "Request not found" });
+        return res.status(404).json({ message: "Find not found" });
       }
 
       // Only the client who posted the request can view ALL proposals
@@ -445,12 +445,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      // If finder is accessing, they should use /finder/requests/:id/proposals instead
+      // If finder is accessing, they should use /finder/finds/:id/proposals instead
       if (req.user.role === 'finder') {
         return res.status(403).json({ message: "Finders should use finder-specific endpoints" });
       }
 
-      const proposals = await storage.getProposalsByRequestId(id);
+      const proposals = await storage.getProposalsByFindId(id);
       res.json(proposals);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch proposals" });
@@ -458,7 +458,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Finder-specific route to see only their own proposals for a request (like comments)
-  app.get("/api/finder/requests/:id/proposals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.get("/api/finder/finds/:id/proposals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
       
@@ -466,9 +466,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Only finders can use this endpoint" });
       }
 
-      const request = await storage.getRequest(id);
+      const request = await storage.getFind(id);
       if (!request) {
-        return res.status(404).json({ message: "Request not found" });
+        return res.status(404).json({ message: "Find not found" });
       }
 
       // Get finder profile
@@ -478,7 +478,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get only this finder's proposals for this request (like seeing only your own comments)
-      const proposal = await storage.getProposalByFinderAndRequest(finder.id, id);
+      const proposal = await storage.getProposalByFinderAndFind(finder.id, id);
       res.json(proposal ? [proposal] : []);
     } catch (error) {
       console.error('Finder request proposals error:', error);
@@ -504,13 +504,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Check if request has already been accepted by someone else
-      const hasAccepted = await storage.hasAcceptedProposal(proposalData.requestId);
+      const hasAccepted = await storage.hasAcceptedProposal(proposalData.findId);
       if (hasAccepted) {
         return res.status(400).json({ message: "This request has already been accepted by another finder" });
       }
 
       // Check if this finder has already submitted a proposal for this request
-      const existingProposal = await storage.getProposalByFinderAndRequest(finder.id, proposalData.requestId);
+      const existingProposal = await storage.getProposalByFinderAndFind(finder.id, proposalData.findId);
       if (existingProposal) {
         return res.status(400).json({ message: "You have already submitted a proposal for this request" });
       }
@@ -532,12 +532,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         finderId: finder.id,
         amount: -1,
         type: 'proposal',
-        description: `Proposal submitted for request: ${proposal.requestId}`
+        description: `Proposal submitted for request: ${proposal.findId}`
       });
 
       // Send email notification to client about new proposal
       try {
-        const request = await storage.getRequest(proposal.requestId);
+        const request = await storage.getFind(proposal.findId);
         if (request) {
           const clientUser = await storage.getUser(request.clientId);
           const finderUser = await storage.getUser(req.user.userId);
@@ -577,7 +577,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(403).json({ message: "Access denied" });
         }
       } else if (req.user.role === 'client') {
-        const request = await storage.getRequest(proposalWithDetails.requestId);
+        const request = await storage.getFind(proposalWithDetails.findId);
         if (!request || request.clientId !== req.user.userId) {
           return res.status(403).json({ message: "Access denied" });
         }
@@ -664,7 +664,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Proposal not found" });
       }
 
-      const request = await storage.getRequest(proposal.requestId);
+      const request = await storage.getFind(proposal.findId);
       if (!request || request.clientId !== req.user.userId) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -679,7 +679,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create contract
       const contract = await storage.createContract({
-        requestId: proposal.requestId,
+        findId: proposal.findId,
         proposalId: proposal.id,
         clientId: request.clientId,
         finderId: proposal.finderId,
@@ -688,7 +688,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Update request status to in progress
-      await storage.updateRequest(proposal.requestId, { status: 'in progress' });
+      await storage.updateFind(proposal.findId, { status: 'in progress' });
 
       // Send email notification to finder about being hired
       if (finderUser && clientUser) {
@@ -711,7 +711,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Support ticket submission endpoint
-  app.post("/api/support/tickets", async (req: Request, res: Response) => {
+  app.post("/api/support/tickets", async (req: Find, res: Response) => {
     try {
       const { name, email, category, priority, subject, message } = req.body;
       
@@ -731,7 +731,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Token packages endpoint
-  app.get("/api/tokens/packages", (req: Request, res: Response) => {
+  app.get("/api/tokens/packages", (req: Find, res: Response) => {
     res.json(TOKEN_PACKAGES);
   });
 
@@ -773,7 +773,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Payment webhook endpoint
-  app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+  app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), async (req: Find, res: Response) => {
     try {
       const paystackService = new PaystackService();
       
@@ -1048,17 +1048,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/admin/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.get("/api/admin/finds", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const requests = await storage.getAllRequests();
-      res.json(requests);
+      const finds = await storage.getAllFinds();
+      res.json(finds);
     } catch (error) {
-      console.error('Failed to fetch admin requests:', error);
-      res.status(500).json({ message: "Failed to fetch requests" });
+      console.error('Failed to fetch admin finds:', error);
+      res.status(500).json({ message: "Failed to fetch finds" });
     }
   });
 
@@ -1355,7 +1355,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const senderUser = await storage.getUser(req.user.userId);
         const proposal = await storage.getProposal(conversation.proposalId);
-        const request = proposal ? await storage.getRequest(proposal.requestId) : null;
+        const request = proposal ? await storage.getFind(proposal.findId) : null;
 
         if (senderUser && request) {
           // Determine recipient based on sender role
@@ -1606,10 +1606,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const withdrawals = await storage.getWithdrawalRequests();
+      const withdrawals = await storage.getWithdrawalFinds();
       res.json(withdrawals);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch withdrawal requests" });
+      res.status(500).json({ message: "Failed to fetch withdrawal finds" });
     }
   });
 
@@ -1626,7 +1626,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid status" });
       }
 
-      const withdrawal = await storage.updateWithdrawalRequest(id, {
+      const withdrawal = await storage.updateWithdrawalFind(id, {
         status,
         adminNotes,
         processedBy: req.user.userId
@@ -1665,7 +1665,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Insufficient balance" });
       }
 
-      const withdrawal = await storage.createWithdrawalRequest({
+      const withdrawal = await storage.createWithdrawalFind({
         finderId: finder.id,
         amount,
         paymentMethod,
@@ -1968,7 +1968,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Public blog post route (by slug)
-  app.get("/api/blog/:slug", async (req: Request, res: Response) => {
+  app.get("/api/blog/:slug", async (req: Find, res: Response) => {
     try {
       const { slug } = req.params;
       const post = await storage.getBlogPostBySlug(slug);
@@ -2014,7 +2014,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const clientUser = await storage.getUser(contract.clientId);
           const finderUser = await storage.getUser(req.user.userId);
           const proposal = await storage.getProposal(contract.proposalId);
-          const request = proposal ? await storage.getRequest(proposal.requestId) : null;
+          const request = proposal ? await storage.getFind(proposal.findId) : null;
           
           if (clientUser && finderUser && request) {
             await emailService.notifyClientOrderSubmission(
@@ -2095,7 +2095,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const finderUser = finder ? await storage.getUser(finder.userId) : null;
           const clientUser = await storage.getUser(req.user.userId);
           const proposal = await storage.getProposal(contract.proposalId);
-          const request = proposal ? await storage.getRequest(proposal.requestId) : null;
+          const request = proposal ? await storage.getFind(proposal.findId) : null;
 
           if (finderUser && clientUser && request) {
             if (status === 'accepted') {

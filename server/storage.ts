@@ -1,8 +1,8 @@
 import { 
   type User, 
   type InsertUser, 
-  type Finder,
-  type InsertFinder,
+  type Requester,
+  type InsertRequester,
   type Request,
   type InsertRequest,
   type Proposal,
@@ -32,7 +32,7 @@ import {
 
   users,
   finders,
-  requests,
+  finds,
   proposals,
   contracts,
   reviews,
@@ -64,22 +64,22 @@ export interface IStorage {
   createFinder(finder: InsertFinder): Promise<Finder>;
   updateFinder(id: string, updates: Partial<Finder>): Promise<Finder | undefined>;
 
-  // Request operations
-  getRequest(id: string): Promise<Request | undefined>;
-  getRequestsByClientId(clientId: string): Promise<Request[]>;
-  getAllActiveRequests(): Promise<Request[]>;
-  getAllRequests(): Promise<Request[]>;
-  getAvailableRequestsForFinders(): Promise<Request[]>;
-  createRequest(request: InsertRequest): Promise<Request>;
-  updateRequest(id: string, updates: Partial<Request>): Promise<Request | undefined>;
+  // Find operations
+  getFind(id: string): Promise<Find | undefined>;
+  getFindsByClientId(clientId: string): Promise<Find[]>;
+  getAllActiveRequests(): Promise<Find[]>;
+  getAllFinds(): Promise<Find[]>;
+  getAvailableRequestsForFinders(): Promise<Find[]>;
+  createFind(find: InsertFind): Promise<Find>;
+  updateFind(id: string, updates: Partial<Find>): Promise<Find | undefined>;
 
   // Proposal operations
   getProposal(id: string): Promise<Proposal | undefined>;
-  getProposalsByRequestId(requestId: string): Promise<Proposal[]>;
+  getProposalsByFindId(findId: string): Promise<Proposal[]>;
   getProposalsByFinderId(finderId: string): Promise<Proposal[]>;
   getAllProposals(): Promise<Proposal[]>;
-  getProposalByFinderAndRequest(finderId: string, requestId: string): Promise<Proposal | undefined>;
-  hasAcceptedProposal(requestId: string): Promise<boolean>;
+  getProposalByFinderAndFind(finderId: string, findId: string): Promise<Proposal | undefined>;
+  hasAcceptedProposal(findId: string): Promise<boolean>;
   getClientContactForAcceptedProposal(proposalId: string, finderId: string): Promise<{firstName: string, lastName: string, email: string, phone?: string} | undefined>;
   createProposal(proposal: InsertProposal): Promise<Proposal>;
   updateProposal(id: string, updates: Partial<Proposal>): Promise<Proposal | undefined>;
@@ -122,9 +122,9 @@ export interface IStorage {
   unverifyUser(userId: string): Promise<User | undefined>;
   
   // Withdrawal operations
-  createWithdrawalRequest(request: InsertWithdrawalRequest): Promise<WithdrawalRequest>;
+  createWithdrawalRequest(request: InsertWithdrawalFind): Promise<WithdrawalFind>;
   getWithdrawalRequests(): Promise<any[]>;
-  updateWithdrawalRequest(id: string, updates: Partial<WithdrawalRequest>): Promise<WithdrawalRequest | undefined>;
+  updateWithdrawalRequest(id: string, updates: Partial<WithdrawalFind>): Promise<WithdrawalFind | undefined>;
   updateFinderBalance(finderId: string, amount: string): Promise<void>;
 
   // Messaging operations
@@ -132,13 +132,13 @@ export interface IStorage {
   getConversationById(conversationId: string): Promise<Conversation | undefined>;
   createConversation(conversation: InsertConversation): Promise<Conversation>;
   getConversationsByClientId(clientId: string): Promise<Array<Conversation & {
-    proposal: { request: { title: string; }; }; 
+    proposal: { find: { title: string; }; }; 
     finder: { user: { firstName: string; lastName: string; }; }; 
     lastMessage?: { content: string; createdAt: Date; senderId: string; };
     unreadCount: number;
   }>>;
   getConversationsByFinderId(finderId: string): Promise<Array<Conversation & {
-    proposal: { request: { title: string; }; }; 
+    proposal: { find: { title: string; }; }; 
     client: { firstName: string; lastName: string; }; 
     lastMessage?: { content: string; createdAt: Date; senderId: string; };
     unreadCount: number;
@@ -198,63 +198,63 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id));
   }
 
-  async getFinder(id: string): Promise<Finder | undefined> {
+  async getFinder(id: string): Promise<Requester | undefined> {
     const [finder] = await db.select().from(finders).where(eq(finders.id, id));
-    return finder || undefined;
+    return requester || undefined;
   }
 
-  async getFinderByUserId(userId: string): Promise<Finder | undefined> {
+  async getFinderByUserId(userId: string): Promise<Requester | undefined> {
     const [finder] = await db.select().from(finders).where(eq(finders.userId, userId));
-    return finder || undefined;
+    return requester || undefined;
   }
 
-  async createFinder(insertFinder: InsertFinder): Promise<Finder> {
+  async createFinder(insertRequester: InsertRequester): Promise<Requester> {
     const [finder] = await db
       .insert(finders)
-      .values(insertFinder)
+      .values(insertRequester)
       .returning();
     
     // Create initial token record
     await this.createTokenRecord(finder.id);
     
-    return finder;
+    return requester;
   }
 
-  async updateFinder(id: string, updates: Partial<Finder>): Promise<Finder | undefined> {
+  async updateFinder(id: string, updates: Partial<Finder>): Promise<Requester | undefined> {
     const [finder] = await db
       .update(finders)
       .set(updates)
       .where(eq(finders.id, id))
       .returning();
-    return finder || undefined;
+    return requester || undefined;
   }
 
-  async getRequest(id: string): Promise<Request | undefined> {
-    const [request] = await db.select().from(requests).where(eq(requests.id, id));
+  async getFind(id: string): Promise<Request | undefined> {
+    const [request] = await db.select().from(requests).where(eq(finds.id, id));
     return request || undefined;
   }
 
-  async getRequestsByClientId(clientId: string): Promise<Request[]> {
+  async getFindsByClientId(clientId: string): Promise<Request[]> {
     return await db
       .select()
       .from(requests)
-      .where(eq(requests.clientId, clientId))
-      .orderBy(desc(requests.createdAt));
+      .where(eq(finds.clientId, clientId))
+      .orderBy(desc(finds.createdAt));
   }
 
-  async getAllActiveRequests(): Promise<Request[]> {
+  async getAllActiveFinds(): Promise<Request[]> {
     return await db
       .select()
       .from(requests)
-      .where(eq(requests.status, "open"))
-      .orderBy(desc(requests.createdAt));
+      .where(eq(finds.status, "open"))
+      .orderBy(desc(finds.createdAt));
   }
 
-  async getAllRequests(): Promise<Request[]> {
+  async getAllFinds(): Promise<Request[]> {
     return await db
       .select()
       .from(requests)
-      .orderBy(desc(requests.createdAt));
+      .orderBy(desc(finds.createdAt));
   }
 
   async getAllProposals(): Promise<Proposal[]> {
@@ -264,18 +264,18 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(proposals.createdAt));
   }
 
-  async getAvailableRequestsForFinders(): Promise<Request[]> {
+  async getAvailableFindsForFinders(): Promise<Request[]> {
     // Get all open requests that don't have any accepted proposals
     const availableRequests = await db
       .select()
       .from(requests)
-      .where(eq(requests.status, "open"))
-      .orderBy(desc(requests.createdAt));
+      .where(eq(finds.status, "open"))
+      .orderBy(desc(finds.createdAt));
     
     // Filter out requests that have accepted proposals
     const filteredRequests = [];
     for (const request of availableRequests) {
-      const hasAccepted = await this.hasAcceptedProposal(request.id);
+      const hasAccepted = await this.hasAcceptedProposal(find.id);
       if (!hasAccepted) {
         filteredRequests.push(request);
       }
@@ -284,7 +284,7 @@ export class DatabaseStorage implements IStorage {
     return filteredRequests;
   }
 
-  async createRequest(insertRequest: InsertRequest): Promise<Request> {
+  async createFind(insertRequest: InsertRequest): Promise<Request> {
     const [request] = await db
       .insert(requests)
       .values(insertRequest)
@@ -292,11 +292,11 @@ export class DatabaseStorage implements IStorage {
     return request;
   }
 
-  async updateRequest(id: string, updates: Partial<Request>): Promise<Request | undefined> {
+  async updateFind(id: string, updates: Partial<Request>): Promise<Request | undefined> {
     const [request] = await db
       .update(requests)
       .set(updates)
-      .where(eq(requests.id, id))
+      .where(eq(finds.id, id))
       .returning();
     return request || undefined;
   }
@@ -311,7 +311,7 @@ export class DatabaseStorage implements IStorage {
       .select({
         // Proposal fields
         id: proposals.id,
-        requestId: proposals.requestId,
+        findId: proposals.findId,
         finderId: proposals.finderId,
         approach: proposals.approach,
         price: proposals.price,
@@ -319,12 +319,12 @@ export class DatabaseStorage implements IStorage {
         notes: proposals.notes,
         status: proposals.status,
         createdAt: proposals.createdAt,
-        // Request fields
-        requestTitle: requests.title,
-        requestDescription: requests.description,
-        requestCategory: requests.category,
-        requestBudgetMin: requests.budgetMin,
-        requestBudgetMax: requests.budgetMax,
+        // Find fields
+        requestTitle: finds.title,
+        requestDescription: finds.description,
+        requestCategory: finds.category,
+        requestBudgetMin: finds.budgetMin,
+        requestBudgetMax: finds.budgetMax,
         // Finder user fields
         finderFirstName: users.firstName,
         finderLastName: users.lastName,
@@ -334,7 +334,7 @@ export class DatabaseStorage implements IStorage {
         finderRating: finders.averageRating,
       })
       .from(proposals)
-      .innerJoin(requests, eq(proposals.requestId, requests.id))
+      .innerJoin(requests, eq(proposals.findId, finds.id))
       .innerJoin(finders, eq(proposals.finderId, finders.id))
       .innerJoin(users, eq(finders.userId, users.id))
       .where(eq(proposals.id, id))
@@ -375,11 +375,11 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async getProposalsByRequestId(requestId: string): Promise<Proposal[]> {
+  async getProposalsByFindId(requestId: string): Promise<Proposal[]> {
     return await db
       .select()
       .from(proposals)
-      .where(eq(proposals.requestId, requestId))
+      .where(eq(proposals.findId, requestId))
       .orderBy(desc(proposals.createdAt));
   }
 
@@ -387,7 +387,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({
         id: proposals.id,
-        requestId: proposals.requestId,
+        findId: proposals.findId,
         finderId: proposals.finderId,
         approach: proposals.approach,
         price: proposals.price,
@@ -399,10 +399,10 @@ export class DatabaseStorage implements IStorage {
         finderLastName: users.lastName,
       })
       .from(proposals)
-      .innerJoin(requests, eq(proposals.requestId, requests.id))
+      .innerJoin(requests, eq(proposals.findId, finds.id))
       .innerJoin(finders, eq(proposals.finderId, finders.id))
       .innerJoin(users, eq(finders.userId, users.id))
-      .where(eq(requests.clientId, clientId))
+      .where(eq(finds.clientId, clientId))
       .orderBy(desc(proposals.createdAt));
 
     return result.map(row => ({
@@ -427,11 +427,11 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(proposals.createdAt));
   }
 
-  async getProposalByFinderAndRequest(finderId: string, requestId: string): Promise<Proposal | undefined> {
+  async getProposalByFinderAndFind(finderId: string, requestId: string): Promise<Proposal | undefined> {
     const [proposal] = await db
       .select()
       .from(proposals)
-      .where(and(eq(proposals.finderId, finderId), eq(proposals.requestId, requestId)));
+      .where(and(eq(proposals.finderId, finderId), eq(proposals.findId, requestId)));
     return proposal || undefined;
   }
 
@@ -439,7 +439,7 @@ export class DatabaseStorage implements IStorage {
     const [result] = await db
       .select()
       .from(proposals)
-      .where(and(eq(proposals.requestId, requestId), eq(proposals.status, 'accepted')))
+      .where(and(eq(proposals.findId, requestId), eq(proposals.status, 'accepted')))
       .limit(1);
     return !!result;
   }
@@ -453,8 +453,8 @@ export class DatabaseStorage implements IStorage {
         phone: users.phone
       })
       .from(proposals)
-      .innerJoin(requests, eq(proposals.requestId, requests.id))
-      .innerJoin(users, eq(requests.clientId, users.id))
+      .innerJoin(requests, eq(proposals.findId, finds.id))
+      .innerJoin(users, eq(finds.clientId, users.id))
       .where(and(
         eq(proposals.id, proposalId),
         eq(proposals.finderId, finderId),
@@ -496,7 +496,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select({
         id: contracts.id,
-        requestId: contracts.requestId,
+        requestId: contracts.findId,
         proposalId: contracts.proposalId,
         clientId: contracts.clientId,
         finderId: contracts.finderId,
@@ -507,15 +507,15 @@ export class DatabaseStorage implements IStorage {
         createdAt: contracts.createdAt,
         completedAt: contracts.completedAt,
         request: {
-          title: requests.title,
-          description: requests.description
+          title: finds.title,
+          description: finds.description
         },
         finder: {
           name: sql<string>`COALESCE(${users.firstName} || ' ' || ${users.lastName}, 'Unknown Finder')`
         }
       })
       .from(contracts)
-      .leftJoin(requests, eq(contracts.requestId, requests.id))
+      .leftJoin(requests, eq(contracts.findId, finds.id))
       .leftJoin(finders, eq(contracts.finderId, finders.id))
       .leftJoin(users, eq(finders.userId, users.id))
       .where(eq(contracts.clientId, clientId))
@@ -526,7 +526,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select({
         id: contracts.id,
-        requestId: contracts.requestId,
+        requestId: contracts.findId,
         proposalId: contracts.proposalId,
         clientId: contracts.clientId,
         finderId: contracts.finderId,
@@ -537,12 +537,12 @@ export class DatabaseStorage implements IStorage {
         createdAt: contracts.createdAt,
         completedAt: contracts.completedAt,
         request: {
-          title: requests.title,
-          description: requests.description
+          title: finds.title,
+          description: finds.description
         }
       })
       .from(contracts)
-      .leftJoin(requests, eq(contracts.requestId, requests.id))
+      .leftJoin(requests, eq(contracts.findId, finds.id))
       .where(eq(contracts.finderId, finderId))
       .orderBy(desc(contracts.createdAt));
   }
@@ -564,7 +564,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({
         id: contracts.id,
-        requestId: contracts.requestId,
+        requestId: contracts.findId,
         proposalId: contracts.proposalId,
         amount: contracts.amount,
         escrowStatus: contracts.escrowStatus,
@@ -573,12 +573,12 @@ export class DatabaseStorage implements IStorage {
         createdAt: contracts.createdAt,
         completedAt: contracts.completedAt,
         request: {
-          title: requests.title,
-          description: requests.description
+          title: finds.title,
+          description: finds.description
         }
       })
       .from(contracts)
-      .leftJoin(requests, eq(contracts.requestId, requests.id))
+      .leftJoin(requests, eq(contracts.findId, finds.id))
       .where(
         and(
           eq(contracts.id, contractId),
@@ -759,7 +759,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({
         conversation: conversations,
-        requestTitle: requests.title,
+        requestTitle: finds.title,
         finderFirstName: users.firstName,
         finderLastName: users.lastName,
         lastMessageContent: sql<string>`(
@@ -786,7 +786,7 @@ export class DatabaseStorage implements IStorage {
       })
       .from(conversations)
       .innerJoin(proposals, eq(conversations.proposalId, proposals.id))
-      .innerJoin(requests, eq(proposals.requestId, requests.id))
+      .innerJoin(requests, eq(proposals.findId, finds.id))
       .innerJoin(finders, eq(conversations.finderId, finders.id))
       .innerJoin(users, eq(finders.userId, users.id))
       .where(eq(conversations.clientId, clientId))
@@ -823,7 +823,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select({
         conversation: conversations,
-        requestTitle: requests.title,
+        requestTitle: finds.title,
         clientFirstName: users.firstName,
         clientLastName: users.lastName,
         lastMessageContent: sql<string>`(
@@ -850,7 +850,7 @@ export class DatabaseStorage implements IStorage {
       })
       .from(conversations)
       .innerJoin(proposals, eq(conversations.proposalId, proposals.id))
-      .innerJoin(requests, eq(proposals.requestId, requests.id))
+      .innerJoin(requests, eq(proposals.findId, finds.id))
       .innerJoin(users, eq(conversations.clientId, users.id))
       .where(eq(conversations.finderId, finderId))
       .orderBy(desc(conversations.lastMessageAt));
@@ -979,13 +979,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Finder Profile Management  
-  async updateFinder(finderId: string, updates: Partial<Finder>): Promise<Finder | null> {
+  async updateFinder(finderId: string, updates: Partial<Finder>): Promise<Requester | null> {
     const [finder] = await db
       .update(finders)
       .set(updates)
       .where(eq(finders.id, finderId))
       .returning();
-    return finder || null;
+    return requester || null;
   }
 
   async getTransactionsByFinderId(finderId: string): Promise<Transaction[]> {
@@ -1060,7 +1060,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getWithdrawalsByFinderId(finderId: string): Promise<WithdrawalRequest[]> {
+  async getWithdrawalsByFinderId(finderId: string): Promise<WithdrawalFind[]> {
     return await db
       .select()
       .from(withdrawalRequests)
@@ -1068,7 +1068,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(withdrawalRequests.requestedAt));
   }
 
-  async createWithdrawalRequest(finderId: string, amount: number): Promise<WithdrawalRequest> {
+  async createWithdrawalRequest(finderId: string, amount: number): Promise<WithdrawalFind> {
     const [withdrawal] = await db
       .insert(withdrawalRequests)
       .values({
@@ -1153,22 +1153,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Finder Verification
-  async verifyFinder(finderId: string): Promise<Finder | null> {
+  async verifyFinder(finderId: string): Promise<Requester | null> {
     const [finder] = await db
       .update(finders)
       .set({ isVerified: true })
       .where(eq(finders.id, finderId))
       .returning();
-    return finder || null;
+    return requester || null;
   }
 
-  async unverifyFinder(finderId: string): Promise<Finder | null> {
+  async unverifyFinder(finderId: string): Promise<Requester | null> {
     const [finder] = await db
       .update(finders)
       .set({ isVerified: false })
       .where(eq(finders.id, finderId))
       .returning();
-    return finder || null;
+    return requester || null;
   }
 
   // Admin Settings
@@ -1200,8 +1200,8 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Withdrawal Requests
-  async createWithdrawalRequest(requestData: InsertWithdrawalRequest): Promise<WithdrawalRequest> {
+  // Withdrawal Finds
+  async createWithdrawalRequest(requestData: InsertWithdrawalFind): Promise<WithdrawalFind> {
     const [request] = await db
       .insert(withdrawalRequests)
       .values(requestData)
@@ -1209,7 +1209,7 @@ export class DatabaseStorage implements IStorage {
     return request;
   }
 
-  async getWithdrawalRequests(): Promise<Array<WithdrawalRequest & { finder: { user: { firstName: string; lastName: string; email: string; } } }>> {
+  async getWithdrawalRequests(): Promise<Array<WithdrawalFind & { finder: { user: { firstName: string; lastName: string; email: string; } } }>> {
     return await db
       .select({
         id: withdrawalRequests.id,
@@ -1234,7 +1234,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(withdrawalRequests.requestedAt));
   }
 
-  async updateWithdrawalRequest(id: string, updates: Partial<WithdrawalRequest>): Promise<WithdrawalRequest | null> {
+  async updateWithdrawalRequest(id: string, updates: Partial<WithdrawalFind>): Promise<WithdrawalFind | null> {
     const [request] = await db
       .update(withdrawalRequests)
       .set({ ...updates, processedAt: new Date() })
@@ -1373,7 +1373,7 @@ export class DatabaseStorage implements IStorage {
         await db
           .update(requests)
           .set({ status: 'completed' })
-          .where(eq(requests.id, contract.requestId));
+          .where(eq(finds.id, contract.requestId));
 
         // Update contract as completed
         await db
