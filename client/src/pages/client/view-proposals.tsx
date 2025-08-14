@@ -76,8 +76,8 @@ export default function ViewProposals() {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">View Proposals</h1>
           <div className="flex items-center justify-between">
             <p className="text-gray-600">Review and manage proposals from finders</p>
-            <Link href="/client/requests" className="text-red-600 hover:underline text-sm">
-              Sort and Proposals →
+            <Link href="/client/browse-requests" className="text-red-600 hover:underline text-sm">
+              View All Requests →
             </Link>
           </div>
         </div>
