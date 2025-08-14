@@ -53,18 +53,10 @@ export default function WithdrawalSettings() {
   }, [withdrawalSettings]);
 
   const updateSettingsMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await fetch('/api/finder/withdrawal-settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error('Failed to update settings');
-      return response.json();
-    },
+    mutationFn: (data: any) => apiRequest('/api/finder/withdrawal-settings', {
+      method: 'PUT',
+      body: data,
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/withdrawal-settings'] });
       toast({
@@ -82,22 +74,14 @@ export default function WithdrawalSettings() {
   });
 
   const requestWithdrawalMutation = useMutation({
-    mutationFn: async (amount: number) => {
-      const response = await fetch('/api/finder/withdraw', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ 
-          amount,
-          paymentMethod: 'bank_transfer',
-          paymentDetails: formData 
-        }),
-      });
-      if (!response.ok) throw new Error('Failed to request withdrawal');
-      return response.json();
-    },
+    mutationFn: (amount: number) => apiRequest('/api/finder/withdraw', {
+      method: 'POST',
+      body: { 
+        amount,
+        paymentMethod: 'bank_transfer',
+        paymentDetails: formData 
+      },
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/withdrawals'] });
       toast({
