@@ -3,8 +3,9 @@ import { useParams, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MessageCircle, Clock, CheckCircle, FileText, Calendar, DollarSign } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, FileText, Calendar, DollarSign } from "lucide-react";
 import ClientHeader from "@/components/client-header";
+import StartConversationButton from "@/components/StartConversationButton";
 
 interface ContractDetails {
   id: string;
@@ -147,12 +148,11 @@ export default function ContractDetails() {
               )}
 
               <div className="flex items-center gap-3 mt-6">
-                <Link href={`/messages?proposalId=${contract.proposalId}`}>
-                  <Button variant="outline">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Message {contract.finder?.name || "Finder"}
-                  </Button>
-                </Link>
+                <StartConversationButton 
+                  proposalId={contract.proposalId}
+                  finderName={contract.finder?.name || "Finder"}
+                  variant="outline"
+                />
                 
                 {contract.hasSubmission && (
                   <Link href={`/orders/review/${contract.id}`}>
