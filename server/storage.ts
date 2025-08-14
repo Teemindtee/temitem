@@ -490,6 +490,59 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(contracts.completedAt));
   }
 
+  async getContractDetails(contractId: string, finderId: string): Promise<any> {
+    const result = await db
+      .select({
+        id: contracts.id,
+        requestId: contracts.requestId,
+        proposalId: contracts.proposalId,
+        amount: contracts.amount,
+        escrowStatus: contracts.escrowStatus,
+        isCompleted: contracts.isCompleted,
+        hasSubmission: contracts.hasSubmission,
+        createdAt: contracts.createdAt,
+        completedAt: contracts.completedAt,
+        request: {
+          title: requests.title,
+          description: requests.description
+        }
+      })
+      .from(contracts)
+      .leftJoin(requests, eq(contracts.requestId, requests.id))
+      .where(
+        and(
+          eq(contracts.id, contractId),
+          eq(contracts.finderId, finderId)
+        )
+      )
+      .limit(1);
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    const contract = result[0];
+
+    // Get order submission if it exists
+    let orderSubmission = null;
+    if (contract.hasSubmission) {
+      const submissionResult = await db
+        .select()
+        .from(orderSubmissions)
+        .where(eq(orderSubmissions.contractId, contractId))
+        .limit(1);
+      
+      if (submissionResult.length > 0) {
+        orderSubmission = submissionResult[0];
+      }
+    }
+
+    return {
+      ...contract,
+      orderSubmission
+    };
+  }
+
   async createContract(insertContract: InsertContract): Promise<Contract> {
     const [contract] = await db
       .insert(contracts)

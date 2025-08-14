@@ -40,6 +40,7 @@ import FinderTokens from "@/pages/finder/tokens";
 import FinderWithdrawals from "@/pages/finder/withdrawals";
 import FinderSecurity from "@/pages/finder/security";
 import FinderContracts from "@/pages/finder/contracts";
+import FinderContractDetails from "@/pages/finder/contract-details";
 import MobileLanding from "@/pages/mobile-landing";
 import ClientMobileDashboard from "@/pages/client/mobile-dashboard";
 import OrderSubmission from "@/pages/order-submission";
@@ -71,6 +72,7 @@ function Router() {
       <Route path="/finder/proposals" component={FinderProposals} />
       <Route path="/finder/proposals/:id" component={FinderProposalDetails} />
       <Route path="/finder/contracts" component={FinderContracts} />
+      <Route path="/finder/contracts/:contractId" component={FinderContractDetails} />
       <Route path="/finder/profile" component={FinderProfile} />
       <Route path="/finder-profile/:userId" component={FinderPublicProfile} />
       <Route path="/finder/tokens" component={FinderTokens} />

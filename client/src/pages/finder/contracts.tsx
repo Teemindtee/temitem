@@ -87,20 +87,21 @@ export default function FinderContracts() {
         ) : (
           <div className="space-y-6">
             {contracts.map((contract) => (
-              <Card key={contract.id} className="border hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-xl text-gray-900 mb-2">
-                        {contract.request.title}
-                      </CardTitle>
-                      <p className="text-gray-600 line-clamp-2">
-                        {contract.request.description}
-                      </p>
+              <Link key={contract.id} href={`/finder/contracts/${contract.id}`}>
+                <Card className="border hover:shadow-md transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-xl text-gray-900 mb-2">
+                          {contract.request.title}
+                        </CardTitle>
+                        <p className="text-gray-600 line-clamp-2">
+                          {contract.request.description}
+                        </p>
+                      </div>
+                      {getStatusBadge(contract)}
                     </div>
-                    {getStatusBadge(contract)}
-                  </div>
-                </CardHeader>
+                  </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-6">
@@ -114,7 +115,7 @@ export default function FinderContracts() {
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3" onClick={(e) => e.stopPropagation()}>
                       {contract.isCompleted ? (
                         <Button variant="outline" disabled>
                           <CheckCircle className="w-4 h-4 mr-2" />
@@ -126,25 +127,28 @@ export default function FinderContracts() {
                             <Clock className="w-4 h-4 mr-2" />
                             Under Review
                           </Button>
-                          <Link href={`/orders/submit/${contract.id}`}>
-                            <Button variant="outline" size="sm">
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              View Submission
-                            </Button>
-                          </Link>
+                          <Button variant="outline" size="sm" onClick={(e) => {
+                            e.preventDefault();
+                            window.location.href = `/orders/submit/${contract.id}`;
+                          }}>
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            View Submission
+                          </Button>
                         </div>
                       ) : (
-                        <Link href={`/orders/submit/${contract.id}`}>
-                          <Button className="bg-red-600 hover:bg-red-700 text-white">
-                            <Upload className="w-4 h-4 mr-2" />
-                            Submit Work
-                          </Button>
-                        </Link>
+                        <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={(e) => {
+                          e.preventDefault();
+                          window.location.href = `/orders/submit/${contract.id}`;
+                        }}>
+                          <Upload className="w-4 h-4 mr-2" />
+                          Submit Work
+                        </Button>
                       )}
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+                </Card>
+              </Link>
             ))}
           </div>
         )}
