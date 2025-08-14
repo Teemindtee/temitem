@@ -143,7 +143,7 @@ export default function TokenBalance() {
                 <Card className="border-2 hover:border-red-200 cursor-pointer transition-colors">
                   <CardContent className="p-4 text-center">
                     <div className="text-2xl font-bold text-gray-900 mb-1">10 Tokens</div>
-                    <div className="text-lg font-semibold text-red-600 mb-2">$50</div>
+                    <div className="text-lg font-semibold text-red-600 mb-2">₦5,000</div>
                     <div className="text-sm text-gray-600 mb-3">Submit 10 proposals</div>
                     <Button 
                       className="w-full bg-red-600 hover:bg-red-700"
@@ -160,18 +160,28 @@ export default function TokenBalance() {
                   </div>
                   <CardContent className="p-4 text-center">
                     <div className="text-2xl font-bold text-gray-900 mb-1">25 Tokens</div>
-                    <div className="text-lg font-semibold text-red-600 mb-2">$100</div>
+                    <div className="text-lg font-semibold text-red-600 mb-2">₦10,000</div>
                     <div className="text-sm text-gray-600 mb-3">Submit 25 proposals</div>
-                    <Button className="w-full bg-red-600 hover:bg-red-700">Purchase</Button>
+                    <Button 
+                      className="w-full bg-red-600 hover:bg-red-700"
+                      onClick={() => window.location.href = '/finder/token-purchase'}
+                    >
+                      Purchase
+                    </Button>
                   </CardContent>
                 </Card>
 
                 <Card className="border-2 hover:border-red-200 cursor-pointer transition-colors">
                   <CardContent className="p-4 text-center">
                     <div className="text-2xl font-bold text-gray-900 mb-1">50 Tokens</div>
-                    <div className="text-lg font-semibold text-red-600 mb-2">$180</div>
+                    <div className="text-lg font-semibold text-red-600 mb-2">₦18,000</div>
                     <div className="text-sm text-gray-600 mb-3">Submit 50 proposals</div>
-                    <Button className="w-full bg-red-600 hover:bg-red-700">Purchase</Button>
+                    <Button 
+                      className="w-full bg-red-600 hover:bg-red-700"
+                      onClick={() => window.location.href = '/finder/token-purchase'}
+                    >
+                      Purchase
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
