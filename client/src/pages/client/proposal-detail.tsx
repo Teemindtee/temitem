@@ -13,6 +13,7 @@ import type { Proposal } from "@shared/schema";
 
 type ProposalWithDetails = Proposal & {
   finder: {
+    id: string;
     user: { firstName: string; lastName: string; email: string; };
     completedJobs: number;
     rating: number;
@@ -96,7 +97,7 @@ export default function ProposalDetail() {
     );
   }
 
-  if (!proposal) {
+  if (!proposal && !isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <ClientHeader />
@@ -107,6 +108,39 @@ export default function ProposalDetail() {
             <Link href="/client/proposals">
               <Button>Back to Proposals</Button>
             </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If still loading or proposal not ready, don't render the main content
+  if (!proposal) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <ClientHeader />
+        <div className="container mx-auto py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center mb-6">
+              <Link href="/client/proposals">
+                <Button variant="ghost" size="sm" className="mr-4">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Proposals
+                </Button>
+              </Link>
+              <div className="animate-pulse">
+                <div className="h-8 bg-gray-200 rounded w-64"></div>
+              </div>
+            </div>
+            <Card>
+              <CardContent className="p-6">
+                <div className="animate-pulse space-y-4">
+                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-20 bg-gray-200 rounded"></div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
