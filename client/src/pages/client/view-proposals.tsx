@@ -16,6 +16,21 @@ export default function ViewProposals() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Check if user is a client, redirect if not
+  if (user && user.role !== 'client') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600 mb-4">This page is only available for clients.</p>
+          <Link href="/finder/dashboard">
+            <Button>Go to Finder Dashboard</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const { data: proposals = [], isLoading: proposalsLoading } = useQuery<any[]>({
     queryKey: ['/api/client/proposals'],
     enabled: !!user
@@ -128,7 +143,7 @@ export default function ViewProposals() {
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-sm text-gray-600">Price</p>
-                        <p className="text-lg font-semibold text-green-600">${proposal.price || '150-200'}</p>
+                        <p className="text-lg font-semibold text-green-600">${proposal.price || 'TBD'}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-gray-600">Timeline</p>
@@ -209,7 +224,7 @@ export default function ViewProposals() {
                     {/* Price */}
                     <div className="col-span-2 text-center">
                       <div className="text-lg font-semibold text-green-600">
-                        ${proposal.price || '150-200'}
+                        ${proposal.price || 'TBD'}
                       </div>
                     </div>
 
