@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, CheckCircle, FileText, Calendar, DollarSign } from "lucide-react";
 import ClientHeader from "@/components/client-header";
 import StartConversationButton from "@/components/StartConversationButton";
+import EscrowStatusTracker from "@/components/EscrowStatusTracker";
 
 interface ContractDetails {
   id: string;
@@ -38,11 +39,6 @@ export default function ContractDetails() {
 
   const { data: contract, isLoading } = useQuery<ContractDetails>({
     queryKey: ["/api/client/contracts", contractId],
-    queryFn: () => fetch(`/api/client/contracts/${contractId}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    }).then(res => res.json()),
     enabled: !!contractId,
   });
 
@@ -98,6 +94,13 @@ export default function ContractDetails() {
         </div>
 
         <div className="space-y-6">
+          {/* Escrow Status Tracker */}
+          <EscrowStatusTracker 
+            escrowStatus={contract.escrowStatus}
+            isCompleted={contract.isCompleted}
+            hasSubmission={contract.hasSubmission}
+          />
+
           {/* Contract Overview */}
           <Card>
             <CardHeader>
