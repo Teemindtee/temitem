@@ -12,10 +12,12 @@ interface Contract {
   requestId: string;
   finderId: string;
   proposalId: string;
-  price: number;
-  status: "active" | "completed" | "cancelled";
-  startDate: string;
+  amount: string;
+  escrowStatus: string;
+  isCompleted: boolean;
+  createdAt: string;
   completedAt?: string;
+  hasSubmission?: boolean;
   request?: {
     title: string;
     description: string;
@@ -31,7 +33,7 @@ export default function ClientContracts() {
   const { data: contracts = [], isLoading } = useQuery({
     queryKey: ['/api/client/contracts'],
     enabled: !!user,
-  });
+  }) as { data: Contract[], isLoading: boolean };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -73,22 +75,22 @@ export default function ClientContracts() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {contracts.map((contract: Contract) => (
+            {contracts.map((contract) => (
               <Card key={contract.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-lg">{contract.request?.title}</CardTitle>
+                      <CardTitle className="text-lg">{contract.request?.title || "Contract"}</CardTitle>
                       <div className="flex items-center gap-2 mt-2">
                         <Badge 
                           variant={
-                            contract.status === "completed" ? "default" : 
-                            contract.status === "active" ? "secondary" : "destructive"
+                            contract.isCompleted ? "default" : 
+                            contract.escrowStatus === "held" ? "secondary" : "destructive"
                           }
                         >
-                          {contract.status === "completed" && <CheckCircle className="w-3 h-3 mr-1" />}
-                          {contract.status === "active" && <Clock className="w-3 h-3 mr-1" />}
-                          {contract.status.charAt(0).toUpperCase() + contract.status.slice(1)}
+                          {contract.isCompleted && <CheckCircle className="w-3 h-3 mr-1" />}
+                          {!contract.isCompleted && <Clock className="w-3 h-3 mr-1" />}
+                          {contract.isCompleted ? "Completed" : "Active"}
                         </Badge>
                         <span className="text-sm text-gray-500">
                           with {contract.finder?.name || "Finder"}
@@ -97,12 +99,12 @@ export default function ClientContracts() {
                     </div>
                     <div className="text-right">
                       <div className="text-lg font-semibold text-green-600">
-                        ${contract.price}
+                        ${contract.amount}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {contract.status === "completed" && contract.completedAt ? 
+                        {contract.isCompleted && contract.completedAt ? 
                           `Completed ${new Date(contract.completedAt).toLocaleDateString()}` :
-                          `Started ${new Date(contract.startDate).toLocaleDateString()}`
+                          `Started ${new Date(contract.createdAt).toLocaleDateString()}`
                         }
                       </div>
                     </div>
@@ -122,7 +124,7 @@ export default function ClientContracts() {
                       </Button>
                     </Link>
                     
-                    {contract.status === "active" && (
+                    {!contract.isCompleted && (
                       <Link href={`/client/contracts/${contract.id}`}>
                         <Button size="sm">
                           View Details
@@ -130,7 +132,7 @@ export default function ClientContracts() {
                       </Link>
                     )}
                     
-                    {contract.status === "completed" && (
+                    {contract.isCompleted && (
                       <Link href={`/client/contracts/${contract.id}/review`}>
                         <Button size="sm" variant="secondary">
                           Leave Review

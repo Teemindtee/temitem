@@ -405,10 +405,32 @@ export class DatabaseStorage implements IStorage {
     return contract || undefined;
   }
 
-  async getContractsByClientId(clientId: string): Promise<Contract[]> {
+  async getContractsByClientId(clientId: string): Promise<any[]> {
     return await db
-      .select()
+      .select({
+        id: contracts.id,
+        requestId: contracts.requestId,
+        proposalId: contracts.proposalId,
+        clientId: contracts.clientId,
+        finderId: contracts.finderId,
+        amount: contracts.amount,
+        escrowStatus: contracts.escrowStatus,
+        isCompleted: contracts.isCompleted,
+        hasSubmission: contracts.hasSubmission,
+        createdAt: contracts.createdAt,
+        completedAt: contracts.completedAt,
+        request: {
+          title: requests.title,
+          description: requests.description
+        },
+        finder: {
+          name: sql<string>`COALESCE(${users.firstName} || ' ' || ${users.lastName}, 'Unknown Finder')`
+        }
+      })
       .from(contracts)
+      .leftJoin(requests, eq(contracts.requestId, requests.id))
+      .leftJoin(finders, eq(contracts.finderId, finders.id))
+      .leftJoin(users, eq(finders.userId, users.id))
       .where(eq(contracts.clientId, clientId))
       .orderBy(desc(contracts.createdAt));
   }
