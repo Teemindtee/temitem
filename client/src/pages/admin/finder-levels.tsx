@@ -137,12 +137,20 @@ export default function AdminFinderLevels() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Submitting form data:', formData);
+    // Validate and clean form data
+    const cleanedData = {
+      ...formData,
+      minEarnedAmount: formData.minEarnedAmount || "0",
+      minJobsCompleted: formData.minJobsCompleted || 0,
+      minReviewPercentage: formData.minReviewPercentage || 0
+    };
+    
+    console.log('Submitting form data:', cleanedData);
     
     if (editingLevel) {
-      updateMutation.mutate({ id: editingLevel.id, data: formData });
+      updateMutation.mutate({ id: editingLevel.id, data: cleanedData });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(cleanedData);
     }
   };
 
