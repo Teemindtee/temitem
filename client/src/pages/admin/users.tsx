@@ -335,7 +335,7 @@ export default function AdminUsersModern() {
                   
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <Calendar className="w-4 h-4" />
-                    <span>Joined {new Date(userData.createdAt).toLocaleDateString()}</span>
+                    <span>Joined {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A'}</span>
                   </div>
                   
                   {/* Status Badges */}
