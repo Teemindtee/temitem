@@ -23,7 +23,11 @@ import {
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { Find } from "@shared/schema";
+import type { Find, User as UserType } from "@shared/schema";
+
+interface FindWithClient extends Find {
+  client?: UserType;
+}
 import { useState } from "react";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -38,7 +42,7 @@ export default function AdminRequestsModern() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const { data: finds = [], isLoading } = useQuery<Find[]>({
+  const { data: finds = [], isLoading } = useQuery<FindWithClient[]>({
     queryKey: ['/api/admin/finds'],
     enabled: !!user && user.role === 'admin'
   });
@@ -46,9 +50,9 @@ export default function AdminRequestsModern() {
   // Filter finds based on search and status
   const filteredFinds = finds.filter(find => {
     const matchesSearch = 
-      find.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      find.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      find.category.toLowerCase().includes(searchTerm.toLowerCase());
+      find.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      find.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      find.category?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || find.status === statusFilter;
     
@@ -97,7 +101,8 @@ export default function AdminRequestsModern() {
     }
   };
 
-  const formatCurrency = (amount: string | number) => {
+  const formatCurrency = (amount: string | number | null | undefined) => {
+    if (!amount) return '₦0';
     return `₦${parseFloat(amount.toString()).toLocaleString()}`;
   };
 
@@ -290,11 +295,13 @@ export default function AdminRequestsModern() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                           <User className="w-3 h-3" />
-                          <span className="truncate">{find.clientName || 'Anonymous'}</span>
+                          <span className="truncate">
+                            {find.client ? `${find.client.firstName} ${find.client.lastName}` : 'Client ID: ' + find.clientId.substring(0, 8)}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                           <Tag className="w-3 h-3" />
-                          <span className="truncate">{find.category}</span>
+                          <span className="truncate">{find.category || 'Uncategorized'}</span>
                         </div>
                       </div>
                     </td>
@@ -303,19 +310,19 @@ export default function AdminRequestsModern() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
                           <DollarSign className="w-3 h-3" />
-                          {formatCurrency(find.budget)}
+                          {formatCurrency(find.budgetMin || find.budgetMax || '0')}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                           <Calendar className="w-3 h-3" />
-                          {new Date(find.createdAt).toLocaleDateString()}
+                          {find.createdAt ? new Date(find.createdAt).toLocaleDateString() : 'N/A'}
                         </div>
                       </div>
                     </td>
                     
                     <td className="px-6 py-4">
-                      <Badge className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(find.status)}`}>
+                      <Badge className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(find.status || '')}`}>
                         <div className="flex items-center gap-1">
-                          {getStatusIcon(find.status)}
+                          {getStatusIcon(find.status || '')}
                           {find.status?.replace('_', ' ').charAt(0).toUpperCase() + find.status?.replace('_', ' ').slice(1) || 'Unknown'}
                         </div>
                       </Badge>
