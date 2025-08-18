@@ -57,16 +57,10 @@ export default function AdminFinderLevels() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => fetch('/api/admin/finder-levels', {
+    mutationFn: (data: any) => apiRequest('/api/admin/finder-levels', {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
-    }).then(res => {
-      if (!res.ok) throw new Error('Failed to create finder level');
-      return res.json();
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/finder-levels'] });
@@ -81,16 +75,10 @@ export default function AdminFinderLevels() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => 
-      fetch(`/api/admin/finder-levels/${id}`, {
+      apiRequest(`/api/admin/finder-levels/${id}`, {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-      }).then(res => {
-        if (!res.ok) throw new Error('Failed to update finder level');
-        return res.json();
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/finder-levels'] });
@@ -105,14 +93,8 @@ export default function AdminFinderLevels() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => 
-      fetch(`/api/admin/finder-levels/${id}`, {
-        method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      }).then(res => {
-        if (!res.ok) throw new Error('Failed to delete finder level');
-        return res.json();
+      apiRequest(`/api/admin/finder-levels/${id}`, {
+        method: 'DELETE'
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/finder-levels'] });
