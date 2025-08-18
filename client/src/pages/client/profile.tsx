@@ -153,9 +153,9 @@ export default function ClientProfile() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-slate-100 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-grid-white/[0.02] -z-10" />
-      <div className="absolute top-0 -left-4 w-72 h-72 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob -z-10" />
+      <div className="absolute top-0 -left-4 w-72 h-72 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob -z-10" style={{ backgroundColor: "hsl(1, 81%, 63%)" }} />
       <div className="absolute top-0 -right-4 w-72 h-72 bg-slate-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000 -z-10" />
-      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000 -z-10" />
+      <div className="absolute -bottom-8 left-20 w-72 h-72 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000 -z-10" style={{ backgroundColor: "hsl(1, 81%, 73%)" }} />
 
       {/* Header */}
       <header className="bg-white/95 backdrop-blur-lg border-b border-white/20 sticky top-0 z-50 shadow-lg shadow-slate-200/20">
@@ -170,7 +170,7 @@ export default function ClientProfile() {
             </button>
             
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <Badge className="bg-gradient-to-r from-red-600 to-red-800 text-white border-0 text-xs sm:text-sm px-3 py-1.5 shadow-lg">
+              <Badge className="text-white border-0 text-xs sm:text-sm px-3 py-1.5 shadow-lg" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                 <User className="w-3 h-3 mr-1.5" />
                 Client Account
               </Badge>
@@ -189,8 +189,8 @@ export default function ClientProfile() {
               <CardContent className="p-8 sm:p-10 text-center">
                 <div className="relative mb-8">
                   <div className="relative">
-                    <Avatar className="w-24 h-24 sm:w-28 sm:h-28 mx-auto border-4 border-white shadow-2xl ring-4 ring-red-100/50 transition-all duration-300 group-hover:ring-red-200/70">
-                      <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-800 text-white text-2xl sm:text-3xl font-bold">
+                    <Avatar className="w-24 h-24 sm:w-28 sm:h-28 mx-auto border-4 border-white shadow-2xl ring-4 transition-all duration-300 group-hover:ring-opacity-70" style={{ ringColor: "hsl(1, 81%, 90%)" }}>
+                      <AvatarFallback className="text-white text-2xl sm:text-3xl font-bold" style={{ background: "linear-gradient(to bottom right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                         {((user.firstName || "") + (user.lastName || ""))
                           .split(' ')
                           .map(n => n[0])
@@ -199,14 +199,14 @@ export default function ClientProfile() {
                           .slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute inset-0 w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full bg-gradient-to-br from-red-400/20 to-red-600/20 animate-pulse" />
+                    <div className="absolute inset-0 w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full animate-pulse" style={{ background: "linear-gradient(to bottom right, hsl(1, 81%, 63%, 0.2), hsl(1, 81%, 53%, 0.2))" }} />
                   </div>
-                  <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 ring-2 ring-white">
+                  <button className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 ring-2 ring-white" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                     <Camera className="w-5 h-5 text-white" />
                   </button>
                 </div>
                 
-                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-red-800 bg-clip-text text-transparent mb-3">
+                <h2 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent mb-3" style={{ backgroundImage: "linear-gradient(to right, hsl(213, 27%, 16%), hsl(1, 81%, 53%))" }}>
                   {user.firstName} {user.lastName}
                 </h2>
                 <p className="text-slate-600 mb-6 font-medium">{user.email}</p>
@@ -225,18 +225,18 @@ export default function ClientProfile() {
                   </span>
                 </div>
 
-                <Badge className="bg-gradient-to-r from-red-600 to-red-800 text-white border-0 px-4 py-2 mb-8 shadow-lg">
+                <Badge className="text-white border-0 px-4 py-2 mb-8 shadow-lg" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Verified Client
                 </Badge>
 
                 <div className="space-y-4 text-sm">
                   <div className="flex items-center justify-center bg-slate-50/80 rounded-full py-2 px-4">
-                    <Calendar className="w-4 h-4 mr-3 text-red-600" />
+                    <Calendar className="w-4 h-4 mr-3" style={{ color: "hsl(1, 81%, 53%)" }} />
                     <span className="font-medium text-slate-700">Joined {format(new Date(clientStats.joinDate), 'MMM yyyy')}</span>
                   </div>
                   <div className="flex items-center justify-center bg-slate-50/80 rounded-full py-2 px-4">
-                    <MapPin className="w-4 h-4 mr-3 text-red-600" />
+                    <MapPin className="w-4 h-4 mr-3" style={{ color: "hsl(1, 81%, 53%)" }} />
                     <span className="font-medium text-slate-700">Nigeria</span>
                   </div>
                 </div>
@@ -244,10 +244,10 @@ export default function ClientProfile() {
             </Card>
 
             {/* Quick Stats */}
-            <Card className="bg-gradient-to-br from-red-50/80 to-slate-50/80 backdrop-blur-xl border-white/30 shadow-2xl shadow-red-200/25 hover:shadow-3xl transition-all duration-500">
+            <Card className="backdrop-blur-xl border-white/30 shadow-2xl hover:shadow-3xl transition-all duration-500" style={{ background: "linear-gradient(135deg, hsl(1, 81%, 95%, 0.8), hsl(210, 20%, 95%, 0.8))", boxShadow: "0 25px 50px -12px hsl(1, 81%, 53%, 0.25)" }}>
               <CardContent className="p-8 sm:p-10">
                 <h3 className="font-bold text-slate-900 mb-6 flex items-center text-lg">
-                  <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-red-800 rounded-lg flex items-center justify-center mr-3">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                     <TrendingUp className="w-4 h-4 text-white" />
                   </div>
                   Client Statistics
@@ -256,8 +256,8 @@ export default function ClientProfile() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between bg-white/60 rounded-2xl p-4 hover:bg-white/80 transition-all duration-200">
                     <span className="text-sm font-medium text-slate-700 flex items-center">
-                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mr-3">
-                        <Target className="w-3 h-3 text-red-600" />
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center mr-3" style={{ backgroundColor: "hsl(1, 81%, 95%)" }}>
+                        <Target className="w-3 h-3" style={{ color: "hsl(1, 81%, 53%)" }} />
                       </div>
                       Total Finds
                     </span>
@@ -284,7 +284,7 @@ export default function ClientProfile() {
                     <span className="font-bold text-xl text-slate-600">{clientStats.completedFinds}</span>
                   </div>
 
-                  <div className="bg-gradient-to-r from-red-600 to-red-800 rounded-2xl p-6 text-center text-white shadow-lg">
+                  <div className="rounded-2xl p-6 text-center text-white shadow-lg" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                     <div className="text-3xl font-bold mb-2">
                       ₦{clientStats.totalSpent.toLocaleString()}
                     </div>
@@ -302,7 +302,7 @@ export default function ClientProfile() {
               <CardHeader className="pb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <CardTitle className="flex items-center text-slate-900 text-xl">
-                    <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-red-800 rounded-lg flex items-center justify-center mr-3">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                       <User className="w-4 h-4 text-white" />
                     </div>
                     Personal Information
@@ -310,7 +310,17 @@ export default function ClientProfile() {
                   {!isEditing ? (
                     <Button 
                       onClick={() => setIsEditing(true)}
-                      className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      style={{ 
+                        background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))",
+                        backgroundImage: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundImage = "linear-gradient(to right, hsl(1, 71%, 43%), hsl(1, 61%, 33%))";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundImage = "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))";
+                      }}
                       size="sm"
                     >
                       <Edit className="w-4 h-4 mr-2" />
@@ -330,7 +340,17 @@ export default function ClientProfile() {
                         onClick={handleSubmit}
                         disabled={updateProfile.isPending}
                         size="sm"
-                        className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                        style={{ 
+                          background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))",
+                          backgroundImage: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))"
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundImage = "linear-gradient(to right, hsl(1, 71%, 43%), hsl(1, 61%, 33%))";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundImage = "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))";
+                        }}
                       >
                         {updateProfile.isPending ? (
                           <>
@@ -360,7 +380,18 @@ export default function ClientProfile() {
                           value={formData.firstName}
                           onChange={handleChange}
                           placeholder="Enter your first name"
-                          className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-red-400 focus:ring-red-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                          className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                          style={{ 
+                            borderColor: "hsl(210, 20%, 90%)",
+                          }}
+                          onFocus={(e) => {
+                            e.currentTarget.style.borderColor = "hsl(1, 81%, 53%)";
+                            e.currentTarget.style.boxShadow = "0 0 0 3px hsl(1, 81%, 90%)";
+                          }}
+                          onBlur={(e) => {
+                            e.currentTarget.style.borderColor = "hsl(210, 20%, 90%)";
+                            e.currentTarget.style.boxShadow = "none";
+                          }}
                         />
                       </div>
                       <div>
@@ -371,7 +402,18 @@ export default function ClientProfile() {
                           value={formData.lastName}
                           onChange={handleChange}
                           placeholder="Enter your last name"
-                          className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-red-400 focus:ring-red-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                          className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                          style={{ 
+                            borderColor: "hsl(210, 20%, 90%)",
+                          }}
+                          onFocus={(e) => {
+                            e.currentTarget.style.borderColor = "hsl(1, 81%, 53%)";
+                            e.currentTarget.style.boxShadow = "0 0 0 3px hsl(1, 81%, 90%)";
+                          }}
+                          onBlur={(e) => {
+                            e.currentTarget.style.borderColor = "hsl(210, 20%, 90%)";
+                            e.currentTarget.style.boxShadow = "none";
+                          }}
                         />
                       </div>
                     </div>
@@ -385,7 +427,18 @@ export default function ClientProfile() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="Enter your email address"
-                        className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-red-400 focus:ring-red-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                        className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                        style={{ 
+                          borderColor: "hsl(210, 20%, 90%)",
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.borderColor = "hsl(1, 81%, 53%)";
+                          e.currentTarget.style.boxShadow = "0 0 0 3px hsl(1, 81%, 90%)";
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.borderColor = "hsl(210, 20%, 90%)";
+                          e.currentTarget.style.boxShadow = "none";
+                        }}
                       />
                     </div>
 
@@ -397,7 +450,18 @@ export default function ClientProfile() {
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="Enter your phone number"
-                        className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-red-400 focus:ring-red-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                        className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                        style={{ 
+                          borderColor: "hsl(210, 20%, 90%)",
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.borderColor = "hsl(1, 81%, 53%)";
+                          e.currentTarget.style.boxShadow = "0 0 0 3px hsl(1, 81%, 90%)";
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.borderColor = "hsl(210, 20%, 90%)";
+                          e.currentTarget.style.boxShadow = "none";
+                        }}
                       />
                     </div>
                   </form>
@@ -416,7 +480,7 @@ export default function ClientProfile() {
 
                     <div className="bg-slate-50/80 rounded-2xl p-6 hover:bg-slate-50 transition-all duration-200">
                       <div className="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wider flex items-center">
-                        <Mail className="w-4 h-4 mr-2 text-red-600" />
+                        <Mail className="w-4 h-4 mr-2" style={{ color: "hsl(1, 81%, 53%)" }} />
                         Email Address
                       </div>
                       <div className="text-slate-900 font-semibold text-lg">{user.email}</div>
@@ -424,7 +488,7 @@ export default function ClientProfile() {
 
                     <div className="bg-slate-50/80 rounded-2xl p-6 hover:bg-slate-50 transition-all duration-200">
                       <div className="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wider flex items-center">
-                        <Phone className="w-4 h-4 mr-2 text-red-600" />
+                        <Phone className="w-4 h-4 mr-2" style={{ color: "hsl(1, 81%, 53%)" }} />
                         Phone Number
                       </div>
                       <div className="text-slate-900 font-semibold text-lg">{user.phone || 'Not provided'}</div>
@@ -438,7 +502,7 @@ export default function ClientProfile() {
             <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-2xl shadow-slate-200/25 hover:shadow-3xl transition-all duration-500">
               <CardHeader className="pb-6">
                 <CardTitle className="flex items-center text-slate-900 text-xl">
-                  <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-red-800 rounded-lg flex items-center justify-center mr-3">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                     <Settings className="w-4 h-4 text-white" />
                   </div>
                   Account Settings
@@ -446,9 +510,9 @@ export default function ClientProfile() {
               </CardHeader>
               <CardContent className="p-8 sm:p-10">
                 <div className="space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-gradient-to-r from-red-50/80 to-slate-50/80 rounded-2xl hover:from-red-50 hover:to-slate-50 transition-all duration-300 border border-red-100/50">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 rounded-2xl transition-all duration-300 border" style={{ background: "linear-gradient(to right, hsl(1, 81%, 95%, 0.8), hsl(210, 20%, 95%, 0.8))", borderColor: "hsl(1, 81%, 90%, 0.5)" }}>
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl flex items-center justify-center shadow-lg">
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                         <Lock className="w-6 h-6 text-white" />
                       </div>
                       <div>
@@ -458,7 +522,17 @@ export default function ClientProfile() {
                     </div>
                     <Button 
                       onClick={() => navigate("/client/change-password")}
-                      className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      style={{ 
+                        background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))",
+                        backgroundImage: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundImage = "linear-gradient(to right, hsl(1, 71%, 43%), hsl(1, 61%, 33%))";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundImage = "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))";
+                      }}
                       size="sm"
                     >
                       Change Password
