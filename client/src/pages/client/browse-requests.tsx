@@ -87,7 +87,7 @@ export default function BrowseRequests() {
     .filter(find => {
       const matchesSearch = find.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            find.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = !selectedCategory || find.category === selectedCategory;
+      const matchesCategory = !selectedCategory || selectedCategory === "all" || find.category === selectedCategory;
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
@@ -277,7 +277,7 @@ export default function BrowseRequests() {
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="all">All Categories</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.name}>
                         {category.name}
