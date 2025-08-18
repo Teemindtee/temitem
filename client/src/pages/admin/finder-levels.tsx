@@ -57,7 +57,17 @@ export default function AdminFinderLevels() {
   const queryClient = useQueryClient();
 
   const { data: levels = [], isLoading } = useQuery({
-    queryKey: ['/api/admin/finder-levels'],
+    queryKey: ['admin', 'finder-levels'],
+    queryFn: async () => {
+      const response = await fetch('/api/admin/finder-levels', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    }
   });
 
   const createMutation = useMutation({
@@ -67,7 +77,7 @@ export default function AdminFinderLevels() {
       body: JSON.stringify(data)
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/finder-levels'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'finder-levels'] });
       setIsCreating(false);
       resetForm();
       toast({ title: "Success", description: "Finder level created successfully" });
@@ -85,7 +95,7 @@ export default function AdminFinderLevels() {
         body: JSON.stringify(data)
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/finder-levels'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'finder-levels'] });
       setEditingLevel(null);
       resetForm();
       toast({ title: "Success", description: "Finder level updated successfully" });
@@ -101,7 +111,7 @@ export default function AdminFinderLevels() {
         method: 'DELETE'
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/finder-levels'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'finder-levels'] });
       toast({ title: "Success", description: "Finder level deleted successfully" });
     },
     onError: (error: any) => {
