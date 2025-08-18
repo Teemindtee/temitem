@@ -109,8 +109,6 @@ export const adminSettings = pgTable("admin_settings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   key: text("key").notNull().unique(),
   value: text("value").notNull(),
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 

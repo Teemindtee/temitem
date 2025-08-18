@@ -34,12 +34,16 @@ export default function AdminSettings() {
   // Fetch admin settings
   const { data: settings, isLoading: settingsLoading } = useQuery<AdminSettings>({
     queryKey: ['/api/admin/settings'],
-    enabled: !!user && user.role === 'admin',
-    onSuccess: (data) => {
-      setProposalTokenCost(data.proposalTokenCost || "1");
-      setFindertokenPrice(data.findertokenPrice || "100");
-    }
+    enabled: !!user && user.role === 'admin'
   });
+
+  // Set initial values when settings are loaded
+  useEffect(() => {
+    if (settings) {
+      setProposalTokenCost(settings.proposalTokenCost || "1");
+      setFindertokenPrice(settings.findertokenPrice || "100");
+    }
+  }, [settings]);
 
   // Track changes
   useEffect(() => {
@@ -52,8 +56,8 @@ export default function AdminSettings() {
 
   // Update settings mutation
   const updateSettingsMutation = useMutation({
-    mutationFn: async (data: Partial<AdminSettings>) => {
-      return await apiRequest('PUT', '/api/admin/settings', data);
+    mutationFn: async (data: { proposalTokenCost?: string; findertokenPrice?: string }) => {
+      return await apiRequest('/api/admin/settings', { method: 'PUT', body: data });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });

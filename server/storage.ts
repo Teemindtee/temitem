@@ -717,29 +717,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(users.createdAt));
   }
 
-  async getAdminSetting(key: string): Promise<AdminSetting | undefined> {
-    const [setting] = await db.select().from(adminSettings).where(eq(adminSettings.key, key));
-    return setting || undefined;
-  }
 
-  async setAdminSetting(key: string, value: string): Promise<AdminSetting> {
-    const existing = await this.getAdminSetting(key);
-    
-    if (existing) {
-      const [setting] = await db
-        .update(adminSettings)
-        .set({ value, updatedAt: new Date() })
-        .where(eq(adminSettings.key, key))
-        .returning();
-      return setting;
-    } else {
-      const [setting] = await db
-        .insert(adminSettings)
-        .values({ key, value })
-        .returning();
-      return setting;
-    }
-  }
 
   // Messaging operations implementation
   async getConversation(clientId: string, proposalId: string): Promise<Conversation | undefined> {
@@ -1194,31 +1172,41 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Admin Settings
-  async getAdminSetting(key: string): Promise<AdminSetting | null> {
-    const [setting] = await db
-      .select()
-      .from(adminSettings)
-      .where(eq(adminSettings.key, key))
-      .limit(1);
-    return setting || null;
+  async getAdminSetting(key: string): Promise<AdminSetting | undefined> {
+    try {
+      const [setting] = await db
+        .select()
+        .from(adminSettings)
+        .where(eq(adminSettings.key, key))
+        .limit(1);
+      return setting || undefined;
+    } catch (error) {
+      console.error('Error getting admin setting:', error);
+      return undefined;
+    }
   }
 
   async setAdminSetting(key: string, value: string): Promise<AdminSetting> {
-    const existing = await this.getAdminSetting(key);
-    
-    if (existing) {
-      const [updated] = await db
-        .update(adminSettings)
-        .set({ value, updatedAt: new Date() })
-        .where(eq(adminSettings.key, key))
-        .returning();
-      return updated;
-    } else {
-      const [created] = await db
-        .insert(adminSettings)
-        .values({ key, value })
-        .returning();
-      return created;
+    try {
+      const existing = await this.getAdminSetting(key);
+      
+      if (existing) {
+        const [updated] = await db
+          .update(adminSettings)
+          .set({ value, updatedAt: new Date() })
+          .where(eq(adminSettings.key, key))
+          .returning();
+        return updated;
+      } else {
+        const [created] = await db
+          .insert(adminSettings)
+          .values({ key, value })
+          .returning();
+        return created;
+      }
+    } catch (error) {
+      console.error('Error setting admin setting:', error);
+      throw error;
     }
   }
 
