@@ -11,8 +11,8 @@ import {
   type InsertContract,
   type Review,
   type InsertReview,
-  type Token,
-  type InsertToken,
+  type Findertoken,
+  type InsertFindertoken,
   type Transaction,
   type InsertTransaction,
   type AdminSetting,
@@ -36,7 +36,7 @@ import {
   proposals,
   contracts,
   reviews,
-  tokens,
+  findertokens,
   transactions,
   adminSettings,
   conversations,
@@ -95,10 +95,10 @@ export interface IStorage {
   createReview(review: InsertReview): Promise<Review>;
   getReviewsByFinderId(finderId: string): Promise<Review[]>;
 
-  // Token operations
-  getTokenBalance(finderId: string): Promise<Token | undefined>;
-  createTokenRecord(finderId: string): Promise<Token>;
-  updateTokenBalance(finderId: string, newBalance: number): Promise<Token | undefined>;
+  // Findertoken operations
+  getFindertokenBalance(finderId: string): Promise<Findertoken | undefined>;
+  createFindertokenRecord(finderId: string): Promise<Findertoken>;
+  updateFindertokenBalance(finderId: string, newBalance: number): Promise<Findertoken | undefined>;
 
   // Transaction operations
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
@@ -215,8 +215,8 @@ export class DatabaseStorage implements IStorage {
       .values(insertFinder)
       .returning();
     
-    // Create initial token record
-    await this.createTokenRecord(finder.id);
+    // Create initial findertoken record
+    await this.createFindertokenRecord(finder.id);
     
     return finder;
   }
@@ -657,26 +657,26 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(reviews.createdAt));
   }
 
-  async getTokenBalance(finderId: string): Promise<Token | undefined> {
-    const [tokenRecord] = await db.select().from(tokens).where(eq(tokens.finderId, finderId));
-    return tokenRecord || undefined;
+  async getFindertokenBalance(finderId: string): Promise<Findertoken | undefined> {
+    const [findertokenRecord] = await db.select().from(findertokens).where(eq(findertokens.finderId, finderId));
+    return findertokenRecord || undefined;
   }
 
-  async createTokenRecord(finderId: string): Promise<Token> {
-    const [tokenRecord] = await db
-      .insert(tokens)
-      .values({ finderId, balance: 5 }) // Start with 5 free tokens
+  async createFindertokenRecord(finderId: string): Promise<Findertoken> {
+    const [findertokenRecord] = await db
+      .insert(findertokens)
+      .values({ finderId, balance: 5 }) // Start with 5 free findertokens
       .returning();
-    return tokenRecord;
+    return findertokenRecord;
   }
 
-  async updateTokenBalance(finderId: string, newBalance: number): Promise<Token | undefined> {
-    const [tokenRecord] = await db
-      .update(tokens)
+  async updateFindertokenBalance(finderId: string, newBalance: number): Promise<Findertoken | undefined> {
+    const [findertokenRecord] = await db
+      .update(findertokens)
       .set({ balance: newBalance })
-      .where(eq(tokens.finderId, finderId))
+      .where(eq(findertokens.finderId, finderId))
       .returning();
-    return tokenRecord || undefined;
+    return findertokenRecord || undefined;
   }
 
   async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {

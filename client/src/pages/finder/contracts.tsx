@@ -94,7 +94,7 @@ export default function FinderContracts() {
                     </div>
                     <div className="flex items-center space-x-3">
                       <Badge variant="outline" className="text-orange-600 border-orange-200">
-                        {find.tokenCost} token{find.tokenCost !== 1 ? 's' : ''}
+                        {find.findertokenCost} findertoken{find.findertokenCost !== 1 ? 's' : ''}
                       </Badge>
                       <ExternalLink className="w-4 h-4 text-gray-400" />
                     </div>

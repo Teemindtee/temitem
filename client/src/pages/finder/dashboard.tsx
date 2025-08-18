@@ -93,8 +93,8 @@ export default function FinderDashboard() {
               <div className="bg-orange-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Token Balance</h3>
-              <p className="text-xl sm:text-2xl font-bold text-orange-600">{(finder as any)?.tokenBalance || 0}</p>
+              <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Findertoken Balance</h3>
+              <p className="text-xl sm:text-2xl font-bold text-orange-600">{(finder as any)?.findertokenBalance || 0}</p>
               <p className="text-gray-600 text-xs sm:text-sm">Available</p>
             </CardContent>
           </Card>

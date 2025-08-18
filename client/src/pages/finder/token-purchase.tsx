@@ -133,8 +133,8 @@ export default function TokenPurchase() {
               Back
             </Button>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Purchase Tokens</h1>
-          <p className="text-gray-600">Choose a token package to submit proposals</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Purchase Findertokens</h1>
+          <p className="text-gray-600">Choose a findertoken package to submit proposals</p>
         </div>
 
         {/* Current Balance */}
@@ -143,16 +143,16 @@ export default function TokenPurchase() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Current Balance</h3>
-                <p className="text-gray-600">Available tokens for proposals</p>
+                <p className="text-gray-600">Available findertokens for proposals</p>
               </div>
               <div className="text-right">
                 <div className="flex items-center space-x-2">
                   <Coins className="w-6 h-6 text-orange-500" />
                   <span className="text-3xl font-bold text-orange-600">
-                    {(finder as any)?.tokenBalance || 0}
+                    {(finder as any)?.findertokenBalance || 0}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600">tokens</p>
+                <p className="text-sm text-gray-600">findertokens</p>
               </div>
             </div>
           </CardContent>
@@ -190,7 +190,7 @@ export default function TokenPurchase() {
                     <Coins className="w-8 h-8 text-orange-500" />
                     <span className="text-4xl font-bold text-gray-900">{pkg.tokens}</span>
                   </div>
-                  <p className="text-gray-600 text-sm">tokens</p>
+                  <p className="text-gray-600 text-sm">findertokens</p>
                 </div>
 
                 <div className="text-center mb-6">
@@ -198,7 +198,7 @@ export default function TokenPurchase() {
                     ₦{pkg.price.toLocaleString()}
                   </div>
                   <p className="text-gray-500 text-sm">
-                    ₦{Math.round(pkg.price / pkg.tokens).toLocaleString()} per token
+                    ₦{Math.round(pkg.price / pkg.tokens).toLocaleString()} per findertoken
                   </p>
                 </div>
 

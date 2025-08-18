@@ -152,7 +152,7 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
               <DropdownMenuItem asChild>
                 <Link href="/finder/tokens" className="flex items-center cursor-pointer">
                   <Wallet className="mr-2 h-4 w-4" />
-                  Token Balance
+                  Findertoken Balance
                 </Link>
               </DropdownMenuItem>
               

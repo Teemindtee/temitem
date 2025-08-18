@@ -333,13 +333,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Finder profile not found" });
       }
 
-      const tokenBalance = await storage.getTokenBalance(finder.id);
+      const findertokenBalance = await storage.getFindertokenBalance(finder.id);
       const proposals = await storage.getProposalsByFinderId(finder.id);
       const recentFinds = await storage.getAllActiveFinds();
 
       res.json({
         finder,
-        tokenBalance: tokenBalance?.balance ?? 0,
+        findertokenBalance: findertokenBalance?.balance ?? 0,
         proposalsCount: proposals.length,
         availableFinds: recentFinds.length
       });
@@ -553,16 +553,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "You have already submitted a proposal for this request" });
       }
 
-      // Check token balance
-      const tokenBalance = await storage.getTokenBalance(finder.id);
-      if (!tokenBalance || (tokenBalance.balance ?? 0) < 1) {
-        return res.status(400).json({ message: "Insufficient tokens to submit proposal" });
+      // Check findertoken balance
+      const findertokenBalance = await storage.getFindertokenBalance(finder.id);
+      if (!findertokenBalance || (findertokenBalance.balance ?? 0) < 1) {
+        return res.status(400).json({ message: "Insufficient findertokens to submit proposal" });
       }
 
       const proposal = await storage.createProposal(proposalData);
 
-      // Deduct token
-      await storage.updateTokenBalance(finder.id, (tokenBalance.balance ?? 0) - 1);
+      // Deduct findertoken
+      await storage.updateFindertokenBalance(finder.id, (findertokenBalance.balance ?? 0) - 1);
       
       // Record transaction
       await storage.createTransaction({
@@ -769,7 +769,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Token packages endpoint
-  app.get("/api/tokens/packages", (req: Find, res: Response) => {
+  app.get("/api/findertokens/packages", (req: Find, res: Response) => {
     res.json(TOKEN_PACKAGES);
   });
 
@@ -828,20 +828,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const { reference, metadata } = event.data;
         const { userId, tokens } = metadata;
         
-        // Update user's token balance
+        // Update user's findertoken balance
         const finder = await storage.getFinderByUserId(userId);
         if (finder) {
-          const currentBalance = finder.tokenBalance || 0;
+          const currentBalance = finder.findertokenBalance || 0;
           await storage.updateFinder(finder.id, {
-            tokenBalance: currentBalance + tokens
+            findertokenBalance: currentBalance + tokens
           });
 
           // Create transaction record
           await storage.createTransaction({
             userId: userId,
-            type: 'purchase',
+            type: 'findertoken_purchase',
             amount: tokens,
-            description: `Token purchase - ${tokens} tokens`,
+            description: `Findertoken purchase - ${tokens} findertokens`,
             reference: reference
           });
         }
@@ -865,20 +865,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (transaction.status === 'success' && transaction.metadata.userId === req.user.userId) {
         const { tokens } = transaction.metadata;
         
-        // Update user's token balance
+        // Update user's findertoken balance
         const finder = await storage.getFinderByUserId(req.user.userId);
         if (finder) {
-          const currentBalance = finder.tokenBalance || 0;
+          const currentBalance = finder.findertokenBalance || 0;
           await storage.updateFinder(finder.id, {
-            tokenBalance: currentBalance + tokens
+            findertokenBalance: currentBalance + tokens
           });
 
           // Create transaction record
           await storage.createTransaction({
             userId: req.user.userId,
-            type: 'purchase',
+            type: 'findertoken_purchase',
             amount: tokens,
-            description: `Token purchase - ${tokens} tokens`,
+            description: `Findertoken purchase - ${tokens} findertokens`,
             reference: reference
           });
         }
@@ -1028,11 +1028,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Token routes
-  app.get("/api/tokens/balance", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  // Findertoken routes
+  app.get("/api/findertokens/balance", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'finder') {
-        return res.status(403).json({ message: "Only finders have token balances" });
+        return res.status(403).json({ message: "Only finders have findertoken balances" });
       }
 
       const finder = await storage.getFinderByUserId(req.user.userId);
@@ -1040,10 +1040,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Finder profile not found" });
       }
 
-      const tokenBalance = await storage.getTokenBalance(finder.id);
-      res.json(tokenBalance || { balance: 0 });
+      const findertokenBalance = await storage.getFindertokenBalance(finder.id);
+      res.json(findertokenBalance || { balance: 0 });
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch token balance" });
+      res.status(500).json({ message: "Failed to fetch findertoken balance" });
     }
   });
 

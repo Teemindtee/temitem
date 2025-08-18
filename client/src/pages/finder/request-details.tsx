@@ -310,8 +310,8 @@ export default function FinderRequestDetails() {
                   <span className="font-semibold">{proposals.length}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Token Cost:</span>
-                  <span className="font-semibold">{find.tokenCost} token{find.tokenCost !== 1 ? 's' : ''}</span>
+                  <span className="text-gray-600">Findertoken Cost:</span>
+                  <span className="font-semibold">{find.findertokenCost} findertoken{find.findertokenCost !== 1 ? 's' : ''}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Posted:</span>

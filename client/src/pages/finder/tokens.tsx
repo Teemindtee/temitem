@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import type { Transaction } from "@shared/schema";
 
-export default function TokenBalance() {
+export default function FindertokenBalance() {
   const { user } = useAuth();
 
   const { data: transactions = [], isLoading } = useQuery<Transaction[]>({
@@ -29,11 +29,11 @@ export default function TokenBalance() {
     enabled: !!user
   });
 
-  const currentBalance = finder?.tokenBalance || 0;
+  const currentBalance = finder?.findertokenBalance || 0;
   
   const getTransactionIcon = (type: string) => {
     switch (type) {
-      case 'purchase': return <Plus className="w-4 h-4 text-green-600" />;
+      case 'findertoken_purchase': return <Plus className="w-4 h-4 text-green-600" />;
       case 'proposal': return <Minus className="w-4 h-4 text-finder-red" />;
       case 'refund': return <Plus className="w-4 h-4 text-blue-600" />;
       default: return <Clock className="w-4 h-4 text-gray-600" />;
@@ -42,7 +42,7 @@ export default function TokenBalance() {
 
   const getTransactionColor = (type: string) => {
     switch (type) {
-      case 'purchase': return 'text-green-600';
+      case 'findertoken_purchase': return 'text-green-600';
       case 'proposal': return 'text-finder-red';
       case 'refund': return 'text-blue-600';
       default: return 'text-gray-600';
@@ -50,7 +50,7 @@ export default function TokenBalance() {
   };
 
   const getTransactionSign = (type: string) => {
-    return type === 'purchase' || type === 'refund' ? '+' : '';
+    return type === 'findertoken_purchase' || type === 'refund' ? '+' : '';
   };
 
   if (isLoading) {
@@ -60,7 +60,7 @@ export default function TokenBalance() {
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
-            <p className="text-gray-600 mt-4">Loading token balance...</p>
+            <p className="text-gray-600 mt-4">Loading findertoken balance...</p>
           </div>
         </div>
       </div>
@@ -73,8 +73,8 @@ export default function TokenBalance() {
       
       <div className="max-w-4xl mx-auto py-6 sm:py-8 px-4 sm:px-6">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Token Balance</h1>
-          <p className="text-gray-600 text-sm sm:text-base">Manage your proposal tokens and view transaction history</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Findertoken Balance</h1>
+          <p className="text-gray-600 text-sm sm:text-base">Manage your proposal findertokens and view transaction history</p>
         </div>
 
         <div className="grid gap-6">
@@ -86,7 +86,7 @@ export default function TokenBalance() {
                   <div>
                     <p className="text-sm font-medium text-gray-600">Current Balance</p>
                     <p className="text-3xl font-bold text-gray-900">{currentBalance}</p>
-                    <p className="text-sm text-gray-500">Proposal Tokens</p>
+                    <p className="text-sm text-gray-500">Proposal Findertokens</p>
                   </div>
                   <div className="p-3 bg-finder-red/20 rounded-full">
                     <Wallet className="w-6 h-6 text-finder-red" />
@@ -99,7 +99,7 @@ export default function TokenBalance() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Tokens Used</p>
+                    <p className="text-sm font-medium text-gray-600">Findertokens Used</p>
                     <p className="text-3xl font-bold text-gray-900">
                       {transactions.filter(t => t.type === 'proposal').reduce((sum, t) => sum + Math.abs(t.amount), 0)}
                     </p>
@@ -118,7 +118,7 @@ export default function TokenBalance() {
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total Purchased</p>
                     <p className="text-3xl font-bold text-gray-900">
-                      {transactions.filter(t => t.type === 'purchase').reduce((sum, t) => sum + t.amount, 0)}
+                      {transactions.filter(t => t.type === 'findertoken_purchase').reduce((sum, t) => sum + t.amount, 0)}
                     </p>
                     <p className="text-sm text-gray-500">Lifetime</p>
                   </div>
@@ -135,14 +135,14 @@ export default function TokenBalance() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="w-5 h-5" />
-                Purchase Tokens
+                Purchase Findertokens
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid sm:grid-cols-3 gap-4">
                 <Card className="border-2 hover:border-finder-red/30 cursor-pointer transition-colors">
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">10 Tokens</div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">10 Findertokens</div>
                     <div className="text-lg font-semibold text-finder-red mb-2">₦5,000</div>
                     <div className="text-sm text-gray-600 mb-3">Submit 10 proposals</div>
                     <Button 
@@ -159,7 +159,7 @@ export default function TokenBalance() {
                     <Badge className="bg-finder-red">Most Popular</Badge>
                   </div>
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">25 Tokens</div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">25 Findertokens</div>
                     <div className="text-lg font-semibold text-finder-red mb-2">₦10,000</div>
                     <div className="text-sm text-gray-600 mb-3">Submit 25 proposals</div>
                     <Button 
@@ -173,7 +173,7 @@ export default function TokenBalance() {
 
                 <Card className="border-2 hover:border-finder-red/30 cursor-pointer transition-colors">
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">50 Tokens</div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">50 Findertokens</div>
                     <div className="text-lg font-semibold text-finder-red mb-2">₦18,000</div>
                     <div className="text-sm text-gray-600 mb-3">Submit 50 proposals</div>
                     <Button 
@@ -186,8 +186,8 @@ export default function TokenBalance() {
                 </Card>
               </div>
               <div className="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg">
-                <strong>Note:</strong> Each proposal submission costs tokens as set by platform administrators. 
-                Tokens are non-refundable once used for proposals, but unused tokens never expire.
+                <strong>Note:</strong> Each proposal submission costs findertokens as set by platform administrators. 
+                Findertokens are non-refundable once used for proposals, but unused findertokens never expire.
               </div>
             </CardContent>
           </Card>
@@ -197,7 +197,7 @@ export default function TokenBalance() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="w-5 h-5" />
-                Transaction History
+                Findertoken History
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -223,13 +223,13 @@ export default function TokenBalance() {
                       </div>
                       <div className="text-right">
                         <p className={`text-lg font-semibold ${getTransactionColor(transaction.type)}`}>
-                          {getTransactionSign(transaction.type)}{Math.abs(transaction.amount)} tokens
+                          {getTransactionSign(transaction.type)}{Math.abs(transaction.amount)} findertokens
                         </p>
                         <Badge variant={
-                          transaction.type === 'purchase' ? 'default' :
+                          transaction.type === 'findertoken_purchase' ? 'default' :
                           transaction.type === 'proposal' ? 'destructive' : 'secondary'
                         }>
-                          {transaction.type}
+                          {transaction.type.replace('findertoken_', '')}
                         </Badge>
                       </div>
                     </div>

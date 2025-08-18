@@ -33,11 +33,11 @@ export const finders = pgTable("finders", {
   availability: text("availability").default("full-time"),
   phone: text("phone"),
   isVerified: boolean("is_verified").default(false),
-  tokenBalance: integer("token_balance").default(0),
+  findertokenBalance: integer("findertoken_balance").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const tokens = pgTable("tokens", {
+export const findertokens = pgTable("findertokens", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   finderId: varchar("finder_id").references(() => finders.id).notNull(),
   balance: integer("balance").default(0),
@@ -53,7 +53,7 @@ export const finds = pgTable("finds", {
   budgetMax: text("budget_max"),
   timeframe: text("timeframe"),
   status: text("status").default("open"), // 'open', 'in_progress', 'completed'
-  tokenCost: integer("token_cost").default(1),
+  findertokenCost: integer("findertoken_cost").default(1),
   attachments: text("attachments").array(), // Array of file paths stored locally
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -99,7 +99,7 @@ export const transactions = pgTable("transactions", {
   userId: varchar("user_id").references(() => users.id).notNull(),
   finderId: varchar("finder_id").references(() => finders.id),
   amount: integer("amount").notNull(),
-  type: text("type").notNull(), // 'purchase', 'proposal', 'refund'
+  type: text("type").notNull(), // 'findertoken_purchase', 'proposal', 'refund'
   description: text("description"),
   reference: text("reference"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -210,7 +210,7 @@ export const findersRelations = relations(finders, ({ one, many }) => ({
     fields: [finders.userId],
     references: [users.id],
   }),
-  tokens: one(tokens),
+  findertokens: one(findertokens),
   withdrawalSettings: one(withdrawalSettings),
   proposals: many(proposals),
   contracts: many(contracts, { relationName: "finderContracts" }),
@@ -277,9 +277,9 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
   }),
 }));
 
-export const tokensRelations = relations(tokens, ({ one }) => ({
+export const findertokensRelations = relations(findertokens, ({ one }) => ({
   finder: one(finders, {
-    fields: [tokens.finderId],
+    fields: [findertokens.finderId],
     references: [finders.id],
   }),
 }));
@@ -370,8 +370,8 @@ export type Contract = typeof contracts.$inferSelect;
 export type InsertContract = typeof contracts.$inferInsert;
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = typeof reviews.$inferInsert;
-export type Token = typeof tokens.$inferSelect;
-export type InsertToken = typeof tokens.$inferInsert;
+export type Findertoken = typeof findertokens.$inferSelect;
+export type InsertFindertoken = typeof findertokens.$inferInsert;
 export type Transaction = typeof transactions.$inferSelect;
 export type InsertTransaction = typeof transactions.$inferInsert;
 export type AdminSetting = typeof adminSettings.$inferSelect;
@@ -431,7 +431,7 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
 });
 
-export const insertTokenSchema = createInsertSchema(tokens).omit({
+export const insertFindertokenSchema = createInsertSchema(findertokens).omit({
   id: true,
 });
 
