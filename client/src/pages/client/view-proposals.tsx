@@ -62,18 +62,12 @@ export default function ViewProposals() {
     mutationFn: async (proposalId: string) => {
       console.log('Creating conversation for proposal:', proposalId);
       
-      const response = await apiRequest("/api/conversations", {
+      return apiRequest("/api/messages/conversations", {
         method: "POST",
         body: JSON.stringify({
           proposalId: proposalId
         }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
       });
-      
-      console.log('Conversation created:', response);
-      return response;
     },
     onSuccess: (data) => {
       console.log('Navigation to conversation:', data.id);
