@@ -9,9 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FileUpload from "@/components/file-upload";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Handshake, ArrowLeft } from "lucide-react";
+import type { Category } from "@shared/schema";
 
 export default function CreateRequest() {
   const [, navigate] = useLocation();
@@ -31,6 +32,12 @@ export default function CreateRequest() {
   });
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  // Fetch categories for dropdown
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ['/api/categories'],
+    enabled: !!user
+  });
 
   const createRequestMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -189,12 +196,17 @@ export default function CreateRequest() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="product">Product Search</SelectItem>
-                    <SelectItem value="service">Service Provider</SelectItem>
-                    <SelectItem value="vendor">Vendor/Supplier</SelectItem>
-                    <SelectItem value="location">Location/Venue</SelectItem>
-                    <SelectItem value="information">Information Research</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    {categoriesLoading ? (
+                      <SelectItem value="" disabled>Loading categories...</SelectItem>
+                    ) : categories.length > 0 ? (
+                      categories.map((category) => (
+                        <SelectItem key={category.id} value={category.name}>
+                          {category.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="" disabled>No categories available</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

@@ -1065,6 +1065,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public categories endpoint for forms
+  app.get("/api/categories", async (req: Request, res: Response) => {
+    try {
+      const categories = await storage.getActiveCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
   // Admin routes
   app.get("/api/admin/finder-profile/:userId", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
