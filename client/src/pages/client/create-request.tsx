@@ -112,6 +112,16 @@ export default function CreateRequest() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate category selection
+    if (!formData.category || formData.category === 'loading' || formData.category === 'none') {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please select a valid category",
+      });
+      return;
+    }
+    
     const minBudget = parseInt(formData.minBudget);
     const maxBudget = parseInt(formData.maxBudget);
 
@@ -197,7 +207,7 @@ export default function CreateRequest() {
                   </SelectTrigger>
                   <SelectContent>
                     {categoriesLoading ? (
-                      <SelectItem value="" disabled>Loading categories...</SelectItem>
+                      <SelectItem value="loading" disabled>Loading categories...</SelectItem>
                     ) : categories.length > 0 ? (
                       categories.map((category) => (
                         <SelectItem key={category.id} value={category.name}>
@@ -205,7 +215,7 @@ export default function CreateRequest() {
                         </SelectItem>
                       ))
                     ) : (
-                      <SelectItem value="" disabled>No categories available</SelectItem>
+                      <SelectItem value="none" disabled>No categories available</SelectItem>
                     )}
                   </SelectContent>
                 </Select>
