@@ -56,13 +56,13 @@ export default function AdminFinderLevels() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: levels = [], isLoading } = useQuery({
+  const { data: levels = [], isLoading } = useQuery<FinderLevel[]>({
     queryKey: ["/api/admin/finder-levels"],
   });
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      return await apiRequest("/api/admin/finder-levels", "POST", data);
+      return await apiRequest("/api/admin/finder-levels", { method: "POST", body: JSON.stringify(data) });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/finder-levels"] });
@@ -77,7 +77,7 @@ export default function AdminFinderLevels() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: typeof formData }) => {
-      return await apiRequest(`/api/admin/finder-levels/${id}`, "PUT", data);
+      return await apiRequest(`/api/admin/finder-levels/${id}`, { method: "PUT", body: JSON.stringify(data) });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/finder-levels"] });
@@ -92,7 +92,7 @@ export default function AdminFinderLevels() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/admin/finder-levels/${id}`, "DELETE");
+      return await apiRequest(`/api/admin/finder-levels/${id}`, { method: "DELETE" });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/finder-levels"] });
@@ -136,6 +136,8 @@ export default function AdminFinderLevels() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log('Submitting form data:', formData);
     
     if (editingLevel) {
       updateMutation.mutate({ id: editingLevel.id, data: formData });
@@ -216,7 +218,7 @@ export default function AdminFinderLevels() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.filter((l: FinderLevel) => l.isActive).length}</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.filter((l) => l.isActive).length}</p>
                   </div>
                 </div>
               </div>
@@ -228,7 +230,7 @@ export default function AdminFinderLevels() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Highest Tier</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.length > 0 ? Math.max(...levels.map((l: FinderLevel) => l.order)) : 0}</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.length > 0 ? Math.max(...levels.map((l) => l.order)) : 0}</p>
                   </div>
                 </div>
               </div>
@@ -241,7 +243,7 @@ export default function AdminFinderLevels() {
                   <div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">Avg Min Score</p>
                     <p className="text-xl font-bold text-gray-900 dark:text-white">
-                      {levels.length > 0 ? Math.round(levels.reduce((acc: number, l: FinderLevel) => acc + l.minReviewPercentage, 0) / levels.length) : 0}%
+                      {levels.length > 0 ? Math.round(levels.reduce((acc, l) => acc + l.minReviewPercentage, 0) / levels.length) : 0}%
                     </p>
                   </div>
                 </div>
@@ -318,8 +320,8 @@ export default function AdminFinderLevels() {
                           <Input
                             id="order"
                             type="number"
-                            value={formData.order}
-                            onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) }))}
+                            value={formData.order.toString()}
+                            onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 1 }))}
                             min="1"
                             className="h-12 px-4 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             required
@@ -369,8 +371,8 @@ export default function AdminFinderLevels() {
                           <Input
                             id="minJobsCompleted"
                             type="number"
-                            value={formData.minJobsCompleted}
-                            onChange={(e) => setFormData(prev => ({ ...prev, minJobsCompleted: parseInt(e.target.value) }))}
+                            value={formData.minJobsCompleted.toString()}
+                            onChange={(e) => setFormData(prev => ({ ...prev, minJobsCompleted: parseInt(e.target.value) || 0 }))}
                             placeholder="0"
                             min="0"
                             className="h-12 px-4 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -382,8 +384,8 @@ export default function AdminFinderLevels() {
                           <Input
                             id="minReviewPercentage"
                             type="number"
-                            value={formData.minReviewPercentage}
-                            onChange={(e) => setFormData(prev => ({ ...prev, minReviewPercentage: parseFloat(e.target.value) }))}
+                            value={formData.minReviewPercentage.toString()}
+                            onChange={(e) => setFormData(prev => ({ ...prev, minReviewPercentage: parseFloat(e.target.value) || 0 }))}
                             placeholder="0"
                             min="0"
                             max="100"
@@ -475,7 +477,7 @@ export default function AdminFinderLevels() {
 
           {/* Modern Levels Grid - Two Columns */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {(levels as FinderLevel[]).map((level: FinderLevel) => {
+            {levels.map((level) => {
               const IconComponent = iconMap[level.icon as keyof typeof iconMap] || User;
               
               return (

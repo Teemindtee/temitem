@@ -1551,9 +1551,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
+      console.log('Creating finder level with data:', req.body);
       const level = await storage.createFinderLevel(req.body);
+      console.log('Created finder level:', level);
       res.status(201).json(level);
     } catch (error: any) {
+      console.error('Error creating finder level:', error);
       res.status(400).json({ message: "Failed to create finder level", error: error.message });
     }
   });
