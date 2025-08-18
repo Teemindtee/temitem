@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Save, Award, Star, User } from "lucide-react";
-import type { Finder } from "@shared/schema";
+import type { Finder, Category } from "@shared/schema";
 
 export default function FinderProfile() {
   const { user } = useAuth();
@@ -22,6 +22,7 @@ export default function FinderProfile() {
   
   const [formData, setFormData] = useState({
     bio: "",
+    category: "",
     skills: "",
     hourlyRate: "",
     availability: "full-time"
@@ -32,11 +33,18 @@ export default function FinderProfile() {
     enabled: !!user
   });
 
+  // Fetch categories for dropdown
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ['/api/categories'],
+    enabled: !!user
+  });
+
   // Update form data when finder data changes
   useEffect(() => {
     if (finder) {
       setFormData({
         bio: finder.bio || "",
+        category: finder.category || "",
         skills: Array.isArray(finder.skills) ? finder.skills.join(", ") : "",
         hourlyRate: finder.hourlyRate?.toString() || "",
         availability: finder.availability || "full-time"
@@ -47,6 +55,7 @@ export default function FinderProfile() {
   const updateProfileMutation = useMutation({
     mutationFn: (data: any) => apiRequest('PATCH', '/api/finder/profile', {
       bio: data.bio,
+      category: data.category,
       skills: data.skills.split(",").map((s: string) => s.trim()).filter(Boolean),
       hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
       availability: data.availability
@@ -220,6 +229,29 @@ export default function FinderProfile() {
                   placeholder="Enter your hourly rate"
                   className="mt-1"
                 />
+              </div>
+
+              {/* Category */}
+              <div>
+                <Label htmlFor="category" className="text-sm font-medium">Specialty Category</Label>
+                <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select your area of expertise" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categoriesLoading ? (
+                      <SelectItem value="loading" disabled>Loading categories...</SelectItem>
+                    ) : categories.length > 0 ? (
+                      categories.map((category) => (
+                        <SelectItem key={category.id} value={category.name}>
+                          {category.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="none" disabled>No categories available</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Availability */}

@@ -27,6 +27,7 @@ export const finders = pgTable("finders", {
   averageRating: decimal("average_rating", { precision: 3, scale: 2 }).default("0.00"),
   level: text("level").default("Novice"), // 'Novice', 'Professional', 'Expert', 'Master'
   bio: text("bio"),
+  category: text("category"), // Finder's specialty category
   skills: text("skills").array(),
   hourlyRate: decimal("hourly_rate", { precision: 8, scale: 2 }),
   availability: text("availability").default("full-time"),
