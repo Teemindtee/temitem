@@ -28,7 +28,7 @@ export async function apiRequest(
     body?: string;
   } = {}
 ): Promise<any> {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('findermeister_token');
   const { method = 'GET', headers = {}, body } = options;
   
   const res = await fetch(url, {
