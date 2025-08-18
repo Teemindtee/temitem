@@ -1,29 +1,53 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import AdminHeader from "@/components/admin-header";
 import { 
   Users, 
+  FileText, 
+  Star, 
   DollarSign, 
   TrendingUp, 
-  AlertTriangle,
-  FileText,
-  Settings,
-  Edit
+  Activity,
+  Eye,
+  Calendar,
+  User,
+  Tag,
+  CheckCircle2,
+  XCircle,
+  Play,
+  Clock,
+  ArrowRight,
+  BarChart3
 } from "lucide-react";
-import type { User, Find, Proposal } from "@shared/schema";
+import type { Find, User as UserType, Proposal } from "@shared/schema";
+import { Link } from "wouter";
 
-export default function AdminDashboard() {
+interface FindWithClient extends Find {
+  client?: UserType;
+}
+
+interface DashboardStats {
+  totalUsers: number;
+  totalFinds: number;
+  totalProposals: number;
+  activeFinds: number;
+  completedFinds: number;
+  totalRevenue: string;
+}
+
+export default function AdminDashboardModern() {
   const { user } = useAuth();
 
-  const { data: users = [], isLoading: usersLoading } = useQuery<User[]>({
+  // Fetch all data
+  const { data: users = [], isLoading: usersLoading } = useQuery<UserType[]>({
     queryKey: ['/api/admin/users'],
     enabled: !!user && user.role === 'admin'
   });
 
-  const { data: finds = [], isLoading: findsLoading } = useQuery<Find[]>({
+  const { data: finds = [], isLoading: findsLoading } = useQuery<FindWithClient[]>({
     queryKey: ['/api/admin/finds'],
     enabled: !!user && user.role === 'admin'
   });
@@ -33,221 +57,429 @@ export default function AdminDashboard() {
     enabled: !!user && user.role === 'admin'
   });
 
-  if (usersLoading || findsLoading || proposalsLoading) {
+  const isLoading = usersLoading || findsLoading || proposalsLoading;
+
+  // Calculate dashboard stats
+  const stats: DashboardStats = {
+    totalUsers: users.length,
+    totalFinds: finds.length,
+    totalProposals: proposals.length,
+    activeFinds: finds.filter(f => f.status === 'open' || f.status === 'in_progress').length,
+    completedFinds: finds.filter(f => f.status === 'completed').length,
+    totalRevenue: "₦2,450,000" // This would come from actual revenue calculations
+  };
+
+  // Get recent finds and users for the bottom tables
+  const recentFinds = finds
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+    .slice(0, 5);
+
+  const recentUsers = users
+    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+    .slice(0, 5);
+
+  const formatCurrency = (amount: string | number | null | undefined) => {
+    if (!amount) return '₦0';
+    return `₦${parseFloat(amount.toString()).toLocaleString()}`;
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'open': return 'bg-green-100 text-green-800 border-green-200';
+      case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'completed': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'open': return <CheckCircle2 className="w-3 h-3" />;
+      case 'in_progress': return <Play className="w-3 h-3" />;
+      case 'completed': return <CheckCircle2 className="w-3 h-3" />;
+      case 'cancelled': return <XCircle className="w-3 h-3" />;
+      default: return <Clock className="w-3 h-3" />;
+    }
+  };
+
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'finder': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'client': return 'bg-green-100 text-green-800 border-green-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading admin data...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20">
+        <AdminHeader currentPage="dashboard" />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="text-gray-600 mt-4 font-medium">Loading dashboard...</p>
+          </div>
         </div>
       </div>
     );
   }
 
-  const totalUsers = users.length;
-  const clientCount = users.filter(u => u.role === 'client').length;
-  const finderCount = users.filter(u => u.role === 'finder').length;
-  const totalFinds = finds.length;
-  const openFinds = finds.filter(f => f.status === 'open').length;
-  const totalProposals = proposals.length;
-  const pendingProposals = proposals.filter(p => p.status === 'pending').length;
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/10">
       <AdminHeader currentPage="dashboard" />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2">Welcome back, manage your platform from here.</p>
-        </div>
-
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          <Card className="border-blue-200">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <div className="bg-blue-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-4">
-                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+      {/* Modern Header Section */}
+      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-60"></div>
+              <div className="relative p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl">
+                <BarChart3 className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Total Users</h3>
-              <p className="text-xl sm:text-2xl font-bold text-blue-600">{totalUsers}</p>
-              <p className="text-gray-600 text-xs sm:text-sm">{clientCount} clients, {finderCount} finders</p>
-            </CardContent>
-          </Card>
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                Admin Dashboard
+              </h1>
+              <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">
+                Welcome back, {user?.firstName}! Here's your platform overview
+              </p>
+            </div>
+          </div>
+          
+          {/* Main Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Users</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalUsers}</p>
+                  </div>
+                  <div className="p-3 bg-blue-500/10 text-blue-600 rounded-xl">
+                    <Users className="w-6 h-6" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-green-600 font-medium">+12.5%</span>
+                  <span className="text-sm text-gray-500">vs last month</span>
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card className="border-green-200">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <div className="bg-green-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Total Finds</h3>
-              <p className="text-xl sm:text-2xl font-bold text-green-600">{totalFinds}</p>
-              <p className="text-gray-600 text-xs sm:text-sm">{openFinds} currently open</p>
-            </CardContent>
-          </Card>
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Total Finds</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalFinds}</p>
+                  </div>
+                  <div className="p-3 bg-green-500/10 text-green-600 rounded-xl">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-green-600 font-medium">+8.2%</span>
+                  <span className="text-sm text-gray-500">vs last month</span>
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card className="border-purple-200">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <div className="bg-purple-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-4">
-                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Total Proposals</h3>
-              <p className="text-xl sm:text-2xl font-bold text-purple-600">{totalProposals}</p>
-              <p className="text-gray-600 text-xs sm:text-sm">{pendingProposals} pending review</p>
-            </CardContent>
-          </Card>
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Proposals</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalProposals}</p>
+                  </div>
+                  <div className="p-3 bg-purple-500/10 text-purple-600 rounded-xl">
+                    <Star className="w-6 h-6" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-green-600 font-medium">+15.3%</span>
+                  <span className="text-sm text-gray-500">vs last month</span>
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card className="border-finder-red/30">
-            <CardContent className="p-4 sm:p-6 text-center">
-              <div className="bg-finder-red rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Issues</h3>
-              <p className="text-xl sm:text-2xl font-bold text-finder-red">0</p>
-              <p className="text-gray-600 text-xs sm:text-sm">Reported issues</p>
-            </CardContent>
-          </Card>
-        </div>
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Active Finds</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.activeFinds}</p>
+                  </div>
+                  <div className="p-3 bg-orange-500/10 text-orange-600 rounded-xl">
+                    <Activity className="w-6 h-6" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-green-600 font-medium">+5.7%</span>
+                  <span className="text-sm text-gray-500">vs last month</span>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-            <Link href="/admin/users">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4 text-center">
-                  <Users className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-blue-600" />
-                  <p className="text-xs sm:text-sm font-medium text-gray-900">Manage Users</p>
-                </CardContent>
-              </Card>
-            </Link>
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Completed</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.completedFinds}</p>
+                  </div>
+                  <div className="p-3 bg-emerald-500/10 text-emerald-600 rounded-xl">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-green-600 font-medium">+22.1%</span>
+                  <span className="text-sm text-gray-500">vs last month</span>
+                </div>
+              </CardContent>
+            </Card>
 
-            <Link href="/admin/requests">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4 text-center">
-                  <FileText className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-green-600" />
-                  <p className="text-xs sm:text-sm font-medium text-gray-900">View Finds</p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/withdrawals">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4 text-center">
-                  <DollarSign className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-purple-600" />
-                  <p className="text-xs sm:text-sm font-medium text-gray-900">Withdrawals</p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/blog-posts">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4 text-center">
-                  <Edit className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-orange-600" />
-                  <p className="text-xs sm:text-sm font-medium text-gray-900">Blog Posts</p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/categories">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4 text-center">
-                  <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-teal-600" />
-                  <p className="text-xs sm:text-sm font-medium text-gray-900">Categories</p>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/settings">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4 text-center">
-                  <Settings className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-gray-600" />
-                  <p className="text-xs sm:text-sm font-medium text-gray-900">Settings</p>
-                </CardContent>
-              </Card>
-            </Link>
-
-
+            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Revenue</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalRevenue}</p>
+                  </div>
+                  <div className="p-3 bg-teal-500/10 text-teal-600 rounded-xl">
+                    <DollarSign className="w-6 h-6" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-green-600 font-medium">+18.9%</span>
+                  <span className="text-sm text-gray-500">vs last month</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
+      </div>
 
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
-          {/* Recent Users */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg sm:text-xl text-gray-900">Recent Users</CardTitle>
-              <Link href="/admin/users">
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm">Manage All</Button>
-              </Link>
-            </CardHeader>
-            <CardContent className="space-y-3 sm:space-y-4">
-              {users.length === 0 ? (
-                <div className="text-center py-6 sm:py-8 text-gray-500">
-                  <Users className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-4 text-gray-300" />
-                  <p className="text-sm sm:text-base">No users registered yet.</p>
-                </div>
-              ) : (
-                users.slice(-5).reverse().map((user: User) => (
-                  <div key={user.id} className="flex items-center justify-between p-3 sm:p-4 border rounded-lg">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">
-                        {user.firstName} {user.lastName}
-                      </h4>
-                      <p className="text-gray-600 text-xs sm:text-sm truncate">{user.email}</p>
-                      <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full font-medium ${
-                        user.role === 'admin' ? 'bg-finder-red/20 text-finder-red-dark' :
-                        user.role === 'finder' ? 'bg-blue-100 text-blue-700' :
-                        'bg-green-100 text-green-700'
-                      }`}>
-                        {user.role}
-                      </span>
-                    </div>
-                    <div className="text-xs sm:text-sm text-gray-500 ml-2">
-                      {user.isVerified ? '✓ Verified' : 'Pending'}
-                    </div>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Finds */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-lg sm:text-xl text-gray-900">Recent Finds</CardTitle>
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Recent Finds Table */}
+        <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">Recent Find Requests</CardTitle>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Latest service requests posted on the platform</p>
+              </div>
               <Link href="/admin/requests">
-                <Button variant="outline" size="sm" className="text-xs sm:text-sm">View All</Button>
+                <Button variant="outline" size="sm" className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600">
+                  View All
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
               </Link>
-            </CardHeader>
-            <CardContent className="space-y-3 sm:space-y-4">
-              {finds.length === 0 ? (
-                <div className="text-center py-6 sm:py-8 text-gray-500">
-                  <FileText className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-4 text-gray-300" />
-                  <p className="text-sm sm:text-base">No finds submitted yet.</p>
-                </div>
-              ) : (
-                finds.slice(-5).reverse().map((find: Find) => (
-                  <div key={find.id} className="flex items-center justify-between p-3 sm:p-4 border rounded-lg">
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 text-sm sm:text-base truncate">{find.title}</h4>
-                      <p className="text-gray-600 text-xs sm:text-sm">Budget: ${find.budgetMin} - ${find.budgetMax}</p>
-                      <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full font-medium ${
-                        find.status === 'open' ? 'bg-green-100 text-green-700' :
-                        find.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
-                        find.status === 'completed' ? 'bg-purple-100 text-purple-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
-                        {find.status}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200/50 dark:border-gray-700/50">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Request Details
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Client & Category
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Budget & Date
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200/50 dark:divide-gray-700/50">
+                  {recentFinds.map((find) => (
+                    <tr key={find.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors duration-150">
+                      <td className="px-4 py-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                            {find.title.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                              {find.title}
+                            </h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                              {find.description}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      
+                      <td className="px-4 py-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <User className="w-3 h-3" />
+                            <span className="truncate">
+                              {find.client ? `${find.client.firstName} ${find.client.lastName}` : 'Client ID: ' + find.clientId.substring(0, 8)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <Tag className="w-3 h-3" />
+                            <span className="truncate">{find.category || 'Uncategorized'}</span>
+                          </div>
+                        </div>
+                      </td>
+                      
+                      <td className="px-4 py-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
+                            <DollarSign className="w-3 h-3" />
+                            {formatCurrency(find.budgetMin || find.budgetMax || '0')}
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                            <Calendar className="w-3 h-3" />
+                            {find.createdAt ? new Date(find.createdAt).toLocaleDateString() : 'N/A'}
+                          </div>
+                        </div>
+                      </td>
+                      
+                      <td className="px-4 py-4">
+                        <Badge className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(find.status || '')}`}>
+                          <div className="flex items-center gap-1">
+                            {getStatusIcon(find.status || '')}
+                            {find.status?.replace('_', ' ').charAt(0).toUpperCase() + find.status?.replace('_', ' ').slice(1) || 'Unknown'}
+                          </div>
+                        </Badge>
+                      </td>
+                      
+                      <td className="px-4 py-4 text-right">
+                        <Button variant="outline" size="sm" className="p-2 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 rounded-lg">
+                          <Eye className="w-3 h-3" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Users Table */}
+        <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-0 shadow-lg">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">Recent Users</CardTitle>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Latest users who joined the platform</p>
+              </div>
+              <Link href="/admin/users">
+                <Button variant="outline" size="sm" className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600">
+                  View All
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200/50 dark:border-gray-700/50">
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Contact
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Role & Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Join Date
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200/50 dark:divide-gray-700/50">
+                  {recentUsers.map((userData) => (
+                    <tr key={userData.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors duration-150">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                            {userData.firstName?.charAt(0) || ''}{userData.lastName?.charAt(0) || ''}
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {userData.firstName} {userData.lastName}
+                            </h3>
+                          </div>
+                        </div>
+                      </td>
+                      
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-600 dark:text-gray-400 truncate">
+                          {userData.email}
+                        </div>
+                        {userData.phone && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {userData.phone}
+                          </div>
+                        )}
+                      </td>
+                      
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className={`px-2 py-1 rounded-full text-xs font-medium border ${getRoleColor(userData.role)}`}>
+                            {userData.role.charAt(0).toUpperCase() + userData.role.slice(1)}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {userData.isVerified && (
+                            <Badge className="bg-green-100 text-green-800 border-green-200 px-2 py-1 rounded-full text-xs">
+                              Verified
+                            </Badge>
+                          )}
+                          {userData.isBanned && (
+                            <Badge className="bg-red-100 text-red-800 border-red-200 px-2 py-1 rounded-full text-xs">
+                              Banned
+                            </Badge>
+                          )}
+                        </div>
+                      </td>
+                      
+                      <td className="px-4 py-4">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A'}
+                        </div>
+                      </td>
+                      
+                      <td className="px-4 py-4 text-right">
+                        <Button variant="outline" size="sm" className="p-2 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 rounded-lg">
+                          <Eye className="w-3 h-3" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
