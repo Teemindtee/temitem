@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Edit, Trash2, Crown, Award, Navigation, Search, User } from "lucide-react";
+import { Plus, Edit, Trash2, Crown, Award, Navigation, Search, User, CheckCircle, Star } from "lucide-react";
 
 interface FinderLevel {
   id: string;
@@ -170,21 +170,113 @@ export default function AdminFinderLevels() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader currentPage="finder-levels" />
-      <div className="max-w-6xl mx-auto py-8 px-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Finder Levels Management</h1>
-          <p className="text-gray-600">Manage finder performance levels and requirements</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/10">
+        {/* Modern Header Section */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-10">
+          <div className="max-w-7xl mx-auto px-6 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-60"></div>
+                  <div className="relative p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl">
+                    <Award className="w-7 h-7 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                    Finder Levels
+                  </h1>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">Performance tier management</p>
+                </div>
+              </div>
+              
+              {!isCreating && !editingLevel && (
+                <Button 
+                  onClick={() => setIsCreating(true)}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Create Level
+                </Button>
+              )}
+            </div>
+            
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6">
+              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Levels</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.length}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-500/10 text-green-600 rounded-lg">
+                    <CheckCircle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.filter((l: FinderLevel) => l.isActive).length}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-500/10 text-purple-600 rounded-lg">
+                    <Crown className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Highest Tier</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.length > 0 ? Math.max(...levels.map((l: FinderLevel) => l.order)) : 0}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-500/10 text-amber-600 rounded-lg">
+                    <Star className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Avg Min Score</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
+                      {levels.length > 0 ? Math.round(levels.reduce((acc: number, l: FinderLevel) => acc + l.minReviewPercentage, 0) / levels.length) : 0}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* Create/Edit Form */}
+        
+        <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Modern Create/Edit Form */}
         {(isCreating || editingLevel) && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>
-                {editingLevel ? 'Edit Finder Level' : 'Create New Finder Level'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="mb-12">
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
+              <div className="p-8 border-b border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl">
+                    {editingLevel ? <Edit className="w-6 h-6 text-white" /> : <Plus className="w-6 h-6 text-white" />}
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {editingLevel ? 'Edit Finder Level' : 'Create New Finder Level'}
+                    </h2>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      {editingLevel ? 'Modify the selected finder level' : 'Add a new performance tier to the system'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8">
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="name">Level Name</Label>
@@ -286,7 +378,7 @@ export default function AdminFinderLevels() {
                       const data = await response.json();
                       return { method: 'PUT' as const, url: data.uploadURL };
                     }}
-                    onComplete={(result: UploadResult) => {
+                    onComplete={(result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
                       if (result.successful.length > 0) {
                         const uploadURL = result.successful[0].uploadURL;
                         if (uploadURL) {
@@ -357,81 +449,79 @@ export default function AdminFinderLevels() {
                   </Button>
                 </div>
               </form>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Action Buttons */}
-        {!isCreating && !editingLevel && (
-          <div className="mb-6">
-            <Button onClick={() => setIsCreating(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add New Level
-            </Button>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Levels List - Two Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+
+        {/* Modern Levels Grid - Two Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {(levels as FinderLevel[]).map((level: FinderLevel) => {
             const IconComponent = iconMap[level.icon as keyof typeof iconMap] || User;
             
             return (
-              <Card key={level.id} className="border-l-4" style={{ borderLeftColor: level.color }}>
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-4">
-                      <div 
-                        className="p-3 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: level.color + '20', color: level.color }}
-                      >
-                        {level.iconUrl ? (
-                          <img 
-                            src={level.iconUrl} 
-                            alt={level.name} 
-                            className="w-6 h-6 object-cover rounded"
-                          />
-                        ) : (
-                          <IconComponent className="w-6 h-6" />
-                        )}
+              <div key={level.id} className="group relative">
+                {/* Gradient border effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl blur-sm opacity-0 group-hover:opacity-75 transition-opacity duration-300"></div>
+                
+                <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-8 rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-2xl transition-all duration-300">
+                  {/* Level Header */}
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <div 
+                          className="absolute inset-0 rounded-2xl blur opacity-60"
+                          style={{ backgroundColor: level.color }}
+                        ></div>
+                        <div 
+                          className="relative p-4 rounded-2xl shadow-lg"
+                          style={{ backgroundColor: level.color }}
+                        >
+                          {level.iconUrl ? (
+                            <img 
+                              src={level.iconUrl} 
+                              alt={level.name} 
+                              className="w-8 h-8 object-cover rounded filter brightness-0 invert"
+                            />
+                          ) : (
+                            <IconComponent className="w-8 h-8 text-white" />
+                          )}
+                        </div>
                       </div>
                       
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-xl font-bold text-gray-900">{level.name}</h3>
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{level.name}</h3>
+                        <div className="flex items-center gap-2">
                           <Badge 
                             variant={level.isActive ? "default" : "secondary"}
-                            style={{ backgroundColor: level.isActive ? level.color : undefined }}
+                            className="px-3 py-1 rounded-full text-xs font-medium"
+                            style={{ 
+                              backgroundColor: level.isActive ? level.color + '20' : undefined,
+                              color: level.isActive ? level.color : undefined,
+                              borderColor: level.isActive ? level.color + '40' : undefined 
+                            }}
                           >
-                            Order: {level.order}
+                            Tier {level.order}
                           </Badge>
-                        </div>
-                        
-                        <p className="text-gray-600 mb-3">{level.description}</p>
-                        
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Min Earned:</span>
-                            <div className="font-semibold">₦{parseFloat(level.minEarnedAmount).toLocaleString()}</div>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Min Jobs:</span>
-                            <div className="font-semibold">{level.minJobsCompleted} jobs</div>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Min Score:</span>
-                            <div className="font-semibold">{level.minReviewPercentage}%</div>
-                          </div>
+                          {level.isActive && (
+                            <div className="flex items-center gap-1">
+                              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                              <span className="text-xs text-green-600 font-medium">Active</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex flex-col space-y-2">
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleEdit(level)}
-                        className="px-3"
+                        className="p-3 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 rounded-xl transition-colors duration-200"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -439,16 +529,59 @@ export default function AdminFinderLevels() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(level.id)}
-                        className="text-red-600 hover:text-red-700 px-3"
+                        className="p-3 hover:bg-red-50 hover:border-red-300 hover:text-red-600 rounded-xl transition-colors duration-200"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                  
+                  {/* Description */}
+                  <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{level.description}</p>
+                  
+                  {/* Requirements Grid */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-gray-50/80 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600/50">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-green-500/10 text-green-600 rounded-lg">
+                          <Star className="w-4 h-4" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Minimum Earned</span>
+                      </div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        ₦{parseFloat(level.minEarnedAmount).toLocaleString()}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-4 bg-gray-50/80 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600/50">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
+                          <Award className="w-4 h-4" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Completed Jobs</span>
+                      </div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        {level.minJobsCompleted}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-4 bg-gray-50/80 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600/50">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-purple-500/10 text-purple-600 rounded-lg">
+                          <CheckCircle className="w-4 h-4" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Review Score</span>
+                      </div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        {level.minReviewPercentage}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             );
           })}
+        </div>
         </div>
       </div>
     </div>
