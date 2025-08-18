@@ -57,7 +57,10 @@ export default function AdminSettings() {
   // Update settings mutation
   const updateSettingsMutation = useMutation({
     mutationFn: async (data: { proposalTokenCost?: string; findertokenPrice?: string }) => {
-      return await apiRequest('PUT', '/api/admin/settings', data);
+      return await apiRequest('/api/admin/settings', {
+        method: 'PUT',
+        body: JSON.stringify(data)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
