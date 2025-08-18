@@ -198,6 +198,7 @@ export const finderLevels = pgTable("finder_levels", {
   minJobsCompleted: integer("min_jobs_completed").default(0),
   minReviewPercentage: integer("min_review_percentage").default(0), // 0-100, average review score
   icon: text("icon"), // icon name or URL
+  iconUrl: text("icon_url"), // custom uploaded icon URL
   color: text("color"), // hex color code
   order: integer("order").notNull(), // display order
   isActive: boolean("is_active").default(true),

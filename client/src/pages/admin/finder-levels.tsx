@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import AdminHeader from "@/components/admin-header";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,6 +21,7 @@ interface FinderLevel {
   minJobsCompleted: number;
   minReviewPercentage: number;
   icon: string;
+  iconUrl?: string;
   color: string;
   order: number;
   isActive: boolean;
@@ -44,6 +47,7 @@ export default function AdminFinderLevels() {
     minJobsCompleted: 0,
     minReviewPercentage: 0,
     icon: "User",
+    iconUrl: "",
     color: "#6b7280",
     order: 1,
     isActive: true
@@ -113,6 +117,7 @@ export default function AdminFinderLevels() {
       minJobsCompleted: 0,
       minReviewPercentage: 0,
       icon: "User",
+      iconUrl: "",
       color: "#6b7280",
       order: (levels as FinderLevel[]).length + 1,
       isActive: true
@@ -128,10 +133,12 @@ export default function AdminFinderLevels() {
       minJobsCompleted: level.minJobsCompleted,
       minReviewPercentage: level.minReviewPercentage,
       icon: level.icon,
+      iconUrl: level.iconUrl || "",
       color: level.color,
       order: level.order,
       isActive: level.isActive
     });
+    setIsCreating(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -252,7 +259,7 @@ export default function AdminFinderLevels() {
                   />
                 </div>
 
-                <div>
+                <div className="space-y-3">
                   <Label htmlFor="icon">Icon</Label>
                   <select
                     id="icon"
@@ -266,6 +273,61 @@ export default function AdminFinderLevels() {
                     <option value="Award">Award</option>
                     <option value="Crown">Crown</option>
                   </select>
+                  
+                  <div className="text-sm text-gray-600">
+                    Or upload a custom icon:
+                  </div>
+                  
+                  <ObjectUploader
+                    maxNumberOfFiles={1}
+                    maxFileSize={2097152}
+                    buttonClassName="w-full"
+                    onGetUploadParameters={async () => {
+                      const response = await fetch('/api/objects/upload', { method: 'POST' });
+                      const data = await response.json();
+                      return { method: 'PUT' as const, url: data.uploadURL };
+                    }}
+                    onComplete={(result: UploadResult) => {
+                      if (result.successful.length > 0) {
+                        const uploadURL = result.successful[0].uploadURL;
+                        if (uploadURL) {
+                          // Convert the upload URL to a normalized object path
+                          const normalizedPath = uploadURL.replace(/\?.*$/, '').replace(/^https:\/\/[^\/]+/, '');
+                          const objectPath = `/objects${normalizedPath.split('/.private/uploads/')[1] || normalizedPath}`;
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            iconUrl: objectPath 
+                          }));
+                          toast({ 
+                            title: "Success", 
+                            description: "Icon uploaded successfully" 
+                          });
+                        }
+                      }
+                    }}
+                  >
+                    Upload Custom Icon
+                  </ObjectUploader>
+                  
+                  {formData.iconUrl && (
+                    <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded">
+                      <img 
+                        src={formData.iconUrl} 
+                        alt="Custom icon" 
+                        className="w-6 h-6 object-cover rounded" 
+                      />
+                      <span className="text-green-700 text-sm">Custom icon uploaded</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFormData(prev => ({ ...prev, iconUrl: "" }))}
+                        className="ml-auto h-6 w-6 p-0 text-green-700 hover:bg-green-100"
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -323,10 +385,18 @@ export default function AdminFinderLevels() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4">
                       <div 
-                        className="p-3 rounded-full"
+                        className="p-3 rounded-full flex items-center justify-center"
                         style={{ backgroundColor: level.color + '20', color: level.color }}
                       >
-                        <IconComponent className="w-6 h-6" />
+                        {level.iconUrl ? (
+                          <img 
+                            src={level.iconUrl} 
+                            alt={level.name} 
+                            className="w-6 h-6 object-cover rounded"
+                          />
+                        ) : (
+                          <IconComponent className="w-6 h-6" />
+                        )}
                       </div>
                       
                       <div className="flex-1">
