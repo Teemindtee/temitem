@@ -194,11 +194,11 @@ export default function ClientDashboard() {
               <div className="bg-finder-red rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <Plus className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Post New Request</h3>
-              <p className="text-gray-600 mb-4 text-sm">Need help finding something? Create a new request.</p>
+              <h3 className="font-semibold text-gray-900 mb-2">Post New Find</h3>
+              <p className="text-gray-600 mb-4 text-sm">Need help finding something? Create a new find.</p>
               <Link href="/client/create-request">
                 <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
-                  Create Request
+                  Create Find
                 </Button>
               </Link>
             </CardContent>
@@ -209,9 +209,9 @@ export default function ClientDashboard() {
               <div className="bg-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Active Requests</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">Active Find(s)</h3>
               <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Request) => r.status === 'open').length}</p>
-              <p className="text-gray-600 text-sm">Requests waiting for proposals</p>
+              <p className="text-gray-600 text-sm">Finds waiting for proposals</p>
             </CardContent>
           </Card>
 
@@ -220,9 +220,9 @@ export default function ClientDashboard() {
               <div className="bg-green-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Completed</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">Completed Find(s)</h3>
               <p className="text-2xl font-bold text-green-600 mb-2">{requests.filter((r: Request) => r.status === 'completed').length}</p>
-              <p className="text-gray-600 text-sm">Successfully completed requests</p>
+              <p className="text-gray-600 text-sm">Successfully completed finds</p>
             </CardContent>
           </Card>
 
@@ -255,9 +255,9 @@ export default function ClientDashboard() {
               {requests.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>You haven't created any requests yet.</p>
+                  <p>You haven't created any finds yet.</p>
                   <Link href="/client/create-request" className="text-finder-red hover:underline font-medium">
-                    Create your first request
+                    Create your first find
                   </Link>
                 </div>
               ) : (
