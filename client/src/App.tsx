@@ -26,6 +26,7 @@ import ProposalDetail from "@/pages/client/proposal-detail";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminUsers from "@/pages/admin/users";
 import AdminRequests from "@/pages/admin/requests";
+import AdminCategories from "@/pages/admin/categories";
 import AdminSettings from "@/pages/admin/settings";
 import AdminWithdrawals from "@/pages/admin/withdrawals";
 import AdminBlogPosts from "@/pages/admin/blog-posts";
@@ -95,7 +96,7 @@ function Router() {
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/requests" component={AdminRequests} />
-      <Route path="/admin/categories" component={AdminSettings} />
+      <Route path="/admin/categories" component={AdminCategories} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/withdrawals" component={AdminWithdrawals} />
       <Route path="/admin/blog-posts" component={AdminBlogPosts} />
