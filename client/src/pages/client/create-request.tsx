@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,12 +6,25 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import FileUpload from "@/components/file-upload";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Handshake, ArrowLeft } from "lucide-react";
+import { 
+  Search, 
+  ArrowLeft, 
+  PlusCircle, 
+  Clock, 
+  MapPin, 
+  DollarSign, 
+  Tag,
+  FileText,
+  Upload,
+  CheckCircle2,
+  AlertCircle
+} from "lucide-react";
 import type { Category } from "@shared/schema";
 
 export default function CreateRequest() {
@@ -32,6 +45,14 @@ export default function CreateRequest() {
   });
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [step, setStep] = useState(1);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   // Fetch categories for dropdown
   const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
@@ -41,9 +62,6 @@ export default function CreateRequest() {
 
   const createRequestMutation = useMutation({
     mutationFn: async (data: any) => {
-      const token = localStorage.getItem('findermeister_token');
-      
-      // Create FormData for file upload
       const formData = new FormData();
       
       // Add text fields
@@ -58,26 +76,17 @@ export default function CreateRequest() {
         formData.append('attachments', file);
       });
 
-      const response = await fetch("/api/client/finds", {
+      return await apiRequest("/api/client/finds", {
         method: "POST",
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          // Don't set Content-Type, let browser set it with boundary for multipart
-        },
         body: formData,
       });
-      if (!response.ok) {
-        throw new Error("Failed to create request");
-      }
-      return response.json();
     },
     onSuccess: () => {
-      // Invalidate the client finds cache so the new find appears
       queryClient.invalidateQueries({ queryKey: ['/api/client/finds'] });
       
       toast({
-        title: "Success!",
-        description: "Your find has been posted successfully.",
+        title: "Find Posted Successfully!",
+        description: "Your find is now live and visible to finders.",
       });
       
       // Reset form
@@ -92,19 +101,19 @@ export default function CreateRequest() {
         requirements: ""
       });
       
-      // Reset selected files
       setSelectedFiles([]);
+      setStep(1);
       
-      // Navigate to dashboard after a brief delay
+      // Navigate to dashboard
       setTimeout(() => {
-        window.location.href = "/client/dashboard";
+        navigate("/client/dashboard");
       }, 1500);
     },
     onError: (error: any) => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to create find",
+        title: "Failed to Post Find",
+        description: error.message || "Please try again later",
       });
     }
   });
@@ -116,7 +125,7 @@ export default function CreateRequest() {
     if (!formData.category || formData.category === 'loading' || formData.category === 'none') {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Missing Information",
         description: "Please select a valid category",
       });
       return;
@@ -128,7 +137,7 @@ export default function CreateRequest() {
     if (minBudget >= maxBudget) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Invalid Budget Range",
         description: "Maximum budget must be higher than minimum budget",
       });
       return;
@@ -141,6 +150,8 @@ export default function CreateRequest() {
       budgetMin: minBudget.toString(),
       budgetMax: maxBudget.toString(),
       timeframe: formData.timeframe,
+      location: formData.location,
+      requirements: formData.requirements,
       clientId: user?.id
     });
   };
@@ -153,186 +164,498 @@ export default function CreateRequest() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length + selectedFiles.length > 5) {
+      toast({
+        variant: "destructive",
+        title: "Too Many Files",
+        description: "You can upload a maximum of 5 files",
+      });
+      return;
+    }
+    
+    const validFiles = files.filter(file => file.size <= 10 * 1024 * 1024); // 10MB limit
+    if (validFiles.length !== files.length) {
+      toast({
+        variant: "destructive",
+        title: "File Size Error",
+        description: "Some files exceed the 10MB limit and were not added",
+      });
+    }
+    
+    setSelectedFiles(prev => [...prev, ...validFiles]);
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const nextStep = () => {
+    if (step === 1) {
+      // Validate basic info before proceeding
+      if (!formData.title || !formData.description || !formData.category) {
+        toast({
+          variant: "destructive",
+          title: "Missing Information",
+          description: "Please fill in all required fields",
+        });
+        return;
+      }
+    }
+    setStep(prev => prev + 1);
+  };
+
+  const prevStep = () => setStep(prev => prev - 1);
+
+  if (!user) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Header */}
-      <header className="bg-finder-red text-white px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <Handshake className="w-6 h-6" />
-            <span className="text-xl font-bold">FinderMeister</span>
-          </Link>
-          <nav className="flex items-center space-x-6">
-            <Link href="/client/dashboard" className="hover:underline">Dashboard</Link>
-            <span className="bg-white text-finder-red px-3 py-1 rounded font-medium">Post Find</span>
-          </nav>
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/client/dashboard" className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              <span className="font-medium">Back to Dashboard</span>
+            </Link>
+            
+            <div className="flex items-center space-x-4">
+              <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+                Step {step} of 3
+              </Badge>
+              <div className="text-sm text-slate-500">
+                {user.firstName} {user.lastName}
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
+      {/* Progress Bar */}
+      <div className="bg-white/60 border-b border-slate-200/60">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center space-x-4">
+            <div className={`flex items-center ${step >= 1 ? 'text-blue-600' : 'text-slate-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                step >= 1 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-400'
+              }`}>
+                1
+              </div>
+              <span className="ml-2 text-sm font-medium hidden sm:block">Basic Info</span>
+            </div>
+            <div className={`flex-1 h-1 rounded-full ${step >= 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+            
+            <div className={`flex items-center ${step >= 2 ? 'text-blue-600' : 'text-slate-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                step >= 2 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-400'
+              }`}>
+                2
+              </div>
+              <span className="ml-2 text-sm font-medium hidden sm:block">Details</span>
+            </div>
+            <div className={`flex-1 h-1 rounded-full ${step >= 3 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+            
+            <div className={`flex items-center ${step >= 3 ? 'text-blue-600' : 'text-slate-400'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                step >= 3 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-400'
+              }`}>
+                3
+              </div>
+              <span className="ml-2 text-sm font-medium hidden sm:block">Review</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto py-8 px-6">
-        <div className="mb-8">
-          <Link href="/client/dashboard" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Post a New Find</h1>
-          <p className="text-gray-600">Describe what you need help finding and connect with expert finders.</p>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">Post a New Find</h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            Tell finders exactly what you need help finding and connect with the right experts
+          </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl text-gray-900">Find Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <Label htmlFor="title" className="text-gray-700 font-medium">Find Title</Label>
-                <Input
-                  id="title"
-                  name="title"
-                  required
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  placeholder="What do you need help finding?"
-                  className="mt-1"
-                />
-              </div>
+        <Card className="bg-white/70 backdrop-blur-sm border-slate-200/60 shadow-xl">
+          <CardContent className="p-6 sm:p-8">
+            <form onSubmit={handleSubmit}>
+              {/* Step 1: Basic Information */}
+              {step === 1 && (
+                <div className="space-y-8">
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <h2 className="text-2xl font-semibold text-slate-900 mb-2">What are you looking for?</h2>
+                    <p className="text-slate-600">Start with the basics - we'll gather more details next</p>
+                  </div>
 
-              <div>
-                <Label htmlFor="category" className="text-gray-700 font-medium">Category</Label>
-                <Select value={formData.category} onValueChange={(value) => handleSelectChange('category', value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categoriesLoading ? (
-                      <SelectItem value="loading" disabled>Loading categories...</SelectItem>
-                    ) : categories.length > 0 ? (
-                      categories.map((category) => (
-                        <SelectItem key={category.id} value={category.name}>
-                          {category.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="none" disabled>No categories available</SelectItem>
+                  <div className="space-y-6">
+                    <div>
+                      <Label htmlFor="title" className="text-slate-700 font-semibold flex items-center mb-2">
+                        <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                        Find Title *
+                      </Label>
+                      <Input
+                        id="title"
+                        name="title"
+                        required
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        placeholder="e.g., Find a reliable freelance graphic designer for logo design"
+                        className="h-12 text-lg bg-white/80 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="category" className="text-slate-700 font-semibold flex items-center mb-2">
+                        <Tag className="w-4 h-4 mr-2 text-blue-600" />
+                        Category *
+                      </Label>
+                      <Select value={formData.category} onValueChange={(value) => handleSelectChange('category', value)}>
+                        <SelectTrigger className="h-12 text-lg bg-white/80 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
+                          <SelectValue placeholder="Choose the best category for your find" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categoriesLoading ? (
+                            <SelectItem value="loading" disabled>Loading categories...</SelectItem>
+                          ) : categories.length > 0 ? (
+                            categories
+                              .filter(category => category.isActive)
+                              .map((category) => (
+                                <SelectItem key={category.id} value={category.name}>
+                                  {category.name}
+                                </SelectItem>
+                              ))
+                          ) : (
+                            <SelectItem value="none" disabled>No categories available</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="description" className="text-slate-700 font-semibold flex items-center mb-2">
+                        <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                        Description *
+                      </Label>
+                      <Textarea
+                        id="description"
+                        name="description"
+                        required
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        placeholder="Provide specific details about what you're looking for, any requirements, and what success looks like..."
+                        className="min-h-[140px] text-lg bg-white/80 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-6">
+                    <Button 
+                      type="button" 
+                      onClick={nextStep}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                    >
+                      Continue to Details
+                      <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2: Detailed Information */}
+              {step === 2 && (
+                <div className="space-y-8">
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <PlusCircle className="w-8 h-8 text-green-600" />
+                    </div>
+                    <h2 className="text-2xl font-semibold text-slate-900 mb-2">Project Details</h2>
+                    <p className="text-slate-600">Help finders understand your budget and timeline</p>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="grid sm:grid-cols-2 gap-6">
+                      <div>
+                        <Label htmlFor="minBudget" className="text-slate-700 font-semibold flex items-center mb-2">
+                          <DollarSign className="w-4 h-4 mr-2 text-green-600" />
+                          Minimum Budget (₦) *
+                        </Label>
+                        <Input
+                          id="minBudget"
+                          name="minBudget"
+                          type="number"
+                          required
+                          min="1000"
+                          value={formData.minBudget}
+                          onChange={handleInputChange}
+                          placeholder="5000"
+                          className="h-12 text-lg bg-white/80 border-slate-200 focus:border-green-500 focus:ring-green-500/20"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="maxBudget" className="text-slate-700 font-semibold flex items-center mb-2">
+                          <DollarSign className="w-4 h-4 mr-2 text-green-600" />
+                          Maximum Budget (₦) *
+                        </Label>
+                        <Input
+                          id="maxBudget"
+                          name="maxBudget"
+                          type="number"
+                          required
+                          min="1000"
+                          value={formData.maxBudget}
+                          onChange={handleInputChange}
+                          placeholder="25000"
+                          className="h-12 text-lg bg-white/80 border-slate-200 focus:border-green-500 focus:ring-green-500/20"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="timeframe" className="text-slate-700 font-semibold flex items-center mb-2">
+                        <Clock className="w-4 h-4 mr-2 text-orange-600" />
+                        Timeline *
+                      </Label>
+                      <Select value={formData.timeframe} onValueChange={(value) => handleSelectChange("timeframe", value)}>
+                        <SelectTrigger className="h-12 text-lg bg-white/80 border-slate-200 focus:border-orange-500 focus:ring-orange-500/20">
+                          <SelectValue placeholder="When do you need this completed?" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1-3 days">1-3 days (Urgent)</SelectItem>
+                          <SelectItem value="1 week">Within 1 week</SelectItem>
+                          <SelectItem value="2 weeks">Within 2 weeks</SelectItem>
+                          <SelectItem value="1 month">Within 1 month</SelectItem>
+                          <SelectItem value="2-3 months">2-3 months</SelectItem>
+                          <SelectItem value="flexible">Flexible timeline</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="location" className="text-slate-700 font-semibold flex items-center mb-2">
+                        <MapPin className="w-4 h-4 mr-2 text-purple-600" />
+                        Location
+                      </Label>
+                      <Input
+                        id="location"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleInputChange}
+                        placeholder="Lagos, Nigeria or Remote/Online"
+                        className="h-12 text-lg bg-white/80 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20"
+                      />
+                      <p className="text-sm text-slate-500 mt-2">Leave blank if location doesn't matter</p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="requirements" className="text-slate-700 font-semibold mb-2 block">
+                        Special Requirements
+                      </Label>
+                      <Textarea
+                        id="requirements"
+                        name="requirements"
+                        value={formData.requirements}
+                        onChange={handleInputChange}
+                        placeholder="Any specific skills, certifications, tools, or other requirements..."
+                        className="min-h-[100px] text-lg bg-white/80 border-slate-200 focus:border-slate-500 focus:ring-slate-500/20 resize-none"
+                      />
+                    </div>
+
+                    {/* File Upload Section */}
+                    <div>
+                      <Label className="text-slate-700 font-semibold flex items-center mb-2">
+                        <Upload className="w-4 h-4 mr-2 text-indigo-600" />
+                        Supporting Files (Optional)
+                      </Label>
+                      <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 bg-slate-50/50 hover:bg-slate-100/50 transition-colors">
+                        <div className="text-center">
+                          <Upload className="w-10 h-10 text-slate-400 mx-auto mb-2" />
+                          <Label htmlFor="file-upload" className="cursor-pointer">
+                            <span className="text-blue-600 hover:text-blue-700 font-medium">Upload files</span>
+                            <span className="text-slate-500"> or drag and drop</span>
+                          </Label>
+                          <input
+                            id="file-upload"
+                            type="file"
+                            multiple
+                            onChange={handleFileSelect}
+                            className="hidden"
+                            accept="image/*,.pdf,.doc,.docx,.txt"
+                          />
+                          <p className="text-sm text-slate-500 mt-1">
+                            Images, PDFs, documents up to 10MB each (max 5 files)
+                          </p>
+                        </div>
+                        
+                        {selectedFiles.length > 0 && (
+                          <div className="mt-4 space-y-2">
+                            {selectedFiles.map((file, index) => (
+                              <div key={index} className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
+                                    <FileText className="w-4 h-4 text-blue-600" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium text-slate-700">{file.name}</p>
+                                    <p className="text-xs text-slate-500">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
+                                  </div>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeFile(index)}
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+                    <Button 
+                      type="button" 
+                      onClick={prevStep}
+                      variant="outline"
+                      className="px-6 py-3 font-medium"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      Back
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={nextStep}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                    >
+                      Review & Post
+                      <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Review & Submit */}
+              {step === 3 && (
+                <div className="space-y-8">
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle2 className="w-8 h-8 text-purple-600" />
+                    </div>
+                    <h2 className="text-2xl font-semibold text-slate-900 mb-2">Review Your Find</h2>
+                    <p className="text-slate-600">Double-check everything looks good before posting</p>
+                  </div>
+
+                  {/* Review Summary */}
+                  <div className="bg-slate-50 rounded-xl p-6 space-y-4">
+                    <div>
+                      <h3 className="font-semibold text-slate-900 mb-2">{formData.title}</h3>
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                        {formData.category}
+                      </Badge>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div>
+                      <h4 className="font-medium text-slate-700 mb-2">Description</h4>
+                      <p className="text-slate-600 leading-relaxed">{formData.description}</p>
+                    </div>
+                    
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+                      <div className="text-center p-3 bg-white rounded-lg border">
+                        <DollarSign className="w-5 h-5 text-green-600 mx-auto mb-1" />
+                        <div className="text-sm font-medium text-slate-900">
+                          ₦{parseInt(formData.minBudget || "0").toLocaleString()} - ₦{parseInt(formData.maxBudget || "0").toLocaleString()}
+                        </div>
+                        <div className="text-xs text-slate-500">Budget Range</div>
+                      </div>
+                      <div className="text-center p-3 bg-white rounded-lg border">
+                        <Clock className="w-5 h-5 text-orange-600 mx-auto mb-1" />
+                        <div className="text-sm font-medium text-slate-900">{formData.timeframe}</div>
+                        <div className="text-xs text-slate-500">Timeline</div>
+                      </div>
+                      <div className="text-center p-3 bg-white rounded-lg border">
+                        <MapPin className="w-5 h-5 text-purple-600 mx-auto mb-1" />
+                        <div className="text-sm font-medium text-slate-900">
+                          {formData.location || "Any location"}
+                        </div>
+                        <div className="text-xs text-slate-500">Location</div>
+                      </div>
+                      <div className="text-center p-3 bg-white rounded-lg border">
+                        <Upload className="w-5 h-5 text-indigo-600 mx-auto mb-1" />
+                        <div className="text-sm font-medium text-slate-900">{selectedFiles.length}</div>
+                        <div className="text-xs text-slate-500">Files</div>
+                      </div>
+                    </div>
+
+                    {formData.requirements && (
+                      <>
+                        <Separator />
+                        <div>
+                          <h4 className="font-medium text-slate-700 mb-2">Special Requirements</h4>
+                          <p className="text-slate-600">{formData.requirements}</p>
+                        </div>
+                      </>
                     )}
-                  </SelectContent>
-                </Select>
-              </div>
+                  </div>
 
-              <div>
-                <Label htmlFor="description" className="text-gray-700 font-medium">Detailed Description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  required
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Provide specific details about what you're looking for..."
-                  className="mt-1 min-h-[120px]"
-                />
-              </div>
+                  {/* Important Notice */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start space-x-3">
+                    <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-amber-800 mb-1">Important Notice</h4>
+                      <p className="text-sm text-amber-700">
+                        Once posted, your find will be visible to all finders on the platform. 
+                        You'll receive proposals and can communicate with interested finders through our messaging system.
+                      </p>
+                    </div>
+                  </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="minBudget" className="text-gray-700 font-medium">Minimum Budget ($)</Label>
-                  <Input
-                    id="minBudget"
-                    name="minBudget"
-                    type="number"
-                    required
-                    min="1"
-                    value={formData.minBudget}
-                    onChange={handleInputChange}
-                    placeholder="50"
-                    className="mt-1"
-                  />
+                  <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+                    <Button 
+                      type="button" 
+                      onClick={prevStep}
+                      variant="outline"
+                      className="px-6 py-3 font-medium"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      Back to Edit
+                    </Button>
+                    <Button 
+                      type="submit"
+                      disabled={createRequestMutation.isPending}
+                      className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                    >
+                      {createRequestMutation.isPending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Posting Find...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-5 h-5 mr-2" />
+                          Post My Find
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="maxBudget" className="text-gray-700 font-medium">Maximum Budget ($)</Label>
-                  <Input
-                    id="maxBudget"
-                    name="maxBudget"
-                    type="number"
-                    required
-                    min="1"
-                    value={formData.maxBudget}
-                    onChange={handleInputChange}
-                    placeholder="200"
-                    className="mt-1"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="timeframe" className="text-gray-700 font-medium">Timeline</Label>
-                <Select value={formData.timeframe} onValueChange={(value) => handleSelectChange("timeframe", value)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="How soon do you need this completed?" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1-3 days">1-3 days (Urgent)</SelectItem>
-                    <SelectItem value="1 week">1 week</SelectItem>
-                    <SelectItem value="2 weeks">2 weeks</SelectItem>
-                    <SelectItem value="1 month">1 month</SelectItem>
-                    <SelectItem value="2-3 months">2-3 months</SelectItem>
-                    <SelectItem value="flexible">Flexible timeline</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="location" className="text-gray-700 font-medium">Location (if relevant)</Label>
-                <Input
-                  id="location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleInputChange}
-                  placeholder="City, State or Online"
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="requirements" className="text-gray-700 font-medium">Special Requirements</Label>
-                <Textarea
-                  id="requirements"
-                  name="requirements"
-                  value={formData.requirements}
-                  onChange={handleInputChange}
-                  placeholder="Any specific requirements, preferences, or constraints..."
-                  className="mt-1"
-                />
-              </div>
-
-              {/* File Upload Section */}
-              <FileUpload
-                onFilesChange={setSelectedFiles}
-                maxFiles={5}
-                maxSizeInMB={10}
-                label="Supporting Files (Optional)"
-                description="Upload images, documents, or reference files to help finders understand your request better"
-              />
-
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  className="bg-finder-red hover:bg-finder-red-dark text-white px-8 py-3 font-medium"
-                  disabled={createRequestMutation.isPending}
-                >
-                  {createRequestMutation.isPending ? "Posting..." : "Post Request"}
-                </Button>
-                <Link href="/client/dashboard">
-                  <Button variant="outline" className="px-8 py-3">
-                    Cancel
-                  </Button>
-                </Link>
-              </div>
+              )}
             </form>
           </CardContent>
         </Card>
-      </div>
+      </main>
     </div>
   );
 }
