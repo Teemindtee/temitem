@@ -112,6 +112,9 @@ export interface IStorage {
   getAdminSetting(key: string): Promise<AdminSetting | undefined>;
   setAdminSetting(key: string, value: string): Promise<AdminSetting>;
   
+  // Token charging
+  chargeFinderTokens(finderId: string, amount: number, reason: string, chargedBy: string): Promise<boolean>;
+  
   // Category operations
   getCategories(): Promise<Category[]>;
   getActiveCategories(): Promise<Category[]>;
@@ -1511,6 +1514,39 @@ export class DatabaseStorage implements IStorage {
       ...result.contract,
       orderSubmission: result.orderSubmission || undefined
     };
+  }
+
+  // Token charging method
+  async chargeFinderTokens(finderId: string, amount: number, reason: string, chargedBy: string): Promise<boolean> {
+    try {
+      // Get current token balance
+      const tokenRecord = await this.getFindertokenBalance(finderId);
+      if (!tokenRecord) {
+        return false; // Finder has no token record
+      }
+
+      const currentBalance = parseInt(tokenRecord.balance);
+      if (currentBalance < amount) {
+        return false; // Insufficient balance
+      }
+
+      // Update balance
+      await this.updateFindertokenBalance(finderId, currentBalance - amount);
+
+      // Create transaction record
+      await this.createTransaction({
+        finderId,
+        amount: amount.toString(),
+        type: 'charge',
+        description: `Admin charge: ${reason}`,
+        status: 'completed'
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error charging finder tokens:', error);
+      return false;
+    }
   }
 }
 

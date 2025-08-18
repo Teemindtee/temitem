@@ -28,6 +28,7 @@ export default function AdminSettings() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newCategoryDesc, setNewCategoryDesc] = useState("");
   const [proposalTokenCost, setProposalTokenCost] = useState("");
+  const [findertokenPrice, setFindertokenPrice] = useState("");
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [editCategoryName, setEditCategoryName] = useState("");
   const [editCategoryDesc, setEditCategoryDesc] = useState("");
@@ -37,7 +38,7 @@ export default function AdminSettings() {
     enabled: !!user && user.role === 'admin'
   });
 
-  const { data: settings, isLoading: settingsLoading } = useQuery<{ proposalTokenCost: string }>({
+  const { data: settings, isLoading: settingsLoading } = useQuery<{ proposalTokenCost: string; findertokenPrice: string }>({
     queryKey: ['/api/admin/settings'],
     enabled: !!user && user.role === 'admin'
   });
@@ -65,7 +66,7 @@ export default function AdminSettings() {
   });
 
   const updateSettingsMutation = useMutation({
-    mutationFn: async (data: { proposalTokenCost: string }) => {
+    mutationFn: async (data: { proposalTokenCost?: string; findertokenPrice?: string }) => {
       console.log('Sending API request with data:', data);
       return await apiRequest('PUT', '/api/admin/settings', data);
     },
@@ -73,6 +74,7 @@ export default function AdminSettings() {
       console.log('Settings update successful:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
       setProposalTokenCost(""); // Clear the local state to use the fetched value
+      setFindertokenPrice("");
       toast({
         title: "Success",
         description: "Settings updated successfully"
@@ -164,9 +166,11 @@ export default function AdminSettings() {
   const handleUpdateSettings = (e: React.FormEvent) => {
     e.preventDefault();
     const costValue = proposalTokenCost || settings?.proposalTokenCost || '1';
-    console.log('Updating settings with:', { proposalTokenCost: costValue });
+    const priceValue = findertokenPrice || settings?.findertokenPrice || '100';
+    console.log('Updating settings with:', { proposalTokenCost: costValue, findertokenPrice: priceValue });
     updateSettingsMutation.mutate({
-      proposalTokenCost: costValue
+      proposalTokenCost: costValue,
+      findertokenPrice: priceValue
     });
   };
 
@@ -220,19 +224,36 @@ export default function AdminSettings() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUpdateSettings} className="space-y-4">
-              <div>
-                <Label htmlFor="tokenCost">Proposal Token Cost</Label>
-                <Input
-                  id="tokenCost"
-                  type="number"
-                  min="1"
-                  value={proposalTokenCost || settings?.proposalTokenCost || '1'}
-                  onChange={(e) => setProposalTokenCost(e.target.value)}
-                  placeholder="Number of tokens required to submit a proposal"
-                />
-                <p className="text-sm text-gray-600 mt-1">
-                  How many tokens finders need to spend to submit a proposal
-                </p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="tokenCost">Proposal Token Cost</Label>
+                  <Input
+                    id="tokenCost"
+                    type="number"
+                    min="1"
+                    value={proposalTokenCost || settings?.proposalTokenCost || '1'}
+                    onChange={(e) => setProposalTokenCost(e.target.value)}
+                    placeholder="Number of tokens required to submit a proposal"
+                  />
+                  <p className="text-sm text-gray-600 mt-1">
+                    How many tokens finders need to spend to submit a proposal
+                  </p>
+                </div>
+                
+                <div>
+                  <Label htmlFor="tokenPrice">Findertoken Price (kobo)</Label>
+                  <Input
+                    id="tokenPrice"
+                    type="number"
+                    min="1"
+                    value={findertokenPrice || settings?.findertokenPrice || '100'}
+                    onChange={(e) => setFindertokenPrice(e.target.value)}
+                    placeholder="Price per token in kobo"
+                  />
+                  <p className="text-sm text-gray-600 mt-1">
+                    ₦{((parseFloat(findertokenPrice || settings?.findertokenPrice || '100')) / 100).toFixed(2)} per token
+                  </p>
+                </div>
               </div>
               <Button 
                 type="submit" 

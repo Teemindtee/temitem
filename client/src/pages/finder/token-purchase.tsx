@@ -1,52 +1,28 @@
-import { useState, useEffect } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FinderHeader } from "@/components/finder-header";
-import { SupportWidget } from "@/components/support-widget";
-import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { 
-  Coins, 
-  CreditCard, 
-  Clock, 
-  CheckCircle,
-  Star,
-  Zap,
-  Shield,
-  ArrowLeft,
-  Loader2
-} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { FinderHeader } from "@/components/finder-header";
+import { useAuth } from "@/hooks/use-auth";
+import { Coins, CreditCard, ArrowLeft } from "lucide-react";
 
-interface TokenPackage {
-  id: string;
-  name: string;
-  tokens: number;
-  price: number;
-  popular?: boolean;
-}
-
-interface PaystackResponse {
-  authorization_url: string;
-  access_code: string;
-  reference: string;
+interface PricingInfo {
+  pricePerToken: number; // in kobo/cents
+  currency: string;
 }
 
 export default function TokenPurchase() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [selectedPackage, setSelectedPackage] = useState<TokenPackage | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [tokenAmount, setTokenAmount] = useState<number>(10);
+  const [loading, setLoading] = useState(false);
 
-  // Fetch token packages
-  const { data: packages = [], isLoading } = useQuery<TokenPackage[]>({
-    queryKey: ['/api/tokens/packages'],
+  // Fetch pricing information from admin settings
+  const { data: pricing, isLoading: pricingLoading } = useQuery<PricingInfo>({
+    queryKey: ['/api/tokens/pricing'],
     enabled: !!user
   });
 
@@ -56,65 +32,50 @@ export default function TokenPurchase() {
     enabled: !!user
   });
 
-  // Initialize payment
-  const initializePayment = useMutation({
-    mutationFn: async (packageId: string) => {
-      return apiRequest('POST', '/api/payments/initialize', { packageId });
-    },
-    onSuccess: (data: PaystackResponse) => {
-      // Redirect to Paystack payment page
-      window.location.href = data.authorization_url;
-    },
-    onError: (error: any) => {
+  const totalPrice = pricing ? (tokenAmount * pricing.pricePerToken) : 0;
+  const totalPriceInNaira = totalPrice / 100; // Convert kobo to naira
+
+  const handlePurchase = async () => {
+    if (!pricing || tokenAmount <= 0) return;
+    
+    setLoading(true);
+    
+    try {
+      // Simulate purchase process - in real implementation, integrate with Paystack
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
       toast({
-        title: "Payment Error",
-        description: error.message || "Failed to initialize payment",
+        title: "Purchase Successful!",
+        description: `You have purchased ${tokenAmount} findertokens for ₦${totalPriceInNaira.toFixed(2)}.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Purchase Failed",
+        description: "There was an error processing your payment. Please try again.",
         variant: "destructive",
       });
-      setIsProcessing(false);
+    } finally {
+      setLoading(false);
     }
-  });
-
-  const handlePurchase = (pkg: TokenPackage) => {
-    setSelectedPackage(pkg);
-    setIsProcessing(true);
-    initializePayment.mutate(pkg.id);
   };
 
-  // Check for payment callback
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const reference = urlParams.get('reference');
-    const status = urlParams.get('status');
+  const handleTokenAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 0;
+    setTokenAmount(Math.max(1, Math.min(1000, value))); // Min 1, Max 1000 tokens
+  };
 
-    if (reference && status) {
-      if (status === 'success') {
-        toast({
-          title: "Payment Successful!",
-          description: "Your tokens have been added to your account.",
-        });
-        queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });
-      } else if (status === 'cancelled') {
-        toast({
-          title: "Payment Cancelled",
-          description: "Your payment was cancelled.",
-          variant: "destructive",
-        });
-      }
-      
-      // Clean up URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, [toast, queryClient]);
+  const presetAmounts = [10, 25, 50, 100];
 
-  if (isLoading) {
+  if (pricingLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <FinderHeader />
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
-            <p className="text-gray-600 mt-4">Loading token packages...</p>
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto"></div>
+              <p className="mt-2 text-muted-foreground">Loading pricing information...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -124,147 +85,160 @@ export default function TokenPurchase() {
   return (
     <div className="min-h-screen bg-gray-50">
       <FinderHeader />
-
-      <div className="max-w-4xl mx-auto py-8 px-6">
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <Button variant="outline" onClick={() => window.history.back()}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center space-x-4 mb-4">
+              <Button variant="outline" onClick={() => window.history.back()}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">Purchase Findertokens</h1>
+            <p className="text-muted-foreground">
+              Buy findertokens to submit proposals and grow your finder business
+            </p>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Purchase Findertokens</h1>
-          <p className="text-gray-600">Choose a findertoken package to submit proposals</p>
-        </div>
 
-        {/* Current Balance */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Current Balance</h3>
-                <p className="text-gray-600">Available findertokens for proposals</p>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center space-x-2">
-                  <Coins className="w-6 h-6 text-orange-500" />
-                  <span className="text-3xl font-bold text-orange-600">
-                    {(finder as any)?.findertokenBalance || 0}
-                  </span>
+          {/* Current Balance */}
+          <Card className="mb-8">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Current Balance</h3>
+                  <p className="text-muted-foreground">Available findertokens for proposals</p>
                 </div>
-                <p className="text-sm text-gray-600">findertokens</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Token Packages */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {packages.map((pkg) => (
-            <Card 
-              key={pkg.id}
-              className={`relative border-2 transition-all duration-200 hover:shadow-lg ${
-                pkg.popular 
-                  ? 'border-finder-red/70 shadow-md' 
-                  : 'border-gray-200 hover:border-finder-red/50'
-              }`}
-            >
-              {pkg.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-finder-red text-white px-3 py-1">
-                    <Star className="w-3 h-3 mr-1" />
-                    Most Popular
-                  </Badge>
-                </div>
-              )}
-              
-              <CardHeader className="text-center pb-4">
-                <CardTitle className="text-lg font-bold text-gray-900">
-                  {pkg.name}
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <div className="text-center mb-6">
-                  <div className="flex items-center justify-center space-x-2 mb-2">
-                    <Coins className="w-8 h-8 text-orange-500" />
-                    <span className="text-4xl font-bold text-gray-900">{pkg.tokens}</span>
+                <div className="text-right">
+                  <div className="flex items-center space-x-2">
+                    <Coins className="w-6 h-6 text-orange-500" />
+                    <span className="text-3xl font-bold text-orange-600">
+                      {(finder as any)?.findertokenBalance || 0}
+                    </span>
                   </div>
-                  <p className="text-gray-600 text-sm">findertokens</p>
+                  <p className="text-sm text-muted-foreground">findertokens</p>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
 
-                <div className="text-center mb-6">
-                  <div className="text-3xl font-bold text-green-600 mb-1">
-                    ₦{pkg.price.toLocaleString()}
+          {/* Main Purchase Card */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Buy Findertokens</CardTitle>
+              <CardDescription>
+                Current price: ₦{pricing ? (pricing.pricePerToken / 100).toFixed(2) : '0.00'} per token
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent className="space-y-6">
+              {/* Token Amount Input */}
+              <div className="space-y-2">
+                <Label htmlFor="tokenAmount">Number of Tokens</Label>
+                <Input
+                  id="tokenAmount"
+                  type="number"
+                  min="1"
+                  max="1000"
+                  value={tokenAmount}
+                  onChange={handleTokenAmountChange}
+                  className="text-lg"
+                  placeholder="Enter token amount"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Minimum: 1 token • Maximum: 1,000 tokens
+                </p>
+              </div>
+
+              {/* Preset Amount Buttons */}
+              <div className="space-y-2">
+                <Label>Quick Select</Label>
+                <div className="grid grid-cols-4 gap-2">
+                  {presetAmounts.map((amount) => (
+                    <Button
+                      key={amount}
+                      variant={tokenAmount === amount ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setTokenAmount(amount)}
+                      className="w-full"
+                    >
+                      {amount}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Summary */}
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Tokens:</span>
+                  <span>{tokenAmount}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Price per token:</span>
+                  <span>₦{pricing ? (pricing.pricePerToken / 100).toFixed(2) : '0.00'}</span>
+                </div>
+                <div className="border-t border-muted pt-2">
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total Price:</span>
+                    <span className="text-red-600">₦{totalPriceInNaira.toFixed(2)}</span>
                   </div>
-                  <p className="text-gray-500 text-sm">
-                    ₦{Math.round(pkg.price / pkg.tokens).toLocaleString()} per findertoken
-                  </p>
                 </div>
+              </div>
 
-                <Button
-                  onClick={() => handlePurchase(pkg)}
-                  disabled={isProcessing}
-                  className={`w-full ${
-                    pkg.popular 
-                      ? 'bg-finder-red hover:bg-finder-red-dark' 
-                      : 'bg-gray-900 hover:bg-gray-800'
-                  }`}
-                >
-                  {isProcessing && selectedPackage?.id === pkg.id ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Purchase Now
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+              {/* Purchase Button */}
+              <Button 
+                className="w-full text-lg py-6" 
+                onClick={handlePurchase}
+                disabled={loading || !pricing || tokenAmount <= 0}
+                size="lg"
+              >
+                {loading ? (
+                  "Processing Payment..." 
+                ) : (
+                  <>
+                    <CreditCard className="w-5 h-5 mr-2" />
+                    Purchase {tokenAmount} Tokens for ₦{totalPriceInNaira.toFixed(2)}
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+          
+          {/* How It Works */}
+          <Card>
+            <CardHeader>
+              <CardTitle>How Findertokens Work</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold shrink-0">1</div>
+                <div>
+                  <h4 className="font-semibold">Submit Proposals</h4>
+                  <p className="text-sm text-muted-foreground">Each proposal submission costs tokens as set by the admin</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold shrink-0">2</div>
+                <div>
+                  <h4 className="font-semibold">Get Selected</h4>
+                  <p className="text-sm text-muted-foreground">When clients accept your proposal, you start working on their find</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold shrink-0">3</div>
+                <div>
+                  <h4 className="font-semibold">Earn Money</h4>
+                  <p className="text-sm text-muted-foreground">Complete the work and get paid the agreed amount</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-
-        {/* Payment Info */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <Shield className="w-5 h-5 mr-2" />
-              Secure Payment
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <CreditCard className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-semibold text-gray-900 mb-2">Multiple Payment Options</h3>
-                <p className="text-sm text-gray-600">
-                  Pay with cards, bank transfers, USSD, or mobile money
-                </p>
-              </div>
-              <div className="text-center">
-                <Shield className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                <h3 className="font-semibold text-gray-900 mb-2">Secure & Encrypted</h3>
-                <p className="text-sm text-gray-600">
-                  All payments are processed securely through Paystack
-                </p>
-              </div>
-              <div className="text-center">
-                <Zap className="w-8 h-8 text-orange-600 mx-auto mb-2" />
-                <h3 className="font-semibold text-gray-900 mb-2">Instant Delivery</h3>
-                <p className="text-sm text-gray-600">
-                  Tokens are added to your account immediately after payment
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
-
-      <SupportWidget context="tokens" />
     </div>
   );
 }

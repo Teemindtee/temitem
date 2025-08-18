@@ -109,6 +109,8 @@ export const adminSettings = pgTable("admin_settings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   key: text("key").notNull().unique(),
   value: text("value").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
@@ -204,6 +206,15 @@ export const finderLevels = pgTable("finder_levels", {
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const tokenCharges = pgTable("token_charges", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  finderId: varchar("finder_id").references(() => finders.id).notNull(),
+  amount: integer("amount").notNull(), // number of tokens charged
+  reason: text("reason").notNull(), // reason for charge
+  chargedBy: varchar("charged_by").references(() => users.id).notNull(), // admin who charged
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // Relations
@@ -468,7 +479,13 @@ export const insertTransactionSchema = createInsertSchema(transactions).omit({
 
 export const insertAdminSettingSchema = createInsertSchema(adminSettings).omit({
   id: true,
+  createdAt: true,
   updatedAt: true,
+});
+
+export const insertTokenChargeSchema = createInsertSchema(tokenCharges).omit({
+  id: true,
+  createdAt: true,
 });
 
 export const insertConversationSchema = createInsertSchema(conversations).omit({
@@ -500,7 +517,7 @@ export type InsertFindType = z.infer<typeof insertFindSchema>;
 export type InsertProposalType = z.infer<typeof insertProposalSchema>;
 export type InsertContractType = z.infer<typeof insertContractSchema>;
 export type InsertReviewType = z.infer<typeof insertReviewSchema>;
-export type InsertTokenType = z.infer<typeof insertTokenSchema>;
+export type InsertTokenChargeType = z.infer<typeof insertTokenChargeSchema>;
 export type InsertTransactionType = z.infer<typeof insertTransactionSchema>;
 export type InsertAdminSettingType = z.infer<typeof insertAdminSettingSchema>;
 export type InsertConversationType = z.infer<typeof insertConversationSchema>;

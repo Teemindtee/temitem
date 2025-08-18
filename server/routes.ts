@@ -1711,9 +1711,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const proposalTokenCost = await storage.getAdminSetting('proposal_token_cost');
+      const findertokenPrice = await storage.getAdminSetting('findertoken_price');
       
       res.json({
-        proposalTokenCost: proposalTokenCost?.value || '1'
+        proposalTokenCost: proposalTokenCost?.value || '1',
+        findertokenPrice: findertokenPrice?.value || '100' // Default 100 per token in kobo/cents
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch admin settings" });
@@ -1726,15 +1728,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const { proposalTokenCost } = req.body;
+      const { proposalTokenCost, findertokenPrice } = req.body;
 
       if (proposalTokenCost !== undefined) {
         await storage.setAdminSetting('proposal_token_cost', proposalTokenCost.toString());
+      }
+      
+      if (findertokenPrice !== undefined) {
+        await storage.setAdminSetting('findertoken_price', findertokenPrice.toString());
       }
 
       res.json({ message: "Settings updated successfully" });
     } catch (error: any) {
       res.status(400).json({ message: "Failed to update settings", error: error.message });
+    }
+  });
+
+  // Token charge endpoints - Admin can charge finders tokens
+  app.post("/api/admin/charge-tokens", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { finderId, amount, reason } = req.body;
+      
+      if (!finderId || !amount || !reason) {
+        return res.status(400).json({ message: "Finder ID, amount, and reason are required" });
+      }
+
+      // Get finder to verify they exist
+      const finder = await storage.getFinder(finderId);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder not found" });
+      }
+
+      // Charge tokens from finder's balance
+      const success = await storage.chargeFinderTokens(finderId, Math.abs(amount), reason, req.user.userId);
+      
+      if (!success) {
+        return res.status(400).json({ message: "Insufficient token balance" });
+      }
+
+      res.json({ message: "Tokens charged successfully" });
+    } catch (error) {
+      console.error('Charge tokens error:', error);
+      res.status(500).json({ message: "Failed to charge tokens" });
+    }
+  });
+
+  // Get pricing info for token purchases
+  app.get("/api/tokens/pricing", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const findertokenPrice = await storage.getAdminSetting('findertoken_price');
+      const pricePerToken = parseFloat(findertokenPrice?.value || '100'); // Default 100 kobo per token
+      
+      res.json({
+        pricePerToken, // in kobo/cents
+        currency: 'NGN'
+      });
+    } catch (error) {
+      console.error('Get pricing error:', error);
+      res.status(500).json({ message: "Failed to fetch pricing" });
     }
   });
 
