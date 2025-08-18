@@ -21,15 +21,15 @@ async function throwIfResNotOk(res: Response) {
 }
 
 export async function apiRequest(
-  method: string,
   url: string,
-  data?: any,
   options: {
+    method?: string;
     headers?: Record<string, string>;
+    body?: string;
   } = {}
 ): Promise<any> {
-  const token = localStorage.getItem('findermeister_token');
-  const { headers = {} } = options;
+  const token = localStorage.getItem('token');
+  const { method = 'GET', headers = {}, body } = options;
   
   const res = await fetch(url, {
     method,
@@ -38,7 +38,7 @@ export async function apiRequest(
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...headers,
     },
-    body: data ? JSON.stringify(data) : undefined,
+    body,
   });
 
   await throwIfResNotOk(res);

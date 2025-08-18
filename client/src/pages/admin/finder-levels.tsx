@@ -58,22 +58,12 @@ export default function AdminFinderLevels() {
 
   const { data: levels = [], isLoading } = useQuery({
     queryKey: ['admin', 'finder-levels'],
-    queryFn: async () => {
-      const response = await fetch('/api/admin/finder-levels', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return response.json();
-    }
+    queryFn: () => apiRequest('/api/admin/finder-levels')
   });
 
   const createMutation = useMutation({
     mutationFn: (data: any) => apiRequest('/api/admin/finder-levels', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     }),
     onSuccess: () => {
@@ -91,7 +81,6 @@ export default function AdminFinderLevels() {
     mutationFn: ({ id, data }: { id: string; data: any }) => 
       apiRequest(`/api/admin/finder-levels/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       }),
     onSuccess: () => {
