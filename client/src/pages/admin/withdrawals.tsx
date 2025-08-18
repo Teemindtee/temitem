@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  ArrowLeft,
   DollarSign, 
   Shield, 
   Clock,
@@ -22,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { WithdrawalRequest } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
+import AdminHeader from "@/components/admin-header";
 
 export default function AdminWithdrawals() {
   const { user } = useAuth();
@@ -77,10 +77,13 @@ export default function AdminWithdrawals() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading withdrawal requests...</p>
+      <div className="min-h-screen bg-gray-50">
+        <AdminHeader currentPage="withdrawals" />
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading withdrawal requests...</p>
+          </div>
         </div>
       </div>
     );
@@ -92,31 +95,23 @@ export default function AdminWithdrawals() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-finder-red text-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link href="/admin/dashboard">
-              <Button variant="ghost" className="text-white hover:bg-finder-red-dark p-2">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div className="flex items-center space-x-2">
-              <DollarSign className="w-6 h-6" />
-              <span className="text-xl font-bold">Withdrawal Management</span>
-            </div>
-          </div>
-          <Link href="/admin/dashboard">
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-finder-red">
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <AdminHeader currentPage="withdrawals" />
 
       <div className="max-w-6xl mx-auto py-8 px-6">
+        {/* Page Title */}
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-10 h-10 bg-finder-red rounded-lg flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Withdrawal Management</h1>
+              <p className="text-gray-600">Review and process finder withdrawal requests</p>
+            </div>
+          </div>
+        </div>
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="p-6 text-center">
               <div className="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
