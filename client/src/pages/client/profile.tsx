@@ -150,12 +150,12 @@ export default function ClientProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-slate-100 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute inset-0 bg-grid-white/[0.02] -z-10" />
-      <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob -z-10" />
-      <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000 -z-10" />
-      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000 -z-10" />
+      <div className="absolute top-0 -left-4 w-72 h-72 bg-red-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob -z-10" />
+      <div className="absolute top-0 -right-4 w-72 h-72 bg-slate-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000 -z-10" />
+      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000 -z-10" />
 
       {/* Header */}
       <header className="bg-white/95 backdrop-blur-lg border-b border-white/20 sticky top-0 z-50 shadow-lg shadow-slate-200/20">
@@ -170,7 +170,7 @@ export default function ClientProfile() {
             </button>
             
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <Badge className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-0 text-xs sm:text-sm px-3 py-1.5 shadow-lg">
+              <Badge className="bg-gradient-to-r from-red-600 to-red-800 text-white border-0 text-xs sm:text-sm px-3 py-1.5 shadow-lg">
                 <User className="w-3 h-3 mr-1.5" />
                 Client Account
               </Badge>
@@ -189,8 +189,8 @@ export default function ClientProfile() {
               <CardContent className="p-8 sm:p-10 text-center">
                 <div className="relative mb-8">
                   <div className="relative">
-                    <Avatar className="w-24 h-24 sm:w-28 sm:h-28 mx-auto border-4 border-white shadow-2xl ring-4 ring-blue-100/50 transition-all duration-300 group-hover:ring-blue-200/70">
-                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-2xl sm:text-3xl font-bold">
+                    <Avatar className="w-24 h-24 sm:w-28 sm:h-28 mx-auto border-4 border-white shadow-2xl ring-4 ring-red-100/50 transition-all duration-300 group-hover:ring-red-200/70">
+                      <AvatarFallback className="bg-gradient-to-br from-red-600 to-red-800 text-white text-2xl sm:text-3xl font-bold">
                         {((user.firstName || "") + (user.lastName || ""))
                           .split(' ')
                           .map(n => n[0])
@@ -199,14 +199,14 @@ export default function ClientProfile() {
                           .slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="absolute inset-0 w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full bg-gradient-to-br from-blue-400/20 to-indigo-600/20 animate-pulse" />
+                    <div className="absolute inset-0 w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-full bg-gradient-to-br from-red-400/20 to-red-600/20 animate-pulse" />
                   </div>
-                  <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 ring-2 ring-white">
+                  <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200 ring-2 ring-white">
                     <Camera className="w-5 h-5 text-white" />
                   </button>
                 </div>
                 
-                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3">
+                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-slate-900 to-red-800 bg-clip-text text-transparent mb-3">
                   {user.firstName} {user.lastName}
                 </h2>
                 <p className="text-slate-600 mb-6 font-medium">{user.email}</p>
@@ -225,18 +225,18 @@ export default function ClientProfile() {
                   </span>
                 </div>
 
-                <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 px-4 py-2 mb-8 shadow-lg">
+                <Badge className="bg-gradient-to-r from-red-600 to-red-800 text-white border-0 px-4 py-2 mb-8 shadow-lg">
                   <CheckCircle2 className="w-4 h-4 mr-2" />
                   Verified Client
                 </Badge>
 
                 <div className="space-y-4 text-sm">
                   <div className="flex items-center justify-center bg-slate-50/80 rounded-full py-2 px-4">
-                    <Calendar className="w-4 h-4 mr-3 text-blue-600" />
+                    <Calendar className="w-4 h-4 mr-3 text-red-600" />
                     <span className="font-medium text-slate-700">Joined {format(new Date(clientStats.joinDate), 'MMM yyyy')}</span>
                   </div>
                   <div className="flex items-center justify-center bg-slate-50/80 rounded-full py-2 px-4">
-                    <MapPin className="w-4 h-4 mr-3 text-green-600" />
+                    <MapPin className="w-4 h-4 mr-3 text-red-600" />
                     <span className="font-medium text-slate-700">Nigeria</span>
                   </div>
                 </div>
@@ -244,10 +244,10 @@ export default function ClientProfile() {
             </Card>
 
             {/* Quick Stats */}
-            <Card className="bg-gradient-to-br from-blue-50/80 to-indigo-50/80 backdrop-blur-xl border-white/30 shadow-2xl shadow-blue-200/25 hover:shadow-3xl transition-all duration-500">
+            <Card className="bg-gradient-to-br from-red-50/80 to-slate-50/80 backdrop-blur-xl border-white/30 shadow-2xl shadow-red-200/25 hover:shadow-3xl transition-all duration-500">
               <CardContent className="p-8 sm:p-10">
                 <h3 className="font-bold text-slate-900 mb-6 flex items-center text-lg">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center mr-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-red-800 rounded-lg flex items-center justify-center mr-3">
                     <TrendingUp className="w-4 h-4 text-white" />
                   </div>
                   Client Statistics
@@ -256,8 +256,8 @@ export default function ClientProfile() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between bg-white/60 rounded-2xl p-4 hover:bg-white/80 transition-all duration-200">
                     <span className="text-sm font-medium text-slate-700 flex items-center">
-                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                        <Target className="w-3 h-3 text-blue-600" />
+                      <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                        <Target className="w-3 h-3 text-red-600" />
                       </div>
                       Total Finds
                     </span>
@@ -276,15 +276,15 @@ export default function ClientProfile() {
                   
                   <div className="flex items-center justify-between bg-white/60 rounded-2xl p-4 hover:bg-white/80 transition-all duration-200">
                     <span className="text-sm font-medium text-slate-700 flex items-center">
-                      <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                        <Award className="w-3 h-3 text-purple-600" />
+                      <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center mr-3">
+                        <Award className="w-3 h-3 text-slate-600" />
                       </div>
                       Completed
                     </span>
-                    <span className="font-bold text-xl text-purple-600">{clientStats.completedFinds}</span>
+                    <span className="font-bold text-xl text-slate-600">{clientStats.completedFinds}</span>
                   </div>
 
-                  <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-center text-white shadow-lg">
+                  <div className="bg-gradient-to-r from-red-600 to-red-800 rounded-2xl p-6 text-center text-white shadow-lg">
                     <div className="text-3xl font-bold mb-2">
                       ₦{clientStats.totalSpent.toLocaleString()}
                     </div>
@@ -302,7 +302,7 @@ export default function ClientProfile() {
               <CardHeader className="pb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <CardTitle className="flex items-center text-slate-900 text-xl">
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center mr-3">
+                    <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-red-800 rounded-lg flex items-center justify-center mr-3">
                       <User className="w-4 h-4 text-white" />
                     </div>
                     Personal Information
@@ -310,7 +310,7 @@ export default function ClientProfile() {
                   {!isEditing ? (
                     <Button 
                       onClick={() => setIsEditing(true)}
-                      className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                       size="sm"
                     >
                       <Edit className="w-4 h-4 mr-2" />
@@ -330,7 +330,7 @@ export default function ClientProfile() {
                         onClick={handleSubmit}
                         disabled={updateProfile.isPending}
                         size="sm"
-                        className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                        className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                       >
                         {updateProfile.isPending ? (
                           <>
@@ -360,7 +360,7 @@ export default function ClientProfile() {
                           value={formData.firstName}
                           onChange={handleChange}
                           placeholder="Enter your first name"
-                          className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-blue-400 focus:ring-blue-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                          className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-red-400 focus:ring-red-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
                         />
                       </div>
                       <div>
@@ -371,7 +371,7 @@ export default function ClientProfile() {
                           value={formData.lastName}
                           onChange={handleChange}
                           placeholder="Enter your last name"
-                          className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-blue-400 focus:ring-blue-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                          className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-red-400 focus:ring-red-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
                         />
                       </div>
                     </div>
@@ -385,7 +385,7 @@ export default function ClientProfile() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="Enter your email address"
-                        className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-blue-400 focus:ring-blue-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                        className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-red-400 focus:ring-red-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
                       />
                     </div>
 
@@ -397,7 +397,7 @@ export default function ClientProfile() {
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="Enter your phone number"
-                        className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-blue-400 focus:ring-blue-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
+                        className="h-12 bg-white/80 backdrop-blur-sm border-slate-200/60 focus:border-red-400 focus:ring-red-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
                       />
                     </div>
                   </form>
@@ -416,7 +416,7 @@ export default function ClientProfile() {
 
                     <div className="bg-slate-50/80 rounded-2xl p-6 hover:bg-slate-50 transition-all duration-200">
                       <div className="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wider flex items-center">
-                        <Mail className="w-4 h-4 mr-2 text-blue-600" />
+                        <Mail className="w-4 h-4 mr-2 text-red-600" />
                         Email Address
                       </div>
                       <div className="text-slate-900 font-semibold text-lg">{user.email}</div>
@@ -424,7 +424,7 @@ export default function ClientProfile() {
 
                     <div className="bg-slate-50/80 rounded-2xl p-6 hover:bg-slate-50 transition-all duration-200">
                       <div className="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wider flex items-center">
-                        <Phone className="w-4 h-4 mr-2 text-green-600" />
+                        <Phone className="w-4 h-4 mr-2 text-red-600" />
                         Phone Number
                       </div>
                       <div className="text-slate-900 font-semibold text-lg">{user.phone || 'Not provided'}</div>
@@ -438,7 +438,7 @@ export default function ClientProfile() {
             <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-2xl shadow-slate-200/25 hover:shadow-3xl transition-all duration-500">
               <CardHeader className="pb-6">
                 <CardTitle className="flex items-center text-slate-900 text-xl">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-700 rounded-lg flex items-center justify-center mr-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-red-600 to-red-800 rounded-lg flex items-center justify-center mr-3">
                     <Settings className="w-4 h-4 text-white" />
                   </div>
                   Account Settings
@@ -446,9 +446,9 @@ export default function ClientProfile() {
               </CardHeader>
               <CardContent className="p-8 sm:p-10">
                 <div className="space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-2xl hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 border border-blue-100/50">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-gradient-to-r from-red-50/80 to-slate-50/80 rounded-2xl hover:from-red-50 hover:to-slate-50 transition-all duration-300 border border-red-100/50">
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg">
+                      <div className="w-12 h-12 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl flex items-center justify-center shadow-lg">
                         <Lock className="w-6 h-6 text-white" />
                       </div>
                       <div>
@@ -458,16 +458,16 @@ export default function ClientProfile() {
                     </div>
                     <Button 
                       onClick={() => navigate("/client/change-password")}
-                      className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                       size="sm"
                     >
                       Change Password
                     </Button>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-gradient-to-r from-amber-50/80 to-orange-50/80 rounded-2xl hover:from-amber-50 hover:to-orange-50 transition-all duration-300 border border-amber-100/50">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-gradient-to-r from-slate-50/80 to-slate-50/80 rounded-2xl hover:from-slate-50 hover:to-slate-100 transition-all duration-300 border border-slate-200/50">
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-amber-600 to-orange-700 rounded-2xl flex items-center justify-center shadow-lg">
+                      <div className="w-12 h-12 bg-gradient-to-r from-slate-600 to-slate-800 rounded-2xl flex items-center justify-center shadow-lg">
                         <Bell className="w-6 h-6 text-white" />
                       </div>
                       <div>
@@ -476,7 +476,7 @@ export default function ClientProfile() {
                       </div>
                     </div>
                     <Button 
-                      className="bg-gradient-to-r from-amber-600 to-orange-700 hover:from-amber-700 hover:to-orange-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="bg-gradient-to-r from-slate-600 to-slate-800 hover:from-slate-700 hover:to-slate-900 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                       size="sm"
                     >
                       Configure
