@@ -151,7 +151,7 @@ export default function AdminDashboardModern() {
           </div>
           
           {/* Main Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -204,44 +204,6 @@ export default function AdminDashboardModern() {
                 <div className="mt-4 flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-green-500" />
                   <span className="text-sm text-green-600 font-medium">+15.3%</span>
-                  <span className="text-sm text-gray-500">vs last month</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Active Finds</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.activeFinds}</p>
-                  </div>
-                  <div className="p-3 bg-orange-500/10 text-orange-600 rounded-xl">
-                    <Activity className="w-6 h-6" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-green-600 font-medium">+5.7%</span>
-                  <span className="text-sm text-gray-500">vs last month</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Completed</p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.completedFinds}</p>
-                  </div>
-                  <div className="p-3 bg-emerald-500/10 text-emerald-600 rounded-xl">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-green-600 font-medium">+22.1%</span>
                   <span className="text-sm text-gray-500">vs last month</span>
                 </div>
               </CardContent>
