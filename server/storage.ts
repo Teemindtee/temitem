@@ -126,9 +126,9 @@ export interface IStorage {
   unverifyUser(userId: string): Promise<User | undefined>;
   
   // Withdrawal operations
-  createWithdrawalFind(request: InsertWithdrawalFind): Promise<WithdrawalFind>;
-  getWithdrawalFinds(): Promise<any[]>;
-  updateWithdrawalFind(id: string, updates: Partial<WithdrawalFind>): Promise<WithdrawalFind | undefined>;
+  createWithdrawalRequest(request: InsertWithdrawalRequest): Promise<WithdrawalRequest>;
+  getWithdrawalRequests(): Promise<any[]>;
+  updateWithdrawalRequest(id: string, updates: Partial<WithdrawalRequest>): Promise<WithdrawalRequest | undefined>;
   updateFinderBalance(finderId: string, amount: string): Promise<void>;
 
   // Messaging operations
@@ -1079,17 +1079,17 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getWithdrawalsByFinderId(finderId: string): Promise<WithdrawalFind[]> {
+  async getWithdrawalsByFinderId(finderId: string): Promise<WithdrawalRequest[]> {
     return await db
       .select()
-      .from(withdrawalFinds)
-      .where(eq(withdrawalFinds.finderId, finderId))
-      .orderBy(desc(withdrawalFinds.requestedAt));
+      .from(withdrawalRequests)
+      .where(eq(withdrawalRequests.finderId, finderId))
+      .orderBy(desc(withdrawalRequests.requestedAt));
   }
 
-  async createWithdrawalFind(finderId: string, amount: number): Promise<WithdrawalFind> {
+  async createWithdrawalRequest(finderId: string, amount: number): Promise<WithdrawalRequest> {
     const [withdrawal] = await db
-      .insert(withdrawalFinds)
+      .insert(withdrawalRequests)
       .values({
         finderId,
         amount: amount.toString(),
@@ -1219,26 +1219,26 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  // Withdrawal Finds
-  async createWithdrawalFind(requestData: InsertWithdrawalFind): Promise<WithdrawalFind> {
+  // Withdrawal Requests
+  async createWithdrawalRequest(requestData: InsertWithdrawalRequest): Promise<WithdrawalRequest> {
     const [request] = await db
-      .insert(withdrawalFinds)
+      .insert(withdrawalRequests)
       .values(requestData)
       .returning();
     return request;
   }
 
-  async getWithdrawalFinds(): Promise<Array<WithdrawalFind & { finder: { user: { firstName: string; lastName: string; email: string; } } }>> {
+  async getWithdrawalRequests(): Promise<Array<WithdrawalRequest & { finder: { user: { firstName: string; lastName: string; email: string; } } }>> {
     return await db
       .select({
-        id: withdrawalFinds.id,
-        amount: withdrawalFinds.amount,
-        status: withdrawalFinds.status,
-        paymentMethod: withdrawalFinds.paymentMethod,
-        paymentDetails: withdrawalFinds.paymentDetails,
-        adminNotes: withdrawalFinds.adminNotes,
-        requestedAt: withdrawalFinds.requestedAt,
-        processedAt: withdrawalFinds.processedAt,
+        id: withdrawalRequests.id,
+        amount: withdrawalRequests.amount,
+        status: withdrawalRequests.status,
+        paymentMethod: withdrawalRequests.paymentMethod,
+        paymentDetails: withdrawalRequests.paymentDetails,
+        adminNotes: withdrawalRequests.adminNotes,
+        requestedAt: withdrawalRequests.requestedAt,
+        processedAt: withdrawalRequests.processedAt,
         finder: {
           user: {
             firstName: users.firstName,
@@ -1247,19 +1247,19 @@ export class DatabaseStorage implements IStorage {
           }
         }
       })
-      .from(withdrawalFinds)
-      .innerJoin(finders, eq(withdrawalFinds.finderId, finders.id))
+      .from(withdrawalRequests)
+      .innerJoin(finders, eq(withdrawalRequests.finderId, finders.id))
       .innerJoin(users, eq(finders.userId, users.id))
-      .orderBy(desc(withdrawalFinds.requestedAt));
+      .orderBy(desc(withdrawalRequests.requestedAt));
   }
 
-  async updateWithdrawalFind(id: string, updates: Partial<WithdrawalFind>): Promise<WithdrawalFind | null> {
+  async updateWithdrawalRequest(id: string, updates: Partial<WithdrawalRequest>): Promise<WithdrawalRequest | undefined> {
     const [request] = await db
-      .update(withdrawalFinds)
+      .update(withdrawalRequests)
       .set({ ...updates, processedAt: new Date() })
-      .where(eq(withdrawalFinds.id, id))
+      .where(eq(withdrawalRequests.id, id))
       .returning();
-    return request || null;
+    return request || undefined;
   }
 
   // Update finder balance after withdrawal
