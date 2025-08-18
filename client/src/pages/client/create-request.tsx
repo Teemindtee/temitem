@@ -1,17 +1,16 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { 
   Search, 
   ArrowLeft, 
@@ -23,7 +22,9 @@ import {
   FileText,
   Upload,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  X,
+  Loader2
 } from "lucide-react";
 import type { Category } from "@shared/schema";
 
@@ -62,24 +63,40 @@ export default function CreateRequest() {
 
   const createRequestMutation = useMutation({
     mutationFn: async (data: any) => {
-      const formData = new FormData();
+      const token = localStorage.getItem('findermeister_token');
+      const formDataObj = new FormData();
       
-      // Add text fields
-      Object.keys(data).forEach(key => {
-        if (key !== 'attachments') {
-          formData.append(key, data[key]);
-        }
-      });
+      // Add text fields to FormData
+      formDataObj.append('title', data.title);
+      formDataObj.append('description', data.description);
+      formDataObj.append('category', data.category);
+      formDataObj.append('budgetMin', data.budgetMin);
+      formDataObj.append('budgetMax', data.budgetMax);
+      formDataObj.append('timeframe', data.timeframe);
+      formDataObj.append('clientId', data.clientId);
+      if (data.location) formDataObj.append('location', data.location);
+      if (data.requirements) formDataObj.append('requirements', data.requirements);
       
-      // Add files
+      // Add files to FormData
       selectedFiles.forEach((file) => {
-        formData.append('attachments', file);
+        formDataObj.append('attachments', file);
       });
 
-      return await apiRequest("/api/client/finds", {
+      const response = await fetch("/api/client/finds", {
         method: "POST",
-        body: formData,
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          // Don't set Content-Type, let browser handle it for multipart/form-data
+        },
+        body: formDataObj,
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create find");
+      }
+
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/client/finds'] });
@@ -121,6 +138,16 @@ export default function CreateRequest() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!formData.title || !formData.description) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please fill in title and description",
+      });
+      return;
+    }
+
     // Validate category selection
     if (!formData.category || formData.category === 'loading' || formData.category === 'none') {
       toast({
@@ -130,15 +157,44 @@ export default function CreateRequest() {
       });
       return;
     }
+
+    // Validate budget
+    if (!formData.minBudget || !formData.maxBudget) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please enter both minimum and maximum budget",
+      });
+      return;
+    }
     
     const minBudget = parseInt(formData.minBudget);
     const maxBudget = parseInt(formData.maxBudget);
+
+    if (isNaN(minBudget) || isNaN(maxBudget)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Budget",
+        description: "Please enter valid numbers for budget",
+      });
+      return;
+    }
 
     if (minBudget >= maxBudget) {
       toast({
         variant: "destructive",
         title: "Invalid Budget Range",
         description: "Maximum budget must be higher than minimum budget",
+      });
+      return;
+    }
+
+    // Validate timeframe
+    if (!formData.timeframe) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please select a timeframe",
       });
       return;
     }
@@ -203,6 +259,17 @@ export default function CreateRequest() {
         return;
       }
     }
+    if (step === 2) {
+      // Validate detailed info before proceeding
+      if (!formData.minBudget || !formData.maxBudget || !formData.timeframe) {
+        toast({
+          variant: "destructive",
+          title: "Missing Information",
+          description: "Please fill in budget and timeframe",
+        });
+        return;
+      }
+    }
     setStep(prev => prev + 1);
   };
 
@@ -214,89 +281,95 @@ export default function CreateRequest() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/client/dashboard" className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              <span className="font-medium">Back to Dashboard</span>
-            </Link>
+      {/* Mobile-optimized Header */}
+      <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <button 
+              onClick={() => navigate("/client/dashboard")} 
+              className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-100"
+            >
+              <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
+              <span className="font-medium text-sm sm:text-base">Back</span>
+            </button>
             
-            <div className="flex items-center space-x-4">
-              <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
-                Step {step} of 3
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 text-xs sm:text-sm">
+                Step {step}/3
               </Badge>
-              <div className="text-sm text-slate-500">
-                {user.firstName} {user.lastName}
+              <div className="text-xs sm:text-sm text-slate-500 hidden sm:block">
+                {user.firstName}
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Progress Bar */}
+      {/* Mobile Progress Bar */}
       <div className="bg-white/60 border-b border-slate-200/60">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center space-x-4">
-            <div className={`flex items-center ${step >= 1 ? 'text-blue-600' : 'text-slate-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex items-center">
+            {/* Step 1 */}
+            <div className={`flex items-center flex-shrink-0 ${step >= 1 ? 'text-blue-600' : 'text-slate-400'}`}>
+              <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold ${
                 step >= 1 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-400'
               }`}>
                 1
               </div>
-              <span className="ml-2 text-sm font-medium hidden sm:block">Basic Info</span>
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium hidden sm:block">Info</span>
             </div>
-            <div className={`flex-1 h-1 rounded-full ${step >= 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+            <div className={`flex-1 h-0.5 sm:h-1 rounded-full mx-2 sm:mx-4 ${step >= 2 ? 'bg-blue-600' : 'bg-slate-200'}`} />
             
-            <div className={`flex items-center ${step >= 2 ? 'text-blue-600' : 'text-slate-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+            {/* Step 2 */}
+            <div className={`flex items-center flex-shrink-0 ${step >= 2 ? 'text-blue-600' : 'text-slate-400'}`}>
+              <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold ${
                 step >= 2 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-400'
               }`}>
                 2
               </div>
-              <span className="ml-2 text-sm font-medium hidden sm:block">Details</span>
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium hidden sm:block">Details</span>
             </div>
-            <div className={`flex-1 h-1 rounded-full ${step >= 3 ? 'bg-blue-600' : 'bg-slate-200'}`} />
+            <div className={`flex-1 h-0.5 sm:h-1 rounded-full mx-2 sm:mx-4 ${step >= 3 ? 'bg-blue-600' : 'bg-slate-200'}`} />
             
-            <div className={`flex items-center ${step >= 3 ? 'text-blue-600' : 'text-slate-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+            {/* Step 3 */}
+            <div className={`flex items-center flex-shrink-0 ${step >= 3 ? 'text-blue-600' : 'text-slate-400'}`}>
+              <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold ${
                 step >= 3 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-400'
               }`}>
                 3
               </div>
-              <span className="ml-2 text-sm font-medium hidden sm:block">Review</span>
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm font-medium hidden sm:block">Review</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">Post a New Find</h1>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+      <main className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="mb-6 sm:mb-8 text-center">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2">Post a New Find</h1>
+          <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto">
             Tell finders exactly what you need help finding and connect with the right experts
           </p>
         </div>
 
         <Card className="bg-white/70 backdrop-blur-sm border-slate-200/60 shadow-xl">
-          <CardContent className="p-6 sm:p-8">
+          <CardContent className="p-4 sm:p-6 lg:p-8">
             <form onSubmit={handleSubmit}>
               {/* Step 1: Basic Information */}
               {step === 1 && (
-                <div className="space-y-8">
-                  <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Search className="w-8 h-8 text-blue-600" />
+                <div className="space-y-6 sm:space-y-8">
+                  <div className="text-center mb-6 sm:mb-8">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Search className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
                     </div>
-                    <h2 className="text-2xl font-semibold text-slate-900 mb-2">What are you looking for?</h2>
-                    <p className="text-slate-600">Start with the basics - we'll gather more details next</p>
+                    <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">What are you looking for?</h2>
+                    <p className="text-sm sm:text-base text-slate-600">Start with the basics - we'll gather more details next</p>
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     <div>
-                      <Label htmlFor="title" className="text-slate-700 font-semibold flex items-center mb-2">
+                      <Label htmlFor="title" className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">
                         <FileText className="w-4 h-4 mr-2 text-blue-600" />
                         Find Title *
                       </Label>
@@ -306,18 +379,18 @@ export default function CreateRequest() {
                         required
                         value={formData.title}
                         onChange={handleInputChange}
-                        placeholder="e.g., Find a reliable freelance graphic designer for logo design"
-                        className="h-12 text-lg bg-white/80 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                        placeholder="e.g., Find a reliable graphic designer for logo design"
+                        className="h-12 sm:h-12 text-sm sm:text-lg bg-white/80 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="category" className="text-slate-700 font-semibold flex items-center mb-2">
+                      <Label htmlFor="category" className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">
                         <Tag className="w-4 h-4 mr-2 text-blue-600" />
                         Category *
                       </Label>
                       <Select value={formData.category} onValueChange={(value) => handleSelectChange('category', value)}>
-                        <SelectTrigger className="h-12 text-lg bg-white/80 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
+                        <SelectTrigger className="h-12 sm:h-12 text-sm sm:text-lg bg-white/80 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20">
                           <SelectValue placeholder="Choose the best category for your find" />
                         </SelectTrigger>
                         <SelectContent>
@@ -339,7 +412,7 @@ export default function CreateRequest() {
                     </div>
 
                     <div>
-                      <Label htmlFor="description" className="text-slate-700 font-semibold flex items-center mb-2">
+                      <Label htmlFor="description" className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">
                         <FileText className="w-4 h-4 mr-2 text-blue-600" />
                         Description *
                       </Label>
@@ -350,19 +423,19 @@ export default function CreateRequest() {
                         value={formData.description}
                         onChange={handleInputChange}
                         placeholder="Provide specific details about what you're looking for, any requirements, and what success looks like..."
-                        className="min-h-[140px] text-lg bg-white/80 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 resize-none"
+                        className="min-h-[120px] sm:min-h-[140px] text-sm sm:text-lg bg-white/80 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 resize-none"
                       />
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-6">
+                  <div className="flex justify-end pt-4 sm:pt-6">
                     <Button 
                       type="button" 
                       onClick={nextStep}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 text-sm sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                     >
                       Continue to Details
-                      <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
+                      <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 ml-2 rotate-180" />
                     </Button>
                   </div>
                 </div>
@@ -370,21 +443,21 @@ export default function CreateRequest() {
 
               {/* Step 2: Detailed Information */}
               {step === 2 && (
-                <div className="space-y-8">
-                  <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <PlusCircle className="w-8 h-8 text-green-600" />
+                <div className="space-y-6 sm:space-y-8">
+                  <div className="text-center mb-6 sm:mb-8">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <PlusCircle className="w-6 h-6 sm:w-8 sm:h-8 text-green-600" />
                     </div>
-                    <h2 className="text-2xl font-semibold text-slate-900 mb-2">Project Details</h2>
-                    <p className="text-slate-600">Help finders understand your budget and timeline</p>
+                    <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">Project Details</h2>
+                    <p className="text-sm sm:text-base text-slate-600">Help finders understand your budget and timeline</p>
                   </div>
 
-                  <div className="space-y-6">
-                    <div className="grid sm:grid-cols-2 gap-6">
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div>
-                        <Label htmlFor="minBudget" className="text-slate-700 font-semibold flex items-center mb-2">
+                        <Label htmlFor="minBudget" className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">
                           <DollarSign className="w-4 h-4 mr-2 text-green-600" />
-                          Minimum Budget (₦) *
+                          Min Budget (₦) *
                         </Label>
                         <Input
                           id="minBudget"
@@ -395,13 +468,13 @@ export default function CreateRequest() {
                           value={formData.minBudget}
                           onChange={handleInputChange}
                           placeholder="5000"
-                          className="h-12 text-lg bg-white/80 border-slate-200 focus:border-green-500 focus:ring-green-500/20"
+                          className="h-12 text-sm sm:text-lg bg-white/80 border-slate-200 focus:border-green-500 focus:ring-green-500/20"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="maxBudget" className="text-slate-700 font-semibold flex items-center mb-2">
+                        <Label htmlFor="maxBudget" className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">
                           <DollarSign className="w-4 h-4 mr-2 text-green-600" />
-                          Maximum Budget (₦) *
+                          Max Budget (₦) *
                         </Label>
                         <Input
                           id="maxBudget"
@@ -412,18 +485,18 @@ export default function CreateRequest() {
                           value={formData.maxBudget}
                           onChange={handleInputChange}
                           placeholder="25000"
-                          className="h-12 text-lg bg-white/80 border-slate-200 focus:border-green-500 focus:ring-green-500/20"
+                          className="h-12 text-sm sm:text-lg bg-white/80 border-slate-200 focus:border-green-500 focus:ring-green-500/20"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="timeframe" className="text-slate-700 font-semibold flex items-center mb-2">
+                      <Label htmlFor="timeframe" className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">
                         <Clock className="w-4 h-4 mr-2 text-orange-600" />
                         Timeline *
                       </Label>
                       <Select value={formData.timeframe} onValueChange={(value) => handleSelectChange("timeframe", value)}>
-                        <SelectTrigger className="h-12 text-lg bg-white/80 border-slate-200 focus:border-orange-500 focus:ring-orange-500/20">
+                        <SelectTrigger className="h-12 text-sm sm:text-lg bg-white/80 border-slate-200 focus:border-orange-500 focus:ring-orange-500/20">
                           <SelectValue placeholder="When do you need this completed?" />
                         </SelectTrigger>
                         <SelectContent>
@@ -438,7 +511,7 @@ export default function CreateRequest() {
                     </div>
 
                     <div>
-                      <Label htmlFor="location" className="text-slate-700 font-semibold flex items-center mb-2">
+                      <Label htmlFor="location" className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">
                         <MapPin className="w-4 h-4 mr-2 text-purple-600" />
                         Location
                       </Label>
@@ -448,13 +521,13 @@ export default function CreateRequest() {
                         value={formData.location}
                         onChange={handleInputChange}
                         placeholder="Lagos, Nigeria or Remote/Online"
-                        className="h-12 text-lg bg-white/80 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20"
+                        className="h-12 text-sm sm:text-lg bg-white/80 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20"
                       />
-                      <p className="text-sm text-slate-500 mt-2">Leave blank if location doesn't matter</p>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-2">Leave blank if location doesn't matter</p>
                     </div>
 
                     <div>
-                      <Label htmlFor="requirements" className="text-slate-700 font-semibold mb-2 block">
+                      <Label htmlFor="requirements" className="text-slate-700 font-semibold mb-2 block text-sm sm:text-base">
                         Special Requirements
                       </Label>
                       <Textarea
@@ -463,22 +536,22 @@ export default function CreateRequest() {
                         value={formData.requirements}
                         onChange={handleInputChange}
                         placeholder="Any specific skills, certifications, tools, or other requirements..."
-                        className="min-h-[100px] text-lg bg-white/80 border-slate-200 focus:border-slate-500 focus:ring-slate-500/20 resize-none"
+                        className="min-h-[100px] text-sm sm:text-lg bg-white/80 border-slate-200 focus:border-slate-500 focus:ring-slate-500/20 resize-none"
                       />
                     </div>
 
-                    {/* File Upload Section */}
+                    {/* Mobile-optimized File Upload */}
                     <div>
-                      <Label className="text-slate-700 font-semibold flex items-center mb-2">
+                      <Label className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">
                         <Upload className="w-4 h-4 mr-2 text-indigo-600" />
-                        Supporting Files (Optional)
+                        Supporting Files
                       </Label>
-                      <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 bg-slate-50/50 hover:bg-slate-100/50 transition-colors">
+                      <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 sm:p-6 bg-slate-50/50 hover:bg-slate-100/50 transition-colors">
                         <div className="text-center">
-                          <Upload className="w-10 h-10 text-slate-400 mx-auto mb-2" />
+                          <Upload className="w-8 h-8 sm:w-10 sm:h-10 text-slate-400 mx-auto mb-2" />
                           <Label htmlFor="file-upload" className="cursor-pointer">
-                            <span className="text-blue-600 hover:text-blue-700 font-medium">Upload files</span>
-                            <span className="text-slate-500"> or drag and drop</span>
+                            <span className="text-blue-600 hover:text-blue-700 font-medium text-sm sm:text-base">Upload files</span>
+                            <span className="text-slate-500 text-sm sm:text-base"> or tap here</span>
                           </Label>
                           <input
                             id="file-upload"
@@ -488,7 +561,7 @@ export default function CreateRequest() {
                             className="hidden"
                             accept="image/*,.pdf,.doc,.docx,.txt"
                           />
-                          <p className="text-sm text-slate-500 mt-1">
+                          <p className="text-xs sm:text-sm text-slate-500 mt-1">
                             Images, PDFs, documents up to 10MB each (max 5 files)
                           </p>
                         </div>
@@ -497,12 +570,12 @@ export default function CreateRequest() {
                           <div className="mt-4 space-y-2">
                             {selectedFiles.map((file, index) => (
                               <div key={index} className="flex items-center justify-between bg-white rounded-lg p-3 shadow-sm">
-                                <div className="flex items-center space-x-3">
-                                  <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
+                                <div className="flex items-center space-x-3 min-w-0 flex-1">
+                                  <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center flex-shrink-0">
                                     <FileText className="w-4 h-4 text-blue-600" />
                                   </div>
-                                  <div>
-                                    <p className="text-sm font-medium text-slate-700">{file.name}</p>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-medium text-slate-700 truncate">{file.name}</p>
                                     <p className="text-xs text-slate-500">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
                                   </div>
                                 </div>
@@ -511,9 +584,9 @@ export default function CreateRequest() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => removeFile(index)}
-                                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                  className="text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0 p-2"
                                 >
-                                  Remove
+                                  <X className="w-4 h-4" />
                                 </Button>
                               </div>
                             ))}
@@ -523,12 +596,12 @@ export default function CreateRequest() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+                  <div className="flex flex-col-reverse sm:flex-row items-center justify-between pt-4 sm:pt-6 border-t border-slate-200 gap-3 sm:gap-0">
                     <Button 
                       type="button" 
                       onClick={prevStep}
                       variant="outline"
-                      className="px-6 py-3 font-medium"
+                      className="w-full sm:w-auto px-4 sm:px-6 py-3 font-medium"
                     >
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       Back
@@ -536,10 +609,10 @@ export default function CreateRequest() {
                     <Button 
                       type="button" 
                       onClick={nextStep}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 sm:px-8 py-3 text-sm sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                     >
                       Review & Post
-                      <ArrowLeft className="w-5 h-5 ml-2 rotate-180" />
+                      <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 ml-2 rotate-180" />
                     </Button>
                   </div>
                 </div>
@@ -547,20 +620,20 @@ export default function CreateRequest() {
 
               {/* Step 3: Review & Submit */}
               {step === 3 && (
-                <div className="space-y-8">
-                  <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle2 className="w-8 h-8 text-purple-600" />
+                <div className="space-y-6 sm:space-y-8">
+                  <div className="text-center mb-6 sm:mb-8">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
                     </div>
-                    <h2 className="text-2xl font-semibold text-slate-900 mb-2">Review Your Find</h2>
-                    <p className="text-slate-600">Double-check everything looks good before posting</p>
+                    <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 mb-2">Review Your Find</h2>
+                    <p className="text-sm sm:text-base text-slate-600">Double-check everything looks good before posting</p>
                   </div>
 
                   {/* Review Summary */}
-                  <div className="bg-slate-50 rounded-xl p-6 space-y-4">
+                  <div className="bg-slate-50 rounded-xl p-4 sm:p-6 space-y-4">
                     <div>
-                      <h3 className="font-semibold text-slate-900 mb-2">{formData.title}</h3>
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                      <h3 className="font-semibold text-slate-900 mb-2 text-sm sm:text-base">{formData.title}</h3>
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs sm:text-sm">
                         {formData.category}
                       </Badge>
                     </div>
@@ -568,33 +641,33 @@ export default function CreateRequest() {
                     <Separator />
                     
                     <div>
-                      <h4 className="font-medium text-slate-700 mb-2">Description</h4>
-                      <p className="text-slate-600 leading-relaxed">{formData.description}</p>
+                      <h4 className="font-medium text-slate-700 mb-2 text-sm sm:text-base">Description</h4>
+                      <p className="text-slate-600 leading-relaxed text-sm sm:text-base">{formData.description}</p>
                     </div>
                     
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4">
                       <div className="text-center p-3 bg-white rounded-lg border">
-                        <DollarSign className="w-5 h-5 text-green-600 mx-auto mb-1" />
-                        <div className="text-sm font-medium text-slate-900">
+                        <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mx-auto mb-1" />
+                        <div className="text-xs sm:text-sm font-medium text-slate-900">
                           ₦{parseInt(formData.minBudget || "0").toLocaleString()} - ₦{parseInt(formData.maxBudget || "0").toLocaleString()}
                         </div>
-                        <div className="text-xs text-slate-500">Budget Range</div>
+                        <div className="text-xs text-slate-500">Budget</div>
                       </div>
                       <div className="text-center p-3 bg-white rounded-lg border">
-                        <Clock className="w-5 h-5 text-orange-600 mx-auto mb-1" />
-                        <div className="text-sm font-medium text-slate-900">{formData.timeframe}</div>
+                        <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 mx-auto mb-1" />
+                        <div className="text-xs sm:text-sm font-medium text-slate-900">{formData.timeframe}</div>
                         <div className="text-xs text-slate-500">Timeline</div>
                       </div>
                       <div className="text-center p-3 bg-white rounded-lg border">
-                        <MapPin className="w-5 h-5 text-purple-600 mx-auto mb-1" />
-                        <div className="text-sm font-medium text-slate-900">
+                        <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 mx-auto mb-1" />
+                        <div className="text-xs sm:text-sm font-medium text-slate-900">
                           {formData.location || "Any location"}
                         </div>
                         <div className="text-xs text-slate-500">Location</div>
                       </div>
                       <div className="text-center p-3 bg-white rounded-lg border">
-                        <Upload className="w-5 h-5 text-indigo-600 mx-auto mb-1" />
-                        <div className="text-sm font-medium text-slate-900">{selectedFiles.length}</div>
+                        <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 mx-auto mb-1" />
+                        <div className="text-xs sm:text-sm font-medium text-slate-900">{selectedFiles.length}</div>
                         <div className="text-xs text-slate-500">Files</div>
                       </div>
                     </div>
@@ -603,8 +676,8 @@ export default function CreateRequest() {
                       <>
                         <Separator />
                         <div>
-                          <h4 className="font-medium text-slate-700 mb-2">Special Requirements</h4>
-                          <p className="text-slate-600">{formData.requirements}</p>
+                          <h4 className="font-medium text-slate-700 mb-2 text-sm sm:text-base">Special Requirements</h4>
+                          <p className="text-slate-600 text-sm sm:text-base">{formData.requirements}</p>
                         </div>
                       </>
                     )}
@@ -614,20 +687,20 @@ export default function CreateRequest() {
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start space-x-3">
                     <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="font-medium text-amber-800 mb-1">Important Notice</h4>
-                      <p className="text-sm text-amber-700">
+                      <h4 className="font-medium text-amber-800 mb-1 text-sm sm:text-base">Important Notice</h4>
+                      <p className="text-xs sm:text-sm text-amber-700">
                         Once posted, your find will be visible to all finders on the platform. 
                         You'll receive proposals and can communicate with interested finders through our messaging system.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+                  <div className="flex flex-col-reverse sm:flex-row items-center justify-between pt-4 sm:pt-6 border-t border-slate-200 gap-3 sm:gap-0">
                     <Button 
                       type="button" 
                       onClick={prevStep}
                       variant="outline"
-                      className="px-6 py-3 font-medium"
+                      className="w-full sm:w-auto px-4 sm:px-6 py-3 font-medium"
                     >
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       Back to Edit
@@ -635,16 +708,16 @@ export default function CreateRequest() {
                     <Button 
                       type="submit"
                       disabled={createRequestMutation.isPending}
-                      className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-6 sm:px-8 py-3 text-sm sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                     >
                       {createRequestMutation.isPending ? (
                         <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                           Posting Find...
                         </>
                       ) : (
                         <>
-                          <CheckCircle2 className="w-5 h-5 mr-2" />
+                          <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                           Post My Find
                         </>
                       )}

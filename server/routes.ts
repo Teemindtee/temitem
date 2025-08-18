@@ -383,29 +383,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Only clients can create finds" });
       }
 
-      // Get uploaded file paths
-      const files = req.files as Express.Multer.File[];
-      const attachmentPaths = files ? files.map(file => `/uploads/${file.filename}`) : [];
-
-      const requestData = insertFindSchema.parse({
-        ...req.body,
-        clientId: req.user.userId,
-        attachments: attachmentPaths
-      });
-
-      const request = await storage.createFind(requestData);
-      res.status(201).json(request);
-    } catch (error: any) {
-      res.status(400).json({ message: "Failed to create find", error: error.message });
-    }
-  });
-
-  // Alias for frontend compatibility
-  app.post("/api/client/finds", authenticateToken, upload.array('attachments', 5), async (req: AuthenticatedRequest, res: Response) => {
-    try {
-      if (req.user.role !== 'client') {
-        return res.status(403).json({ message: "Only clients can create finds" });
-      }
+      console.log('Create find request body:', req.body);
+      console.log('Create find files:', req.files);
 
       // Get uploaded file paths
       const files = req.files as Express.Multer.File[];
@@ -420,9 +399,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.createFind(requestData);
       res.status(201).json(request);
     } catch (error: any) {
+      console.error('Create find error:', error);
       res.status(400).json({ message: "Failed to create find", error: error.message });
     }
   });
+
+
 
   app.get("/api/client/proposals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
