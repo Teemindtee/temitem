@@ -2,8 +2,14 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
-import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu } from "lucide-react";
+import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu, ChevronDown, TrendingUp } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 
 interface AdminHeaderProps {
@@ -21,7 +27,17 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
 
   const navItems = [
     { path: "/admin/dashboard", label: "Dashboard", icon: BarChart3, id: "dashboard" },
-    { path: "/admin/users", label: "Users", icon: Users, id: "users" },
+    { 
+      path: "/admin/users", 
+      label: "Users", 
+      icon: Users, 
+      id: "users",
+      hasDropdown: true,
+      subItems: [
+        { path: "/admin/users", label: "Manage Users", icon: Users, id: "users" },
+        { path: "/admin/finder-levels", label: "Finder Levels", icon: TrendingUp, id: "finder-levels" }
+      ]
+    },
     { path: "/admin/requests", label: "Finds", icon: FileText, id: "finds" },
     { path: "/admin/categories", label: "Categories", icon: Tags, id: "categories" },
     { path: "/admin/withdrawals", label: "Withdrawals", icon: DollarSign, id: "withdrawals" },
@@ -52,6 +68,45 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
           <nav className="hidden lg:flex space-x-1">
             {navItems.map((item) => {
               const Icon = item.icon;
+              const isActive = currentPage === item.id || (item.subItems && item.subItems.some(sub => currentPage === sub.id));
+              
+              if (item.hasDropdown && item.subItems) {
+                return (
+                  <DropdownMenu key={item.id}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant={isActive ? "default" : "ghost"}
+                        size="sm"
+                        className={`flex items-center space-x-2 ${
+                          isActive 
+                            ? "bg-finder-red hover:bg-finder-red-dark text-white" 
+                            : "text-gray-700 hover:text-gray-900"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="text-sm">{item.label}</span>
+                        <ChevronDown className="w-3 h-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-48">
+                      {item.subItems.map((subItem) => {
+                        const SubIcon = subItem.icon;
+                        return (
+                          <DropdownMenuItem key={subItem.id} asChild>
+                            <Link href={subItem.path}>
+                              <div className="flex items-center space-x-2 w-full cursor-pointer">
+                                <SubIcon className="w-4 h-4" />
+                                <span>{subItem.label}</span>
+                              </div>
+                            </Link>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+              
               return (
                 <Link key={item.id} href={item.path}>
                   <Button
@@ -97,6 +152,40 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                   
                   {navItems.map((item) => {
                     const Icon = item.icon;
+                    const isActive = currentPage === item.id || (item.subItems && item.subItems.some(sub => currentPage === sub.id));
+                    
+                    if (item.hasDropdown && item.subItems) {
+                      return (
+                        <div key={item.id} className="space-y-2">
+                          <div className="text-sm font-medium text-gray-900 px-3 py-2 border-b">
+                            <div className="flex items-center space-x-2">
+                              <Icon className="w-4 h-4" />
+                              <span>{item.label}</span>
+                            </div>
+                          </div>
+                          {item.subItems.map((subItem) => {
+                            const SubIcon = subItem.icon;
+                            return (
+                              <Link key={subItem.id} href={subItem.path}>
+                                <Button
+                                  variant={currentPage === subItem.id ? "default" : "ghost"}
+                                  className={`w-full justify-start space-x-3 pl-6 ${
+                                    currentPage === subItem.id 
+                                      ? "bg-finder-red hover:bg-finder-red-dark text-white" 
+                                      : "text-gray-700 hover:text-gray-900"
+                                  }`}
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  <SubIcon className="w-4 h-4" />
+                                  <span>{subItem.label}</span>
+                                </Button>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      );
+                    }
+                    
                     return (
                       <Link key={item.id} href={item.path}>
                         <Button

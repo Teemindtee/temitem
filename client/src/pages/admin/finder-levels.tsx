@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import AdminHeader from "@/components/admin-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -56,10 +57,16 @@ export default function AdminFinderLevels() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/admin/finder-levels', {
+    mutationFn: (data: any) => fetch('/api/admin/finder-levels', {
       method: 'POST',
-      body: JSON.stringify(data),
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(data)
+    }).then(res => {
+      if (!res.ok) throw new Error('Failed to create finder level');
+      return res.json();
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/finder-levels'] });
@@ -74,10 +81,16 @@ export default function AdminFinderLevels() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => 
-      apiRequest(`/api/admin/finder-levels/${id}`, {
+      fetch(`/api/admin/finder-levels/${id}`, {
         method: 'PUT',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(data)
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed to update finder level');
+        return res.json();
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/finder-levels'] });
@@ -91,9 +104,16 @@ export default function AdminFinderLevels() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/admin/finder-levels/${id}`, {
-      method: 'DELETE'
-    }),
+    mutationFn: (id: string) => 
+      fetch(`/api/admin/finder-levels/${id}`, {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }).then(res => {
+        if (!res.ok) throw new Error('Failed to delete finder level');
+        return res.json();
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/finder-levels'] });
       toast({ title: "Success", description: "Finder level deleted successfully" });
@@ -112,7 +132,7 @@ export default function AdminFinderLevels() {
       minReviewPercentage: 0,
       icon: "User",
       color: "#6b7280",
-      order: levels.length + 1,
+      order: (levels as FinderLevel[]).length + 1,
       isActive: true
     });
   };
@@ -161,6 +181,7 @@ export default function AdminFinderLevels() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <AdminHeader currentPage="finder-levels" />
       <div className="max-w-6xl mx-auto py-8 px-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Finder Levels Management</h1>
@@ -311,7 +332,7 @@ export default function AdminFinderLevels() {
 
         {/* Levels List */}
         <div className="grid gap-6">
-          {levels.map((level: FinderLevel) => {
+          {(levels as FinderLevel[]).map((level: FinderLevel) => {
             const IconComponent = iconMap[level.icon as keyof typeof iconMap] || User;
             
             return (

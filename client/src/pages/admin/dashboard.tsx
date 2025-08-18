@@ -168,14 +168,7 @@ export default function AdminDashboard() {
               </Card>
             </Link>
 
-            <Link href="/admin/finder-levels">
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardContent className="p-4 text-center">
-                  <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-indigo-600" />
-                  <p className="text-xs sm:text-sm font-medium text-gray-900">Finder Levels</p>
-                </CardContent>
-              </Card>
-            </Link>
+
           </div>
         </div>
 
