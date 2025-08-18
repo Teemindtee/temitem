@@ -51,7 +51,7 @@ export default function CreateRequest() {
         formData.append('attachments', file);
       });
 
-      const response = await fetch("/api/client/requests", {
+      const response = await fetch("/api/client/finds", {
         method: "POST",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -65,12 +65,12 @@ export default function CreateRequest() {
       return response.json();
     },
     onSuccess: () => {
-      // Invalidate the client requests cache so the new request appears
-      queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
+      // Invalidate the client finds cache so the new find appears
+      queryClient.invalidateQueries({ queryKey: ['/api/client/finds'] });
       
       toast({
         title: "Success!",
-        description: "Your request has been posted successfully.",
+        description: "Your find has been posted successfully.",
       });
       
       // Reset form
@@ -97,7 +97,7 @@ export default function CreateRequest() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to create request",
+        description: error.message || "Failed to create find",
       });
     }
   });
@@ -147,7 +147,7 @@ export default function CreateRequest() {
           </Link>
           <nav className="flex items-center space-x-6">
             <Link href="/client/dashboard" className="hover:underline">Dashboard</Link>
-            <span className="bg-white text-finder-red px-3 py-1 rounded font-medium">Post Request</span>
+            <span className="bg-white text-finder-red px-3 py-1 rounded font-medium">Post Find</span>
           </nav>
         </div>
       </header>
@@ -159,18 +159,18 @@ export default function CreateRequest() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Post a New Request</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Post a New Find</h1>
           <p className="text-gray-600">Describe what you need help finding and connect with expert finders.</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl text-gray-900">Request Details</CardTitle>
+            <CardTitle className="text-xl text-gray-900">Find Details</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Label htmlFor="title" className="text-gray-700 font-medium">Request Title</Label>
+                <Label htmlFor="title" className="text-gray-700 font-medium">Find Title</Label>
                 <Input
                   id="title"
                   name="title"

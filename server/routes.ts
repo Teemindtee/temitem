@@ -364,7 +364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Alias for frontend compatibility
-  app.get("/api/client/requests", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+  app.get("/api/client/finds", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'client') {
         return res.status(403).json({ message: "Only clients can view their finds" });
@@ -396,12 +396,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.createFind(requestData);
       res.status(201).json(request);
     } catch (error: any) {
-      res.status(400).json({ message: "Failed to create request", error: error.message });
+      res.status(400).json({ message: "Failed to create find", error: error.message });
     }
   });
 
   // Alias for frontend compatibility
-  app.post("/api/client/requests", authenticateToken, upload.array('attachments', 5), async (req: AuthenticatedRequest, res: Response) => {
+  app.post("/api/client/finds", authenticateToken, upload.array('attachments', 5), async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'client') {
         return res.status(403).json({ message: "Only clients can create finds" });
@@ -420,7 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.createFind(requestData);
       res.status(201).json(request);
     } catch (error: any) {
-      res.status(400).json({ message: "Failed to create request", error: error.message });
+      res.status(400).json({ message: "Failed to create find", error: error.message });
     }
   });
 
@@ -452,7 +452,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const request = await storage.createFind(requestData);
       res.status(201).json(request);
     } catch (error: any) {
-      res.status(400).json({ message: "Failed to create request", error: error.message });
+      res.status(400).json({ message: "Failed to create find", error: error.message });
     }
   });
 

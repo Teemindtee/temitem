@@ -12,7 +12,7 @@ export default function BrowseRequests() {
   const [showFilters, setShowFilters] = useState(false);
 
   const { data: requests = [], isLoading } = useQuery<Request[]>({
-    queryKey: ['/api/client/requests'],
+    queryKey: ['/api/client/finds'],
     enabled: !!user
   });
 
@@ -41,7 +41,7 @@ export default function BrowseRequests() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading requests...</p>
+          <p className="text-gray-600 mt-4">Loading finds...</p>
         </div>
       </div>
     );
@@ -49,13 +49,13 @@ export default function BrowseRequests() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ClientHeader currentPage="browse-requests" />
+      <ClientHeader currentPage="browse-finds" />
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto py-12 px-6">
         {/* Title */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-6">My Requests</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-6">My Finds</h1>
           <Button 
             onClick={() => setShowFilters(!showFilters)}
             className="bg-finder-red hover:bg-finder-red-dark text-white px-6 py-2"
@@ -70,11 +70,11 @@ export default function BrowseRequests() {
             <div className="text-center py-12">
               <Search className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No requests found</h3>
-              <p className="text-gray-600">Check back later for new requests.</p>
+              <p className="text-gray-600">Check back later for new finds.</p>
             </div>
           ) : (
             requests.map((request: Request) => (
-              <Link key={request.id} href={`/client/requests/${request.id}`}>
+              <Link key={request.id} href={`/client/finds/${request.id}`}>
                 <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                   <div className="mb-4">
                     <h3 className="text-xl font-bold text-gray-900 mb-3">{request.title}</h3>

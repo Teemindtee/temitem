@@ -43,22 +43,22 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 <span>Dashboard</span>
               </Link>
               <Link 
-                href="/client/create-request" 
-                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'create-request' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                href="/client/create-find" 
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Plus className="w-4 h-4" />
                 <span>Post Find</span>
               </Link>
               <Link 
-                href="/client/requests" 
-                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                href="/client/finds" 
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <FileText className="w-4 h-4" />
                 <span>My Finds</span>
               </Link>
               <Link 
-                href="/client/browse-requests" 
-                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'browse-requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                href="/client/browse-finds" 
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'browse-finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Search className="w-4 h-4" />
                 <span>Browse Finds</span>
@@ -147,24 +147,24 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   <span>Dashboard</span>
                 </Link>
                 <Link 
-                  href="/client/create-request" 
-                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'create-request' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  href="/client/create-find" 
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Plus className="w-4 h-4" />
                   <span>Post Find</span>
                 </Link>
                 <Link 
-                  href="/client/requests" 
-                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  href="/client/finds" 
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <FileText className="w-4 h-4" />
                   <span>My Finds</span>
                 </Link>
                 <Link 
-                  href="/client/browse-requests" 
-                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'browse-requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  href="/client/browse-finds" 
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'browse-finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Search className="w-4 h-4" />

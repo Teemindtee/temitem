@@ -18,7 +18,7 @@ export default function ClientDashboard() {
   const isMobile = window.innerWidth < 640;
 
   const { data: requests = [], isLoading: requestsLoading } = useQuery<Request[]>({
-    queryKey: ['/api/client/requests'],
+    queryKey: ['/api/client/finds'],
     enabled: !!user && user.role === 'client'
   });
 
@@ -84,7 +84,7 @@ export default function ClientDashboard() {
             {/* Action Grid - Exact 2x2 Layout */}
             <div className="grid grid-cols-2 gap-4 mb-12">
               {/* Post a Request - Top Left */}
-              <Link href="/client/create-request">
+              <Link href="/client/create-find">
                 <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                     <div className="flex flex-col items-center">
@@ -196,7 +196,7 @@ export default function ClientDashboard() {
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Post New Find</h3>
               <p className="text-gray-600 mb-4 text-sm">Need help finding something? Create a new find.</p>
-              <Link href="/client/create-request">
+              <Link href="/client/create-find">
                 <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
                   Create Find
                 </Button>
@@ -247,7 +247,7 @@ export default function ClientDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-xl text-gray-900">Your Recent Finds</CardTitle>
-              <Link href="/client/requests">
+              <Link href="/client/finds">
                 <Button variant="outline" size="sm">View All</Button>
               </Link>
             </CardHeader>
@@ -256,7 +256,7 @@ export default function ClientDashboard() {
                 <div className="text-center py-8 text-gray-500">
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>You haven't created any finds yet.</p>
-                  <Link href="/client/create-request" className="text-finder-red hover:underline font-medium">
+                  <Link href="/client/create-find" className="text-finder-red hover:underline font-medium">
                     Create your first find
                   </Link>
                 </div>
@@ -276,7 +276,7 @@ export default function ClientDashboard() {
                     <p className="text-gray-600 text-sm mb-3">{request.description.substring(0, 100)}...</p>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Budget: ${request.budgetMin} - ${request.budgetMax}</span>
-                      <Link href={`/client/requests/${request.id}`}>
+                      <Link href={`/client/finds/${request.id}`}>
                         <Button size="sm" variant="outline">View</Button>
                       </Link>
                     </div>

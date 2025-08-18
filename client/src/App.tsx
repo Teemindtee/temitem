@@ -62,13 +62,14 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route path="/register/finder" component={RegisterFinder} />
       <Route path="/client/dashboard" component={ClientDashboard} />
-      <Route path="/client/create-request" component={CreateRequest} />
-      <Route path="/client/requests/:id" component={RequestDetails} />
+      <Route path="/client/create-find" component={CreateRequest} />
+      <Route path="/client/finds/:id" component={RequestDetails} />
       <Route path="/client/proposals" component={ViewProposals} />
       <Route path="/client/proposals/:id" component={ProposalDetail} />
       <Route path="/client/contracts" component={ClientContracts} />
       <Route path="/client/contracts/:contractId" component={ContractDetails} />
-      <Route path="/client/browse-requests" component={ClientBrowseRequests} />
+      <Route path="/client/browse-finds" component={ClientBrowseRequests} />
+      <Route path="/client/finds" component={ClientBrowseRequests} />
       <Route path="/client/profile" component={ClientProfile} />
       <Route path="/client/change-password" component={ChangePassword} />
       <Route path="/finder/dashboard" component={FinderDashboard} />
