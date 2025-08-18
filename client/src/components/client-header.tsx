@@ -47,21 +47,21 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'create-request' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Plus className="w-4 h-4" />
-                <span>Post Request</span>
+                <span>Post Find</span>
               </Link>
               <Link 
                 href="/client/requests" 
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <FileText className="w-4 h-4" />
-                <span>My Requests</span>
+                <span>My Finds</span>
               </Link>
               <Link 
                 href="/client/browse-requests" 
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'browse-requests' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Search className="w-4 h-4" />
-                <span>Browse Requests</span>
+                <span>Browse Finds</span>
               </Link>
               <Link 
                 href="/client/contracts" 
@@ -152,7 +152,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Post Request</span>
+                  <span>Post Find</span>
                 </Link>
                 <Link 
                   href="/client/requests" 
@@ -160,7 +160,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <FileText className="w-4 h-4" />
-                  <span>My Requests</span>
+                  <span>My Finds</span>
                 </Link>
                 <Link 
                   href="/client/browse-requests" 
@@ -168,7 +168,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Search className="w-4 h-4" />
-                  <span>Browse Requests</span>
+                  <span>Browse Finds</span>
                 </Link>
                 <Link 
                   href="/client/contracts" 

@@ -184,7 +184,7 @@ export default function ClientDashboard() {
       <div className="max-w-6xl mx-auto py-8 px-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user?.firstName}!</h1>
-          <p className="text-gray-600">Manage your requests and find the perfect finder.</p>
+          <p className="text-gray-600">Manage your finds and find the perfect finder.</p>
         </div>
 
         {/* Quick Actions */}
@@ -246,7 +246,7 @@ export default function ClientDashboard() {
           {/* Recent Requests */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-xl text-gray-900">Your Recent Requests</CardTitle>
+              <CardTitle className="text-xl text-gray-900">Your Recent Finds</CardTitle>
               <Link href="/client/requests">
                 <Button variant="outline" size="sm">View All</Button>
               </Link>
@@ -299,7 +299,7 @@ export default function ClientDashboard() {
                 <div className="text-center py-8 text-gray-500">
                   <UserIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>No proposals received yet.</p>
-                  <p className="text-sm">Create a request to get started!</p>
+                  <p className="text-sm">Create a find to get started!</p>
                 </div>
               ) : (
                 proposals.slice(0, 3).map((proposal: any) => (
