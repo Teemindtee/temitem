@@ -1711,10 +1711,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const proposalTokenCost = await storage.getAdminSetting('proposal_token_cost');
       const findertokenPrice = await storage.getAdminSetting('findertoken_price');
+      const platformFeePercentage = await storage.getAdminSetting('platform_fee_percentage');
+      const clientPaymentChargePercentage = await storage.getAdminSetting('client_payment_charge_percentage');
+      const finderEarningsChargePercentage = await storage.getAdminSetting('finder_earnings_charge_percentage');
       
       res.json({
         proposalTokenCost: proposalTokenCost?.value || '1',
-        findertokenPrice: findertokenPrice?.value || '100' // Default 100 per token in kobo/cents
+        findertokenPrice: findertokenPrice?.value || '100', // Default 100 per token in kobo/cents
+        platformFeePercentage: platformFeePercentage?.value || '10',
+        clientPaymentChargePercentage: clientPaymentChargePercentage?.value || '2.5',
+        finderEarningsChargePercentage: finderEarningsChargePercentage?.value || '5'
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch admin settings" });
@@ -1727,7 +1733,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const { proposalTokenCost, findertokenPrice } = req.body;
+      const { 
+        proposalTokenCost, 
+        findertokenPrice, 
+        platformFeePercentage, 
+        clientPaymentChargePercentage, 
+        finderEarningsChargePercentage 
+      } = req.body;
 
       if (proposalTokenCost !== undefined) {
         await storage.setAdminSetting('proposal_token_cost', proposalTokenCost.toString());
@@ -1735,6 +1747,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (findertokenPrice !== undefined) {
         await storage.setAdminSetting('findertoken_price', findertokenPrice.toString());
+      }
+
+      if (platformFeePercentage !== undefined) {
+        await storage.setAdminSetting('platform_fee_percentage', platformFeePercentage.toString());
+      }
+
+      if (clientPaymentChargePercentage !== undefined) {
+        await storage.setAdminSetting('client_payment_charge_percentage', clientPaymentChargePercentage.toString());
+      }
+
+      if (finderEarningsChargePercentage !== undefined) {
+        await storage.setAdminSetting('finder_earnings_charge_percentage', finderEarningsChargePercentage.toString());
       }
 
       res.json({ message: "Settings updated successfully" });

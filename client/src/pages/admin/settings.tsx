@@ -14,13 +14,18 @@ import {
   DollarSign, 
   Coins,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  Percent,
+  CreditCard
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
 interface AdminSettings {
   proposalTokenCost: string;
   findertokenPrice: string;
+  platformFeePercentage: string;
+  clientPaymentChargePercentage: string;
+  finderEarningsChargePercentage: string;
 }
 
 export default function AdminSettings() {
@@ -29,6 +34,9 @@ export default function AdminSettings() {
   const queryClient = useQueryClient();
   const [proposalTokenCost, setProposalTokenCost] = useState("");
   const [findertokenPrice, setFindertokenPrice] = useState("");
+  const [platformFeePercentage, setPlatformFeePercentage] = useState("");
+  const [clientPaymentChargePercentage, setClientPaymentChargePercentage] = useState("");
+  const [finderEarningsChargePercentage, setFinderEarningsChargePercentage] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
 
   // Fetch admin settings
@@ -42,6 +50,9 @@ export default function AdminSettings() {
     if (settings) {
       setProposalTokenCost(settings.proposalTokenCost || "1");
       setFindertokenPrice(settings.findertokenPrice || "100");
+      setPlatformFeePercentage(settings.platformFeePercentage || "10");
+      setClientPaymentChargePercentage(settings.clientPaymentChargePercentage || "2.5");
+      setFinderEarningsChargePercentage(settings.finderEarningsChargePercentage || "5");
     }
   }, [settings]);
 
@@ -50,13 +61,22 @@ export default function AdminSettings() {
     if (settings) {
       const hasTokenCostChange = proposalTokenCost !== (settings.proposalTokenCost || "1");
       const hasPriceChange = findertokenPrice !== (settings.findertokenPrice || "100");
-      setHasChanges(hasTokenCostChange || hasPriceChange);
+      const hasPlatformFeeChange = platformFeePercentage !== (settings.platformFeePercentage || "10");
+      const hasClientChargeChange = clientPaymentChargePercentage !== (settings.clientPaymentChargePercentage || "2.5");
+      const hasFinderChargeChange = finderEarningsChargePercentage !== (settings.finderEarningsChargePercentage || "5");
+      setHasChanges(hasTokenCostChange || hasPriceChange || hasPlatformFeeChange || hasClientChargeChange || hasFinderChargeChange);
     }
-  }, [proposalTokenCost, findertokenPrice, settings]);
+  }, [proposalTokenCost, findertokenPrice, platformFeePercentage, clientPaymentChargePercentage, finderEarningsChargePercentage, settings]);
 
   // Update settings mutation
   const updateSettingsMutation = useMutation({
-    mutationFn: async (data: { proposalTokenCost?: string; findertokenPrice?: string }) => {
+    mutationFn: async (data: { 
+      proposalTokenCost?: string; 
+      findertokenPrice?: string;
+      platformFeePercentage?: string;
+      clientPaymentChargePercentage?: string;
+      finderEarningsChargePercentage?: string;
+    }) => {
       return await apiRequest('/api/admin/settings', {
         method: 'PUT',
         body: JSON.stringify(data)
@@ -83,7 +103,10 @@ export default function AdminSettings() {
     e.preventDefault();
     updateSettingsMutation.mutate({
       proposalTokenCost,
-      findertokenPrice
+      findertokenPrice,
+      platformFeePercentage,
+      clientPaymentChargePercentage,
+      finderEarningsChargePercentage
     });
   };
 
@@ -187,24 +210,129 @@ export default function AdminSettings() {
 
               <Separator className="my-8" />
 
+              {/* Platform Charges Section */}
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-slate-800 flex items-center">
+                  <CreditCard className="w-5 h-5 mr-2 text-purple-600" />
+                  Platform Charges & Fees
+                </h3>
+                
+                <div className="grid md:grid-cols-3 gap-6">
+                  {/* Platform Fee Percentage */}
+                  <div className="space-y-3">
+                    <Label htmlFor="platformFee" className="text-slate-700 text-sm font-semibold flex items-center">
+                      <Percent className="w-4 h-4 mr-2 text-purple-600" />
+                      Platform Fee (%)
+                    </Label>
+                    <Input
+                      id="platformFee"
+                      type="number"
+                      min="0"
+                      max="50"
+                      step="0.1"
+                      value={platformFeePercentage}
+                      onChange={(e) => setPlatformFeePercentage(e.target.value)}
+                      className="h-12 text-lg bg-white/80 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20"
+                      placeholder="Enter percentage"
+                    />
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <p className="text-sm text-purple-700">
+                        <strong>Current:</strong> {platformFeePercentage || "10"}% of contract value
+                      </p>
+                      <p className="text-xs text-purple-600 mt-1">
+                        General platform fee charged on completed contracts
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Client Payment Charge */}
+                  <div className="space-y-3">
+                    <Label htmlFor="clientCharge" className="text-slate-700 text-sm font-semibold flex items-center">
+                      <CreditCard className="w-4 h-4 mr-2 text-orange-600" />
+                      Client Payment Charge (%)
+                    </Label>
+                    <Input
+                      id="clientCharge"
+                      type="number"
+                      min="0"
+                      max="10"
+                      step="0.1"
+                      value={clientPaymentChargePercentage}
+                      onChange={(e) => setClientPaymentChargePercentage(e.target.value)}
+                      className="h-12 text-lg bg-white/80 border-slate-200 focus:border-orange-500 focus:ring-orange-500/20"
+                      placeholder="Enter percentage"
+                    />
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                      <p className="text-sm text-orange-700">
+                        <strong>Current:</strong> {clientPaymentChargePercentage || "2.5"}% transaction fee
+                      </p>
+                      <p className="text-xs text-orange-600 mt-1">
+                        Additional charge on client payments (processing fees)
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Finder Earnings Charge */}
+                  <div className="space-y-3">
+                    <Label htmlFor="finderCharge" className="text-slate-700 text-sm font-semibold flex items-center">
+                      <DollarSign className="w-4 h-4 mr-2 text-red-600" />
+                      Finder Earnings Charge (%)
+                    </Label>
+                    <Input
+                      id="finderCharge"
+                      type="number"
+                      min="0"
+                      max="20"
+                      step="0.1"
+                      value={finderEarningsChargePercentage}
+                      onChange={(e) => setFinderEarningsChargePercentage(e.target.value)}
+                      className="h-12 text-lg bg-white/80 border-slate-200 focus:border-red-500 focus:ring-red-500/20"
+                      placeholder="Enter percentage"
+                    />
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                      <p className="text-sm text-red-700">
+                        <strong>Current:</strong> {finderEarningsChargePercentage || "5"}% deduction
+                      </p>
+                      <p className="text-xs text-red-600 mt-1">
+                        Percentage deducted from finder earnings
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator className="my-8" />
+
               {/* Pricing Summary */}
               <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
                 <h3 className="font-semibold text-slate-800 mb-4 flex items-center">
                   <AlertCircle className="w-5 h-5 mr-2 text-slate-600" />
                   Current Configuration
                 </h3>
-                <div className="grid md:grid-cols-3 gap-4 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-sm">
                   <div className="text-center p-3 bg-white rounded border">
-                    <div className="text-2xl font-bold text-blue-600">{proposalTokenCost || "1"}</div>
-                    <div className="text-slate-600">Tokens per proposal</div>
+                    <div className="text-xl font-bold text-blue-600">{proposalTokenCost || "1"}</div>
+                    <div className="text-slate-600 text-xs">Tokens per proposal</div>
                   </div>
                   <div className="text-center p-3 bg-white rounded border">
-                    <div className="text-2xl font-bold text-green-600">₦{findertokenPriceInNaira.toFixed(2)}</div>
-                    <div className="text-slate-600">Price per token</div>
+                    <div className="text-xl font-bold text-green-600">₦{findertokenPriceInNaira.toFixed(2)}</div>
+                    <div className="text-slate-600 text-xs">Price per token</div>
                   </div>
                   <div className="text-center p-3 bg-white rounded border">
-                    <div className="text-2xl font-bold text-purple-600">₦{(findertokenPriceInNaira * parseFloat(proposalTokenCost || "1")).toFixed(2)}</div>
-                    <div className="text-slate-600">Cost per proposal</div>
+                    <div className="text-xl font-bold text-purple-600">₦{(findertokenPriceInNaira * parseFloat(proposalTokenCost || "1")).toFixed(2)}</div>
+                    <div className="text-slate-600 text-xs">Cost per proposal</div>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded border">
+                    <div className="text-xl font-bold text-purple-600">{platformFeePercentage || "10"}%</div>
+                    <div className="text-slate-600 text-xs">Platform fee</div>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded border">
+                    <div className="text-xl font-bold text-orange-600">{clientPaymentChargePercentage || "2.5"}%</div>
+                    <div className="text-slate-600 text-xs">Client charge</div>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded border">
+                    <div className="text-xl font-bold text-red-600">{finderEarningsChargePercentage || "5"}%</div>
+                    <div className="text-slate-600 text-xs">Finder charge</div>
                   </div>
                 </div>
               </div>
