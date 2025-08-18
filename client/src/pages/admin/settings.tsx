@@ -1,422 +1,260 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/use-auth";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import AdminHeader from "@/components/admin-header";
 import { 
-  Shield, 
-  Plus,
-  Edit,
-  Trash2,
-  DollarSign
+  Settings, 
+  Save, 
+  DollarSign, 
+  Coins,
+  AlertCircle,
+  CheckCircle2
 } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import type { Category } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
-import { useState } from "react";
+
+interface AdminSettings {
+  proposalTokenCost: string;
+  findertokenPrice: string;
+}
 
 export default function AdminSettings() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryDesc, setNewCategoryDesc] = useState("");
   const [proposalTokenCost, setProposalTokenCost] = useState("");
   const [findertokenPrice, setFindertokenPrice] = useState("");
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [editCategoryName, setEditCategoryName] = useState("");
-  const [editCategoryDesc, setEditCategoryDesc] = useState("");
+  const [hasChanges, setHasChanges] = useState(false);
 
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<Category[]>({
-    queryKey: ['/api/admin/categories'],
-    enabled: !!user && user.role === 'admin'
-  });
-
-  const { data: settings, isLoading: settingsLoading } = useQuery<{ proposalTokenCost: string; findertokenPrice: string }>({
+  // Fetch admin settings
+  const { data: settings, isLoading: settingsLoading } = useQuery<AdminSettings>({
     queryKey: ['/api/admin/settings'],
-    enabled: !!user && user.role === 'admin'
-  });
-
-  const createCategoryMutation = useMutation({
-    mutationFn: async (data: { name: string; description: string }) => {
-      return await apiRequest('POST', '/api/admin/categories', data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
-      setNewCategoryName("");
-      setNewCategoryDesc("");
-      toast({
-        title: "Success",
-        description: "Category created successfully"
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create category",
-        variant: "destructive"
-      });
+    enabled: !!user && user.role === 'admin',
+    onSuccess: (data) => {
+      setProposalTokenCost(data.proposalTokenCost || "1");
+      setFindertokenPrice(data.findertokenPrice || "100");
     }
   });
 
+  // Track changes
+  useEffect(() => {
+    if (settings) {
+      const hasTokenCostChange = proposalTokenCost !== (settings.proposalTokenCost || "1");
+      const hasPriceChange = findertokenPrice !== (settings.findertokenPrice || "100");
+      setHasChanges(hasTokenCostChange || hasPriceChange);
+    }
+  }, [proposalTokenCost, findertokenPrice, settings]);
+
+  // Update settings mutation
   const updateSettingsMutation = useMutation({
-    mutationFn: async (data: { proposalTokenCost?: string; findertokenPrice?: string }) => {
-      console.log('Sending API request with data:', data);
+    mutationFn: async (data: Partial<AdminSettings>) => {
       return await apiRequest('PUT', '/api/admin/settings', data);
     },
-    onSuccess: (data) => {
-      console.log('Settings update successful:', data);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/settings'] });
-      setProposalTokenCost(""); // Clear the local state to use the fetched value
-      setFindertokenPrice("");
+      setHasChanges(false);
       toast({
-        title: "Success",
-        description: "Settings updated successfully"
-      });
-    },
-    onError: (error: any) => {
-      console.error('Settings update error:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update settings",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const updateCategoryMutation = useMutation({
-    mutationFn: async (data: { id: string; name: string; description: string }) => {
-      return await apiRequest('PUT', `/api/admin/categories/${data.id}`, { name: data.name, description: data.description });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
-      setEditingCategory(null);
-      setEditCategoryName("");
-      setEditCategoryDesc("");
-      toast({
-        title: "Success",
-        description: "Category updated successfully"
+        title: "Settings Updated",
+        description: "Platform settings have been updated successfully.",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to update category",
-        variant: "destructive"
+        title: "Update Failed",
+        description: error.message || "Failed to update settings.",
+        variant: "destructive",
       });
     }
   });
-
-  const toggleCategoryMutation = useMutation({
-    mutationFn: async (data: { id: string; isActive: boolean }) => {
-      return await apiRequest('PUT', `/api/admin/categories/${data.id}`, { isActive: data.isActive });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
-      toast({
-        title: "Success",
-        description: "Category status updated successfully"
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update category status",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const deleteCategoryMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest('DELETE', `/api/admin/categories/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
-      toast({
-        title: "Success",
-        description: "Category deleted successfully"
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to delete category",
-        variant: "destructive"
-      });
-    }
-  });
-
-  const handleCreateCategory = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCategoryName.trim()) return;
-    
-    createCategoryMutation.mutate({
-      name: newCategoryName,
-      description: newCategoryDesc
-    });
-  };
 
   const handleUpdateSettings = (e: React.FormEvent) => {
     e.preventDefault();
-    const costValue = proposalTokenCost || settings?.proposalTokenCost || '1';
-    const priceValue = findertokenPrice || settings?.findertokenPrice || '100';
-    console.log('Updating settings with:', { proposalTokenCost: costValue, findertokenPrice: priceValue });
     updateSettingsMutation.mutate({
-      proposalTokenCost: costValue,
-      findertokenPrice: priceValue
+      proposalTokenCost,
+      findertokenPrice
     });
   };
 
-  const handleEditCategory = (category: Category) => {
-    setEditingCategory(category);
-    setEditCategoryName(category.name);
-    setEditCategoryDesc(category.description || "");
-  };
+  const findertokenPriceInNaira = parseFloat(findertokenPrice || "100") / 100;
 
-  const handleUpdateCategory = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingCategory || !editCategoryName.trim()) return;
-    
-    updateCategoryMutation.mutate({
-      id: editingCategory.id,
-      name: editCategoryName,
-      description: editCategoryDesc
-    });
-  };
-
-  const handleToggleCategory = (category: Category) => {
-    toggleCategoryMutation.mutate({
-      id: category.id,
-      isActive: !category.isActive
-    });
-  };
-
-  if (categoriesLoading || settingsLoading) {
+  if (settingsLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
-          <p className="text-gray-600 mt-4">Loading settings...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <AdminHeader currentPage="settings" />
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="text-slate-600 mt-4">Loading settings...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <AdminHeader currentPage="settings" />
       
-      <div className="max-w-6xl mx-auto py-8 px-6 space-y-8">
-        {/* Platform Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <DollarSign className="w-5 h-5" />
-              <span>Platform Settings</span>
+      <div className="max-w-4xl mx-auto p-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-800 mb-2 flex items-center">
+            <Settings className="mr-3 h-8 w-8 text-blue-600" />
+            Platform Settings
+          </h1>
+          <p className="text-slate-600">Configure system-wide platform settings and pricing</p>
+        </div>
+
+        {/* Settings Form */}
+        <Card className="backdrop-blur-sm bg-white/90 border border-white/20 shadow-xl">
+          <CardHeader className="pb-6">
+            <CardTitle className="text-slate-800 flex items-center text-xl">
+              <Coins className="w-6 h-6 mr-3 text-orange-500" />
+              Token Management
             </CardTitle>
+            <CardDescription className="text-slate-600">
+              Configure proposal costs and findertoken pricing for the platform
+            </CardDescription>
           </CardHeader>
+          
           <CardContent>
-            <form onSubmit={handleUpdateSettings} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="tokenCost">Proposal Token Cost</Label>
+            <form onSubmit={handleUpdateSettings} className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Proposal Token Cost */}
+                <div className="space-y-3">
+                  <Label htmlFor="proposalCost" className="text-slate-700 text-sm font-semibold flex items-center">
+                    <Coins className="w-4 h-4 mr-2 text-blue-600" />
+                    Proposal Token Cost
+                  </Label>
                   <Input
-                    id="tokenCost"
+                    id="proposalCost"
                     type="number"
                     min="1"
-                    value={proposalTokenCost || settings?.proposalTokenCost || '1'}
+                    max="100"
+                    value={proposalTokenCost}
                     onChange={(e) => setProposalTokenCost(e.target.value)}
-                    placeholder="Number of tokens required to submit a proposal"
+                    className="h-12 text-lg bg-white/80 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                    placeholder="Enter token cost"
                   />
-                  <p className="text-sm text-gray-600 mt-1">
-                    How many tokens finders need to spend to submit a proposal
-                  </p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-sm text-blue-700">
+                      <strong>Current:</strong> {proposalTokenCost || settings?.proposalTokenCost || "1"} tokens per proposal
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Number of tokens finders must spend to submit a proposal
+                    </p>
+                  </div>
                 </div>
-                
-                <div>
-                  <Label htmlFor="tokenPrice">Findertoken Price (kobo)</Label>
+
+                {/* Findertoken Price */}
+                <div className="space-y-3">
+                  <Label htmlFor="tokenPrice" className="text-slate-700 text-sm font-semibold flex items-center">
+                    <DollarSign className="w-4 h-4 mr-2 text-green-600" />
+                    Findertoken Price (Kobo)
+                  </Label>
                   <Input
                     id="tokenPrice"
                     type="number"
                     min="1"
-                    value={findertokenPrice || settings?.findertokenPrice || '100'}
+                    max="10000"
+                    value={findertokenPrice}
                     onChange={(e) => setFindertokenPrice(e.target.value)}
-                    placeholder="Price per token in kobo"
+                    className="h-12 text-lg bg-white/80 border-slate-200 focus:border-green-500 focus:ring-green-500/20"
+                    placeholder="Enter price in kobo"
                   />
-                  <p className="text-sm text-gray-600 mt-1">
-                    ₦{((parseFloat(findertokenPrice || settings?.findertokenPrice || '100')) / 100).toFixed(2)} per token
-                  </p>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <p className="text-sm text-green-700">
+                      <strong>Current:</strong> ₦{findertokenPriceInNaira.toFixed(2)} per token
+                    </p>
+                    <p className="text-xs text-green-600 mt-1">
+                      Price users pay to purchase findertokens (100 kobo = ₦1)
+                    </p>
+                  </div>
                 </div>
               </div>
-              <Button 
-                type="submit" 
-                disabled={updateSettingsMutation.isPending}
-                className="bg-finder-red hover:bg-finder-red-dark"
-              >
-                {updateSettingsMutation.isPending ? "Updating..." : "Update Settings"}
-              </Button>
+
+              <Separator className="my-8" />
+
+              {/* Pricing Summary */}
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
+                <h3 className="font-semibold text-slate-800 mb-4 flex items-center">
+                  <AlertCircle className="w-5 h-5 mr-2 text-slate-600" />
+                  Current Configuration
+                </h3>
+                <div className="grid md:grid-cols-3 gap-4 text-sm">
+                  <div className="text-center p-3 bg-white rounded border">
+                    <div className="text-2xl font-bold text-blue-600">{proposalTokenCost || "1"}</div>
+                    <div className="text-slate-600">Tokens per proposal</div>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded border">
+                    <div className="text-2xl font-bold text-green-600">₦{findertokenPriceInNaira.toFixed(2)}</div>
+                    <div className="text-slate-600">Price per token</div>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded border">
+                    <div className="text-2xl font-bold text-purple-600">₦{(findertokenPriceInNaira * parseFloat(proposalTokenCost || "1")).toFixed(2)}</div>
+                    <div className="text-slate-600">Cost per proposal</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <div className="flex justify-end pt-4">
+                <Button 
+                  type="submit"
+                  size="lg"
+                  disabled={updateSettingsMutation.isPending || !hasChanges}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  {updateSettingsMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Updating...
+                    </>
+                  ) : hasChanges ? (
+                    <>
+                      <Save className="w-5 h-5 mr-2" />
+                      Save Changes
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-5 h-5 mr-2" />
+                      Settings Saved
+                    </>
+                  )}
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
 
-        {/* Categories Management */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Category Management</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Create New Category */}
-            <form onSubmit={handleCreateCategory} className="space-y-4 p-4 border rounded-lg bg-gray-50">
-              <h4 className="font-medium text-gray-900">Add New Category</h4>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="categoryName">Category Name</Label>
-                  <Input
-                    id="categoryName"
-                    value={newCategoryName}
-                    onChange={(e) => setNewCategoryName(e.target.value)}
-                    placeholder="e.g., Web Development"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="categoryDesc">Description</Label>
-                  <Input
-                    id="categoryDesc"
-                    value={newCategoryDesc}
-                    onChange={(e) => setNewCategoryDesc(e.target.value)}
-                    placeholder="Brief description of the category"
-                  />
-                </div>
+        {/* Additional Info */}
+        <Card className="mt-6 backdrop-blur-sm bg-white/80 border border-white/20 shadow-lg">
+          <CardContent className="pt-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-slate-800 mb-2">Token Economics</h4>
+                <ul className="text-sm text-slate-600 space-y-1">
+                  <li>• Finders purchase tokens to submit proposals</li>
+                  <li>• Each proposal submission costs tokens</li>
+                  <li>• Token prices can be adjusted based on market demand</li>
+                </ul>
               </div>
-              <Button 
-                type="submit" 
-                disabled={createCategoryMutation.isPending}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                {createCategoryMutation.isPending ? "Creating..." : "Add Category"}
-              </Button>
-            </form>
-
-            {/* Categories List */}
-            <div className="space-y-3">
-              <h4 className="font-medium text-gray-900">Existing Categories</h4>
-              {categories.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Shield className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>No categories created yet.</p>
-                </div>
-              ) : (
-                <div className="grid gap-3">
-                  {categories.map((category: Category) => (
-                    <div key={category.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3">
-                          <h5 className="font-medium text-gray-900">{category.name}</h5>
-                          <Badge variant={category.isActive ? "default" : "secondary"}>
-                            {category.isActive ? "Active" : "Inactive"}
-                          </Badge>
-                        </div>
-                        {category.description && (
-                          <p className="text-gray-600 text-sm mt-1">{category.description}</p>
-                        )}
-                        {category.createdAt && (
-                          <p className="text-gray-500 text-xs mt-1">
-                            Created: {new Date(category.createdAt).toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Edit className="w-4 h-4 mr-2" />
-                              Actions
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEditCategory(category)}>
-                              <Edit className="w-4 h-4 mr-2" />
-                              Edit Category
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleToggleCategory(category)}>
-                              {category.isActive ? "Deactivate" : "Activate"}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="text-finder-red"
-                              onClick={() => deleteCategoryMutation.mutate(category.id)}
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div>
+                <h4 className="font-semibold text-slate-800 mb-2">Best Practices</h4>
+                <ul className="text-sm text-slate-600 space-y-1">
+                  <li>• Keep proposal costs reasonable for finders</li>
+                  <li>• Adjust token prices based on platform usage</li>
+                  <li>• Monitor finder engagement after price changes</li>
+                </ul>
+              </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Edit Category Modal */}
-        {editingCategory && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <Card className="w-full max-w-md">
-              <CardHeader>
-                <CardTitle>Edit Category</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleUpdateCategory} className="space-y-4">
-                  <div>
-                    <Label htmlFor="editCategoryName">Category Name</Label>
-                    <Input
-                      id="editCategoryName"
-                      value={editCategoryName}
-                      onChange={(e) => setEditCategoryName(e.target.value)}
-                      placeholder="e.g., Web Development"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="editCategoryDesc">Description</Label>
-                    <Input
-                      id="editCategoryDesc"
-                      value={editCategoryDesc}
-                      onChange={(e) => setEditCategoryDesc(e.target.value)}
-                      placeholder="Brief description of the category"
-                    />
-                  </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      onClick={() => setEditingCategory(null)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button 
-                      type="submit" 
-                      disabled={updateCategoryMutation.isPending}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      {updateCategoryMutation.isPending ? "Updating..." : "Update Category"}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        )}
       </div>
     </div>
   );
