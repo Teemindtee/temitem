@@ -12,8 +12,8 @@ export function AuthHeader({ currentPage }: AuthHeaderProps) {
 
   return (
     <header className="bg-finder-red text-white px-4 sm:px-6 py-4">
-      <div className="max-w-4xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
+      <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <Link href="/" className="flex items-center space-x-2 mr-8">
           <Handshake className="w-6 h-6" />
           <span className="text-xl font-bold">FinderMeister</span>
         </Link>
