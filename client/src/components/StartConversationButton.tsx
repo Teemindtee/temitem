@@ -29,7 +29,10 @@ export default function StartConversationButton({
 
   const createConversationMutation = useMutation({
     mutationFn: async () => {
-      return await apiRequest("POST", "/api/messages/conversations", { proposalId });
+      return await apiRequest("/api/messages/conversations", {
+        method: "POST",
+        body: JSON.stringify({ proposalId }),
+      });
     },
     onSuccess: (conversation) => {
       queryClient.invalidateQueries({ queryKey: ['/api/messages/conversations'] });
