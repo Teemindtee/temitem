@@ -291,12 +291,10 @@ export default function AdminFinderLevels() {
                       if (result.successful.length > 0) {
                         const uploadURL = result.successful[0].uploadURL;
                         if (uploadURL) {
-                          // Convert the upload URL to a normalized object path
-                          const normalizedPath = uploadURL.replace(/\?.*$/, '').replace(/^https:\/\/[^\/]+/, '');
-                          const objectPath = `/objects${normalizedPath.split('/.private/uploads/')[1] || normalizedPath}`;
+                          // Store the upload URL directly for now
                           setFormData(prev => ({ 
                             ...prev, 
-                            iconUrl: objectPath 
+                            iconUrl: uploadURL 
                           }));
                           toast({ 
                             title: "Success", 
