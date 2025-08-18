@@ -25,7 +25,7 @@ export const finders = pgTable("finders", {
   totalEarned: decimal("total_earned", { precision: 10, scale: 2 }).default("0.00"),
   availableBalance: decimal("available_balance", { precision: 10, scale: 2 }).default("0.00"),
   averageRating: decimal("average_rating", { precision: 3, scale: 2 }).default("0.00"),
-  level: text("level").default("Novice"), // 'Novice', 'Professional', 'Expert', 'Master'
+  currentLevelId: varchar("current_level_id").references(() => finderLevels.id), // references finder levels table
   bio: text("bio"),
   category: text("category"), // Finder's specialty category
   skills: text("skills").array(),
@@ -190,6 +190,21 @@ export const orderSubmissions = pgTable("order_submissions", {
   autoReleaseDate: timestamp("auto_release_date"), // 3 days after acceptance or 5 days after submission
 });
 
+export const finderLevels = pgTable("finder_levels", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  minEarnedAmount: decimal("min_earned_amount", { precision: 10, scale: 2 }).default("0"),
+  minJobsCompleted: integer("min_jobs_completed").default(0),
+  minReviewPercentage: integer("min_review_percentage").default(0), // 0-100, average review score
+  icon: text("icon"), // icon name or URL
+  color: text("color"), // hex color code
+  order: integer("order").notNull(), // display order
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   finder: one(finders, {
@@ -212,6 +227,10 @@ export const findersRelations = relations(finders, ({ one, many }) => ({
   }),
   findertokens: one(findertokens),
   withdrawalSettings: one(withdrawalSettings),
+  currentLevel: one(finderLevels, {
+    fields: [finders.currentLevelId],
+    references: [finderLevels.id],
+  }),
   proposals: many(proposals),
   contracts: many(contracts, { relationName: "finderContracts" }),
   transactions: many(transactions),
@@ -357,6 +376,10 @@ export const withdrawalRequestsRelations = relations(withdrawalRequests, ({ one 
   }),
 }));
 
+export const finderLevelsRelations = relations(finderLevels, ({ many }) => ({
+  finders: many(finders),
+}));
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -399,6 +422,8 @@ export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalReques
 export type InsertWithdrawalRequest = z.infer<typeof insertWithdrawalRequestSchema>;
 export type WithdrawalRequest = typeof withdrawalRequests.$inferSelect;
 export type InsertMessage = typeof messages.$inferInsert;
+export type FinderLevel = typeof finderLevels.$inferSelect;
+export type InsertFinderLevel = typeof finderLevels.$inferInsert;
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -449,6 +474,12 @@ export const insertConversationSchema = createInsertSchema(conversations).omit({
   id: true,
   lastMessageAt: true,
   createdAt: true,
+});
+
+export const insertFinderLevelSchema = createInsertSchema(finderLevels).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const insertMessageSchema = createInsertSchema(messages).omit({

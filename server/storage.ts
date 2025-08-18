@@ -29,6 +29,8 @@ import {
   type InsertBlogPost,
   type OrderSubmission,
   type InsertOrderSubmission,
+  type FinderLevel,
+  type InsertFinderLevel,
 
   users,
   finders,
@@ -45,7 +47,8 @@ import {
   withdrawalRequests,
   withdrawalSettings,
   blogPosts,
-  orderSubmissions
+  orderSubmissions,
+  finderLevels
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -162,6 +165,15 @@ export interface IStorage {
   getOrderSubmissionByContractId(contractId: string): Promise<OrderSubmission | undefined>;
   updateOrderSubmission(id: string, updates: Partial<OrderSubmission>): Promise<OrderSubmission | undefined>;
   getContractWithSubmission(contractId: string): Promise<(Contract & {orderSubmission?: OrderSubmission}) | undefined>;
+
+  // Finder level operations
+  getFinderLevels(): Promise<FinderLevel[]>;
+  getFinderLevel(id: string): Promise<FinderLevel | undefined>;
+  createFinderLevel(level: InsertFinderLevel): Promise<FinderLevel>;
+  updateFinderLevel(id: string, updates: Partial<FinderLevel>): Promise<FinderLevel | undefined>;
+  deleteFinderLevel(id: string): Promise<boolean>;
+  calculateFinderLevel(finderId: string): Promise<FinderLevel | undefined>;
+  assignFinderLevel(finderId: string, levelId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1257,6 +1269,96 @@ export class DatabaseStorage implements IStorage {
       .set({
         availableBalance: sql`available_balance - ${amount}`
       })
+      .where(eq(finders.id, finderId));
+  }
+
+  // Finder Levels Management
+  async getFinderLevels(): Promise<FinderLevel[]> {
+    return await db
+      .select()
+      .from(finderLevels)
+      .orderBy(finderLevels.order);
+  }
+
+  async getFinderLevel(id: string): Promise<FinderLevel | undefined> {
+    const [level] = await db
+      .select()
+      .from(finderLevels)
+      .where(eq(finderLevels.id, id));
+    return level || undefined;
+  }
+
+  async createFinderLevel(levelData: InsertFinderLevel): Promise<FinderLevel> {
+    const [level] = await db
+      .insert(finderLevels)
+      .values(levelData)
+      .returning();
+    return level;
+  }
+
+  async updateFinderLevel(id: string, updates: Partial<FinderLevel>): Promise<FinderLevel | undefined> {
+    const [level] = await db
+      .update(finderLevels)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(finderLevels.id, id))
+      .returning();
+    return level || undefined;
+  }
+
+  async deleteFinderLevel(id: string): Promise<boolean> {
+    const result = await db
+      .delete(finderLevels)
+      .where(eq(finderLevels.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
+  async calculateFinderLevel(finderId: string): Promise<FinderLevel | undefined> {
+    // Get finder's current stats
+    const [finder] = await db
+      .select()
+      .from(finders)
+      .where(eq(finders.id, finderId));
+
+    if (!finder) return undefined;
+
+    const totalEarned = parseFloat(finder.totalEarned || "0");
+    const jobsCompleted = finder.jobsCompleted || 0;
+    const avgRating = parseFloat(finder.averageRating || "0");
+
+    // Get all levels ordered by requirements (descending)
+    const levels = await db
+      .select()
+      .from(finderLevels)
+      .where(eq(finderLevels.isActive, true))
+      .orderBy(sql`${finderLevels.order} DESC`);
+
+    // Find the highest level the finder qualifies for
+    for (const level of levels) {
+      const minEarned = parseFloat(level.minEarnedAmount || "0");
+      const minJobs = level.minJobsCompleted || 0;
+      const minRating = level.minReviewPercentage || 0;
+
+      if (totalEarned >= minEarned && 
+          jobsCompleted >= minJobs && 
+          (avgRating * 20) >= minRating) { // Convert 5-star rating to percentage
+        return level;
+      }
+    }
+
+    // Return the lowest level (Novice) if no other level qualifies
+    const [noviceLevel] = await db
+      .select()
+      .from(finderLevels)
+      .where(eq(finderLevels.name, "Novice"));
+    
+    return noviceLevel || undefined;
+  }
+
+  async assignFinderLevel(finderId: string, levelId: string): Promise<void> {
+    await db
+      .update(finders)
+      .set({ currentLevelId: levelId })
       .where(eq(finders.id, finderId));
   }
 

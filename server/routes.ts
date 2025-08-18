@@ -1530,6 +1530,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Finder Levels Admin Routes
+  app.get("/api/admin/finder-levels", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const levels = await storage.getFinderLevels();
+      res.json(levels);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch finder levels" });
+    }
+  });
+
+  app.post("/api/admin/finder-levels", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const level = await storage.createFinderLevel(req.body);
+      res.status(201).json(level);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to create finder level", error: error.message });
+    }
+  });
+
+  app.put("/api/admin/finder-levels/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const level = await storage.updateFinderLevel(id, req.body);
+
+      if (!level) {
+        return res.status(404).json({ message: "Finder level not found" });
+      }
+
+      res.json(level);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to update finder level", error: error.message });
+    }
+  });
+
+  app.delete("/api/admin/finder-levels/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const deleted = await storage.deleteFinderLevel(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Finder level not found" });
+      }
+
+      res.json({ message: "Finder level deleted successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to delete finder level", error: error.message });
+    }
+  });
+
+  app.post("/api/admin/calculate-finder-level/:finderId", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { finderId } = req.params;
+      const calculatedLevel = await storage.calculateFinderLevel(finderId);
+
+      if (!calculatedLevel) {
+        return res.status(404).json({ message: "Could not calculate level for this finder" });
+      }
+
+      // Auto-assign the calculated level
+      await storage.assignFinderLevel(finderId, calculatedLevel.id);
+
+      res.json({ message: "Finder level calculated and assigned", level: calculatedLevel });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to calculate finder level", error: error.message });
+    }
+  });
+
   // User management routes
   app.post("/api/admin/users/:id/ban", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
