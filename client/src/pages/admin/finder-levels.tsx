@@ -371,8 +371,8 @@ export default function AdminFinderLevels() {
           </div>
         )}
 
-        {/* Levels List */}
-        <div className="grid gap-6">
+        {/* Levels List - Two Columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {(levels as FinderLevel[]).map((level: FinderLevel) => {
             const IconComponent = iconMap[level.icon as keyof typeof iconMap] || User;
             
@@ -409,16 +409,16 @@ export default function AdminFinderLevels() {
                         
                         <p className="text-gray-600 mb-3">{level.description}</p>
                         
-                        <div className="grid grid-cols-3 gap-4 text-sm">
-                          <div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
                             <span className="text-gray-500">Min Earned:</span>
                             <div className="font-semibold">₦{parseFloat(level.minEarnedAmount).toLocaleString()}</div>
                           </div>
-                          <div>
+                          <div className="flex justify-between">
                             <span className="text-gray-500">Min Jobs:</span>
                             <div className="font-semibold">{level.minJobsCompleted} jobs</div>
                           </div>
-                          <div>
+                          <div className="flex justify-between">
                             <span className="text-gray-500">Min Score:</span>
                             <div className="font-semibold">{level.minReviewPercentage}%</div>
                           </div>
@@ -426,11 +426,12 @@ export default function AdminFinderLevels() {
                       </div>
                     </div>
                     
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col space-y-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleEdit(level)}
+                        className="px-3"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -438,7 +439,7 @@ export default function AdminFinderLevels() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(level.id)}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-red-600 hover:text-red-700 px-3"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
