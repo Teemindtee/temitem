@@ -783,6 +783,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Contract payment initialization endpoint
+  app.post("/api/contracts/:contractId/payment", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { contractId } = req.params;
+
+      // Get contract details
+      const contract = await storage.getContract(contractId);
+      if (!contract) {
+        return res.status(404).json({ message: "Contract not found" });
+      }
+
+      // Verify user is the client for this contract
+      if (contract.clientId !== req.user.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Check if contract is already funded
+      if (contract.escrowStatus === 'funded' || contract.escrowStatus === 'held') {
+        return res.status(400).json({ message: "Contract is already funded" });
+      }
+
+      // Get user details for payment
+      const user = await storage.getUser(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Initialize payment with Paystack
+      const paystackService = new PaystackService();
+      const paymentData = await paystackService.initializeTransaction({
+        email: user.email,
+        amount: parseInt(contract.amount) * 100, // Convert to kobo
+        reference: `CONTRACT_${contractId}_${Date.now()}`,
+        metadata: {
+          contractId: contract.id,
+          userId: user.id,
+          type: 'escrow_funding'
+        }
+      });
+
+      res.json({
+        authorization_url: paymentData.authorization_url,
+        reference: paymentData.reference,
+        amount: parseInt(contract.amount)
+      });
+
+    } catch (error) {
+      console.error('Contract payment initialization error:', error);
+      res.status(500).json({ message: "Failed to initialize payment" });
+    }
+  });
+
   // Escrow payment verification endpoint
   app.post("/api/contracts/:contractId/verify-payment", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,10 +28,12 @@ import {
   Loader2,
   Award,
   FileCheck,
-  Timer
+  Timer,
+  CreditCard
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import ClientHeader from "@/components/client-header";
+import { PaymentModal } from "@/components/PaymentModal";
 
 interface ContractDetails {
   id: string;
@@ -67,6 +70,17 @@ export default function ContractDetails() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Payment modal state
+  const [paymentModal, setPaymentModal] = useState<{
+    isOpen: boolean;
+    contractId?: string;
+    amount?: number;
+    paymentUrl?: string;
+    reference?: string;
+    findTitle?: string;
+    finderName?: string;
+  }>({ isOpen: false });
 
   const { data: contract, isLoading } = useQuery<ContractDetails>({
     queryKey: ["/api/client/contracts", contractId],
@@ -92,9 +106,44 @@ export default function ContractDetails() {
     }
   });
 
+  // Payment initialization mutation
+  const initializePaymentMutation = useMutation({
+    mutationFn: async (contractId: string) => {
+      return apiRequest(`/api/contracts/${contractId}/payment`, {
+        method: "POST",
+      });
+    },
+    onSuccess: (data) => {
+      if (data.authorization_url) {
+        setPaymentModal({
+          isOpen: true,
+          contractId: contractId,
+          amount: data.amount,
+          paymentUrl: data.authorization_url,
+          reference: data.reference,
+          findTitle: contract?.request?.title || 'Find Request',
+          finderName: contract?.finder?.name || 'Finder',
+        });
+      }
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Payment Error",
+        description: "Unable to initialize payment. Please try again.",
+      });
+    },
+  });
+
   const handleMessageFinder = () => {
     if (contract?.proposalId) {
       createConversation.mutate(contract.proposalId);
+    }
+  };
+
+  const handleInitiatePayment = () => {
+    if (contractId) {
+      initializePaymentMutation.mutate(contractId);
     }
   };
 
@@ -538,6 +587,18 @@ export default function ContractDetails() {
               <CardContent className="p-6 sm:p-8">
                 <h3 className="font-semibold text-slate-900 mb-4">Quick Actions</h3>
                 <div className="space-y-3">
+                  {/* Payment Button - Show only if contract is not funded */}
+                  {contract.escrowStatus !== 'funded' && (
+                    <Button 
+                      onClick={handleInitiatePayment}
+                      disabled={initializePaymentMutation.isPending}
+                      className="w-full justify-start bg-finder-red hover:bg-finder-red-dark text-white"
+                    >
+                      <CreditCard className="w-4 h-4 mr-3" />
+                      {initializePaymentMutation.isPending ? "Initializing..." : "Complete Payment"}
+                    </Button>
+                  )}
+                  
                   <Button 
                     onClick={() => navigate("/client/contracts")}
                     variant="outline" 
@@ -591,6 +652,32 @@ export default function ContractDetails() {
           </div>
         </div>
       </main>
+
+      {/* Payment Modal */}
+      {paymentModal.isOpen && paymentModal.contractId && (
+        <PaymentModal
+          isOpen={paymentModal.isOpen}
+          onClose={() => setPaymentModal({ isOpen: false })}
+          contractId={paymentModal.contractId}
+          amount={paymentModal.amount || 0}
+          paymentUrl={paymentModal.paymentUrl || ''}
+          reference={paymentModal.reference || ''}
+          findTitle={paymentModal.findTitle || 'Find Request'}
+          finderName={paymentModal.finderName || 'Finder'}
+          onPaymentSuccess={() => {
+            // Refresh contract data after payment
+            queryClient.invalidateQueries({ queryKey: ["/api/client/contracts", contractId] });
+            queryClient.invalidateQueries({ queryKey: ["/api/client/contracts"] });
+            
+            toast({
+              title: "Payment Successful!",
+              description: "Escrow has been funded. Work can now begin.",
+            });
+            
+            setPaymentModal({ isOpen: false });
+          }}
+        />
+      )}
     </div>
   );
 }
