@@ -381,7 +381,7 @@ export class DatabaseStorage implements IStorage {
     const row = result[0];
     return {
       id: row.id,
-      requestId: row.requestId,
+      findId: row.findId,
       finderId: row.finderId,
       approach: row.approach,
       price: row.price,
@@ -1113,26 +1113,10 @@ export class DatabaseStorage implements IStorage {
     return settings;
   }
 
-  async updateUser(userId: string, updates: Partial<User>): Promise<User | null> {
-    const [user] = await db
-      .update(users)
-      .set(updates)
-      .where(eq(users.id, userId))
-      .returning();
-    return user || null;
-  }
 
-  async getUserById(userId: string): Promise<User | null> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
-    return user || null;
-  }
 
   // User Ban Management
-  async banUser(userId: string, reason: string): Promise<User | null> {
+  async banUser(userId: string, reason: string): Promise<User | undefined> {
     const [user] = await db
       .update(users)
       .set({
@@ -1429,14 +1413,6 @@ export class DatabaseStorage implements IStorage {
     return post || undefined;
   }
 
-  async getBlogPostBySlug(slug: string): Promise<BlogPost | undefined> {
-    const [post] = await db
-      .select()
-      .from(blogPosts)
-      .where(eq(blogPosts.slug, slug));
-    return post || undefined;
-  }
-
   async deleteBlogPost(id: string): Promise<boolean> {
     const result = await db
       .delete(blogPosts)
@@ -1498,7 +1474,7 @@ export class DatabaseStorage implements IStorage {
         await db
           .update(finds)
           .set({ status: 'completed' })
-          .where(eq(finds.id, contract.requestId));
+          .where(eq(finds.id, contract.findId));
 
         // Update contract as completed
         await db
