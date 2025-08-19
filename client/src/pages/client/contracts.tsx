@@ -52,6 +52,13 @@ export default function ClientContracts() {
     enabled: !!user,
   }) as { data: Contract[], isLoading: boolean };
 
+  // Format currency in Naira
+  const formatCurrency = (amount: string | number | null) => {
+    if (amount === null || amount === undefined) return '₦0.00';
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return `₦${(numAmount / 100).toFixed(2)}`;
+  };
+
   // Calculate stats
   const activeContracts = contracts.filter(c => !c.isCompleted).length;
   const completedContracts = contracts.filter(c => c.isCompleted).length;
@@ -109,7 +116,7 @@ export default function ClientContracts() {
                   <div className="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(to right, hsl(42, 92%, 56%), hsl(45, 100%, 51%))" }}>
                     <DollarSign className="w-6 h-6 text-white" />
                   </div>
-                  <div className="text-3xl font-bold text-slate-900 mb-2">₦{totalSpent.toLocaleString()}</div>
+                  <div className="text-3xl font-bold text-slate-900 mb-2">{formatCurrency(totalSpent)}</div>
                   <div className="text-sm text-slate-600 font-medium">Total Invested</div>
                 </CardContent>
               </Card>
@@ -215,7 +222,7 @@ export default function ClientContracts() {
                       </div>
                       <div className="text-right">
                         <div className="text-xl font-bold" style={{ color: "hsl(1, 81%, 53%)" }}>
-                          ₦{parseFloat(contract.amount).toLocaleString()}
+                          {formatCurrency(contract.amount)}
                         </div>
                         <div className="text-xs text-slate-500 font-medium">
                           {contract.isCompleted && contract.completedAt ? 
