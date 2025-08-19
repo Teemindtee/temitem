@@ -37,7 +37,7 @@ export default function AdminCategories() {
 
   const createCategoryMutation = useMutation({
     mutationFn: async (data: { name: string; description: string }) => {
-      return await apiRequest('POST', '/api/admin/categories', data);
+      return await apiRequest('/api/admin/categories', { method: 'POST', body: JSON.stringify(data) });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
@@ -59,7 +59,10 @@ export default function AdminCategories() {
 
   const updateCategoryMutation = useMutation({
     mutationFn: async (data: { id: string; name: string; description: string }) => {
-      return await apiRequest('PUT', `/api/admin/categories/${data.id}`, { name: data.name, description: data.description });
+      return await apiRequest(`/api/admin/categories/${data.id}`, { 
+        method: 'PUT', 
+        body: JSON.stringify({ name: data.name, description: data.description }) 
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
@@ -82,7 +85,10 @@ export default function AdminCategories() {
 
   const toggleCategoryMutation = useMutation({
     mutationFn: async (data: { id: string; isActive: boolean }) => {
-      return await apiRequest('PUT', `/api/admin/categories/${data.id}`, { isActive: data.isActive });
+      return await apiRequest(`/api/admin/categories/${data.id}`, { 
+        method: 'PUT', 
+        body: JSON.stringify({ isActive: data.isActive }) 
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
@@ -102,7 +108,7 @@ export default function AdminCategories() {
 
   const deleteCategoryMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest('DELETE', `/api/admin/categories/${id}`);
+      return await apiRequest(`/api/admin/categories/${id}`, { method: 'DELETE' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/categories'] });
