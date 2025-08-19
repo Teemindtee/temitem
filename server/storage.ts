@@ -57,7 +57,7 @@ import {
   tokenGrants
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and, sql, alias } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -1670,13 +1670,39 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTokenGrants(finderId?: string): Promise<TokenGrant[]> {
-    const query = db.select().from(tokenGrants);
+    let query = db.select().from(tokenGrants);
     
     if (finderId) {
-      return await query.where(eq(tokenGrants.finderId, finderId));
+      query = query.where(eq(tokenGrants.finderId, finderId));
     }
     
-    return await query.orderBy(desc(tokenGrants.createdAt));
+    const grants = await query.orderBy(desc(tokenGrants.createdAt));
+    
+    // Manually fetch user data for each grant
+    const grantsWithUserData = await Promise.all(
+      grants.map(async (grant) => {
+        const finder = await this.getFinder(grant.finderId);
+        const finderUser = finder ? await this.getUser(finder.userId) : null;
+        const grantedByUser = await this.getUser(grant.grantedBy);
+        
+        return {
+          ...grant,
+          finder: {
+            user: finderUser ? {
+              firstName: finderUser.firstName,
+              lastName: finderUser.lastName,
+              email: finderUser.email
+            } : null
+          },
+          grantedByUser: grantedByUser ? {
+            firstName: grantedByUser.firstName,
+            lastName: grantedByUser.lastName
+          } : null
+        };
+      })
+    );
+    
+    return grantsWithUserData;
   }
 
   async getAllFindersForTokens(): Promise<Finder[]> {

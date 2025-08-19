@@ -368,10 +368,10 @@ export default function TokenManagement() {
                           <User className="h-4 w-4 text-muted-foreground" />
                           <div>
                             <div className="font-medium">
-                              {grant.finder.user.firstName} {grant.finder.user.lastName}
+                              {grant.finder?.user?.firstName || 'Unknown'} {grant.finder?.user?.lastName || 'User'}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {grant.finder.user.email}
+                              {grant.finder?.user?.email || 'No email'}
                             </div>
                           </div>
                         </div>
@@ -381,7 +381,7 @@ export default function TokenManagement() {
                             +{grant.amount} tokens
                           </Badge>
                           <div className="text-xs text-muted-foreground">
-                            by {grant.grantedByUser.firstName} {grant.grantedByUser.lastName}
+                            by {grant.grantedByUser?.firstName || 'Unknown'} {grant.grantedByUser?.lastName || 'Admin'}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {format(new Date(grant.createdAt), 'MMM d, yyyy h:mm a')}
