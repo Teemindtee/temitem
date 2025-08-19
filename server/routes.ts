@@ -9,7 +9,9 @@ import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { insertUserSchema, insertFindSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema, type Find } from "@shared/schema";
+import { insertUserSchema, insertFindSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema, type Find, finders } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { PaystackService, TOKEN_PACKAGES } from "./paymentService";
 import { emailService } from "./emailService";
 
@@ -536,21 +538,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check findertoken balance
-      const findertokenBalance = await storage.getFindertokenBalance(finder.id);
-      if (!findertokenBalance || (findertokenBalance.balance ?? 0) < 1) {
-        return res.status(400).json({ message: "Insufficient findertokens to submit proposal" });
+      const tokenCost = await storage.getAdminSetting('proposal_token_cost');
+      const requiredTokens = parseInt(tokenCost?.value || '1');
+      
+      if ((finder.findertokenBalance ?? 0) < requiredTokens) {
+        return res.status(400).json({ message: `Insufficient findertokens to submit proposal. Required: ${requiredTokens}, Available: ${finder.findertokenBalance ?? 0}` });
       }
 
       const proposal = await storage.createProposal(proposalData);
 
-      // Deduct findertoken
-      await storage.updateFindertokenBalance(finder.id, (findertokenBalance.balance ?? 0) - 1);
+      // Deduct findertoken - update finder balance directly  
+      const newBalance = (finder.findertokenBalance ?? 0) - requiredTokens;
+      await storage.updateFinderTokenBalance(finder.id, newBalance);
       
       // Record transaction
       await storage.createTransaction({
         userId: req.user.userId,
         finderId: finder.id,
-        amount: -1,
+        amount: -requiredTokens,
         type: 'proposal',
         description: `Proposal submitted for request: ${proposal.findId}`
       });

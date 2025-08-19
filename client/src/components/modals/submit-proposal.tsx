@@ -82,7 +82,7 @@ export default function SubmitProposalModal({ isOpen, onClose, request }: Submit
     }
 
     submitProposalMutation.mutate({
-      requestId: request.id,
+      findId: request.id,
       approach: formData.approach.trim(),
       price: price.toString(),
       timeline: formData.timeline.trim(),

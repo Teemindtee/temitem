@@ -108,6 +108,7 @@ export interface IStorage {
   getFindertokenBalance(finderId: string): Promise<Findertoken | undefined>;
   createFindertokenRecord(finderId: string): Promise<Findertoken>;
   updateFindertokenBalance(finderId: string, newBalance: number): Promise<Findertoken | undefined>;
+  updateFinderTokenBalance(finderId: string, newBalance: number): Promise<void>;
 
   // Transaction operations
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
@@ -709,6 +710,13 @@ export class DatabaseStorage implements IStorage {
       .where(eq(findertokens.finderId, finderId))
       .returning();
     return findertokenRecord || undefined;
+  }
+
+  async updateFinderTokenBalance(finderId: string, newBalance: number): Promise<void> {
+    await db
+      .update(finders)
+      .set({ findertokenBalance: newBalance })
+      .where(eq(finders.id, finderId));
   }
 
   async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
