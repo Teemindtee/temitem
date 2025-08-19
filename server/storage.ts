@@ -1112,20 +1112,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(withdrawalRequests.requestedAt));
   }
 
-  async createWithdrawalRequest(finderId: string, amount: number): Promise<WithdrawalRequest> {
-    const [withdrawal] = await db
-      .insert(withdrawalRequests)
-      .values({
-        finderId,
-        amount: amount.toString(),
-        status: 'pending',
-        paymentMethod: 'bank_transfer',
-        paymentDetails: '',
-        requestedAt: new Date()
-      })
-      .returning();
-    return withdrawal;
-  }
+
 
   async updateSecuritySettings(finderId: string, settings: any): Promise<any> {
     // For now, just return the settings since security settings aren't in schema

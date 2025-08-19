@@ -2137,6 +2137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.status(201).json({ message: "Withdrawal request submitted successfully", withdrawal });
     } catch (error: any) {
+      console.error('Withdrawal request error:', error);
       res.status(400).json({ message: "Failed to submit withdrawal request", error: error.message });
     }
   });
