@@ -31,6 +31,10 @@ import {
   type InsertOrderSubmission,
   type FinderLevel,
   type InsertFinderLevel,
+  type MonthlyTokenDistribution,
+  type InsertMonthlyTokenDistribution,
+  type TokenGrant,
+  type InsertTokenGrant,
 
   users,
   finders,
@@ -48,7 +52,9 @@ import {
   withdrawalSettings,
   blogPosts,
   orderSubmissions,
-  finderLevels
+  finderLevels,
+  monthlyTokenDistributions,
+  tokenGrants
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -177,6 +183,17 @@ export interface IStorage {
   deleteFinderLevel(id: string): Promise<boolean>;
   calculateFinderLevel(finderId: string): Promise<FinderLevel | undefined>;
   assignFinderLevel(finderId: string, levelId: string): Promise<void>;
+
+  // Monthly token distribution operations
+  distributeMonthlyTokens(): Promise<{ distributed: number; alreadyDistributed: number; }>;
+  getMonthlyDistributions(month: number, year: number): Promise<MonthlyTokenDistribution[]>;
+  hasReceivedMonthlyTokens(finderId: string, month: number, year: number): Promise<boolean>;
+  createMonthlyDistribution(distribution: InsertMonthlyTokenDistribution): Promise<MonthlyTokenDistribution>;
+
+  // Token grant operations
+  grantTokensToFinder(finderId: string, amount: number, reason: string, grantedBy: string): Promise<TokenGrant>;
+  getTokenGrants(finderId?: string): Promise<TokenGrant[]>;
+  getAllFindersForTokens(): Promise<Finder[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1535,6 +1552,142 @@ export class DatabaseStorage implements IStorage {
       console.error('Error charging finder tokens:', error);
       return false;
     }
+  }
+
+  // Monthly token distribution methods
+  async distributeMonthlyTokens(): Promise<{ distributed: number; alreadyDistributed: number; }> {
+    const now = new Date();
+    const month = now.getMonth() + 1; // 1-12
+    const year = now.getFullYear();
+    const tokensToGrant = 20;
+
+    // Get all active finders
+    const allFinders = await this.getAllFindersForTokens();
+    
+    let distributed = 0;
+    let alreadyDistributed = 0;
+
+    for (const finder of allFinders) {
+      // Check if already received tokens this month
+      const hasReceived = await this.hasReceivedMonthlyTokens(finder.id, month, year);
+      
+      if (!hasReceived) {
+        // Grant tokens
+        await this.createMonthlyDistribution({
+          finderId: finder.id,
+          month,
+          year,
+          tokensGranted: tokensToGrant
+        });
+
+        // Update finder token balance
+        const currentBalance = finder.findertokenBalance || 0;
+        await this.updateFinder(finder.id, {
+          findertokenBalance: currentBalance + tokensToGrant
+        });
+
+        distributed++;
+      } else {
+        alreadyDistributed++;
+      }
+    }
+
+    return { distributed, alreadyDistributed };
+  }
+
+  async getMonthlyDistributions(month: number, year: number): Promise<MonthlyTokenDistribution[]> {
+    return await db
+      .select()
+      .from(monthlyTokenDistributions)
+      .where(and(
+        eq(monthlyTokenDistributions.month, month),
+        eq(monthlyTokenDistributions.year, year)
+      ));
+  }
+
+  async hasReceivedMonthlyTokens(finderId: string, month: number, year: number): Promise<boolean> {
+    const [distribution] = await db
+      .select()
+      .from(monthlyTokenDistributions)
+      .where(and(
+        eq(monthlyTokenDistributions.finderId, finderId),
+        eq(monthlyTokenDistributions.month, month),
+        eq(monthlyTokenDistributions.year, year)
+      ))
+      .limit(1);
+
+    return !!distribution;
+  }
+
+  async createMonthlyDistribution(distribution: InsertMonthlyTokenDistribution): Promise<MonthlyTokenDistribution> {
+    const [created] = await db
+      .insert(monthlyTokenDistributions)
+      .values(distribution)
+      .returning();
+    return created;
+  }
+
+  // Token grant methods
+  async grantTokensToFinder(finderId: string, amount: number, reason: string, grantedBy: string): Promise<TokenGrant> {
+    // Create grant record
+    const [grant] = await db
+      .insert(tokenGrants)
+      .values({
+        finderId,
+        amount,
+        reason,
+        grantedBy
+      })
+      .returning();
+
+    // Update finder token balance
+    const finder = await this.getFinder(finderId);
+    if (finder) {
+      const currentBalance = finder.findertokenBalance || 0;
+      await this.updateFinder(finderId, {
+        findertokenBalance: currentBalance + amount
+      });
+    }
+
+    return grant;
+  }
+
+  async getTokenGrants(finderId?: string): Promise<TokenGrant[]> {
+    const query = db.select().from(tokenGrants);
+    
+    if (finderId) {
+      return await query.where(eq(tokenGrants.finderId, finderId));
+    }
+    
+    return await query.orderBy(desc(tokenGrants.createdAt));
+  }
+
+  async getAllFindersForTokens(): Promise<Finder[]> {
+    // Get all finders whose users are not banned
+    const results = await db
+      .select({
+        id: finders.id,
+        userId: finders.userId,
+        jobsCompleted: finders.jobsCompleted,
+        totalEarned: finders.totalEarned,
+        availableBalance: finders.availableBalance,
+        averageRating: finders.averageRating,
+        currentLevelId: finders.currentLevelId,
+        bio: finders.bio,
+        category: finders.category,
+        skills: finders.skills,
+        hourlyRate: finders.hourlyRate,
+        availability: finders.availability,
+        phone: finders.phone,
+        isVerified: finders.isVerified,
+        findertokenBalance: finders.findertokenBalance,
+        createdAt: finders.createdAt,
+      })
+      .from(finders)
+      .innerJoin(users, eq(finders.userId, users.id))
+      .where(eq(users.isBanned, false));
+    
+    return results;
   }
 }
 

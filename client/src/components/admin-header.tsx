@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
-import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu, ChevronDown, TrendingUp } from "lucide-react";
+import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu, ChevronDown, TrendingUp, Coins } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 
 interface AdminHeaderProps {
@@ -41,6 +41,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
     },
     { path: "/admin/requests", label: "Finds", icon: FileText, id: "finds" },
     { path: "/admin/withdrawals", label: "Withdrawals", icon: DollarSign, id: "withdrawals" },
+    { path: "/admin/token-management", label: "Token Management", icon: Coins, id: "token-management" },
     { path: "/admin/blog-posts", label: "Blog Posts", icon: Edit, id: "blog-posts" },
     { path: "/admin/settings", label: "Settings", icon: Settings, id: "settings" },
   ];

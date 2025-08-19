@@ -1943,6 +1943,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Monthly token distribution - Admin can distribute monthly tokens to all finders
+  app.post("/api/admin/distribute-monthly-tokens", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const result = await storage.distributeMonthlyTokens();
+      
+      res.json({
+        message: "Monthly token distribution completed",
+        distributed: result.distributed,
+        alreadyDistributed: result.alreadyDistributed
+      });
+    } catch (error) {
+      console.error('Monthly token distribution error:', error);
+      res.status(500).json({ message: "Failed to distribute monthly tokens" });
+    }
+  });
+
+  // Grant tokens to a specific finder
+  app.post("/api/admin/grant-tokens", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { finderId, amount, reason } = req.body;
+      
+      if (!finderId || !amount || !reason) {
+        return res.status(400).json({ message: "Finder ID, amount, and reason are required" });
+      }
+
+      if (amount <= 0) {
+        return res.status(400).json({ message: "Amount must be positive" });
+      }
+
+      // Verify finder exists
+      const finder = await storage.getFinder(finderId);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder not found" });
+      }
+
+      // Grant tokens to finder
+      const grant = await storage.grantTokensToFinder(finderId, amount, reason, req.user.userId);
+      
+      res.json({
+        message: "Tokens granted successfully",
+        grant
+      });
+    } catch (error) {
+      console.error('Grant tokens error:', error);
+      res.status(500).json({ message: "Failed to grant tokens" });
+    }
+  });
+
+  // Get token grants history
+  app.get("/api/admin/token-grants", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { finderId } = req.query;
+      const grants = await storage.getTokenGrants(finderId as string);
+      
+      res.json(grants);
+    } catch (error) {
+      console.error('Get token grants error:', error);
+      res.status(500).json({ message: "Failed to fetch token grants" });
+    }
+  });
+
+  // Get monthly distribution history
+  app.get("/api/admin/monthly-distributions", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const now = new Date();
+      const month = parseInt(req.query.month as string) || (now.getMonth() + 1);
+      const year = parseInt(req.query.year as string) || now.getFullYear();
+      
+      const distributions = await storage.getMonthlyDistributions(month, year);
+      
+      res.json(distributions);
+    } catch (error) {
+      console.error('Get monthly distributions error:', error);
+      res.status(500).json({ message: "Failed to fetch monthly distributions" });
+    }
+  });
+
   // Get pricing info for token purchases
   app.get("/api/tokens/pricing", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {

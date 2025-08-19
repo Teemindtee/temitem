@@ -215,6 +215,24 @@ export const tokenCharges = pgTable("token_charges", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const monthlyTokenDistributions = pgTable("monthly_token_distributions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  finderId: varchar("finder_id").references(() => finders.id).notNull(),
+  month: integer("month").notNull(), // 1-12
+  year: integer("year").notNull(),
+  tokensGranted: integer("tokens_granted").default(20),
+  distributedAt: timestamp("distributed_at").defaultNow(),
+});
+
+export const tokenGrants = pgTable("token_grants", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  finderId: varchar("finder_id").references(() => finders.id).notNull(),
+  amount: integer("amount").notNull(), // number of tokens granted
+  reason: text("reason").notNull(), // reason for grant
+  grantedBy: varchar("granted_by").references(() => users.id).notNull(), // admin who granted
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   finder: one(finders, {
@@ -390,6 +408,24 @@ export const finderLevelsRelations = relations(finderLevels, ({ many }) => ({
   finders: many(finders),
 }));
 
+export const monthlyTokenDistributionsRelations = relations(monthlyTokenDistributions, ({ one }) => ({
+  finder: one(finders, {
+    fields: [monthlyTokenDistributions.finderId],
+    references: [finders.id],
+  }),
+}));
+
+export const tokenGrantsRelations = relations(tokenGrants, ({ one }) => ({
+  finder: one(finders, {
+    fields: [tokenGrants.finderId],
+    references: [finders.id],
+  }),
+  grantedBy: one(users, {
+    fields: [tokenGrants.grantedBy],
+    references: [users.id],
+  }),
+}));
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -485,6 +521,24 @@ export const insertTokenChargeSchema = createInsertSchema(tokenCharges).omit({
   id: true,
   createdAt: true,
 });
+
+export const insertMonthlyTokenDistributionSchema = createInsertSchema(monthlyTokenDistributions).omit({
+  id: true,
+  distributedAt: true,
+});
+
+export const insertTokenGrantSchema = createInsertSchema(tokenGrants).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Monthly Token Distribution Types
+export type MonthlyTokenDistribution = typeof monthlyTokenDistributions.$inferSelect;
+export type InsertMonthlyTokenDistribution = z.infer<typeof insertMonthlyTokenDistributionSchema>;
+
+// Token Grant Types  
+export type TokenGrant = typeof tokenGrants.$inferSelect;
+export type InsertTokenGrant = z.infer<typeof insertTokenGrantSchema>;
 
 export const insertConversationSchema = createInsertSchema(conversations).omit({
   id: true,
