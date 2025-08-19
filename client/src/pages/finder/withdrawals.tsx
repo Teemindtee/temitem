@@ -71,10 +71,10 @@ export default function WithdrawalSettings() {
   });
 
   const requestWithdrawalMutation = useMutation({
-    mutationFn: (amount: number) => apiRequest('POST', '/api/finder/withdraw', { 
-      amount,
-      paymentMethod: 'bank_transfer',
-      paymentDetails: formData 
+    mutationFn: (data: { amount: number; paymentDetails: any }) => apiRequest('POST', '/api/finder/withdraw', { 
+      amount: data.amount,
+      paymentMethod: 'Bank Transfer',
+      paymentDetails: data.paymentDetails
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/withdrawals'] });
@@ -107,13 +107,33 @@ export default function WithdrawalSettings() {
   };
 
   const handleWithdrawalRequest = () => {
-    const availableBalance = parseFloat(finder?.totalEarned || '0');
-    if (availableBalance >= parseInt(formData.minimumThreshold)) {
-      requestWithdrawalMutation.mutate(availableBalance);
+    // Convert from kobo to naira for display, but send kobo to backend
+    const availableBalanceKobo = parseFloat(finder?.availableBalance || '0');
+    const availableBalanceNaira = availableBalanceKobo / 100;
+    const minimumThresholdNaira = parseInt(formData.minimumThreshold);
+    const minimumThresholdKobo = minimumThresholdNaira * 100;
+    
+    if (availableBalanceKobo >= minimumThresholdKobo) {
+      // Calculate withdrawal fees (5% fee)
+      const feePercentage = 0.05;
+      const withdrawalFee = Math.round(availableBalanceKobo * feePercentage);
+      const netAmount = availableBalanceKobo - withdrawalFee;
+      
+      const paymentDetails = {
+        accountName: formData.accountHolder,
+        accountNumber: formData.accountNumber,
+        bankName: formData.bankName,
+        routingNumber: formData.routingNumber
+      };
+      
+      requestWithdrawalMutation.mutate({ 
+        amount: netAmount,
+        paymentDetails
+      });
     } else {
       toast({
         title: "Insufficient balance",
-        description: `Minimum withdrawal amount is $${formData.minimumThreshold}`,
+        description: `Minimum withdrawal amount is ₦${minimumThresholdNaira}`,
         variant: "destructive",
       });
     }
@@ -159,12 +179,16 @@ export default function WithdrawalSettings() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">Available Balance</h3>
-                  <p className="text-3xl font-bold text-green-600">${finder?.totalEarned || 0}</p>
-                  <p className="text-sm text-gray-600">Ready for withdrawal</p>
+                  <p className="text-3xl font-bold text-green-600">
+                    ₦{((parseFloat(finder?.availableBalance || '0')) / 100).toFixed(2)}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    After 5% withdrawal fee: ₦{((parseFloat(finder?.availableBalance || '0') * 0.95) / 100).toFixed(2)}
+                  </p>
                 </div>
                 <Button 
                   onClick={handleWithdrawalRequest}
-                  disabled={!finder?.totalEarned || parseFloat(finder.totalEarned) < parseInt(formData.minimumThreshold)}
+                  disabled={!finder?.availableBalance || parseFloat(finder.availableBalance) < (parseInt(formData.minimumThreshold) * 100)}
                   className="bg-finder-red hover:bg-finder-red-dark"
                 >
                   Request Withdrawal
@@ -247,7 +271,7 @@ export default function WithdrawalSettings() {
                     max="1000"
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Minimum amount before you can request a withdrawal (between $10 - $1000)</p>
+                <p className="text-xs text-gray-500 mt-1">Minimum amount before you can request a withdrawal (between ₦10 - ₦1000)</p>
               </div>
 
               {/* Update Button */}
@@ -286,7 +310,7 @@ export default function WithdrawalSettings() {
                         <div className="flex items-center gap-3 mb-2">
                           <div className="flex items-center gap-2">
                             <DollarSign className="w-4 h-4 text-gray-600" />
-                            <span className="font-semibold text-gray-900">${withdrawal.amount}</span>
+                            <span className="font-semibold text-gray-900">₦{(parseFloat(withdrawal.amount) / 100).toFixed(2)}</span>
                           </div>
                           <Badge className={getStatusColor(withdrawal.status)}>
                             {withdrawal.status}
