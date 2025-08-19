@@ -18,8 +18,9 @@ export default function MobileNav() {
   };
 
   const getPostPath = () => {
-    if (user?.role === 'client') return '/client/post-request';
-    if (user?.role === 'finder') return '/finder/browse-requests';
+    if (user?.role === 'client') return '/client/create-find';
+    // Finders cannot post finds, redirect to browse
+    if (user?.role === 'finder') return '/finder/browse-finds';
     return '/';
   };
 
@@ -48,8 +49,8 @@ export default function MobileNav() {
           <button className={`flex flex-col items-center justify-center space-y-1 ${
             isActive(getPostPath()) ? 'text-finder-red' : 'text-gray-500'
           }`}>
-            <Plus className="w-5 h-5" />
-            <span className="text-xs">Post</span>
+            {user?.role === 'client' ? <Plus className="w-5 h-5" /> : <Search className="w-5 h-5" />}
+            <span className="text-xs">{user?.role === 'client' ? 'Post' : 'Browse'}</span>
           </button>
         </Link>
         

@@ -48,10 +48,17 @@ export default function CreateRequest() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [step, setStep] = useState(1);
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or not a client
   useEffect(() => {
     if (!user) {
       navigate("/login");
+      return;
+    }
+    
+    // Only clients can create finds
+    if (user.role !== 'client') {
+      navigate("/"); // Redirect to home page
+      return;
     }
   }, [user, navigate]);
 
