@@ -306,7 +306,7 @@ export default function ConversationDetail() {
               ) : (
                 /* Messages List */
                 messages.map((message) => {
-                  const isOwnMessage = message.senderId === user.userId;
+                  const isOwnMessage = message.senderId === user.id;
                   const messageTime = new Date(message.createdAt);
                   
                   return (
