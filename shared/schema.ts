@@ -533,7 +533,16 @@ export const insertTokenGrantSchema = createInsertSchema(tokenGrants).omit({
 });
 
 // Monthly Token Distribution Types
-export type MonthlyTokenDistribution = typeof monthlyTokenDistributions.$inferSelect;
+export type MonthlyTokenDistribution = typeof monthlyTokenDistributions.$inferSelect & {
+  finder?: {
+    id: string;
+    user?: {
+      firstName: string | null;
+      lastName: string | null;
+      email: string;
+    };
+  };
+};
 export type InsertMonthlyTokenDistribution = z.infer<typeof insertMonthlyTokenDistributionSchema>;
 
 // Token Grant Types  

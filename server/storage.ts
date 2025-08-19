@@ -1580,13 +1580,46 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMonthlyDistributions(month: number, year: number): Promise<MonthlyTokenDistribution[]> {
-    return await db
-      .select()
+    const result = await db
+      .select({
+        id: monthlyTokenDistributions.id,
+        finderId: monthlyTokenDistributions.finderId,
+        month: monthlyTokenDistributions.month,
+        year: monthlyTokenDistributions.year,
+        tokensGranted: monthlyTokenDistributions.tokensGranted,
+        distributedAt: monthlyTokenDistributions.distributedAt,
+        // Finder fields
+        finderId_finder: finders.id,
+        // User fields
+        userFirstName: users.firstName,
+        userLastName: users.lastName,
+        userEmail: users.email,
+      })
       .from(monthlyTokenDistributions)
+      .innerJoin(finders, eq(monthlyTokenDistributions.finderId, finders.id))
+      .innerJoin(users, eq(finders.userId, users.id))
       .where(and(
         eq(monthlyTokenDistributions.month, month),
         eq(monthlyTokenDistributions.year, year)
-      ));
+      ))
+      .orderBy(desc(monthlyTokenDistributions.distributedAt));
+
+    return result.map(row => ({
+      id: row.id,
+      finderId: row.finderId,
+      month: row.month,
+      year: row.year,
+      tokensGranted: row.tokensGranted,
+      distributedAt: row.distributedAt,
+      finder: {
+        id: row.finderId_finder,
+        user: {
+          firstName: row.userFirstName,
+          lastName: row.userLastName,
+          email: row.userEmail,
+        },
+      },
+    }));
   }
 
   async hasReceivedMonthlyTokens(finderId: string, month: number, year: number): Promise<boolean> {

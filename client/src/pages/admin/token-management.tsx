@@ -451,10 +451,10 @@ export default function TokenManagement() {
                           <User className="h-4 w-4 text-muted-foreground" />
                           <div>
                             <div className="font-medium">
-                              {distribution.finder.user.firstName} {distribution.finder.user.lastName}
+                              {distribution.finder?.user?.firstName || 'Unknown'} {distribution.finder?.user?.lastName || 'User'}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {distribution.finder.user.email}
+                              {distribution.finder?.user?.email || 'No email available'}
                             </div>
                           </div>
                         </div>
