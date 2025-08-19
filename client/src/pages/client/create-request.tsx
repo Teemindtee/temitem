@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import ClientHeader from "@/components/client-header";
 import { 
   Search, 
   ArrowLeft, 
@@ -288,29 +289,7 @@ export default function CreateRequest() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Mobile-optimized Header */}
-      <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            <button 
-              onClick={() => navigate("/client/dashboard")} 
-              className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-100"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="font-medium text-sm sm:text-base">Back</span>
-            </button>
-            
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200 text-xs sm:text-sm">
-                Step {step}/3
-              </Badge>
-              <div className="text-xs sm:text-sm text-slate-500 hidden sm:block">
-                {user.firstName}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <ClientHeader currentPage="create-find" />
 
       {/* Mobile Progress Bar */}
       <div className="bg-white/60 border-b border-slate-200/60">

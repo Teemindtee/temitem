@@ -15,6 +15,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import ClientHeader from "@/components/client-header";
 import { 
   Search, 
   Filter,
@@ -184,31 +185,7 @@ export default function BrowseRequests() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Briefcase className="w-4 h-4 text-blue-600" />
-              </div>
-              <h1 className="text-lg sm:text-xl font-bold text-slate-900">My Finds</h1>
-            </div>
-            
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Button 
-                onClick={() => navigate("/client/create-find")}
-                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                size="sm"
-              >
-                <Plus className="w-4 h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Create Find</span>
-                <span className="sm:hidden">New</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <ClientHeader currentPage="finds" />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">

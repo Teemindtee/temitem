@@ -39,6 +39,7 @@ import {
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
+import ClientHeader from "@/components/client-header";
 
 export default function ClientProfile() {
   const [, navigate] = useLocation();
@@ -146,7 +147,7 @@ export default function ClientProfile() {
     completedFinds: 2,
     totalSpent: 45000,
     avgRating: 4.8,
-    joinDate: user.createdAt || new Date().toISOString()
+    joinDate: new Date().toISOString()
   };
 
   return (
@@ -157,27 +158,7 @@ export default function ClientProfile() {
       <div className="absolute top-0 -right-4 w-72 h-72 bg-slate-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000 -z-10" />
       <div className="absolute -bottom-8 left-20 w-72 h-72 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000 -z-10" style={{ backgroundColor: "hsl(1, 81%, 73%)" }} />
 
-      {/* Header */}
-      <header className="bg-white/95 backdrop-blur-lg border-b border-white/20 sticky top-0 z-50 shadow-lg shadow-slate-200/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-18">
-            <button 
-              onClick={() => navigate("/client/dashboard")} 
-              className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-all duration-200 p-2 -ml-2 rounded-xl hover:bg-white/80 hover:shadow-md group"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
-              <span className="font-semibold text-sm sm:text-base">Dashboard</span>
-            </button>
-            
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <Badge className="text-white border-0 text-xs sm:text-sm px-3 py-1.5 shadow-lg" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
-                <User className="w-3 h-3 mr-1.5" />
-                Client Account
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </header>
+      <ClientHeader currentPage="profile" />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -189,7 +170,7 @@ export default function ClientProfile() {
               <CardContent className="p-8 sm:p-10 text-center">
                 <div className="relative mb-8">
                   <div className="relative">
-                    <Avatar className="w-24 h-24 sm:w-28 sm:h-28 mx-auto border-4 border-white shadow-2xl ring-4 transition-all duration-300 group-hover:ring-opacity-70" style={{ ringColor: "hsl(1, 81%, 90%)" }}>
+                    <Avatar className="w-24 h-24 sm:w-28 sm:h-28 mx-auto border-4 border-white shadow-2xl ring-4 transition-all duration-300 group-hover:ring-opacity-70 ring-red-200">
                       <AvatarFallback className="text-white text-2xl sm:text-3xl font-bold" style={{ background: "linear-gradient(to bottom right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                         {((user.firstName || "") + (user.lastName || ""))
                           .split(' ')

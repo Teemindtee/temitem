@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
+import ClientHeader from "@/components/client-header";
 
 interface FindDetails {
   id: string;
@@ -137,22 +138,7 @@ export default function RequestDetails() {
   if (findLoading || proposalsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-14 sm:h-16">
-              <button 
-                onClick={() => navigate("/client/dashboard")} 
-                className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-100"
-              >
-                <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
-                <span className="font-medium text-sm sm:text-base">Dashboard</span>
-              </button>
-              <div className="text-xs sm:text-sm text-slate-500">
-                Loading...
-              </div>
-            </div>
-          </div>
-        </header>
+        <ClientHeader currentPage="finds" />
 
         <main className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="animate-pulse space-y-6">
@@ -212,29 +198,7 @@ export default function RequestDetails() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            <button 
-              onClick={() => navigate("/client/dashboard")} 
-              className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-100"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="font-medium text-sm sm:text-base">Dashboard</span>
-            </button>
-            
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Badge className={`text-xs sm:text-sm ${statusColor}`}>
-                {statusIcon} {find.status.charAt(0).toUpperCase() + find.status.slice(1)}
-              </Badge>
-              <div className="text-xs sm:text-sm text-slate-500 hidden sm:block">
-                Find #{findId?.slice(-8).toUpperCase()}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <ClientHeader currentPage="finds" />
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">

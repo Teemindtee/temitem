@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import ClientHeader from "@/components/client-header";
 import { 
   ArrowLeft, 
   User, 
@@ -122,29 +123,7 @@ export default function ViewProposals() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            <button 
-              onClick={() => navigate("/client/dashboard")} 
-              className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-100"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="font-medium text-sm sm:text-base">Dashboard</span>
-            </button>
-            
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200 text-xs sm:text-sm">
-                {proposals.length} Proposals
-              </Badge>
-              <div className="text-xs sm:text-sm text-slate-500 hidden sm:block">
-                {user.firstName} {user.lastName}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <ClientHeader currentPage="proposals" />
 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">

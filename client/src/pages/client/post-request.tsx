@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { AuthService } from "@/lib/auth";
+import ClientHeader from "@/components/client-header";
 
 export default function PostRequest() {
   const [, setLocation] = useLocation();
@@ -97,8 +98,8 @@ export default function PostRequest() {
   };
 
   return (
-    <div className="min-h-screen bg-finder-gray">
-      <Navigation />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <ClientHeader currentPage="create-find" />
 
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card>
