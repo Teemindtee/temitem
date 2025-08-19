@@ -72,6 +72,7 @@ function Router() {
       <Route path="/client/contracts" component={ClientContracts} />
       <Route path="/client/contracts/:contractId" component={ContractDetails} />
       <Route path="/client/browse-finds" component={ClientBrowseRequests} />
+      <Route path="/client/browse-requests" component={ClientBrowseRequests} />
       <Route path="/client/finds" component={ClientBrowseRequests} />
       <Route path="/client/profile" component={ClientProfile} />
       <Route path="/client/change-password" component={ChangePassword} />

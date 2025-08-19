@@ -133,48 +133,37 @@ export default function BrowseRequests() {
   // Redirect if not authenticated or not client
   if (!user || user.role !== 'client') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-10 h-10 text-red-600" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-96 p-8 text-center">
+          <div className="w-20 h-20 bg-finder-red/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <User className="w-10 h-10 text-finder-red" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
-          <p className="text-slate-600 mb-6">This page is only accessible by clients.</p>
-          <Button onClick={() => navigate("/login")} className="bg-blue-600 hover:bg-blue-700">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-gray-600 mb-6">This page is only accessible by clients.</p>
+          <Button onClick={() => navigate("/login")} className="bg-finder-red hover:bg-finder-red/90">
             Sign In
           </Button>
-        </div>
+        </Card>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-        <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-14 sm:h-16">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Briefcase className="w-4 h-4 text-blue-600" />
-                </div>
-                <h1 className="text-lg sm:text-xl font-bold text-slate-900">My Finds</h1>
-              </div>
-              <div className="text-xs sm:text-sm text-slate-500">Loading...</div>
-            </div>
-          </div>
-        </header>
+      <div className="min-h-screen bg-gray-50">
+        <ClientHeader currentPage="finds" />
 
-        <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="animate-pulse space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-24 bg-white/70 backdrop-blur-sm rounded-2xl"></div>
+                <div key={i} className="h-24 bg-white border border-gray-200 rounded-lg"></div>
               ))}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="h-24 bg-white border border-gray-200 rounded-lg"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="h-64 bg-white/70 backdrop-blur-sm rounded-2xl"></div>
+                <div key={i} className="h-64 bg-white border border-gray-200 rounded-lg"></div>
               ))}
             </div>
           </div>
@@ -184,73 +173,73 @@ export default function BrowseRequests() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gray-50">
       <ClientHeader currentPage="finds" />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          <Card className="bg-white/70 backdrop-blur-sm border-slate-200/60 shadow-xl">
+          <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-6 text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                <Target className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-finder-red/10 rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                <Target className="w-5 h-5 sm:w-6 sm:h-6 text-finder-red" />
               </div>
-              <div className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">{stats.total}</div>
-              <div className="text-xs sm:text-sm text-slate-600">Total Finds</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{stats.total}</div>
+              <div className="text-xs sm:text-sm text-gray-500">Total Finds</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/70 backdrop-blur-sm border-slate-200/60 shadow-xl">
+          <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-6 text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3">
                 <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
               </div>
-              <div className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">{stats.active}</div>
-              <div className="text-xs sm:text-sm text-slate-600">Active Finds</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{stats.active}</div>
+              <div className="text-xs sm:text-sm text-gray-500">Active Finds</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/70 backdrop-blur-sm border-slate-200/60 shadow-xl">
+          <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-6 text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
-                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
-              <div className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">{stats.totalProposals}</div>
-              <div className="text-xs sm:text-sm text-slate-600">Total Proposals</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{stats.totalProposals}</div>
+              <div className="text-xs sm:text-sm text-gray-500">Total Proposals</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/70 backdrop-blur-sm border-slate-200/60 shadow-xl">
+          <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 sm:p-6 text-center">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-2 sm:mb-3">
                 <Award className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
               </div>
-              <div className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">{stats.completed}</div>
-              <div className="text-xs sm:text-sm text-slate-600">Completed</div>
+              <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{stats.completed}</div>
+              <div className="text-xs sm:text-sm text-gray-500">Completed</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Search and Filters */}
-        <Card className="bg-white/70 backdrop-blur-sm border-slate-200/60 shadow-xl mb-8">
+        <Card className="bg-white border border-gray-200 shadow-sm mb-8">
           <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-6">
               {/* Search */}
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="Search your finds..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white border-slate-200 focus:border-blue-300 focus:ring-blue-200"
+                  className="pl-10 bg-white border-gray-300 focus:border-finder-red focus:ring-finder-red/20"
                 />
               </div>
 
               {/* Filters */}
               <div className="flex flex-col sm:flex-row gap-3">
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="w-full sm:w-40 bg-white border-slate-200">
+                  <SelectTrigger className="w-full sm:w-40 bg-white border-gray-300">
                     <SelectValue placeholder="Category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -264,7 +253,7 @@ export default function BrowseRequests() {
                 </Select>
 
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-full sm:w-40 bg-white border-slate-200">
+                  <SelectTrigger className="w-full sm:w-40 bg-white border-gray-300">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
@@ -281,7 +270,7 @@ export default function BrowseRequests() {
                     variant={viewMode === "grid" ? "default" : "outline"}
                     size="sm"
                     onClick={() => setViewMode("grid")}
-                    className="flex-1 sm:flex-none"
+                    className={`flex-1 sm:flex-none ${viewMode === "grid" ? "bg-finder-red hover:bg-finder-red/90" : ""}`}
                   >
                     <Grid className="w-4 h-4" />
                   </Button>
@@ -289,7 +278,7 @@ export default function BrowseRequests() {
                     variant={viewMode === "list" ? "default" : "outline"}
                     size="sm"
                     onClick={() => setViewMode("list")}
-                    className="flex-1 sm:flex-none"
+                    className={`flex-1 sm:flex-none ${viewMode === "list" ? "bg-finder-red hover:bg-finder-red/90" : ""}`}
                   >
                     <List className="w-4 h-4" />
                   </Button>
@@ -301,15 +290,15 @@ export default function BrowseRequests() {
 
         {/* Results */}
         {filteredFinds.length === 0 ? (
-          <Card className="bg-white/70 backdrop-blur-sm border-slate-200/60 shadow-xl">
+          <Card className="bg-white border border-gray-200 shadow-sm">
             <CardContent className="py-16 text-center">
               {searchQuery || selectedCategory ? (
                 <>
-                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Search className="w-8 h-8 text-slate-400" />
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Search className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-900 mb-2">No results found</h3>
-                  <p className="text-slate-600 mb-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No results found</h3>
+                  <p className="text-gray-600 mb-6">
                     Try adjusting your search terms or filters to find what you're looking for.
                   </p>
                   <Button 
@@ -318,23 +307,23 @@ export default function BrowseRequests() {
                       setSelectedCategory("");
                     }}
                     variant="outline"
-                    className="border-slate-200 hover:bg-slate-50"
+                    className="border-gray-300 hover:bg-gray-50"
                   >
                     Clear Filters
                   </Button>
                 </>
               ) : (
                 <>
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Target className="w-8 h-8 text-blue-600" />
+                  <div className="w-16 h-16 bg-finder-red/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Target className="w-8 h-8 text-finder-red" />
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-900 mb-2">No finds yet</h3>
-                  <p className="text-slate-600 mb-6">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No finds yet</h3>
+                  <p className="text-gray-600 mb-6">
                     Create your first find to connect with talented finders.
                   </p>
                   <Button 
                     onClick={() => navigate("/client/create-find")}
-                    className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="bg-finder-red hover:bg-finder-red/90 text-white shadow-sm hover:shadow-md transition-all duration-200"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Create Your First Find
@@ -344,7 +333,7 @@ export default function BrowseRequests() {
             </CardContent>
           </Card>
         ) : (
-          <div className={`grid gap-6 ${
+          <div className={`grid gap-4 ${
             viewMode === "grid" 
               ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
               : "grid-cols-1"
@@ -356,70 +345,77 @@ export default function BrowseRequests() {
               return (
                 <Card 
                   key={find.id}
-                  className="bg-white/70 backdrop-blur-sm border-slate-200/60 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer group"
+                  className="bg-white border border-gray-200 shadow-sm hover:shadow-lg hover:border-gray-300 transition-all duration-200 cursor-pointer group"
                   onClick={() => navigate(`/client/finds/${find.id}`)}
                 >
-                  <CardHeader className="pb-4">
+                  {/* Header */}
+                  <div className="p-5 pb-4 border-b border-gray-100">
                     <div className="flex items-start justify-between mb-3">
-                      <Badge className={`text-xs ${statusInfo.color}`}>
-                        {statusInfo.icon} {statusInfo.label}
+                      <Badge 
+                        variant="secondary"
+                        className={`text-xs font-medium px-2.5 py-1 ${
+                          find.status === 'active' ? 'bg-green-100 text-green-700 border-green-200' :
+                          find.status === 'completed' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                          find.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-200' :
+                          'bg-yellow-100 text-yellow-700 border-yellow-200'
+                        }`}
+                      >
+                        {find.status === 'active' ? '🚀 Active' :
+                         find.status === 'completed' ? '✅ Completed' :
+                         find.status === 'cancelled' ? '❌ Cancelled' :
+                         '⏳ Pending'}
                       </Badge>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-gray-500">
                         {formatDistanceToNow(new Date(find.createdAt))} ago
                       </div>
                     </div>
                     
-                    <CardTitle className="text-lg sm:text-xl text-slate-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-finder-red transition-colors leading-tight">
                       {find.title}
-                    </CardTitle>
+                    </h3>
                     
-                    <p className="text-slate-600 text-sm leading-relaxed line-clamp-3">
+                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
                       {find.description}
                     </p>
-                  </CardHeader>
+                  </div>
                   
-                  <CardContent className="pt-0">
+                  {/* Content */}
+                  <div className="p-5">
                     <div className="space-y-4">
                       {/* Budget and Timeline */}
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="flex items-center space-x-2">
-                          <DollarSign className="w-4 h-4 text-green-600" />
-                          <div>
-                            <div className="text-xs text-slate-500">Budget</div>
-                            <div className="text-sm font-semibold text-green-600">
-                              ₦{parseInt(find.budgetMin || "0").toLocaleString()} - ₦{parseInt(find.budgetMax || "0").toLocaleString()}
-                            </div>
+                        <div className="space-y-1">
+                          <div className="text-xs text-gray-500 font-medium">Budget</div>
+                          <div className="text-sm font-semibold text-green-600">
+                            ₦{parseInt(find.budgetMin || "0").toLocaleString()} - ₦{parseInt(find.budgetMax || "0").toLocaleString()}
                           </div>
                         </div>
                         
-                        <div className="flex items-center space-x-2">
-                          <Clock className="w-4 h-4 text-amber-600" />
-                          <div>
-                            <div className="text-xs text-slate-500">Timeline</div>
-                            <div className="text-sm font-semibold text-amber-600">
-                              {find.timeframe || "Flexible"}
-                            </div>
+                        <div className="space-y-1">
+                          <div className="text-xs text-gray-500 font-medium">Timeline</div>
+                          <div className="text-sm font-semibold text-gray-700">
+                            {find.timeframe || "Flexible"}
                           </div>
                         </div>
                       </div>
 
-                      {/* Category and Proposals */}
+                      {/* Category and Stats */}
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Tag className="w-4 h-4 text-purple-600" />
-                          <Badge variant="outline" className="text-xs capitalize border-purple-200 text-purple-700">
-                            {find.category}
-                          </Badge>
-                        </div>
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs capitalize border-finder-red/20 text-finder-red bg-finder-red/5"
+                        >
+                          {find.category}
+                        </Badge>
                         
-                        <div className="flex items-center space-x-4 text-xs text-slate-500">
+                        <div className="flex items-center space-x-3 text-xs text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Users className="w-3 h-3" />
-                            <span>{proposalCount} proposals</span>
+                            <span>{proposalCount}</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Eye className="w-3 h-3" />
-                            <span>127 views</span>
+                            <span>127</span>
                           </div>
                         </div>
                       </div>
@@ -427,15 +423,15 @@ export default function BrowseRequests() {
                       {/* Action Button */}
                       <div className="pt-2">
                         <Button 
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 group-hover:bg-blue-700"
+                          className="w-full bg-finder-red hover:bg-finder-red/90 text-white transition-all duration-200 text-sm font-medium"
                           size="sm"
                         >
                           <span>View Details</span>
-                          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
                         </Button>
                       </div>
                     </div>
-                  </CardContent>
+                  </div>
                 </Card>
               );
             })}
@@ -445,7 +441,7 @@ export default function BrowseRequests() {
         {/* Results Summary */}
         {filteredFinds.length > 0 && (
           <div className="mt-8 text-center">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-gray-500">
               Showing {filteredFinds.length} of {finds.length} finds
               {searchQuery && ` for "${searchQuery}"`}
               {selectedCategory && ` in ${selectedCategory}`}
