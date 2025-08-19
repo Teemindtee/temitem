@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Clock, CheckCircle, Search, User as UserIcon, FileText, Eye, Cog, ChevronRight, FileEdit, MessageCircle } from "lucide-react";
 import ClientHeader from "@/components/client-header";
 import { apiRequest } from "@/lib/queryClient";
-import type { Request, Proposal, User } from "@shared/schema";
+import type { Find, Proposal, User } from "@shared/schema";
 
 export default function ClientDashboard() {
   const { user, logout } = useAuth();
@@ -17,7 +17,7 @@ export default function ClientDashboard() {
   // Check if mobile view is needed
   const isMobile = window.innerWidth < 640;
 
-  const { data: requests = [], isLoading: requestsLoading } = useQuery<Request[]>({
+  const { data: requests = [], isLoading: requestsLoading } = useQuery<Find[]>({
     queryKey: ['/api/client/finds'],
     enabled: !!user && user.role === 'client'
   });
@@ -64,6 +64,7 @@ export default function ClientDashboard() {
 
     return (
       <div className="min-h-screen bg-gray-50">
+        <ClientHeader currentPage="dashboard" />
         {/* Mobile Phone Frame */}
         <div className="max-w-sm mx-auto min-h-screen bg-white shadow-2xl border border-gray-200 rounded-2xl overflow-hidden">
           {/* Header with User Profile */}
@@ -210,7 +211,7 @@ export default function ClientDashboard() {
                 <Clock className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Active Find(s)</h3>
-              <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Request) => r.status === 'open').length}</p>
+              <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Find) => r.status === 'open').length}</p>
               <p className="text-gray-600 text-sm">Finds waiting for proposals</p>
             </CardContent>
           </Card>
@@ -221,7 +222,7 @@ export default function ClientDashboard() {
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">Completed Find(s)</h3>
-              <p className="text-2xl font-bold text-green-600 mb-2">{requests.filter((r: Request) => r.status === 'completed').length}</p>
+              <p className="text-2xl font-bold text-green-600 mb-2">{requests.filter((r: Find) => r.status === 'completed').length}</p>
               <p className="text-gray-600 text-sm">Successfully completed finds</p>
             </CardContent>
           </Card>
@@ -261,7 +262,7 @@ export default function ClientDashboard() {
                   </Link>
                 </div>
               ) : (
-                requests.slice(0, 3).map((request: Request) => (
+                requests.slice(0, 3).map((request: Find) => (
                   <div key={request.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-medium text-gray-900">{request.title}</h4>
