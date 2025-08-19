@@ -800,8 +800,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if contract is already funded
+      console.log(`Contract ${contractId} escrow status: ${contract.escrowStatus}`);
       if (contract.escrowStatus === 'funded' || contract.escrowStatus === 'held') {
-        return res.status(400).json({ message: "Contract is already funded" });
+        return res.status(400).json({ 
+          message: "Contract is already funded",
+          escrowStatus: contract.escrowStatus 
+        });
       }
 
       // Get user details for payment

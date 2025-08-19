@@ -269,16 +269,16 @@ export default function ContractDetails() {
                 </div>
                 
                 <div className={`flex flex-col items-center p-2 rounded-lg ${
-                  contract.escrowStatus === 'funded' ? 'bg-green-50' : 'bg-slate-50'
+                  contract.escrowStatus === 'funded' || contract.escrowStatus === 'held' ? 'bg-green-50' : 'bg-slate-50'
                 }`}>
                   <Shield className={`w-4 h-4 mb-1 ${
-                    contract.escrowStatus === 'funded' ? 'text-green-600' : 'text-slate-400'
+                    contract.escrowStatus === 'funded' || contract.escrowStatus === 'held' ? 'text-green-600' : 'text-slate-400'
                   }`} />
                   <span className={`font-medium ${
-                    contract.escrowStatus === 'funded' ? 'text-green-700' : 'text-slate-500'
+                    contract.escrowStatus === 'funded' || contract.escrowStatus === 'held' ? 'text-green-700' : 'text-slate-500'
                   }`}>Payment</span>
-                  <span className={contract.escrowStatus === 'funded' ? 'text-green-600' : 'text-slate-400'}>
-                    {contract.escrowStatus === 'funded' ? 'Secured' : 'Pending'}
+                  <span className={contract.escrowStatus === 'funded' || contract.escrowStatus === 'held' ? 'text-green-600' : 'text-slate-400'}>
+                    {contract.escrowStatus === 'funded' || contract.escrowStatus === 'held' ? 'Secured' : 'Pending'}
                   </span>
                 </div>
                 
@@ -537,7 +537,7 @@ export default function ContractDetails() {
                     <div>
                       <p className="text-sm text-blue-700">Escrow Status</p>
                       <p className="font-semibold text-blue-800 capitalize">
-                        {contract.escrowStatus === 'funded' ? '🔒 Secured' : '⏳ Processing'}
+                        {contract.escrowStatus === 'funded' || contract.escrowStatus === 'held' ? '🔒 Secured' : '⏳ Processing'}
                       </p>
                     </div>
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -588,7 +588,7 @@ export default function ContractDetails() {
                 <h3 className="font-semibold text-slate-900 mb-4">Quick Actions</h3>
                 <div className="space-y-3">
                   {/* Payment Button - Show only if contract is not funded */}
-                  {contract.escrowStatus !== 'funded' && (
+                  {contract.escrowStatus !== 'funded' && contract.escrowStatus !== 'held' && (
                     <Button 
                       onClick={handleInitiatePayment}
                       disabled={initializePaymentMutation.isPending}
