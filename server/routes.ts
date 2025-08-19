@@ -2067,10 +2067,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const withdrawals = await storage.getWithdrawals();
+      const withdrawals = await storage.getWithdrawalRequests();
       res.json(withdrawals);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch withdrawal finds" });
+      console.error('Withdrawals API error:', error);
+      res.status(500).json({ message: "Failed to fetch withdrawal requests", error: error.message });
     }
   });
 
@@ -2087,7 +2088,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid status" });
       }
 
-      const withdrawal = await storage.updateWithdrawal(id, {
+      const withdrawal = await storage.updateWithdrawalRequest(id, {
         status,
         adminNotes,
         processedBy: req.user.userId
@@ -2126,7 +2127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Insufficient balance" });
       }
 
-      const withdrawal = await storage.createWithdrawal({
+      const withdrawal = await storage.createWithdrawalRequest({
         finderId: finder.id,
         amount,
         paymentMethod,
