@@ -279,7 +279,10 @@ export default function TokenManagement() {
                         </SelectTrigger>
                         <SelectContent>
                           {finders.map((finder: any) => (
-                            <SelectItem key={finder.id} value={finder.id}>
+                            <SelectItem 
+                              key={finder.id} 
+                              value={finder.finders?.[0]?.id || finder.id}
+                            >
                               {finder.firstName} {finder.lastName} ({finder.email})
                               {finder.finders?.[0] && (
                                 <span className="ml-2 text-muted-foreground">
