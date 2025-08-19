@@ -29,6 +29,13 @@ export default function FinderRequestDetails() {
     notes: ""
   });
 
+  // Format currency in Naira
+  const formatCurrency = (amount: string | number | null) => {
+    if (amount === null || amount === undefined) return '₦0.00';
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return `₦${(numAmount / 100).toFixed(2)}`;
+  };
+
   const findId = paramsFinds?.id || paramsRequests?.id;
 
   const { data: find, isLoading: findLoading, error: findError } = useQuery<Find>({
@@ -161,7 +168,7 @@ export default function FinderRequestDetails() {
                       <h3 className="font-semibold text-gray-900 mb-2">Budget Range</h3>
                       <div className="flex items-center text-lg font-semibold text-green-600">
                         <DollarSign className="w-5 h-5 mr-1" />
-                        ${find.budgetMin} - ${find.budgetMax}
+                        {formatCurrency(find.budgetMin)} - {formatCurrency(find.budgetMax)}
                       </div>
                     </div>
                   </div>
@@ -198,7 +205,7 @@ export default function FinderRequestDetails() {
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <h4 className="font-semibold mb-1">Price</h4>
-                        <p className="text-gray-700">${userProposal.price}</p>
+                        <p className="text-gray-700">{formatCurrency(userProposal.price)}</p>
                       </div>
                       <div>
                         <h4 className="font-semibold mb-1">Timeline</h4>
