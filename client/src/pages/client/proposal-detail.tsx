@@ -8,8 +8,10 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, User, Clock, DollarSign } from "lucide-react";
 import ClientHeader from "@/components/client-header";
 import StartConversationButton from "@/components/StartConversationButton";
+import { PaymentModal } from "@/components/PaymentModal";
 import { apiRequest } from "@/lib/queryClient";
 import type { Proposal } from "@shared/schema";
+import { useState } from "react";
 
 type ProposalWithDetails = Proposal & {
   finder: {
@@ -33,6 +35,15 @@ export default function ProposalDetail() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const proposalId = params.id as string;
+  const [paymentModal, setPaymentModal] = useState<{
+    isOpen: boolean;
+    contractId?: string;
+    amount?: number;
+    paymentUrl?: string;
+    reference?: string;
+    findTitle?: string;
+    finderName?: string;
+  }>({ isOpen: false });
   
   const { data: proposal, isLoading } = useQuery<ProposalWithDetails>({
     queryKey: ['/api/proposals', proposalId],
@@ -43,14 +54,35 @@ export default function ProposalDetail() {
     mutationFn: async (id: string) => {
       return apiRequest("POST", `/api/proposals/${id}/accept`, {});
     },
-    onSuccess: () => {
+    onSuccess: (response: any) => {
       queryClient.invalidateQueries({ queryKey: ['/api/proposals', proposalId] });
       queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
       queryClient.invalidateQueries({ queryKey: ['/api/client/proposals'] });
-      toast({
-        title: "Proposal Accepted!",
-        description: "The proposal has been accepted and a contract has been created.",
-      });
+      
+      // Check if payment is required
+      if (response.payment && response.payment.required) {
+        // Show payment modal
+        setPaymentModal({
+          isOpen: true,
+          contractId: response.contract.id,
+          amount: response.payment.amount,
+          paymentUrl: response.payment.paymentUrl,
+          reference: response.payment.reference,
+          findTitle: proposal?.request.title || "Find Request",
+          finderName: proposal ? `${proposal.finder.user.firstName} ${proposal.finder.user.lastName}` : "Finder"
+        });
+        
+        toast({
+          title: "Proposal Accepted!",
+          description: "Please fund the escrow to begin work.",
+        });
+      } else {
+        // Standard acceptance (no payment required)
+        toast({
+          title: "Proposal Accepted!",
+          description: "The proposal has been accepted and a contract has been created.",
+        });
+      }
     },
     onError: (error: any) => {
       toast({
@@ -148,19 +180,20 @@ export default function ProposalDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <ClientHeader />
-      
-      <div className="container mx-auto py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center mb-6">
-            <Link href="/client/proposals">
-              <Button variant="ghost" size="sm" className="mr-4">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Proposals
-              </Button>
-            </Link>
-            <div>
+    <>
+      <div className="min-h-screen bg-gray-50">
+        <ClientHeader />
+        
+        <div className="container mx-auto py-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center mb-6">
+              <Link href="/client/proposals">
+                <Button variant="ghost" size="sm" className="mr-4">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Proposals
+                </Button>
+              </Link>
+              <div>
               <h1 className="text-2xl font-bold text-gray-900">Proposal Details</h1>
               <p className="text-gray-600">for "{proposal.request.title}"</p>
             </div>
@@ -259,5 +292,31 @@ export default function ProposalDetail() {
         </div>
       </div>
     </div>
+
+    {/* Payment Modal */}
+    {paymentModal.isOpen && paymentModal.contractId && (
+      <PaymentModal
+        isOpen={paymentModal.isOpen}
+        onClose={() => setPaymentModal({ isOpen: false })}
+        contractId={paymentModal.contractId}
+        amount={paymentModal.amount || 0}
+        paymentUrl={paymentModal.paymentUrl || ''}
+        reference={paymentModal.reference || ''}
+        findTitle={paymentModal.findTitle || 'Find Request'}
+        finderName={paymentModal.finderName || 'Finder'}
+        onPaymentSuccess={() => {
+          // Refresh proposal data after payment
+          queryClient.invalidateQueries({ queryKey: ['/api/proposals', proposalId] });
+          queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
+          queryClient.invalidateQueries({ queryKey: ['/api/client/proposals'] });
+          
+          toast({
+            title: "Payment Successful!",
+            description: "Escrow has been funded. Work can now begin.",
+          });
+        }}
+      />
+    )}
+    </>
   );
 }

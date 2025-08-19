@@ -697,20 +697,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update proposal status
       await storage.updateProposal(id, { status: 'accepted' });
 
-      // Create contract
+      // Create contract with pending escrow status (payment required)
       const contract = await storage.createContract({
         findId: proposal.findId,
         proposalId: proposal.id,
         clientId: request.clientId,
         finderId: proposal.finderId,
         amount: proposal.price,
-        escrowStatus: 'held'
+        escrowStatus: 'pending'
       });
 
-      // Update request status to in progress
-      await storage.updateFind(proposal.findId, { status: 'in progress' });
+      // Generate payment information
+      const paystackService = new PaystackService();
+      const reference = paystackService.generateTransactionReference(request.clientId);
+      
+      // Initialize payment for escrow funding
+      let paymentUrl = null;
+      try {
+        const paymentData = await paystackService.initializeTransaction(
+          clientUser.email,
+          proposal.price,
+          reference,
+          {
+            contractId: contract.id,
+            type: 'escrow_funding',
+            findTitle: request.title,
+            finderName: finderUser ? `${finderUser.firstName} ${finderUser.lastName}` : 'Unknown Finder'
+          }
+        );
+        paymentUrl = paymentData.authorization_url;
+      } catch (paymentError) {
+        console.error('Failed to initialize payment:', paymentError);
+        // Don't fail the request, just log the error
+      }
 
-      // Send email notification to finder about being hired
+      // Keep request status as active until payment is confirmed
+      // Status will be updated to 'in progress' after successful payment
+
+      // Send email notification to finder about being hired (pending payment)
       if (finderUser && clientUser) {
         try {
           await emailService.notifyFinderHired(
@@ -724,14 +748,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      res.json({ proposal, contract });
+      res.json({ 
+        proposal, 
+        contract, 
+        payment: {
+          required: true,
+          amount: proposal.price,
+          reference,
+          paymentUrl
+        }
+      });
     } catch (error) {
       res.status(500).json({ message: "Failed to accept proposal" });
     }
   });
 
   // Support ticket submission endpoint
-  app.post("/api/support/tickets", async (req: Find, res: Response) => {
+  app.post("/api/support/tickets", async (req: Request, res: Response) => {
     try {
       const { name, email, category, priority, subject, message } = req.body;
       
@@ -750,8 +783,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Escrow payment verification endpoint
+  app.post("/api/contracts/:contractId/verify-payment", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { contractId } = req.params;
+      const { reference } = req.body;
+
+      // Get contract details
+      const contract = await storage.getContract(contractId);
+      if (!contract) {
+        return res.status(404).json({ message: "Contract not found" });
+      }
+
+      // Verify user is the client for this contract
+      if (contract.clientId !== req.user.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Verify payment with Paystack
+      const paystackService = new PaystackService();
+      const paymentData = await paystackService.verifyTransaction(reference);
+
+      if (paymentData.status === 'success') {
+        // Update contract escrow status to 'held'
+        await storage.updateContract(contractId, { escrowStatus: 'held' });
+        
+        // Update the find status to 'in progress'
+        await storage.updateFind(contract.findId, { status: 'in progress' });
+
+        res.json({
+          success: true,
+          message: "Payment verified and escrow funded successfully",
+          contract: { ...contract, escrowStatus: 'held' }
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: "Payment verification failed"
+        });
+      }
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      res.status(500).json({ message: "Failed to verify payment" });
+    }
+  });
+
+  // Get contract payment status
+  app.get("/api/contracts/:contractId/payment-status", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { contractId } = req.params;
+      
+      const contract = await storage.getContract(contractId);
+      if (!contract) {
+        return res.status(404).json({ message: "Contract not found" });
+      }
+
+      // Verify user has access to this contract
+      if (contract.clientId !== req.user.userId && contract.finderId !== req.user.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      res.json({
+        contractId: contract.id,
+        escrowStatus: contract.escrowStatus,
+        amount: contract.amount,
+        paymentRequired: contract.escrowStatus === 'pending'
+      });
+    } catch (error) {
+      console.error('Failed to get payment status:', error);
+      res.status(500).json({ message: "Failed to get payment status" });
+    }
+  });
+
   // Token packages endpoint
-  app.get("/api/findertokens/packages", (req: Find, res: Response) => {
+  app.get("/api/findertokens/packages", (req: Request, res: Response) => {
     res.json(TOKEN_PACKAGES);
   });
 
