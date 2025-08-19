@@ -1279,7 +1279,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const users = await storage.getAllUsers();
-      const usersWithoutPasswords = users.map(user => ({ ...user, password: undefined }));
+      const usersWithoutPasswords = users.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
       res.json(usersWithoutPasswords);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch users" });

@@ -736,10 +736,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllUsers(): Promise<User[]> {
-    return await db
+    const allUsers = await db
       .select()
       .from(users)
       .orderBy(desc(users.createdAt));
+    
+    // Add finder data for users with finder role
+    const usersWithFinderData = await Promise.all(
+      allUsers.map(async (user) => {
+        if (user.role === 'finder') {
+          const finder = await this.getFinderByUserId(user.id);
+          return {
+            ...user,
+            finders: finder ? [{
+              id: finder.id,
+              findertokenBalance: finder.findertokenBalance
+            }] : []
+          };
+        }
+        return user;
+      })
+    );
+    
+    return usersWithFinderData;
   }
 
 
