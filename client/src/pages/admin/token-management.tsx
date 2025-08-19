@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Coins, Gift, Calendar, User, Clock } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
+import AdminHeader from "@/components/admin-header";
 
 interface Finder {
   id: string;
@@ -174,11 +175,13 @@ export default function TokenManagement() {
   ];
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Coins className="h-8 w-8 text-red-600" />
-        <h1 className="text-3xl font-bold">Token Management</h1>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <AdminHeader currentPage="token-management" />
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center gap-3 mb-6">
+          <Coins className="h-8 w-8 text-red-600" />
+          <h1 className="text-3xl font-bold">Token Management</h1>
+        </div>
 
       <Tabs defaultValue="distribute" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
@@ -480,6 +483,7 @@ export default function TokenManagement() {
           </div>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }
