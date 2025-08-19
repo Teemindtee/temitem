@@ -14,6 +14,13 @@ export default function ClientDashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Format currency in Naira
+  const formatCurrency = (amount: string | number | null) => {
+    if (amount === null || amount === undefined) return '₦0.00';
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return `₦${(numAmount / 100).toFixed(2)}`;
+  };
+
   // Check if mobile view is needed
   const isMobile = window.innerWidth < 640;
 
@@ -276,7 +283,7 @@ export default function ClientDashboard() {
                     </div>
                     <p className="text-gray-600 text-sm mb-3">{request.description.substring(0, 100)}...</p>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">Budget: ${request.budgetMin} - ${request.budgetMax}</span>
+                      <span className="text-gray-600 text-sm">Budget: {formatCurrency(request.budgetMin)} - {formatCurrency(request.budgetMax)}</span>
                       <Link href={`/client/finds/${request.id}`}>
                         <Button size="sm" variant="outline">View</Button>
                       </Link>
@@ -310,7 +317,7 @@ export default function ClientDashboard() {
                         <h4 className="font-medium text-gray-900">Proposal for Request</h4>
                         <p className="text-sm text-gray-600">By Finder</p>
                       </div>
-                      <span className="text-lg font-bold text-green-600">${proposal.price}</span>
+                      <span className="text-lg font-bold text-green-600">{formatCurrency(proposal.price)}</span>
                     </div>
                     <p className="text-gray-600 text-sm mb-3">{proposal.approach?.substring(0, 100)}...</p>
                     <div className="flex justify-between items-center">
