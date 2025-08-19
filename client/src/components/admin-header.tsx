@@ -36,12 +36,12 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
       subItems: [
         { path: "/admin/users", label: "Manage Users", icon: Users, id: "users" },
         { path: "/admin/finder-levels", label: "Finder Levels", icon: TrendingUp, id: "finder-levels" },
-        { path: "/admin/categories", label: "Categories", icon: Tags, id: "categories" }
+        { path: "/admin/categories", label: "Categories", icon: Tags, id: "categories" },
+        { path: "/admin/requests", label: "Finds", icon: FileText, id: "finds" },
+        { path: "/admin/token-management", label: "Token Management", icon: Coins, id: "token-management" }
       ]
     },
-    { path: "/admin/requests", label: "Finds", icon: FileText, id: "finds" },
     { path: "/admin/withdrawals", label: "Withdrawals", icon: DollarSign, id: "withdrawals" },
-    { path: "/admin/token-management", label: "Token Management", icon: Coins, id: "token-management" },
     { path: "/admin/blog-posts", label: "Blog Posts", icon: Edit, id: "blog-posts" },
     { path: "/admin/settings", label: "Settings", icon: Settings, id: "settings" },
   ];
