@@ -45,7 +45,7 @@ export default function SubmitProposalModal({ isOpen, onClose, request }: Submit
 
   const submitProposalMutation = useMutation({
     mutationFn: async (data: any) => {
-      return apiRequest("POST", "/api/proposals", data);
+      return apiRequest("/api/proposals", { method: "POST", body: JSON.stringify(data) });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/proposals/my'] });

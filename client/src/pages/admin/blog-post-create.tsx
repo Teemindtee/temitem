@@ -52,7 +52,10 @@ export default function AdminBlogPostCreate() {
         .replace(/--+/g, '-') // Replace multiple hyphens with single
         .trim();
 
-      return apiRequest('POST', '/api/admin/blog-posts', { ...data, slug });
+      return apiRequest('/api/admin/blog-posts', { 
+        method: 'POST', 
+        body: JSON.stringify({ ...data, slug }) 
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/blog-posts'] });

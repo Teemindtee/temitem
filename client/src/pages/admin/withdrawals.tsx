@@ -38,7 +38,10 @@ export default function AdminWithdrawals() {
 
   const updateWithdrawalMutation = useMutation({
     mutationFn: async ({ id, status, adminNotes }: { id: string; status: string; adminNotes: string }) => {
-      return await apiRequest('PUT', `/api/admin/withdrawals/${id}`, { status, adminNotes });
+      return await apiRequest(`/api/admin/withdrawals/${id}`, { 
+        method: 'PUT', 
+        body: JSON.stringify({ status, adminNotes }) 
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/withdrawals'] });
