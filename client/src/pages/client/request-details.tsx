@@ -25,7 +25,6 @@ import {
   TrendingUp,
   AlertCircle,
   Briefcase,
-  Edit,
   Share2,
   Filter,
   Loader2,
@@ -515,14 +514,6 @@ export default function RequestDetails() {
                   >
                     <Users className="w-4 h-4 mr-2" />
                     View All Proposals
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-slate-200 hover:bg-slate-50"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Find
                   </Button>
                   
                   <Button 
