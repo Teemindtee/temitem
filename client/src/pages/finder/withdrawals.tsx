@@ -114,35 +114,47 @@ export default function WithdrawalSettings() {
 
   const handleWithdrawalRequest = () => {
     // Convert from kobo to naira for display, but send kobo to backend
-    const availableBalanceKobo = parseFloat(finder?.availableBalance || '0');
+    const availableBalanceKobo = Math.max(0, parseFloat(finder?.availableBalance || '0')); // Ensure positive balance
     const availableBalanceNaira = availableBalanceKobo / 100;
     const minimumThresholdNaira = parseInt(formData.minimumThreshold);
     const minimumThresholdKobo = minimumThresholdNaira * 100;
     
-    if (availableBalanceKobo >= minimumThresholdKobo) {
-      // Calculate withdrawal fees (5% fee)
-      const feePercentage = 0.05;
-      const withdrawalFee = Math.round(availableBalanceKobo * feePercentage);
-      const netAmount = availableBalanceKobo - withdrawalFee;
-      
-      const paymentDetails = {
-        accountName: formData.accountHolder,
-        accountNumber: formData.accountNumber,
-        bankName: formData.bankName,
-        routingNumber: formData.routingNumber
-      };
-      
-      requestWithdrawalMutation.mutate({ 
-        amount: netAmount,
-        paymentDetails
-      });
-    } else {
+    // Check if balance is sufficient for minimum threshold
+    if (availableBalanceKobo < minimumThresholdKobo) {
       toast({
         title: "Insufficient balance",
-        description: `Minimum withdrawal amount is ₦${minimumThresholdNaira}`,
+        description: `Minimum withdrawal amount is ₦${minimumThresholdNaira}. Available: ₦${availableBalanceNaira.toFixed(2)}`,
         variant: "destructive",
       });
+      return;
     }
+    
+    // Calculate withdrawal fees (5% fee)
+    const feePercentage = 0.05;
+    const withdrawalFee = Math.round(availableBalanceKobo * feePercentage);
+    const netAmount = availableBalanceKobo - withdrawalFee;
+    
+    // Double check net amount is positive
+    if (netAmount <= 0) {
+      toast({
+        title: "Insufficient balance",
+        description: `Available balance after fees would be ₦${(netAmount / 100).toFixed(2)}`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const paymentDetails = {
+      accountName: formData.accountHolder,
+      accountNumber: formData.accountNumber,
+      bankName: formData.bankName,
+      routingNumber: formData.routingNumber
+    };
+    
+    requestWithdrawalMutation.mutate({ 
+      amount: netAmount,
+      paymentDetails
+    });
   };
 
   const getStatusColor = (status: string) => {
@@ -186,15 +198,15 @@ export default function WithdrawalSettings() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">Available Balance</h3>
                   <p className="text-3xl font-bold text-green-600">
-                    ₦{((parseFloat(finder?.availableBalance || '0')) / 100).toFixed(2)}
+                    ₦{((Math.max(0, parseFloat(finder?.availableBalance || '0'))) / 100).toFixed(2)}
                   </p>
                   <p className="text-sm text-gray-600">
-                    After 5% withdrawal fee: ₦{((parseFloat(finder?.availableBalance || '0') * 0.95) / 100).toFixed(2)}
+                    After 5% withdrawal fee: ₦{((Math.max(0, parseFloat(finder?.availableBalance || '0')) * 0.95) / 100).toFixed(2)}
                   </p>
                 </div>
                 <Button 
                   onClick={handleWithdrawalRequest}
-                  disabled={!finder?.availableBalance || parseFloat(finder.availableBalance) < (parseInt(formData.minimumThreshold) * 100)}
+                  disabled={!finder?.availableBalance || Math.max(0, parseFloat(finder.availableBalance)) < (parseInt(formData.minimumThreshold) * 100)}
                   className="bg-finder-red hover:bg-finder-red-dark"
                 >
                   Request Withdrawal

@@ -2098,9 +2098,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Withdrawal request not found" });
       }
 
-      // If approved, deduct from finder balance
+      // If approved, deduct from finder balance - but check balance first
       if (status === 'approved') {
-        await storage.updateFinderBalance(withdrawal.finderId, withdrawal.amount);
+        const finder = await storage.getFinder(withdrawal.finderId);
+        if (finder && parseFloat(finder.availableBalance || '0') >= parseFloat(withdrawal.amount)) {
+          await storage.updateFinderBalance(withdrawal.finderId, withdrawal.amount);
+        } else {
+          return res.status(400).json({ 
+            message: "Cannot approve withdrawal: Insufficient finder balance",
+            availableBalance: finder?.availableBalance,
+            requestedAmount: withdrawal.amount
+          });
+        }
       }
 
       res.json({ message: "Withdrawal request updated successfully", withdrawal });
