@@ -95,7 +95,8 @@ const AuthService = {
 
   logout(): void {
     this.clearToken();
-    window.location.href = '/';
+    // Force immediate redirect to prevent any flash of content
+    window.location.replace('/');
   },
 
   isAuthenticated(): boolean {
@@ -139,10 +140,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    AuthService.logout();
+    // Clear state immediately
     setUser(null);
     setProfile(null);
     queryClient.clear();
+    // Clear token and redirect
+    AuthService.logout();
   };
 
   const authValue = {

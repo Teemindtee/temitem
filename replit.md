@@ -4,6 +4,8 @@ FinderMeister is a full-stack service marketplace platform designed to connect c
 
 ## Recent Enhancements (January 2025)
 - **Client Profile Page**: Completely redesigned with ultra-modern, clean, crispy design featuring animated gradient backgrounds, premium glass-morphism cards, enhanced mobile responsiveness, inline editing system, and comprehensive account management features.
+- **Withdrawal Balance Fix**: Resolved critical issue where negative balances (₦-2272.50) were displayed, implemented proper balance validation, and reset affected balances to zero with Math.max(0, balance) protection.
+- **Logout Redirect Enhancement**: Fixed logout functionality to redirect immediately to home page without showing flash of empty data or current page content during logout process.
 
 # User Preferences
 
