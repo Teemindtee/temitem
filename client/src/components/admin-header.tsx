@@ -22,7 +22,6 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/";
   };
 
   const navItems = [

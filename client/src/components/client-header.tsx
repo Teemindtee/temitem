@@ -16,7 +16,6 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/";
   };
 
   return (

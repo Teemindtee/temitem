@@ -38,7 +38,6 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/";
   };
 
   const getInitials = (name: string) => {
