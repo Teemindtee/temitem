@@ -2705,6 +2705,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'userId, offenseType, evidence, and userRole are required' });
       }
 
+      // Only clients and finders can receive strikes, not admins
+      if (userRole === 'admin') {
+        return res.status(400).json({ message: 'Strikes cannot be issued to admin users' });
+      }
+
+      if (userRole !== 'client' && userRole !== 'finder') {
+        return res.status(400).json({ message: 'Strikes can only be issued to clients and finders' });
+      }
+
+      // Verify the user exists and has the correct role
+      const targetUser = await storage.getUserById(userId);
+      if (!targetUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      if (targetUser.role !== userRole) {
+        return res.status(400).json({ message: 'User role does not match specified role' });
+      }
+
       const result = await strikeService.issueStrikeByOffense(
         userId,
         offenseType,

@@ -82,9 +82,10 @@ export default function StrikeSystem() {
     enabled: !!selectedRole,
   });
 
-  // Fetch all users for strike assignment
+  // Fetch clients and finders for strike assignment (admins cannot receive strikes)
   const { data: users } = useQuery({
     queryKey: ['/api/admin/users'],
+    select: (data) => data?.filter((user: any) => user.role !== 'admin') || [],
   });
 
   // Issue strike mutation
