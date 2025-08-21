@@ -2971,7 +2971,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Access denied. Admin role required.' });
       }
 
+      console.log('Fetching restricted words...');
       const words = await storage.getRestrictedWords();
+      console.log('Retrieved restricted words:', words.length, 'words found');
       res.json(words);
     } catch (error: any) {
       console.error('Error fetching restricted words:', error);
@@ -2986,18 +2988,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { word, category, severity } = req.body;
+      console.log('Received restricted word request:', { word, category, severity, userId: req.user.userId });
 
       if (!word || typeof word !== 'string') {
         return res.status(400).json({ message: 'Word is required and must be a string' });
       }
 
-      const restrictedWord = await storage.addRestrictedWord({
+      const wordData = {
         word: word.toLowerCase().trim(),
         category: category || 'general',
         severity: severity || 'flag',
         addedBy: req.user.userId,
         isActive: true
-      });
+      };
+      
+      console.log('Adding restricted word with data:', wordData);
+      const restrictedWord = await storage.addRestrictedWord(wordData);
+      console.log('Successfully added restricted word:', restrictedWord);
 
       res.status(201).json(restrictedWord);
     } catch (error: any) {

@@ -37,7 +37,11 @@ export default function AdminRestrictedWords() {
 
   const addWordMutation = useMutation({
     mutationFn: async (data: { word: string; category: string; severity: string }) => {
-      return await apiRequest('/api/admin/restricted-words', 'POST', data);
+      console.log('Adding restricted word:', data);
+      return await apiRequest('/api/admin/restricted-words', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/restricted-words'] });
@@ -60,7 +64,9 @@ export default function AdminRestrictedWords() {
 
   const removeWordMutation = useMutation({
     mutationFn: async (wordId: string) => {
-      return await apiRequest(`/api/admin/restricted-words/${wordId}`, 'DELETE');
+      return await apiRequest(`/api/admin/restricted-words/${wordId}`, {
+        method: 'DELETE'
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/restricted-words'] });
