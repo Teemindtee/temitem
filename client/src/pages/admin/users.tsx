@@ -326,14 +326,25 @@ export default function AdminUsersModern() {
                       </DropdownMenuItem>
                       
                       {(userData.role === 'client' || userData.role === 'finder') && (
-                        <DropdownMenuItem asChild>
+                        <DropdownMenuItem 
+                          onSelect={(e) => {
+                            e.preventDefault();
+                          }}
+                          asChild
+                        >
                           <div className="p-0">
                             <AdminIssueStrike
                               userId={userData.id}
                               userRole={userData.role as 'client' | 'finder'}
                               userName={`${userData.firstName} ${userData.lastName}`}
                               trigger={
-                                <button className="flex items-center gap-2 px-3 py-2 rounded-lg text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 w-full text-left">
+                                <button 
+                                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 w-full text-left"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                  }}
+                                >
                                   <AlertTriangle className="w-4 h-4" />
                                   Issue Strike
                                 </button>

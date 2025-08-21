@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { SeverityBadge } from "@/components/severity-badge";
 
 interface AdminIssueStrikeProps {
   userId: string;
@@ -116,7 +117,13 @@ export default function AdminIssueStrike({
           {trigger || defaultTrigger}
         </div>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent 
+        className="sm:max-w-[500px]"
+        onPointerDownOutside={(e) => {
+          // Prevent dialog from closing when clicking on dropdown trigger
+          e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Issue Strike</DialogTitle>
           <DialogDescription>
@@ -148,7 +155,10 @@ export default function AdminIssueStrike({
               <SelectContent>
                 {(offenseTypes || []).map((offense: OffenseDefinition) => (
                   <SelectItem key={offense.offense} value={offense.offense}>
-                    {offense.offense} (Level {offense.strikeLevel})
+                    <div className="flex items-center gap-2 py-1">
+                      <span>{offense.offense}</span>
+                      <SeverityBadge level={offense.strikeLevel} variant="compact" />
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -161,8 +171,15 @@ export default function AdminIssueStrike({
               id="evidence"
               value={evidence}
               onChange={(e) => setEvidence(e.target.value)}
+              onFocus={(e) => {
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
               placeholder="Provide detailed evidence, reasoning, and any relevant information about the violation..."
               rows={4}
+              className="resize-none"
             />
           </div>
 
