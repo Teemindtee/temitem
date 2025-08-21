@@ -42,6 +42,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
     },
     { path: "/admin/withdrawals", label: "Withdrawals", icon: DollarSign, id: "withdrawals" },
     { path: "/admin/strike-system", label: "Strike System", icon: Shield, id: "strike-system" },
+    { path: "/admin/restricted-words", label: "Restricted Words", icon: Shield, id: "restricted-words" },
     { path: "/admin/blog-posts", label: "Blog Posts", icon: Edit, id: "blog-posts" },
     { path: "/admin/settings", label: "Settings", icon: Settings, id: "settings" },
   ];

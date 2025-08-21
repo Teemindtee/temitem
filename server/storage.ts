@@ -45,6 +45,8 @@ import {
   type InsertBehavioralTraining,
   type TrustedBadge,
   type InsertTrustedBadge,
+  type RestrictedWord,
+  type InsertRestrictedWord,
 
   users,
   finders,
@@ -69,7 +71,8 @@ import {
   userRestrictions,
   disputes,
   behavioralTraining,
-  trustedBadges
+  trustedBadges,
+  restrictedWords
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -1940,6 +1943,55 @@ export class DatabaseStorage implements IStorage {
   async getUserStrikeLevel(userId: string): Promise<number> {
     const activeStrikes = await this.getActiveStrikesCount(userId);
     return Math.min(activeStrikes, 4); // Cap at level 4 for permanent ban
+  }
+
+  // Restricted Words Management
+  async addRestrictedWord(word: InsertRestrictedWord): Promise<RestrictedWord> {
+    const [newWord] = await db
+      .insert(restrictedWords)
+      .values(word)
+      .returning();
+    return newWord;
+  }
+
+  async getRestrictedWords(): Promise<RestrictedWord[]> {
+    return await db
+      .select()
+      .from(restrictedWords)
+      .where(eq(restrictedWords.isActive, true))
+      .orderBy(desc(restrictedWords.createdAt));
+  }
+
+  async removeRestrictedWord(id: string): Promise<boolean> {
+    const result = await db
+      .update(restrictedWords)
+      .set({ isActive: false })
+      .where(eq(restrictedWords.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
+  async updateRestrictedWord(id: string, updates: Partial<RestrictedWord>): Promise<RestrictedWord | undefined> {
+    const [word] = await db
+      .update(restrictedWords)
+      .set(updates)
+      .where(eq(restrictedWords.id, id))
+      .returning();
+    return word || undefined;
+  }
+
+  async checkContentForRestrictedWords(content: string): Promise<string[]> {
+    const words = await this.getRestrictedWords();
+    const foundWords: string[] = [];
+    
+    const contentLower = content.toLowerCase();
+    words.forEach(restrictedWord => {
+      if (contentLower.includes(restrictedWord.word.toLowerCase())) {
+        foundWords.push(restrictedWord.word);
+      }
+    });
+    
+    return foundWords;
   }
 }
 

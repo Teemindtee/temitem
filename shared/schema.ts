@@ -52,9 +52,22 @@ export const finds = pgTable("finds", {
   budgetMin: text("budget_min"),
   budgetMax: text("budget_max"),
   timeframe: text("timeframe"),
-  status: text("status").default("open"), // 'open', 'in_progress', 'completed'
+  status: text("status").default("open"), // 'open', 'in_progress', 'completed', 'under_review'
   findertokenCost: integer("findertoken_cost").default(1),
   attachments: text("attachments").array(), // Array of file paths stored locally
+  flaggedWords: text("flagged_words").array(), // Array of detected restricted words
+  reviewReason: text("review_reason"), // Reason why find is under review
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Restricted Words table for admin management
+export const restrictedWords = pgTable("restricted_words", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  word: text("word").notNull().unique(),
+  category: text("category").default("general"), // Category of restriction
+  severity: text("severity").default("flag"), // 'flag', 'block', 'review'
+  addedBy: varchar("added_by").references(() => users.id).notNull(),
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -491,6 +504,13 @@ export const tokenGrantsRelations = relations(tokenGrants, ({ one }) => ({
   }),
 }));
 
+export const restrictedWordsRelations = relations(restrictedWords, ({ one }) => ({
+  addedByUser: one(users, {
+    fields: [restrictedWords.addedBy],
+    references: [users.id],
+  }),
+}));
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -593,6 +613,14 @@ export type BehavioralTraining = typeof behavioralTraining.$inferSelect;
 export type InsertBehavioralTraining = z.infer<typeof insertBehavioralTrainingSchema>;
 export type TrustedBadge = typeof trustedBadges.$inferSelect;
 export type InsertTrustedBadge = z.infer<typeof insertTrustedBadgeSchema>;
+
+// Restricted Words Types
+export type RestrictedWord = typeof restrictedWords.$inferSelect;
+export const insertRestrictedWordSchema = createInsertSchema(restrictedWords).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertRestrictedWord = z.infer<typeof insertRestrictedWordSchema>;
 
 export const insertContractSchema = createInsertSchema(contracts).omit({
   id: true,

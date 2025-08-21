@@ -393,13 +393,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const files = req.files as Express.Multer.File[];
       const attachmentPaths = files ? files.map(file => `/uploads/${file.filename}`) : [];
 
+      // Check for restricted words in title and description
+      const contentToCheck = `${req.body.title || ''} ${req.body.description || ''}`;
+      const flaggedWords = await storage.checkContentForRestrictedWords(contentToCheck);
+
       const requestData = insertFindSchema.parse({
         ...req.body,
         clientId: req.user.userId,
-        attachments: attachmentPaths
+        attachments: attachmentPaths,
+        status: flaggedWords.length > 0 ? 'under_review' : 'open',
+        flaggedWords: flaggedWords.length > 0 ? flaggedWords : undefined,
+        reviewReason: flaggedWords.length > 0 ? `Find contains restricted words: ${flaggedWords.join(', ')}` : undefined
       });
 
       const request = await storage.createFind(requestData);
+
+      // If flagged, notify the client that their find is under review
+      if (flaggedWords.length > 0) {
+        return res.status(202).json({
+          ...request,
+          message: "Your find has been submitted for review due to content restrictions and will be published once approved by our admin team."
+        });
+      }
+
       res.status(201).json(request);
     } catch (error: any) {
       console.error('Create find error:', error);
@@ -2844,6 +2860,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error: any) {
       console.error('Error fetching strike statistics:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Restricted Words Management - Admin only
+  // Admin find status management
+  app.put('/api/admin/finds/:id/status', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const { status } = req.body;
+
+      // Validate status
+      const validStatuses = ['open', 'in_progress', 'completed', 'cancelled', 'under_review'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ message: 'Invalid status' });
+      }
+
+      // Get the find to ensure it exists
+      const find = await storage.getFind(id);
+      if (!find) {
+        return res.status(404).json({ message: 'Find not found' });
+      }
+
+      // Update find status
+      const updatedFind = await storage.updateFind(id, { status });
+      res.json(updatedFind);
+    } catch (error) {
+      console.error('Error updating find status:', error);
+      res.status(500).json({ message: 'Failed to update find status' });
+    }
+  });
+
+  app.get('/api/admin/restricted-words', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin role required.' });
+      }
+
+      const words = await storage.getRestrictedWords();
+      res.json(words);
+    } catch (error: any) {
+      console.error('Error fetching restricted words:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/admin/restricted-words', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin role required.' });
+      }
+
+      const { word, category, severity } = req.body;
+
+      if (!word || typeof word !== 'string') {
+        return res.status(400).json({ message: 'Word is required and must be a string' });
+      }
+
+      const restrictedWord = await storage.addRestrictedWord({
+        word: word.toLowerCase().trim(),
+        category: category || 'general',
+        severity: severity || 'flag',
+        addedBy: req.user.id,
+        isActive: true
+      });
+
+      res.status(201).json(restrictedWord);
+    } catch (error: any) {
+      console.error('Error adding restricted word:', error);
+      if (error.message?.includes('duplicate') || error.message?.includes('unique')) {
+        return res.status(409).json({ message: 'This word is already in the restricted list' });
+      }
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.delete('/api/admin/restricted-words/:wordId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin role required.' });
+      }
+
+      const { wordId } = req.params;
+      const success = await storage.removeRestrictedWord(wordId);
+
+      if (!success) {
+        return res.status(404).json({ message: 'Restricted word not found' });
+      }
+
+      res.json({ message: 'Restricted word removed successfully' });
+    } catch (error: any) {
+      console.error('Error removing restricted word:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   });

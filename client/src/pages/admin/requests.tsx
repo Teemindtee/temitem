@@ -70,7 +70,7 @@ export default function AdminRequestsModern() {
   const updateFindStatusMutation = useMutation({
     mutationFn: async ({ findId, status }: { findId: string; status: string }) => {
       return await apiRequest(`/api/admin/finds/${findId}/status`, { 
-        method: "PATCH", 
+        method: "PUT", 
         body: JSON.stringify({ status }) 
       });
     },
@@ -89,6 +89,7 @@ export default function AdminRequestsModern() {
       case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'completed': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
+      case 'under_review': return 'bg-orange-100 text-orange-800 border-orange-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -99,6 +100,7 @@ export default function AdminRequestsModern() {
       case 'in_progress': return <Play className="w-3 h-3" />;
       case 'completed': return <CheckCircle2 className="w-3 h-3" />;
       case 'cancelled': return <XCircle className="w-3 h-3" />;
+      case 'under_review': return <AlertTriangle className="w-3 h-3" />;
       default: return <Clock className="w-3 h-3" />;
     }
   };
@@ -133,6 +135,7 @@ export default function AdminRequestsModern() {
     inProgress: finds.filter(f => f.status === 'in_progress').length,
     completed: finds.filter(f => f.status === 'completed').length,
     cancelled: finds.filter(f => f.status === 'cancelled').length,
+    underReview: finds.filter(f => f.status === 'under_review').length,
   };
 
   return (
@@ -220,6 +223,18 @@ export default function AdminRequestsModern() {
                 </div>
               </div>
             </div>
+            
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-orange-500/10 text-orange-600 rounded-lg">
+                  <AlertTriangle className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Under Review</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.underReview}</p>
+                </div>
+              </div>
+            </div>
           </div>
           
           {/* Filters */}
@@ -244,6 +259,7 @@ export default function AdminRequestsModern() {
                 <SelectItem value="in_progress">In Progress</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="under_review">Under Review</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -289,6 +305,20 @@ export default function AdminRequestsModern() {
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                             {find.description}
                           </p>
+                          {find.flaggedWords && find.flaggedWords.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {find.flaggedWords.map((word, index) => (
+                                <Badge key={index} className="px-2 py-0.5 text-xs bg-red-100 text-red-800 border-red-200">
+                                  {word}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                          {find.reviewReason && (
+                            <p className="text-xs text-orange-600 mt-1 font-medium">
+                              {find.reviewReason}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -379,6 +409,25 @@ export default function AdminRequestsModern() {
                               <XCircle className="w-3 h-3" />
                               Mark Cancelled
                             </DropdownMenuItem>
+                            
+                            {find.status === 'under_review' && (
+                              <>
+                                <DropdownMenuItem 
+                                  onClick={() => handleStatusChange(find.id, 'open')} 
+                                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+                                >
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Approve & Publish
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleStatusChange(find.id, 'cancelled')} 
+                                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                >
+                                  <XCircle className="w-3 h-3" />
+                                  Reject Find
+                                </DropdownMenuItem>
+                              </>
+                            )}
                             
                             {find.client && (
                               <DropdownMenuItem asChild>
