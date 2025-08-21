@@ -148,71 +148,76 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                   <Menu className="w-4 h-4" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px]">
-                <div className="flex flex-col space-y-4 mt-8">
-                  <div className="text-lg font-semibold text-gray-900 mb-4">Admin Panel</div>
+              <SheetContent side="right" className="w-[300px] max-w-[85vw]">
+                <div className="flex flex-col mt-6">
+                  <div className="text-lg font-semibold text-gray-900 mb-3 px-2">Admin Panel</div>
                   
-                  {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = currentPage === item.id || (item.subItems && item.subItems.some(sub => currentPage === sub.id));
-                    
-                    if (item.hasDropdown && item.subItems) {
-                      return (
-                        <div key={item.id} className="space-y-2">
-                          <div className="text-sm font-medium text-gray-900 px-3 py-2 border-b">
-                            <div className="flex items-center space-x-2">
-                              <Icon className="w-4 h-4" />
-                              <span>{item.label}</span>
+                  <div className="space-y-1">
+                    {navItems.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = currentPage === item.id || (item.subItems && item.subItems.some(sub => currentPage === sub.id));
+                      
+                      if (item.hasDropdown && item.subItems) {
+                        return (
+                          <div key={item.id} className="space-y-1">
+                            <div className="text-xs font-medium text-gray-600 px-3 py-1 border-b border-gray-200">
+                              <div className="flex items-center space-x-2">
+                                <Icon className="w-3 h-3" />
+                                <span className="truncate">{item.label}</span>
+                              </div>
                             </div>
+                            {item.subItems.map((subItem) => {
+                              const SubIcon = subItem.icon;
+                              return (
+                                <Link key={subItem.id} href={subItem.path}>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={`w-full justify-start h-9 pl-6 pr-2 text-xs ${
+                                      currentPage === subItem.id 
+                                        ? "bg-finder-red hover:bg-finder-red-dark text-white" 
+                                        : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                                    }`}
+                                    onClick={() => setIsOpen(false)}
+                                  >
+                                    <SubIcon className="w-3 h-3 mr-2 flex-shrink-0" />
+                                    <span className="truncate">{subItem.label}</span>
+                                  </Button>
+                                </Link>
+                              );
+                            })}
                           </div>
-                          {item.subItems.map((subItem) => {
-                            const SubIcon = subItem.icon;
-                            return (
-                              <Link key={subItem.id} href={subItem.path}>
-                                <Button
-                                  variant={currentPage === subItem.id ? "default" : "ghost"}
-                                  className={`w-full justify-start space-x-3 pl-6 ${
-                                    currentPage === subItem.id 
-                                      ? "bg-finder-red hover:bg-finder-red-dark text-white" 
-                                      : "text-gray-700 hover:text-gray-900"
-                                  }`}
-                                  onClick={() => setIsOpen(false)}
-                                >
-                                  <SubIcon className="w-4 h-4" />
-                                  <span>{subItem.label}</span>
-                                </Button>
-                              </Link>
-                            );
-                          })}
-                        </div>
+                        );
+                      }
+                      
+                      return (
+                        <Link key={item.id} href={item.path}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={`w-full justify-start h-9 px-3 text-xs ${
+                              currentPage === item.id 
+                                ? "bg-finder-red hover:bg-finder-red-dark text-white" 
+                                : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+                            }`}
+                            onClick={() => setIsOpen(false)}
+                          >
+                            <Icon className="w-4 h-4 mr-2 flex-shrink-0" />
+                            <span className="truncate">{item.label}</span>
+                          </Button>
+                        </Link>
                       );
-                    }
-                    
-                    return (
-                      <Link key={item.id} href={item.path}>
-                        <Button
-                          variant={currentPage === item.id ? "default" : "ghost"}
-                          className={`w-full justify-start space-x-3 ${
-                            currentPage === item.id 
-                              ? "bg-finder-red hover:bg-finder-red-dark text-white" 
-                              : "text-gray-700 hover:text-gray-900"
-                          }`}
-                          onClick={() => setIsOpen(false)}
-                        >
-                          <Icon className="w-5 h-5" />
-                          <span>{item.label}</span>
-                        </Button>
-                      </Link>
-                    );
-                  })}
+                    })}
+                  </div>
                   
-                  <div className="border-t pt-4 mt-4">
+                  <div className="border-t border-gray-200 pt-3 mt-4">
                     <Button 
                       variant="outline" 
+                      size="sm"
                       onClick={handleLogout}
-                      className="w-full justify-start space-x-3"
+                      className="w-full justify-start h-9 px-3 text-xs"
                     >
-                      <LogOut className="w-5 h-5" />
+                      <LogOut className="w-4 h-4 mr-2" />
                       <span>Logout</span>
                     </Button>
                   </div>

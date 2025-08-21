@@ -191,21 +191,21 @@ export default function StrikeSystem() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/10">
       <AdminHeader currentPage="strikes" />
       
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
               Strike System
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 font-medium">Community protection and behavior management</p>
+            <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium">Community protection and behavior management</p>
           </div>
-        <Dialog open={isIssueStrikeOpen} onOpenChange={setIsIssueStrikeOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              Issue Strike
-            </Button>
-          </DialogTrigger>
+          <Dialog open={isIssueStrikeOpen} onOpenChange={setIsIssueStrikeOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="w-full sm:w-auto">
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Issue Strike
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Issue Strike to User</DialogTitle>
@@ -292,76 +292,76 @@ export default function StrikeSystem() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
         
         {/* Severity Legend */}
-        <Card className="bg-white/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 dark:bg-gray-800/80">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5" />
+        <Card className="bg-white/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 dark:bg-gray-800/80 mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+              <Shield className="h-4 w-4 sm:h-5 sm:w-5" />
               Severity Indicators
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
               {[1, 2, 3, 4].map((level) => (
                 <SeverityBadge 
                   key={level} 
                   level={level} 
                   variant="detailed"
-                  className="border-2"
+                  className="border-2 text-xs sm:text-sm"
                 />
               ))}
             </div>
           </CardContent>
         </Card>
-      </div>
 
       {/* Statistics Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{strikeStats?.totalUsers || 0}</div>
+          <CardContent className="pt-1">
+            <div className="text-lg sm:text-2xl font-bold">{strikeStats?.totalUsers || 0}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Users with Strikes</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-orange-600" />
+            <CardTitle className="text-xs sm:text-sm font-medium">With Strikes</CardTitle>
+            <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{strikeStats?.usersWithActiveStrikes || 0}</div>
+          <CardContent className="pt-1">
+            <div className="text-lg sm:text-2xl font-bold">{strikeStats?.usersWithActiveStrikes || 0}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recent Strikes</CardTitle>
-            <TrendingUp className="h-4 w-4 text-red-600" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Recent</CardTitle>
+            <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{strikeStats?.recentStrikes || 0}</div>
-            <p className="text-xs text-muted-foreground">Last 30 days</p>
+          <CardContent className="pt-1">
+            <div className="text-lg sm:text-2xl font-bold">{strikeStats?.recentStrikes || 0}</div>
+            <p className="text-xs text-muted-foreground hidden sm:block">Last 30 days</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Disputes</CardTitle>
-            <FileText className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Disputes</CardTitle>
+            <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{strikeStats?.disputesInReview || 0}</div>
+          <CardContent className="pt-1">
+            <div className="text-lg sm:text-2xl font-bold">{strikeStats?.disputesInReview || 0}</div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="col-span-2 sm:col-span-1">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Protection Level</CardTitle>
-            <Shield className="h-4 w-4 text-green-600" />
+            <CardTitle className="text-xs sm:text-sm font-medium">Protection</CardTitle>
+            <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">Active</div>
+          <CardContent className="pt-1">
+            <div className="text-lg sm:text-2xl font-bold text-green-600">Active</div>
           </CardContent>
         </Card>
       </div>
