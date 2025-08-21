@@ -69,31 +69,34 @@ export default function StrikeSystem() {
   const [isIssueStrikeOpen, setIsIssueStrikeOpen] = useState(false);
 
   // Fetch strike statistics
-  const { data: strikeStats } = useQuery({
+  const { data: strikeStats = {} as StrikeStats } = useQuery<StrikeStats>({
     queryKey: ['/api/admin/strike-stats'],
   });
 
   // Fetch all disputes
-  const { data: disputes } = useQuery({
+  const { data: disputes = [] } = useQuery<Dispute[]>({
     queryKey: ['/api/admin/disputes'],
   });
 
   // Fetch offense types for selected role
-  const { data: offenseTypes } = useQuery({
+  const { data: offenseTypes = [] } = useQuery<OffenseDefinition[]>({
     queryKey: ['/api/offenses', selectedRole],
     enabled: !!selectedRole,
   });
 
   // Fetch clients and finders for strike assignment (admins cannot receive strikes)
-  const { data: users } = useQuery({
+  const { data: users = [] } = useQuery<any[]>({
     queryKey: ['/api/admin/users'],
-    select: (data) => data?.filter((user: any) => user.role !== 'admin') || [],
+    select: (data: any[]) => data?.filter((user: any) => user.role !== 'admin') || [],
   });
 
   // Issue strike mutation
   const issueStrikeMutation = useMutation({
     mutationFn: async (data: { userId: string; offenseType: string; evidence: string; userRole: string; contextId?: string }) => {
-      return await apiRequest('/api/admin/strikes', 'POST', data);
+      return await apiRequest('/api/admin/strikes', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
     },
     onSuccess: () => {
       toast({
@@ -121,7 +124,10 @@ export default function StrikeSystem() {
   // Update dispute mutation
   const updateDisputeMutation = useMutation({
     mutationFn: async ({ disputeId, updates }: { disputeId: string; updates: any }) => {
-      return await apiRequest(`/api/admin/disputes/${disputeId}`, 'PATCH', updates);
+      return await apiRequest(`/api/admin/disputes/${disputeId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates)
+      });
     },
     onSuccess: () => {
       toast({
