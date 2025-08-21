@@ -19,10 +19,12 @@ import {
   User,
   Tag,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  AlertTriangle
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import AdminIssueStrike from "@/components/admin-issue-strike";
 import type { Find, User as UserType } from "@shared/schema";
 
 interface FindWithClient extends Find {
@@ -377,6 +379,27 @@ export default function AdminRequestsModern() {
                               <XCircle className="w-3 h-3" />
                               Mark Cancelled
                             </DropdownMenuItem>
+                            
+                            {find.client && (
+                              <DropdownMenuItem asChild>
+                                <div className="p-0">
+                                  <AdminIssueStrike
+                                    userId={find.clientId}
+                                    userRole="client"
+                                    userName={`${find.client.firstName} ${find.client.lastName}`}
+                                    contextId={find.id}
+                                    contextType="find"
+                                    trigger={
+                                      <button className="flex items-center gap-2 px-3 py-2 rounded-lg text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 w-full text-left">
+                                        <AlertTriangle className="w-3 h-3" />
+                                        Issue Strike
+                                      </button>
+                                    }
+                                    onStrikeIssued={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/finds'] })}
+                                  />
+                                </div>
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
