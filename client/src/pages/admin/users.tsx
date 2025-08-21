@@ -339,8 +339,10 @@ export default function AdminUsersModern() {
                               userName={`${userData.firstName} ${userData.lastName}`}
                               trigger={
                                 <button 
-                                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 w-full text-left"
+                                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 w-full text-left cursor-pointer"
+                                  type="button"
                                   onClick={(e) => {
+                                    console.log("Strike button clicked in dropdown");
                                     e.preventDefault();
                                     e.stopPropagation();
                                   }}

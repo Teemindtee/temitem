@@ -56,7 +56,8 @@ export default function AdminIssueStrike({
         body: JSON.stringify(data)
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Strike issued successfully:", data);
       toast({
         title: "Strike Issued",
         description: `Strike has been successfully issued to ${userName || 'the user'}.`,
@@ -64,6 +65,7 @@ export default function AdminIssueStrike({
       queryClient.invalidateQueries({ queryKey: ['/api/admin/strike-stats'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/disputes'] });
       queryClient.invalidateQueries({ queryKey: ['/api/users', userId, 'strikes'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
       setIsDialogOpen(false);
       setSelectedOffense("");
       setEvidence("");
@@ -79,6 +81,7 @@ export default function AdminIssueStrike({
   });
 
   const handleIssueStrike = () => {
+    console.log("Handle issue strike called");
     if (!selectedOffense || !evidence.trim()) {
       toast({
         title: "Missing Information",
@@ -87,6 +90,14 @@ export default function AdminIssueStrike({
       });
       return;
     }
+
+    console.log("Issuing strike with data:", {
+      userId,
+      offenseType: selectedOffense,
+      evidence: evidence.trim(),
+      userRole,
+      contextId,
+    });
 
     issueStrikeMutation.mutate({
       userId,
@@ -107,6 +118,7 @@ export default function AdminIssueStrike({
   const handleTriggerClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log("Strike dialog trigger clicked");
     setIsDialogOpen(true);
   };
 
