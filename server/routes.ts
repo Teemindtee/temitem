@@ -2995,7 +2995,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         word: word.toLowerCase().trim(),
         category: category || 'general',
         severity: severity || 'flag',
-        addedBy: req.user.id,
+        addedBy: req.user.userId,
         isActive: true
       });
 
