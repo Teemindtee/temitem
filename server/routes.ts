@@ -14,6 +14,7 @@ import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { PaystackService, TOKEN_PACKAGES } from "./paymentService";
 import { emailService } from "./emailService";
+import { strikeService } from "./strikeService";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -2687,6 +2688,144 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Error setting object ACL:', error);
       res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // Strike System Routes
+  // Admin route to issue a strike
+  app.post('/api/admin/strikes', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin role required.' });
+      }
+
+      const { userId, offenseType, evidence, userRole, contextId } = req.body;
+
+      if (!userId || !offenseType || !evidence || !userRole) {
+        return res.status(400).json({ message: 'userId, offenseType, evidence, and userRole are required' });
+      }
+
+      const result = await strikeService.issueStrikeByOffense(
+        userId,
+        offenseType,
+        evidence,
+        req.user.userId,
+        userRole,
+        contextId
+      );
+
+      res.status(201).json(result);
+    } catch (error: any) {
+      console.error('Error issuing strike:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get user's strike information
+  app.get('/api/users/:userId/strikes', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { userId } = req.params;
+
+      // Users can only view their own strikes unless admin
+      if (req.user.role !== 'admin' && req.user.userId !== userId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      const strikes = await storage.getStrikesByUserId(userId);
+      const restrictions = await strikeService.getUserRestrictions(userId);
+
+      res.json({ strikes, restrictions });
+    } catch (error: any) {
+      console.error('Error fetching strikes:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Submit a dispute
+  app.post('/api/strikes/:strikeId/dispute', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { strikeId } = req.params;
+      const { description, evidence } = req.body;
+
+      if (!description) {
+        return res.status(400).json({ message: 'Description is required' });
+      }
+
+      const dispute = await strikeService.submitDispute(
+        req.user.userId,
+        strikeId,
+        description,
+        evidence
+      );
+
+      res.status(201).json(dispute);
+    } catch (error: any) {
+      console.error('Error submitting dispute:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Admin route to get all disputes
+  app.get('/api/admin/disputes', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin role required.' });
+      }
+
+      const disputes = await storage.getAllDisputes();
+      res.json(disputes);
+    } catch (error: any) {
+      console.error('Error fetching disputes:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Admin route to update dispute status
+  app.patch('/api/admin/disputes/:disputeId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin role required.' });
+      }
+
+      const { disputeId } = req.params;
+      const updates = req.body;
+
+      const dispute = await storage.updateDispute(disputeId, updates);
+      res.json(dispute);
+    } catch (error: any) {
+      console.error('Error updating dispute:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Get available offense types for a role
+  app.get('/api/offenses/:role', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin role required.' });
+      }
+
+      const { role } = req.params;
+      const offenses = strikeService.getOffenseTypes(role);
+      res.json(offenses);
+    } catch (error: any) {
+      console.error('Error fetching offense types:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Admin route to get strike statistics
+  app.get('/api/admin/strike-stats', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admin role required.' });
+      }
+
+      const stats = await strikeService.getStrikeStatistics();
+      res.json(stats);
+    } catch (error: any) {
+      console.error('Error fetching strike statistics:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   });
 

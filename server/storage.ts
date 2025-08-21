@@ -35,6 +35,16 @@ import {
   type InsertMonthlyTokenDistribution,
   type TokenGrant,
   type InsertTokenGrant,
+  type Strike,
+  type InsertStrike,
+  type UserRestriction,
+  type InsertUserRestriction,
+  type Dispute,
+  type InsertDispute,
+  type BehavioralTraining,
+  type InsertBehavioralTraining,
+  type TrustedBadge,
+  type InsertTrustedBadge,
 
   users,
   finders,
@@ -54,10 +64,15 @@ import {
   orderSubmissions,
   finderLevels,
   monthlyTokenDistributions,
-  tokenGrants
+  tokenGrants,
+  strikes,
+  userRestrictions,
+  disputes,
+  behavioralTraining,
+  trustedBadges
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql, alias } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -195,6 +210,36 @@ export interface IStorage {
   grantTokensToFinder(finderId: string, amount: number, reason: string, grantedBy: string): Promise<TokenGrant>;
   getTokenGrants(finderId?: string): Promise<TokenGrant[]>;
   getAllFindersForTokens(): Promise<Finder[]>;
+
+  // Strike System operations
+  issueStrike(strike: InsertStrike): Promise<Strike>;
+  getStrikesByUserId(userId: string): Promise<Strike[]>;
+  getActiveStrikesCount(userId: string): Promise<number>;
+  updateStrike(id: string, updates: Partial<Strike>): Promise<Strike | undefined>;
+  
+  // User Restrictions operations
+  createUserRestriction(restriction: InsertUserRestriction): Promise<UserRestriction>;
+  getUserActiveRestrictions(userId: string): Promise<UserRestriction[]>;
+  updateUserRestriction(id: string, updates: Partial<UserRestriction>): Promise<UserRestriction | undefined>;
+  
+  // Dispute operations
+  createDispute(dispute: InsertDispute): Promise<Dispute>;
+  getDisputesByUserId(userId: string): Promise<Dispute[]>;
+  getAllDisputes(): Promise<Dispute[]>;
+  updateDispute(id: string, updates: Partial<Dispute>): Promise<Dispute | undefined>;
+  
+  // Behavioral Training operations
+  assignTraining(training: InsertBehavioralTraining): Promise<BehavioralTraining>;
+  getTrainingsByUserId(userId: string): Promise<BehavioralTraining[]>;
+  updateTraining(id: string, updates: Partial<BehavioralTraining>): Promise<BehavioralTraining | undefined>;
+  
+  // Trusted Badge operations
+  awardBadge(badge: InsertTrustedBadge): Promise<TrustedBadge>;
+  getUserBadges(userId: string): Promise<TrustedBadge[]>;
+  updateBadge(id: string, updates: Partial<TrustedBadge>): Promise<TrustedBadge | undefined>;
+  
+  // Strike System Analysis
+  getUserStrikeLevel(userId: string): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1737,6 +1782,164 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.isBanned, false));
     
     return results;
+  }
+
+  // Strike System implementations
+  async issueStrike(strike: InsertStrike): Promise<Strike> {
+    const [newStrike] = await db
+      .insert(strikes)
+      .values({
+        ...strike,
+        expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
+      })
+      .returning();
+    return newStrike;
+  }
+
+  async getStrikesByUserId(userId: string): Promise<Strike[]> {
+    return await db
+      .select()
+      .from(strikes)
+      .where(eq(strikes.userId, userId))
+      .orderBy(desc(strikes.createdAt));
+  }
+
+  async getActiveStrikesCount(userId: string): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(strikes)
+      .where(and(
+        eq(strikes.userId, userId),
+        eq(strikes.status, 'active')
+      ));
+    return result[0]?.count || 0;
+  }
+
+  async updateStrike(id: string, updates: Partial<Strike>): Promise<Strike | undefined> {
+    const [strike] = await db
+      .update(strikes)
+      .set(updates)
+      .where(eq(strikes.id, id))
+      .returning();
+    return strike || undefined;
+  }
+
+  async createUserRestriction(restriction: InsertUserRestriction): Promise<UserRestriction> {
+    const [newRestriction] = await db
+      .insert(userRestrictions)
+      .values(restriction)
+      .returning();
+    return newRestriction;
+  }
+
+  async getUserActiveRestrictions(userId: string): Promise<UserRestriction[]> {
+    return await db
+      .select()
+      .from(userRestrictions)
+      .where(and(
+        eq(userRestrictions.userId, userId),
+        eq(userRestrictions.isActive, true)
+      ))
+      .orderBy(desc(userRestrictions.createdAt));
+  }
+
+  async updateUserRestriction(id: string, updates: Partial<UserRestriction>): Promise<UserRestriction | undefined> {
+    const [restriction] = await db
+      .update(userRestrictions)
+      .set(updates)
+      .where(eq(userRestrictions.id, id))
+      .returning();
+    return restriction || undefined;
+  }
+
+  async createDispute(dispute: InsertDispute): Promise<Dispute> {
+    const [newDispute] = await db
+      .insert(disputes)
+      .values(dispute)
+      .returning();
+    return newDispute;
+  }
+
+  async getDisputesByUserId(userId: string): Promise<Dispute[]> {
+    return await db
+      .select()
+      .from(disputes)
+      .where(eq(disputes.userId, userId))
+      .orderBy(desc(disputes.submittedAt));
+  }
+
+  async getAllDisputes(): Promise<Dispute[]> {
+    return await db
+      .select()
+      .from(disputes)
+      .orderBy(desc(disputes.submittedAt));
+  }
+
+  async updateDispute(id: string, updates: Partial<Dispute>): Promise<Dispute | undefined> {
+    const [dispute] = await db
+      .update(disputes)
+      .set(updates)
+      .where(eq(disputes.id, id))
+      .returning();
+    return dispute || undefined;
+  }
+
+  async assignTraining(training: InsertBehavioralTraining): Promise<BehavioralTraining> {
+    const [newTraining] = await db
+      .insert(behavioralTraining)
+      .values(training)
+      .returning();
+    return newTraining;
+  }
+
+  async getTrainingsByUserId(userId: string): Promise<BehavioralTraining[]> {
+    return await db
+      .select()
+      .from(behavioralTraining)
+      .where(eq(behavioralTraining.userId, userId))
+      .orderBy(desc(behavioralTraining.assignedDate));
+  }
+
+  async updateTraining(id: string, updates: Partial<BehavioralTraining>): Promise<BehavioralTraining | undefined> {
+    const [training] = await db
+      .update(behavioralTraining)
+      .set(updates)
+      .where(eq(behavioralTraining.id, id))
+      .returning();
+    return training || undefined;
+  }
+
+  async awardBadge(badge: InsertTrustedBadge): Promise<TrustedBadge> {
+    const [newBadge] = await db
+      .insert(trustedBadges)
+      .values(badge)
+      .returning();
+    return newBadge;
+  }
+
+  async getUserBadges(userId: string): Promise<TrustedBadge[]> {
+    return await db
+      .select()
+      .from(trustedBadges)
+      .where(and(
+        eq(trustedBadges.userId, userId),
+        eq(trustedBadges.isActive, true)
+      ))
+      .orderBy(desc(trustedBadges.earnedDate));
+  }
+
+  async updateBadge(id: string, updates: Partial<TrustedBadge>): Promise<TrustedBadge | undefined> {
+    const [badge] = await db
+      .update(trustedBadges)
+      .set(updates)
+      .where(eq(trustedBadges.id, id))
+      .returning();
+    return badge || undefined;
+  }
+
+  async getUserStrikeLevel(userId: string): Promise<number> {
+    const activeStrikes = await this.getActiveStrikesCount(userId);
+    return Math.min(activeStrikes, 4); // Cap at level 4 for permanent ban
   }
 }
 

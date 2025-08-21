@@ -34,6 +34,7 @@ import AdminBlogPosts from "@/pages/admin/blog-posts";
 import AdminBlogPostCreate from "@/pages/admin/blog-post-create";
 import AdminBlogPostEdit from "@/pages/admin/blog-post-edit";
 import AdminFinderLevels from "@/pages/admin/finder-levels";
+import AdminStrikeSystem from "@/pages/admin/StrikeSystem";
 import BlogPost from "@/pages/blog-post";
 import Messages from "@/pages/Messages";
 import ConversationDetail from "@/pages/ConversationDetail";
@@ -108,6 +109,7 @@ function Router() {
       <Route path="/admin/blog-posts/create" component={AdminBlogPostCreate} />
       <Route path="/admin/blog-posts/edit/:id" component={AdminBlogPostEdit} />
       <Route path="/admin/finder-levels" component={AdminFinderLevels} />
+      <Route path="/admin/strike-system" component={AdminStrikeSystem} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/messages" component={Messages} />
       <Route path="/messages/:conversationId" component={ConversationDetail} />

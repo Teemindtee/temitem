@@ -233,6 +233,71 @@ export const tokenGrants = pgTable("token_grants", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Strike System Tables
+export const strikes = pgTable("strikes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  strikeLevel: integer("strike_level").notNull(), // 1, 2, 3, 4
+  offense: text("offense").notNull(), // Description of the offense
+  offenseType: text("offense_type").notNull(), // Category of offense
+  evidence: text("evidence"), // JSON string with evidence details
+  issuedBy: varchar("issued_by").references(() => users.id).notNull(),
+  status: text("status").default("active"), // 'active', 'appealed', 'resolved', 'expired'
+  appealReason: text("appeal_reason"),
+  appealedAt: timestamp("appealed_at"),
+  reviewedBy: varchar("reviewed_by").references(() => users.id),
+  reviewedAt: timestamp("reviewed_at"),
+  expiresAt: timestamp("expires_at"), // When strike can be cleared (90 days for rollback)
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const userRestrictions = pgTable("user_restrictions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  restrictionType: text("restriction_type").notNull(), // 'posting', 'applications', 'messaging', 'suspended', 'banned'
+  reason: text("reason").notNull(),
+  startDate: timestamp("start_date").defaultNow(),
+  endDate: timestamp("end_date"), // null for permanent restrictions
+  isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const disputes = pgTable("disputes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  strikeId: varchar("strike_id").references(() => strikes.id),
+  contractId: varchar("contract_id").references(() => contracts.id),
+  findId: varchar("find_id").references(() => finds.id),
+  type: text("type").notNull(), // 'strike_appeal', 'contract_dispute', 'payment_dispute'
+  description: text("description").notNull(),
+  evidence: text("evidence"), // JSON string with files, screenshots, etc.
+  status: text("status").default("pending"), // 'pending', 'investigating', 'resolved', 'rejected'
+  assignedTo: varchar("assigned_to").references(() => users.id),
+  resolution: text("resolution"),
+  resolvedAt: timestamp("resolved_at"),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+});
+
+export const behavioralTraining = pgTable("behavioral_training", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  moduleType: text("module_type").notNull(), // 'communication', 'reliability', 'fraud_prevention'
+  status: text("status").default("assigned"), // 'assigned', 'in_progress', 'completed'
+  assignedDate: timestamp("assigned_date").defaultNow(),
+  completedDate: timestamp("completed_date"),
+  score: integer("score"), // percentage score if applicable
+});
+
+export const trustedBadges = pgTable("trusted_badges", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  badgeType: text("badge_type").notNull(), // 'trusted_client', 'trusted_finder', 'referral_champion'
+  earnedDate: timestamp("earned_date").defaultNow(),
+  isActive: boolean("is_active").default(true),
+  validUntil: timestamp("valid_until"), // null for permanent badges
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   finder: one(finders, {
@@ -490,6 +555,44 @@ export const insertProposalSchema = createInsertSchema(proposals).omit({
   id: true,
   createdAt: true,
 });
+
+// Strike System Schemas
+export const insertStrikeSchema = createInsertSchema(strikes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserRestrictionSchema = createInsertSchema(userRestrictions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDisputeSchema = createInsertSchema(disputes).omit({
+  id: true,
+  submittedAt: true,
+});
+
+export const insertBehavioralTrainingSchema = createInsertSchema(behavioralTraining).omit({
+  id: true,
+  assignedDate: true,
+});
+
+export const insertTrustedBadgeSchema = createInsertSchema(trustedBadges).omit({
+  id: true,
+  earnedDate: true,
+});
+
+// Strike System Types
+export type Strike = typeof strikes.$inferSelect;
+export type InsertStrike = z.infer<typeof insertStrikeSchema>;
+export type UserRestriction = typeof userRestrictions.$inferSelect;
+export type InsertUserRestriction = z.infer<typeof insertUserRestrictionSchema>;
+export type Dispute = typeof disputes.$inferSelect;
+export type InsertDispute = z.infer<typeof insertDisputeSchema>;
+export type BehavioralTraining = typeof behavioralTraining.$inferSelect;
+export type InsertBehavioralTraining = z.infer<typeof insertBehavioralTrainingSchema>;
+export type TrustedBadge = typeof trustedBadges.$inferSelect;
+export type InsertTrustedBadge = z.infer<typeof insertTrustedBadgeSchema>;
 
 export const insertContractSchema = createInsertSchema(contracts).omit({
   id: true,

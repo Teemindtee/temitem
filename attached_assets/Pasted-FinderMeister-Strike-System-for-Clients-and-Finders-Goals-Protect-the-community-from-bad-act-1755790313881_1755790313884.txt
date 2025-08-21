@@ -1,0 +1,42 @@
+FinderMeister
+
+Strike System for Clients and Finders
+🎯 Goals
+Protect the community from bad actors.
+Deter fraud, scams, delays, and abuse.
+Reward reliability and ethical conduct.
+Maintain a healthy ecosystem between Clients and Finders.
+🔁 Structure Overview
+Level	Action	Consequence
+⚠️ Strike 1	Warning	No penalty. Education + system reminder.
+⚠️ Strike 2	System Restrictions	Limited features (7-day restriction)
+❌ Strike 3	Temporary Suspension	Account suspended for 30 days
+⛔ Strike 4	Permanent Ban	Account blacklisted permanently
+📌 CLIENT STRIKE SYSTEM
+Offense	Strike Level	Resolution
+❗ Fake or malicious find	Strike 2	Review + block posting for 7 days
+💰 Refusing payment after confirmed find	Strike 3	Escrow payout to Finder + 30-day ban
+🧾 No-show or ghosting after find match	Strike 1	Warning + auto-removal of find
+📉 Low review average	Strike 2	7-day review & education period
+🧑‍⚖️ Abuse or harassment of Finders	Strike 3 or 4	Investigation by support team
+📌 FINDER STRIKE SYSTEM
+Offense	Strike Level	Resolution
+🚫 Repeated 'No shows'	Strike 2	Limited applications for 7 days
+❌ Lying about completion	Strike 3	Possible platform removal
+📤 Uploading fake proof	Strike 3	Escalated to ban on third offense
+🧠 Impersonation	Strike 4	Immediate permanent ban
+🔞 Offering banned/illegal items	Strike 4	Blacklist + report to authorities
+🗣 Toxic communication	Strike 2	Temporarily muted + counseling module
+🔍 Evidence-Based Dispute Resolution
+Users can submit a formal dispute within 48 hours.
+Admin support reviews: chat logs, escrow activity, uploaded evidence, user reputation, and peer reviews.
+🏅 Redemption System
+Behavioral Training Module for suspended users.
+Strike Rollback after 90-day clean record.
+📊 Dashboard Transparency
+See current strike count and past offenses.
+Countdown to strike expiration and learning modules available.
+📣 Community Reminder System
+Quarterly strike report (anonymized).
+Strike-free users get 'Trusted' badges.
+Referrals from trusted users unlock perks.
