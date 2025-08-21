@@ -2896,6 +2896,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Strike system endpoints
+  app.get('/api/offenses/:role', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { role } = req.params;
+      
+      // Predefined offenses for different user roles
+      const offenseTypes = {
+        client: [
+          { offense: 'Misleading Request Description', strikeLevel: 1, applicableRoles: ['client'], resolution: 'Warning and request clarification' },
+          { offense: 'Inappropriate Content in Request', strikeLevel: 2, applicableRoles: ['client'], resolution: 'Content removal and warning' },
+          { offense: 'Non-payment or Payment Disputes', strikeLevel: 2, applicableRoles: ['client'], resolution: 'Payment resolution required' },
+          { offense: 'Harassment of Finders', strikeLevel: 3, applicableRoles: ['client'], resolution: 'Immediate account review' },
+          { offense: 'Fraudulent Activity', strikeLevel: 3, applicableRoles: ['client'], resolution: 'Account suspension' }
+        ],
+        finder: [
+          { offense: 'Low Quality or Incomplete Proposals', strikeLevel: 1, applicableRoles: ['finder'], resolution: 'Training and guidance provided' },
+          { offense: 'Missing Deadlines Without Communication', strikeLevel: 1, applicableRoles: ['finder'], resolution: 'Communication improvement required' },
+          { offense: 'Inappropriate Communication', strikeLevel: 2, applicableRoles: ['finder'], resolution: 'Communication standards training' },
+          { offense: 'Delivering Substandard Work', strikeLevel: 2, applicableRoles: ['finder'], resolution: 'Quality standards review' },
+          { offense: 'Fraudulent Claims or Credentials', strikeLevel: 3, applicableRoles: ['finder'], resolution: 'Account verification required' },
+          { offense: 'Harassment of Clients', strikeLevel: 3, applicableRoles: ['finder'], resolution: 'Immediate account review' }
+        ]
+      };
+
+      const roleOffenses = offenseTypes[role as keyof typeof offenseTypes] || [];
+      res.json(roleOffenses);
+    } catch (error) {
+      console.error('Error fetching offense types:', error);
+      res.status(500).json({ message: 'Failed to fetch offense types' });
+    }
+  });
+
+  app.post('/api/admin/strikes', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { userId, offenseType, evidence, userRole, contextId } = req.body;
+
+      if (!userId || !offenseType || !evidence || !userRole) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+
+      // For now, we'll just return a success response
+      // In a full implementation, this would save to database
+      const strike = {
+        id: Date.now().toString(),
+        userId,
+        offenseType,
+        evidence,
+        userRole,
+        contextId,
+        issuedBy: req.user.id,
+        issuedAt: new Date().toISOString(),
+        status: 'active'
+      };
+
+      res.status(201).json(strike);
+    } catch (error) {
+      console.error('Error issuing strike:', error);
+      res.status(500).json({ message: 'Failed to issue strike' });
+    }
+  });
+
   app.get('/api/admin/restricted-words', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {

@@ -50,7 +50,10 @@ export default function AdminIssueStrike({
   // Issue strike mutation
   const issueStrikeMutation = useMutation({
     mutationFn: async (data: { userId: string; offenseType: string; evidence: string; userRole: string; contextId?: string }) => {
-      return await apiRequest('/api/admin/strikes', 'POST', data);
+      return await apiRequest('/api/admin/strikes', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
     },
     onSuccess: () => {
       toast({
@@ -100,10 +103,18 @@ export default function AdminIssueStrike({
     </Button>
   );
 
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDialogOpen(true);
+  };
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        {trigger || defaultTrigger}
+        <div onClick={handleTriggerClick}>
+          {trigger || defaultTrigger}
+        </div>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -135,7 +146,7 @@ export default function AdminIssueStrike({
                 <SelectValue placeholder="Select offense type" />
               </SelectTrigger>
               <SelectContent>
-                {offenseTypes?.map((offense: OffenseDefinition) => (
+                {(offenseTypes || []).map((offense: OffenseDefinition) => (
                   <SelectItem key={offense.offense} value={offense.offense}>
                     {offense.offense} (Level {offense.strikeLevel})
                   </SelectItem>
