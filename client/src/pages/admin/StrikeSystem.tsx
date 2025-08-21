@@ -13,6 +13,7 @@ import { AlertTriangle, Shield, Users, FileText, TrendingUp } from "lucide-react
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import AdminHeader from "@/components/admin-header";
+import { SeverityBadge, getSeverityConfig } from "@/components/severity-badge";
 
 interface Strike {
   id: string;
@@ -168,15 +169,7 @@ export default function StrikeSystem() {
     });
   };
 
-  const getStrikeLevelColor = (level: number) => {
-    switch (level) {
-      case 1: return "bg-yellow-100 text-yellow-800";
-      case 2: return "bg-orange-100 text-orange-800";
-      case 3: return "bg-red-100 text-red-800";
-      case 4: return "bg-gray-900 text-white";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
+  // Severity helper functions now handled by SeverityBadge component
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -252,7 +245,14 @@ export default function StrikeSystem() {
                     <SelectContent>
                       {offenseTypes?.map((offense: OffenseDefinition) => (
                         <SelectItem key={offense.offense} value={offense.offense}>
-                          {offense.offense} (Level {offense.strikeLevel})
+                          <div className="flex items-center justify-between w-full">
+                            <span className="flex-1">{offense.offense}</span>
+                            <SeverityBadge 
+                              level={offense.strikeLevel} 
+                              variant="compact"
+                              className="ml-2"
+                            />
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -286,6 +286,28 @@ export default function StrikeSystem() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        
+        {/* Severity Legend */}
+        <Card className="bg-white/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 dark:bg-gray-800/80">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Severity Indicators
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((level) => (
+                <SeverityBadge 
+                  key={level} 
+                  level={level} 
+                  variant="detailed"
+                  className="border-2"
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Statistics Overview */}
@@ -345,22 +367,64 @@ export default function StrikeSystem() {
           <CardDescription>Breakdown of users by their current strike levels</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">{strikeStats?.strikeLevelBreakdown?.[1] || 0}</div>
-              <div className="text-sm text-gray-600">Level 1 (Warning)</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((level) => {
+              const count = strikeStats?.strikeLevelBreakdown?.[level] || 0;
+              const config = getSeverityConfig(level);
+              
+              return (
+                <div key={level} className="text-center p-4 rounded-lg bg-gray-50 dark:bg-gray-700">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <span className="text-2xl">{config.icon}</span>
+                    <div className="text-3xl font-bold">
+                      {count}
+                    </div>
+                  </div>
+                  <SeverityBadge 
+                    level={level} 
+                    variant="compact"
+                    className="mb-2"
+                  />
+                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {config.name}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {count === 1 ? 'user' : 'users'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Total Progress Bar */}
+          <div className="mt-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium">Total Strike Distribution</span>
+              <span className="text-sm text-gray-500">
+                {Object.values(strikeStats?.strikeLevelBreakdown || {}).reduce((a, b) => a + b, 0)} users affected
+              </span>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">{strikeStats?.strikeLevelBreakdown?.[2] || 0}</div>
-              <div className="text-sm text-gray-600">Level 2 (Restricted)</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">{strikeStats?.strikeLevelBreakdown?.[3] || 0}</div>
-              <div className="text-sm text-gray-600">Level 3 (Suspended)</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">{strikeStats?.strikeLevelBreakdown?.[4] || 0}</div>
-              <div className="text-sm text-gray-600">Level 4 (Banned)</div>
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              {[1, 2, 3, 4].map((level) => {
+                const count = strikeStats?.strikeLevelBreakdown?.[level] || 0;
+                const total = Object.values(strikeStats?.strikeLevelBreakdown || {}).reduce((a, b) => a + b, 0);
+                const percentage = total > 0 ? (count / total) * 100 : 0;
+                const colors = {
+                  1: 'bg-yellow-500',
+                  2: 'bg-orange-500', 
+                  3: 'bg-red-500',
+                  4: 'bg-gray-900'
+                };
+                
+                return (
+                  <div 
+                    key={level}
+                    className={`h-full ${colors[level as keyof typeof colors]} inline-block`}
+                    style={{ width: `${percentage}%` }}
+                    title={`Level ${level}: ${count} users (${percentage.toFixed(1)}%)`}
+                  />
+                );
+              })}
             </div>
           </div>
         </CardContent>
