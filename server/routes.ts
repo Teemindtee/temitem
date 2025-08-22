@@ -1261,6 +1261,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get finder profile by name slug (for name-based URLs)
+  app.get("/api/admin/finder-profile/by-slug/:nameSlug", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { nameSlug } = req.params;
+      
+      // Extract the ID part from the name slug (last 8 characters)
+      const match = nameSlug.match(/([a-f0-9]{8})$/);
+      if (!match) {
+        return res.status(400).json({ message: "Invalid name slug format" });
+      }
+      
+      const idPrefix = match[1];
+      
+      // Get all users and find the one with matching ID prefix
+      const users = await storage.getAllUsers();
+      const user = users.find(u => u.id.startsWith(idPrefix));
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Get the finder profile for this user
+      const finder = await storage.getFinderByUserId(user.id);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder not found" });
+      }
+
+      // Remove password from user data
+      const { password, ...userWithoutPassword } = user;
+      res.json({ ...finder, user: userWithoutPassword });
+    } catch (error) {
+      console.error('Error fetching finder profile by slug:', error);
+      res.status(500).json({ message: "Failed to fetch finder profile" });
+    }
+  });
+
   app.get("/api/admin/finds", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {
