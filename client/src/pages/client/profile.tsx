@@ -36,10 +36,11 @@ import {
   FileText,
   Clock
 } from "lucide-react";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import ClientHeader from "@/components/client-header";
+import AdminHeader from "@/components/admin-header";
 
 export default function ClientProfile() {
   const [, navigate] = useLocation();
@@ -47,28 +48,47 @@ export default function ClientProfile() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
+  // Get userId from URL parameters for admin access
+  const urlParams = new URLSearchParams(window.location.search);
+  const viewUserId = urlParams.get('userId');
+  const isAdminViewing = user?.role === 'admin' && viewUserId && viewUserId !== String(user.id);
+  
+  // Fetch user data if admin is viewing another user's profile
+  const { data: profileUser } = useQuery({
+    queryKey: ['/api/admin/users', viewUserId],
+    queryFn: () => apiRequest(`/api/admin/users/${viewUserId}`),
+    enabled: Boolean(isAdminViewing && viewUserId),
+  });
+  
+  // Use either the profile user (for admin) or the logged-in user
+  const displayUser = isAdminViewing ? profileUser : user;
+  
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
+    firstName: displayUser?.firstName || '',
+    lastName: displayUser?.lastName || '',
+    email: displayUser?.email || '',
+    phone: displayUser?.phone || '',
   });
 
   // Update form data when user data loads/changes
   useEffect(() => {
-    if (user) {
+    if (displayUser) {
       setFormData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || '',
-        phone: user.phone || '',
+        firstName: displayUser.firstName || '',
+        lastName: displayUser.lastName || '',
+        email: displayUser.email || '',
+        phone: displayUser.phone || '',
       });
     }
-  }, [user]);
+  }, [displayUser]);
 
   const updateProfile = useMutation({
     mutationFn: async (data: typeof formData) => {
+      // Only allow self-editing for now (admins can view but not edit from this page)
+      if (isAdminViewing) {
+        throw new Error("Admins can view but not edit client profiles from this page");
+      }
       return apiRequest('/api/auth/update-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,7 +113,7 @@ export default function ClientProfile() {
       toast({
         variant: "destructive",
         title: "Update Failed",
-        description: "Failed to update profile. Please try again.",
+        description: error.message || "Failed to update profile. Please try again.",
       });
     }
   });
@@ -111,19 +131,19 @@ export default function ClientProfile() {
   };
 
   const handleCancel = () => {
-    if (user) {
+    if (displayUser) {
       setFormData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || '',
-        phone: user.phone || '',
+        firstName: displayUser.firstName || '',
+        lastName: displayUser.lastName || '',
+        email: displayUser.email || '',
+        phone: displayUser.phone || '',
       });
     }
     setIsEditing(false);
   };
 
-  // Redirect if not authenticated or not client
-  if (!user || user.role !== 'client') {
+  // Access control: allow clients to view their own profile, or admins to view any client profile
+  if (!user || (user.role !== 'client' && user.role !== 'admin')) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
@@ -131,9 +151,27 @@ export default function ClientProfile() {
             <User className="w-10 h-10 text-red-600" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
-          <p className="text-slate-600 mb-6">This page is only accessible by clients.</p>
+          <p className="text-slate-600 mb-6">This page is only accessible by clients or admins.</p>
           <Button onClick={() => navigate("/login")} className="bg-blue-600 hover:bg-blue-700">
             Sign In
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // If admin is viewing without a specific userId, or userId is invalid, show error
+  if (user.role === 'admin' && !isAdminViewing && !viewUserId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+          <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users className="w-10 h-10 text-orange-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">User ID Required</h1>
+          <p className="text-slate-600 mb-6">Please provide a userId parameter to view a client profile.</p>
+          <Button onClick={() => navigate("/admin/users")} className="bg-blue-600 hover:bg-blue-700">
+            Back to Users
           </Button>
         </div>
       </div>
@@ -158,7 +196,11 @@ export default function ClientProfile() {
       <div className="absolute top-0 -right-4 w-72 h-72 bg-slate-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000 -z-10" />
       <div className="absolute -bottom-8 left-20 w-72 h-72 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000 -z-10" style={{ backgroundColor: "hsl(1, 81%, 73%)" }} />
 
-      <ClientHeader currentPage="profile" />
+      {isAdminViewing ? (
+        <AdminHeader currentPage="users" />
+      ) : (
+        <ClientHeader currentPage="profile" />
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -172,9 +214,9 @@ export default function ClientProfile() {
                   <div className="relative">
                     <Avatar className="w-24 h-24 sm:w-28 sm:h-28 mx-auto border-4 border-white shadow-2xl ring-4 transition-all duration-300 group-hover:ring-opacity-70 ring-red-200">
                       <AvatarFallback className="text-white text-2xl sm:text-3xl font-bold" style={{ background: "linear-gradient(to bottom right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
-                        {((user.firstName || "") + (user.lastName || ""))
+                        {((displayUser?.firstName || "") + (displayUser?.lastName || ""))
                           .split(' ')
-                          .map(n => n[0])
+                          .map((n: string) => n[0])
                           .join('')
                           .toUpperCase()
                           .slice(0, 2)}
@@ -188,9 +230,9 @@ export default function ClientProfile() {
                 </div>
                 
                 <h2 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent mb-3" style={{ backgroundImage: "linear-gradient(to right, hsl(213, 27%, 16%), hsl(1, 81%, 53%))" }}>
-                  {user.firstName} {user.lastName}
+                  {displayUser?.firstName} {displayUser?.lastName}
                 </h2>
-                <p className="text-slate-600 mb-6 font-medium">{user.email}</p>
+                <p className="text-slate-600 mb-6 font-medium">{displayUser?.email}</p>
                 
                 <div className="flex items-center justify-center space-x-1 mb-8">
                   <div className="flex items-center bg-gradient-to-r from-amber-50 to-yellow-50 p-2 rounded-full">
