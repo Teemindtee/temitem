@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { User } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
+import { Link } from "wouter";
 
 interface ExtendedUser extends User {
   profileImageUrl?: string;
@@ -126,6 +127,17 @@ export default function AdminUsersModern() {
     }
   };
 
+  const getProfileUrl = (userData: ExtendedUser) => {
+    switch (userData.role) {
+      case 'finder':
+        return `/finder-profile/${userData.id}`;
+      case 'client':
+        return `/client/profile?userId=${userData.id}`;
+      default:
+        return '#'; // Admin users don't have public profiles
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20">
@@ -186,81 +198,6 @@ export default function AdminUsersModern() {
               </div>
             </div>
           </div>
-          
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mt-4 sm:mt-6">
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-2 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-blue-500/10 text-blue-600 rounded-md sm:rounded-lg">
-                  <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Total</p>
-                  <p className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">{stats.total}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-2 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-green-500/10 text-green-600 rounded-md sm:rounded-lg">
-                  <ShieldCheck className="w-3 h-3 sm:w-4 sm:h-4" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Verified</p>
-                  <p className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">{stats.verified}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-2 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-red-500/10 text-red-600 rounded-md sm:rounded-lg">
-                  <Ban className="w-3 h-3 sm:w-4 sm:h-4" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Banned</p>
-                  <p className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">{stats.banned}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-2 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-purple-500/10 text-purple-600 rounded-md sm:rounded-lg">
-                  <Crown className="w-3 h-3 sm:w-4 sm:h-4" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Admins</p>
-                  <p className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">{stats.admins}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-2 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-amber-500/10 text-amber-600 rounded-md sm:rounded-lg">
-                  <Star className="w-3 h-3 sm:w-4 sm:h-4" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Finders</p>
-                  <p className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">{stats.finders}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-2 sm:p-4 rounded-lg sm:rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-teal-500/10 text-teal-600 rounded-md sm:rounded-lg">
-                  <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Clients</p>
-                  <p className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">{stats.clients}</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
       
@@ -293,9 +230,17 @@ export default function AdminUsersModern() {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
-                        {userData.firstName} {userData.lastName}
-                      </h3>
+                      {userData.role === 'admin' ? (
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
+                          {userData.firstName} {userData.lastName}
+                        </h3>
+                      ) : (
+                        <Link href={getProfileUrl(userData)}>
+                          <h3 className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 truncate cursor-pointer transition-colors">
+                            {userData.firstName} {userData.lastName}
+                          </h3>
+                        </Link>
+                      )}
                       <div className="flex items-center gap-2 mt-1">
                         <Badge className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium border ${getRoleColor(userData.role)}`}>
                           <div className="flex items-center gap-1">
@@ -412,6 +357,84 @@ export default function AdminUsersModern() {
             <p className="text-gray-500 dark:text-gray-400">Try adjusting your search terms</p>
           </div>
         )}
+        
+        {/* Stats Grid - Moved to Bottom */}
+        <div className="mt-8 sm:mt-12">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Platform Statistics</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-500/10 text-green-600 rounded-lg">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Verified</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.verified}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-500/10 text-red-600 rounded-lg">
+                  <Ban className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Banned</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.banned}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-500/10 text-purple-600 rounded-lg">
+                  <Crown className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Admins</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.admins}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-500/10 text-amber-600 rounded-lg">
+                  <Star className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Finders</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.finders}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-teal-500/10 text-teal-600 rounded-lg">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Clients</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.clients}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       
       {/* Ban User Dialog */}
