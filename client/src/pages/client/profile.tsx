@@ -44,7 +44,7 @@ import AdminHeader from "@/components/admin-header";
 
 export default function ClientProfile() {
   const [, navigate] = useLocation();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -54,7 +54,7 @@ export default function ClientProfile() {
   const isAdminViewing = user?.role === 'admin' && !!viewUserId;
   
   // Fetch user data if admin is viewing another user's profile
-  const { data: profileUser } = useQuery({
+  const { data: profileUser, isLoading: profileLoading, error: profileError } = useQuery({
     queryKey: ['/api/admin/users', viewUserId],
     queryFn: () => apiRequest(`/api/admin/users/${viewUserId}`),
     enabled: Boolean(isAdminViewing && viewUserId),
