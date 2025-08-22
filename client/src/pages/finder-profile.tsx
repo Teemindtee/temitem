@@ -17,9 +17,19 @@ export default function FinderProfileView() {
     ? `/api/admin/finder-profile/by-slug/${userId}`
     : `/api/admin/finder-profile/${userId}`;
 
-  const { data: finderData, isLoading } = useQuery<any>({
+  const { data: finderData, isLoading, error } = useQuery<any>({
     queryKey: [apiEndpoint],
     enabled: !!userId
+  });
+
+  // Debug logging
+  console.log('FinderProfile Debug:', {
+    userId,
+    isNameSlug,
+    apiEndpoint,
+    finderData,
+    isLoading,
+    error
   });
 
   if (isLoading) {
