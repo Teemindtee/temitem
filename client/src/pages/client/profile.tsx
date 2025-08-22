@@ -51,7 +51,7 @@ export default function ClientProfile() {
   // Get userId from URL parameters for admin access
   const urlParams = new URLSearchParams(window.location.search);
   const viewUserId = urlParams.get('userId');
-  const isAdminViewing = user?.role === 'admin' && viewUserId && viewUserId !== String(user.id);
+  const isAdminViewing = user?.role === 'admin' && !!viewUserId;
   
   // Fetch user data if admin is viewing another user's profile
   const { data: profileUser } = useQuery({
@@ -60,7 +60,7 @@ export default function ClientProfile() {
     enabled: Boolean(isAdminViewing && viewUserId),
   });
   
-  // Use either the profile user (for admin) or the logged-in user
+  // Use either the profile user (for admin viewing) or the logged-in user (for self-viewing)
   const displayUser = isAdminViewing ? profileUser : user;
   
   const [isEditing, setIsEditing] = useState(false);
@@ -160,8 +160,8 @@ export default function ClientProfile() {
     );
   }
 
-  // If admin is viewing without a specific userId, or userId is invalid, show error
-  if (user.role === 'admin' && !isAdminViewing && !viewUserId) {
+  // If admin is viewing without a specific userId, show error
+  if (user.role === 'admin' && !viewUserId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
