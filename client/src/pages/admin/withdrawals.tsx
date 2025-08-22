@@ -283,73 +283,73 @@ export default function AdminWithdrawals() {
     <div className="min-h-screen bg-gray-50">
       <AdminHeader currentPage="withdrawals" />
 
-      <div className="max-w-7xl mx-auto py-8 px-6">
+      <div className="max-w-7xl mx-auto py-4 sm:py-8 px-4 sm:px-6">
         {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-finder-red rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-finder-red rounded-lg flex items-center justify-center">
+                <DollarSign className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Withdrawal Management</h1>
-                <p className="text-gray-600">Review and process finder withdrawal requests</p>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Withdrawal Management</h1>
+                <p className="text-sm sm:text-base text-gray-600">Review and process finder withdrawal requests</p>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Button onClick={exportToCSV} variant="outline" className="flex items-center gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button onClick={exportToCSV} variant="outline" size="sm" className="flex items-center gap-2 flex-1 sm:flex-none">
                 <FileText className="w-4 h-4" />
-                Export CSV
+                <span className="hidden sm:inline">Export</span> CSV
               </Button>
-              <Button onClick={exportToPDF} variant="outline" className="flex items-center gap-2">
+              <Button onClick={exportToPDF} variant="outline" size="sm" className="flex items-center gap-2 flex-1 sm:flex-none">
                 <Download className="w-4 h-4" />
-                Export PDF
+                <span className="hidden sm:inline">Export</span> PDF
               </Button>
             </div>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
           <Card>
-            <CardContent className="p-6 text-center">
-              <div className="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-white" />
+            <CardContent className="p-3 sm:p-6 text-center">
+              <div className="bg-yellow-600 rounded-full w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Pending</h3>
-              <p className="text-2xl font-bold text-yellow-600">{pendingWithdrawals.length}</p>
+              <h3 className="text-xs sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">Pending</h3>
+              <p className="text-lg sm:text-2xl font-bold text-yellow-600">{pendingWithdrawals.length}</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6 text-center">
-              <div className="bg-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="w-6 h-6 text-white" />
+            <CardContent className="p-3 sm:p-6 text-center">
+              <div className="bg-blue-600 rounded-full w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                <AlertTriangle className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Processing</h3>
-              <p className="text-2xl font-bold text-blue-600">{processingWithdrawals.length}</p>
+              <h3 className="text-xs sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">Processing</h3>
+              <p className="text-lg sm:text-2xl font-bold text-blue-600">{processingWithdrawals.length}</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6 text-center">
-              <div className="bg-green-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-6 h-6 text-white" />
+            <CardContent className="p-3 sm:p-6 text-center">
+              <div className="bg-green-600 rounded-full w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                <CheckCircle className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Approved</h3>
-              <p className="text-2xl font-bold text-green-600">
+              <h3 className="text-xs sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">Approved</h3>
+              <p className="text-lg sm:text-2xl font-bold text-green-600">
                 {withdrawals.filter(w => w.status === 'approved').length}
               </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="p-6 text-center">
-              <div className="bg-finder-red rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <XCircle className="w-6 h-6 text-white" />
+            <CardContent className="p-3 sm:p-6 text-center">
+              <div className="bg-finder-red rounded-full w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                <XCircle className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Rejected</h3>
-              <p className="text-2xl font-bold text-finder-red">
+              <h3 className="text-xs sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2">Rejected</h3>
+              <p className="text-lg sm:text-2xl font-bold text-finder-red">
                 {withdrawals.filter(w => w.status === 'rejected').length}
               </p>
             </CardContent>
@@ -357,23 +357,23 @@ export default function AdminWithdrawals() {
         </div>
 
         {/* Search and Filter Controls */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
+        <Card className="mb-4 sm:mb-6">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                   <Input
-                    placeholder="Search by finder name, email, amount, or status..."
+                    placeholder="Search withdrawals..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 text-sm"
                   />
                 </div>
               </div>
-              <div className="w-full md:w-48">
+              <div className="w-full sm:w-48">
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -403,7 +403,8 @@ export default function AdminWithdrawals() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="rounded-lg border overflow-hidden">
+                {/* Desktop Table View - Hidden on Mobile */}
+                <div className="hidden lg:block rounded-lg border overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -581,43 +582,210 @@ export default function AdminWithdrawals() {
                   </Table>
                 </div>
 
+                {/* Mobile Card View - Hidden on Desktop */}
+                <div className="lg:hidden space-y-3">
+                  {paginatedWithdrawals.map((withdrawal: any) => {
+                    const paymentDetails = withdrawal.paymentDetails ? JSON.parse(withdrawal.paymentDetails) : {};
+                    return (
+                      <Card key={withdrawal.id} className="p-4 hover:shadow-md transition-shadow">
+                        <div className="space-y-3">
+                          {/* Header Row */}
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="font-medium text-gray-900 text-sm">
+                                {withdrawal.finderName || 'N/A'}
+                              </div>
+                              <div className="text-xs text-gray-500 truncate">
+                                {withdrawal.finderEmail}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-semibold text-green-600 text-sm">
+                                {formatCurrency(withdrawal.amount)}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {new Date(withdrawal.requestedAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Status and Payment Method */}
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                              {getStatusBadge(withdrawal.status)}
+                              <span className="text-xs text-gray-500 capitalize">
+                                {withdrawal.paymentMethod?.replace('_', ' ') || 'N/A'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Bank Details */}
+                          <div className="bg-gray-50 p-2 rounded text-xs">
+                            <div className="font-medium text-gray-700 mb-1">Bank Details:</div>
+                            <div className="space-y-0.5 text-gray-600">
+                              <div><span className="font-medium">Name:</span> {paymentDetails.accountName || 'N/A'}</div>
+                              <div><span className="font-medium">Account:</span> {paymentDetails.accountNumber || 'N/A'}</div>
+                              <div><span className="font-medium">Bank:</span> {paymentDetails.bankName || 'N/A'}</div>
+                            </div>
+                          </div>
+
+                          {/* Action Button */}
+                          <div className="pt-2">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => openProcessDialog(withdrawal)}
+                                  className="w-full"
+                                >
+                                  Process Withdrawal
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-2xl">
+                                <DialogHeader>
+                                  <DialogTitle>Process Withdrawal Request</DialogTitle>
+                                </DialogHeader>
+                                <div className="space-y-4">
+                                  <div className="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                      <Label>Finder</Label>
+                                      <p className="text-sm text-gray-600">
+                                        {selectedWithdrawal?.finderName || 'N/A'}
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        {selectedWithdrawal?.finderEmail}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <Label>Amount</Label>
+                                      <p className="font-semibold text-green-600">
+                                        {selectedWithdrawal && formatCurrency(selectedWithdrawal.amount)}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <Label>Bank Details</Label>
+                                    <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                                      {selectedWithdrawal?.paymentDetails ? (() => {
+                                        const details = JSON.parse(selectedWithdrawal.paymentDetails);
+                                        return (
+                                          <div className="space-y-1">
+                                            <div><strong>Account Name:</strong> {details.accountName || 'N/A'}</div>
+                                            <div><strong>Account Number:</strong> {details.accountNumber || 'N/A'}</div>
+                                            <div><strong>Bank Name:</strong> {details.bankName || 'N/A'}</div>
+                                            <div><strong>Sort Code:</strong> {details.sortCode || 'N/A'}</div>
+                                          </div>
+                                        );
+                                      })() : 'No bank details provided'}
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <Label htmlFor="status">Status</Label>
+                                    <Select value={newStatus} onValueChange={setNewStatus}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select status" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                        <SelectItem value="processing">Processing</SelectItem>
+                                        <SelectItem value="approved">Approved</SelectItem>
+                                        <SelectItem value="rejected">Rejected</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div>
+                                    <Label htmlFor="notes">Admin Notes</Label>
+                                    <Textarea
+                                      id="notes"
+                                      value={adminNotes}
+                                      onChange={(e) => setAdminNotes(e.target.value)}
+                                      placeholder="Add notes about this withdrawal request..."
+                                      rows={3}
+                                    />
+                                  </div>
+
+                                  <div className="flex justify-end space-x-2">
+                                    <Button
+                                      variant="outline"
+                                      onClick={() => setSelectedWithdrawal(null)}
+                                    >
+                                      Cancel
+                                    </Button>
+                                    <Button
+                                      onClick={handleUpdateWithdrawal}
+                                      disabled={updateWithdrawalMutation.isPending}
+                                      className="bg-finder-red hover:bg-finder-red-dark"
+                                    >
+                                      {updateWithdrawalMutation.isPending ? "Updating..." : "Update"}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-600">
-                      Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedWithdrawals.length)} of {filteredAndSortedWithdrawals.length} results
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-left">
+                      Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredAndSortedWithdrawals.length)} of {filteredAndSortedWithdrawals.length}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-1 sm:gap-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
+                        className="text-xs sm:text-sm"
                       >
-                        <ChevronLeft className="w-4 h-4" />
-                        Previous
+                        <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span className="hidden sm:inline">Previous</span>
                       </Button>
                       <div className="flex items-center gap-1">
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                          <Button
-                            key={page}
-                            variant={currentPage === page ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setCurrentPage(page)}
-                            className={currentPage === page ? "bg-finder-red hover:bg-finder-red-dark" : ""}
-                          >
-                            {page}
-                          </Button>
-                        ))}
+                        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                          let page;
+                          if (totalPages <= 5) {
+                            page = i + 1;
+                          } else {
+                            if (currentPage <= 3) {
+                              page = i + 1;
+                            } else if (currentPage >= totalPages - 2) {
+                              page = totalPages - 4 + i;
+                            } else {
+                              page = currentPage - 2 + i;
+                            }
+                          }
+                          return (
+                            <Button
+                              key={page}
+                              variant={currentPage === page ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setCurrentPage(page)}
+                              className={`w-8 h-8 p-0 text-xs ${currentPage === page ? "bg-finder-red hover:bg-finder-red-dark" : ""}`}
+                            >
+                              {page}
+                            </Button>
+                          );
+                        })}
                       </div>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
+                        className="text-xs sm:text-sm"
                       >
-                        Next
-                        <ChevronRight className="w-4 h-4" />
+                        <span className="hidden sm:inline">Next</span>
+                        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                       </Button>
                     </div>
                   </div>
