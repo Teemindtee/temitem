@@ -128,11 +128,18 @@ export default function AdminUsersModern() {
   };
 
   const getProfileUrl = (userData: ExtendedUser) => {
+    // Helper function to create name-based URL segment
+    const createNameSlug = (firstName: string, lastName: string, id: string) => {
+      const name = `${firstName}${lastName}`.replace(/[^a-zA-Z0-9]/g, '');
+      const idInitials = id.split('-')[0].slice(0, 8); // First 8 chars of ID
+      return `${name}${idInitials}`;
+    };
+
     switch (userData.role) {
       case 'finder':
-        return `/finder-profile/${userData.id}`;
+        return `/finder-profile/${createNameSlug(userData.firstName || '', userData.lastName || '', userData.id)}`;
       case 'client':
-        return `/client/profile?userId=${userData.id}`;
+        return `/client/profile/${createNameSlug(userData.firstName || '', userData.lastName || '', userData.id)}`;
       default:
         return '#'; // Admin users don't have public profiles
     }

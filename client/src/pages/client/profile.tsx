@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useLocation, useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -48,15 +48,41 @@ export default function ClientProfile() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // Get userId from URL parameters for admin access
+  // Get userId from URL parameters (query param) or path parameter (name-based)
+  const params = useParams();
   const urlParams = new URLSearchParams(window.location.search);
-  const viewUserId = urlParams.get('userId');
+  const queryUserId = urlParams.get('userId');
+  
+  // Extract userId from name-based URL (like "JohnDoe5c8915b9") 
+  const extractUserIdFromSlug = (nameSlug: string) => {
+    // Extract the ID part (last 8 characters + potential additional segments)
+    const match = nameSlug.match(/([a-f0-9]{8}[a-f0-9-]*)$/);
+    if (match) {
+      const idPart = match[1];
+      // Try to reconstruct full UUID format if needed
+      if (idPart.length === 8) {
+        // This is just the first part, we need to get the full ID from the API
+        return idPart;
+      }
+      return idPart;
+    }
+    return null;
+  };
+  
+  const nameSlugUserId = params.nameSlug ? extractUserIdFromSlug(params.nameSlug) : null;
+  const viewUserId = queryUserId || nameSlugUserId;
   const isAdminViewing = user?.role === 'admin' && !!viewUserId;
   
   // Fetch user data if admin is viewing another user's profile
   const { data: profileUser, isLoading: profileLoading, error: profileError } = useQuery({
-    queryKey: ['/api/admin/users', viewUserId],
-    queryFn: () => apiRequest(`/api/admin/users/${viewUserId}`),
+    queryKey: ['/api/admin/users', viewUserId, nameSlugUserId ? 'by-slug' : 'by-id'],
+    queryFn: () => {
+      if (nameSlugUserId) {
+        return apiRequest(`/api/admin/users/by-slug/${params.nameSlug}`);
+      } else {
+        return apiRequest(`/api/admin/users/${viewUserId}`);
+      }
+    },
     enabled: Boolean(isAdminViewing && viewUserId),
   });
   
@@ -493,11 +519,11 @@ export default function ClientProfile() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                       <div className="bg-slate-50/80 rounded-2xl p-6 hover:bg-slate-50 transition-all duration-200">
                         <div className="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wider">First Name</div>
-                        <div className="text-slate-900 font-semibold text-lg">{user.firstName || 'Not provided'}</div>
+                        <div className="text-slate-900 font-semibold text-lg">{displayUser?.firstName || 'Not provided'}</div>
                       </div>
                       <div className="bg-slate-50/80 rounded-2xl p-6 hover:bg-slate-50 transition-all duration-200">
                         <div className="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wider">Last Name</div>
-                        <div className="text-slate-900 font-semibold text-lg">{user.lastName || 'Not provided'}</div>
+                        <div className="text-slate-900 font-semibold text-lg">{displayUser?.lastName || 'Not provided'}</div>
                       </div>
                     </div>
 
@@ -506,7 +532,7 @@ export default function ClientProfile() {
                         <Mail className="w-4 h-4 mr-2" style={{ color: "hsl(1, 81%, 53%)" }} />
                         Email Address
                       </div>
-                      <div className="text-slate-900 font-semibold text-lg">{user.email}</div>
+                      <div className="text-slate-900 font-semibold text-lg">{displayUser?.email}</div>
                     </div>
 
                     <div className="bg-slate-50/80 rounded-2xl p-6 hover:bg-slate-50 transition-all duration-200">
@@ -514,7 +540,7 @@ export default function ClientProfile() {
                         <Phone className="w-4 h-4 mr-2" style={{ color: "hsl(1, 81%, 53%)" }} />
                         Phone Number
                       </div>
-                      <div className="text-slate-900 font-semibold text-lg">{user.phone || 'Not provided'}</div>
+                      <div className="text-slate-900 font-semibold text-lg">{displayUser?.phone || 'Not provided'}</div>
                     </div>
                   </div>
                 )}
