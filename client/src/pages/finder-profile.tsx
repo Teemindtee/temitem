@@ -22,15 +22,6 @@ export default function FinderProfileView() {
     enabled: !!userId
   });
 
-  // Debug logging
-  console.log('FinderProfile Debug:', {
-    userId,
-    isNameSlug,
-    apiEndpoint,
-    finderData,
-    isLoading,
-    error
-  });
 
   if (isLoading) {
     return (

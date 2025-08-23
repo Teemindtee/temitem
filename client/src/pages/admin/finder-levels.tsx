@@ -205,58 +205,6 @@ export default function AdminFinderLevels() {
               )}
             </div>
             
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-6">
-              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
-                    <Award className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Levels</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.length}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-500/10 text-green-600 rounded-lg">
-                    <CheckCircle className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.filter((l) => l.isActive).length}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-500/10 text-purple-600 rounded-lg">
-                    <Crown className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Highest Tier</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.length > 0 ? Math.max(...levels.map((l) => l.order)) : 0}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-amber-500/10 text-amber-600 rounded-lg">
-                    <Star className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Avg Min Score</p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">
-                      {levels.length > 0 ? Math.round(levels.reduce((acc, l) => acc + l.minReviewPercentage, 0) / levels.length) : 0}%
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         
@@ -484,7 +432,7 @@ export default function AdminFinderLevels() {
           )}
 
           {/* Modern Levels Grid - Two Columns */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             {levels.map((level) => {
               const IconComponent = iconMap[level.icon as keyof typeof iconMap] || User;
               
@@ -608,6 +556,67 @@ export default function AdminFinderLevels() {
                 </div>
               );
             })}
+          </div>
+
+          {/* Quick Stats - Moved to Bottom */}
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+              <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl">
+                <Award className="w-6 h-6 text-white" />
+              </div>
+              System Statistics
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Total Levels</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.length}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-500/10 text-green-600 rounded-lg">
+                    <CheckCircle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Active</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.filter((l) => l.isActive).length}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-purple-500/10 text-purple-600 rounded-lg">
+                    <Crown className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Highest Tier</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{levels.length > 0 ? Math.max(...levels.map((l) => l.order)) : 0}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-500/10 text-amber-600 rounded-lg">
+                    <Star className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Avg Min Score</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
+                      {levels.length > 0 ? Math.round(levels.reduce((acc, l) => acc + l.minReviewPercentage, 0) / levels.length) : 0}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
