@@ -2883,6 +2883,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Submit a contract dispute
+  app.post('/api/contracts/:contractId/dispute', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { contractId } = req.params;
+      const { description, evidence, type } = req.body;
+
+      if (!description) {
+        return res.status(400).json({ message: 'Description is required' });
+      }
+
+      if (!type) {
+        return res.status(400).json({ message: 'Dispute type is required' });
+      }
+
+      // Verify the user has access to this contract
+      const contract = await storage.getContract(contractId);
+      if (!contract) {
+        return res.status(404).json({ message: 'Contract not found' });
+      }
+
+      // Check if user is either the client or finder on this contract
+      const isClient = req.user.role === 'client' && contract.clientId === req.user.userId;
+      const isContractFinder = req.user.role === 'finder';
+      
+      if (isContractFinder) {
+        const finder = await storage.getFinderByUserId(req.user.userId);
+        if (!finder || contract.finderId !== finder.id) {
+          return res.status(403).json({ message: 'Access denied. You are not part of this contract.' });
+        }
+      } else if (!isClient) {
+        return res.status(403).json({ message: 'Access denied. You are not part of this contract.' });
+      }
+
+      const dispute = await storage.createDispute({
+        userId: req.user.userId,
+        contractId: contractId,
+        type: type, // 'contract_dispute' or 'payment_dispute'
+        description,
+        evidence: evidence || null
+      });
+
+      res.status(201).json(dispute);
+    } catch (error: any) {
+      console.error('Error submitting contract dispute:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   // Admin route to get all disputes
   app.get('/api/admin/disputes', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {

@@ -29,11 +29,13 @@ import {
   Award,
   FileCheck,
   Timer,
-  CreditCard
+  CreditCard,
+  AlertTriangle
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import ClientHeader from "@/components/client-header";
 import { PaymentModal } from "@/components/PaymentModal";
+import { ContractDisputeModal } from "@/components/ContractDisputeModal";
 
 interface ContractDetails {
   id: string;
@@ -81,6 +83,9 @@ export default function ContractDetails() {
     findTitle?: string;
     finderName?: string;
   }>({ isOpen: false });
+  
+  // Dispute modal state
+  const [isDisputeModalOpen, setIsDisputeModalOpen] = useState(false);
 
   const { data: contract, isLoading } = useQuery<ContractDetails>({
     queryKey: ["/api/client/contracts", contractId],
@@ -625,6 +630,17 @@ export default function ContractDetails() {
                     <Briefcase className="w-4 h-4 mr-3" />
                     View Proposals
                   </Button>
+                  
+                  {/* Dispute Button */}
+                  <Button 
+                    onClick={() => setIsDisputeModalOpen(true)}
+                    variant="outline" 
+                    className="w-full justify-start border-red-200 text-red-700 hover:bg-red-50"
+                    data-testid="button-dispute-contract"
+                  >
+                    <AlertTriangle className="w-4 h-4 mr-3" />
+                    Report Issue
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -678,6 +694,14 @@ export default function ContractDetails() {
           }}
         />
       )}
+      
+      {/* Dispute Modal */}
+      <ContractDisputeModal
+        isOpen={isDisputeModalOpen}
+        onClose={() => setIsDisputeModalOpen(false)}
+        contractId={contractId || ''}
+        contractTitle={contract?.request?.title}
+      />
     </div>
   );
 }
