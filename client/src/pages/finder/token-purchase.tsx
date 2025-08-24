@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { FinderHeader } from "@/components/finder-header";
 import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Coins, CreditCard, ArrowLeft, Star, Zap, Users, Crown } from "lucide-react";
 
@@ -19,8 +20,21 @@ interface PricingInfo {
 export default function TokenPurchase() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [tokenAmount, setTokenAmount] = useState<number>(10);
   const [loading, setLoading] = useState(false);
+
+  // Check if user returned from payment and redirect to success page
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const payment = urlParams.get('payment');
+    const reference = urlParams.get('reference');
+    
+    if (payment === 'success' && reference) {
+      // Redirect to payment success page immediately
+      setLocation(`/finder/payment-success?payment=success&reference=${reference}`);
+    }
+  }, [setLocation]);
 
   // Fetch pricing information from admin settings
   const { data: pricing, isLoading: pricingLoading } = useQuery<PricingInfo>({

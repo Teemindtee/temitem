@@ -943,7 +943,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const reference = paystackService.generateTransactionReference(req.user.userId);
       
       // Create callback URL for after payment
-      const callbackUrl = `${req.protocol}://${req.get('host')}/finder/token-purchase?payment=success&reference=${reference}`;
+      const callbackUrl = `${req.protocol}://${req.get('host')}/finder/payment-success?payment=success&reference=${reference}`;
       
       const transaction = await paystackService.initializeTransaction(
         user.email,
@@ -1058,7 +1058,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Payment webhook endpoint
-  app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), async (req: Find, res: Response) => {
+  app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
     try {
       const paystackService = new PaystackService();
       
