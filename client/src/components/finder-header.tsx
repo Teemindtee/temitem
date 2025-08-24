@@ -59,23 +59,23 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
           <span className="text-lg sm:text-xl font-bold">FinderMeister</span>
         </Link>
         
-        <nav className="flex items-center space-x-2 sm:space-x-6">
+        <nav className="flex items-center space-x-3 lg:space-x-4">
           {/* Desktop Navigation */}
           <Link 
             href="/finder/dashboard" 
-            className={`hidden sm:inline hover:underline ${currentPage === 'dashboard' ? 'font-semibold' : ''}`}
+            className={`hidden lg:inline hover:underline text-sm ${currentPage === 'dashboard' ? 'font-semibold' : ''}`}
           >
             Dashboard
           </Link>
           <Link 
             href="/finder/browse-finds" 
-            className={`hidden sm:inline hover:underline ${currentPage === 'browse' ? 'font-semibold' : ''}`}
+            className={`hidden lg:inline hover:underline text-sm ${currentPage === 'browse' ? 'font-semibold' : ''}`}
           >
             Browse Finds
           </Link>
           <Link 
             href="/finder/contracts" 
-            className={`hidden sm:inline hover:underline ${currentPage === 'contracts' ? 'font-semibold' : ''}`}
+            className={`hidden lg:inline hover:underline text-sm ${currentPage === 'contracts' ? 'font-semibold' : ''}`}
           >
             My Contracts
           </Link>
@@ -85,7 +85,7 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="ghost" 
-                className="sm:hidden text-white hover:bg-white/10 p-2"
+                className="lg:hidden text-white hover:bg-white/10 p-2"
               >
                 <Menu className="w-5 h-5" />
               </Button>

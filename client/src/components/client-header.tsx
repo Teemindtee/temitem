@@ -34,50 +34,43 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
         </Link>
         
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center space-x-3 xl:space-x-4">
+        <nav className="hidden xl:flex items-center space-x-2">
           {user ? (
             <>
               <Link 
                 href="/client/dashboard" 
-                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Handshake className="w-4 h-4" />
                 <span>{t('navigation.dashboard')}</span>
               </Link>
               <Link 
                 href="/client/create-find" 
-                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Plus className="w-4 h-4" />
                 <span>{t('navigation.create_find')}</span>
               </Link>
               <Link 
                 href="/client/finds" 
-                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <FileText className="w-4 h-4" />
                 <span>{t('navigation.my_finds')}</span>
               </Link>
               <Link 
                 href="/client/browse-finds" 
-                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'browse-finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'browse-finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Search className="w-4 h-4" />
                 <span>Browse Finds</span>
               </Link>
               <Link 
                 href="/client/contracts" 
-                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'contracts' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'contracts' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Handshake className="w-4 h-4" />
                 <span>Contracts</span>
-              </Link>
-              <Link 
-                href="/messages" 
-                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'messages' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>Messages</span>
               </Link>
               
               {/* Language Switcher */}
@@ -92,6 +85,13 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link href="/messages" className="flex items-center w-full cursor-pointer">
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Messages
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/client/profile" className="flex items-center w-full cursor-pointer">
                       <Settings className="w-4 h-4 mr-2" />

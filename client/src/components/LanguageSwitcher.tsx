@@ -69,9 +69,9 @@ export function LanguageSwitcher({ variant = 'default', className = '' }: Langua
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className={`flex items-center space-x-2 ${className}`}
+          className={`flex items-center space-x-2 text-white hover:bg-white/10 border border-white/20 ${className}`}
           data-testid="language-switcher"
         >
           <Globe className="w-4 h-4" />
