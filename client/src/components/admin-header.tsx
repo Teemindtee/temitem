@@ -11,6 +11,8 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu, ChevronDown, TrendingUp, Coins, Shield } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 interface AdminHeaderProps {
   currentPage?: string;
@@ -18,6 +20,7 @@ interface AdminHeaderProps {
 
 export default function AdminHeader({ currentPage }: AdminHeaderProps) {
   const { logout } = useAuth();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
@@ -130,6 +133,9 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
 
           {/* Mobile Navigation & Actions */}
           <div className="flex items-center space-x-2">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+            
             {/* Desktop Logout */}
             <Button 
               variant="outline" 
@@ -208,6 +214,11 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                         </Link>
                       );
                     })}
+                  </div>
+                  
+                  {/* Mobile Language Switcher */}
+                  <div className="border-t border-gray-200 pt-3 mt-4 mb-3">
+                    <LanguageSwitcher variant="mobile" />
                   </div>
                   
                   <div className="border-t border-gray-200 pt-3 mt-4">

@@ -292,7 +292,7 @@ export default function FinderContractDetails() {
                   data-testid="button-dispute-contract"
                 >
                   <AlertTriangle className="w-4 h-4 mr-3" />
-                  Report Issue
+                  {t ? t('dispute.report_issue') : 'Report Issue'}
                 </Button>
               </div>
             </CardContent>

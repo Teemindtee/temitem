@@ -56,6 +56,7 @@ import HelpCenter from "@/pages/support/help-center";
 import ContactSupport from "@/pages/support/contact";
 import BrowseRequests from "@/pages/BrowseRequests";
 import { AuthProvider } from "@/hooks/use-auth";
+import "./lib/i18n"; // Initialize i18n
 
 function Router() {
   return (

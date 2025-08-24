@@ -5,6 +5,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { useAuth } from "@/hooks/use-auth";
 import { Handshake, User, Settings, Lock, LogOut, Menu, X, FileText, MessageSquare, Search, HelpCircle, Plus } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 interface ClientHeaderProps {
   currentPage?: string;
@@ -12,6 +14,7 @@ interface ClientHeaderProps {
 
 export default function ClientHeader({ currentPage }: ClientHeaderProps) {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -39,21 +42,21 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Handshake className="w-4 h-4" />
-                <span>Dashboard</span>
+                <span>{t('navigation.dashboard')}</span>
               </Link>
               <Link 
                 href="/client/create-find" 
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Plus className="w-4 h-4" />
-                <span>Post Find</span>
+                <span>{t('navigation.create_find')}</span>
               </Link>
               <Link 
                 href="/client/finds" 
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors ${currentPage === 'finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <FileText className="w-4 h-4" />
-                <span>My Finds</span>
+                <span>{t('navigation.my_finds')}</span>
               </Link>
               <Link 
                 href="/client/browse-finds" 
@@ -76,6 +79,9 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 <MessageSquare className="w-4 h-4" />
                 <span>Messages</span>
               </Link>
+              
+              {/* Language Switcher */}
+              <LanguageSwitcher />
               
               {/* Profile Dropdown */}
               <DropdownMenu>
@@ -221,6 +227,11 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                     <LogOut className="w-4 h-4 mr-2" />
                     Log Out
                   </button>
+                  
+                  {/* Mobile Language Switcher */}
+                  <div className="border-t border-finder-red/50 pt-4 mt-4">
+                    <LanguageSwitcher variant="mobile" className="px-6" />
+                  </div>
                 </div>
               </>
             ) : (

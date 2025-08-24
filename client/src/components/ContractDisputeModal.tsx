@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ContractDisputeModalProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export function ContractDisputeModal({
   contractId,
   contractTitle
 }: ContractDisputeModalProps) {
+  const { t } = useTranslation();
   const [disputeType, setDisputeType] = useState<string>("");
   const [description, setDescription] = useState("");
   const [evidence, setEvidence] = useState("");
@@ -48,8 +50,8 @@ export function ContractDisputeModal({
     },
     onSuccess: () => {
       toast({
-        title: "Dispute Submitted",
-        description: "Your dispute has been submitted and will be reviewed by our team.",
+        title: t('dispute.dispute_submitted'),
+        description: t('dispute.dispute_submitted_desc'),
       });
       onClose();
       resetForm();
@@ -99,7 +101,7 @@ export function ContractDisputeModal({
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <DialogTitle className="text-xl font-semibold">Submit Contract Dispute</DialogTitle>
+              <DialogTitle className="text-xl font-semibold">{t('dispute.submit_dispute')}</DialogTitle>
               {contractTitle && (
                 <p className="text-sm text-gray-500 mt-1">For: {contractTitle}</p>
               )}
@@ -110,25 +112,25 @@ export function ContractDisputeModal({
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <Label htmlFor="disputeType" className="text-sm font-medium mb-2 block">
-              Dispute Type *
+              {t('dispute.dispute_type')} *
             </Label>
             <Select value={disputeType} onValueChange={setDisputeType}>
               <SelectTrigger>
-                <SelectValue placeholder="Select dispute type" />
+                <SelectValue placeholder={t('dispute.dispute_type')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="contract_dispute">Contract Issue</SelectItem>
-                <SelectItem value="payment_dispute">Payment Issue</SelectItem>
-                <SelectItem value="quality_dispute">Work Quality Issue</SelectItem>
-                <SelectItem value="delivery_dispute">Delivery Issue</SelectItem>
-                <SelectItem value="communication_dispute">Communication Issue</SelectItem>
+                <SelectItem value="contract_dispute">{t('dispute.contract_issue')}</SelectItem>
+                <SelectItem value="payment_dispute">{t('dispute.payment_issue')}</SelectItem>
+                <SelectItem value="quality_dispute">{t('dispute.quality_issue')}</SelectItem>
+                <SelectItem value="delivery_dispute">{t('dispute.delivery_issue')}</SelectItem>
+                <SelectItem value="communication_dispute">{t('dispute.communication_issue')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
             <Label htmlFor="description" className="text-sm font-medium mb-2 block">
-              Description *
+              {t('dispute.description')} *
             </Label>
             <Textarea
               id="description"
@@ -146,7 +148,7 @@ export function ContractDisputeModal({
 
           <div>
             <Label htmlFor="evidence" className="text-sm font-medium mb-2 block">
-              Evidence (Optional)
+              {t('dispute.evidence')}
             </Label>
             <Textarea
               id="evidence"

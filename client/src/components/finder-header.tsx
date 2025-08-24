@@ -27,6 +27,8 @@ import {
   MessageCircle
 } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 interface FinderHeaderProps {
   currentPage?: string;
@@ -34,6 +36,7 @@ interface FinderHeaderProps {
 
 export function FinderHeader({ currentPage }: FinderHeaderProps) {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -108,6 +111,9 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Language Switcher */}
+          <LanguageSwitcher />
 
           {/* User Dropdown Menu */}
           <DropdownMenu>
