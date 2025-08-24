@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { FinderHeader } from "@/components/finder-header";
 import { useAuth } from "@/hooks/use-auth";
+import { apiRequest } from "@/lib/queryClient";
 import { Coins, CreditCard, ArrowLeft, Star, Zap, Users, Crown } from "lucide-react";
 
 interface PricingInfo {
@@ -42,27 +43,23 @@ export default function TokenPurchase() {
     setLoading(true);
     
     try {
-      // Initialize Paystack payment
-      const response = await fetch('/api/tokens/purchase', {
+      // Initialize Paystack payment with authenticated request
+      const data = await apiRequest('/api/tokens/purchase', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           tokenAmount: tokens,
           amount: amount
         })
       });
       
-      const data = await response.json();
-      
-      if (response.ok && data.authorization_url) {
+      if (data && data.authorization_url) {
         // Redirect to Paystack payment page
         window.location.href = data.authorization_url;
       } else {
-        throw new Error(data.message || 'Failed to initialize payment');
+        throw new Error(data?.message || 'Failed to initialize payment');
       }
     } catch (error) {
+      console.error('Token purchase error:', error);
       toast({
         title: "Purchase Failed",
         description: "There was an error processing your payment. Please try again.",
