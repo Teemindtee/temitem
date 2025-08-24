@@ -34,43 +34,43 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
         </Link>
         
         {/* Desktop Navigation */}
-        <nav className="hidden xl:flex items-center space-x-2">
+        <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
           {user ? (
             <>
               <Link 
                 href="/client/dashboard" 
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
-                <Handshake className="w-4 h-4" />
-                <span>{t('navigation.dashboard')}</span>
+                <Handshake className="w-3 h-3 lg:w-4 lg:h-4" />
+                <span className="text-xs lg:text-sm">{t('navigation.dashboard')}</span>
               </Link>
               <Link 
                 href="/client/create-find" 
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
-                <Plus className="w-4 h-4" />
-                <span>{t('navigation.create_find')}</span>
+                <Plus className="w-3 h-3 lg:w-4 lg:h-4" />
+                <span className="text-xs lg:text-sm">{t('navigation.create_find')}</span>
               </Link>
               <Link 
                 href="/client/finds" 
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
-                <FileText className="w-4 h-4" />
-                <span>{t('navigation.my_finds')}</span>
+                <FileText className="w-3 h-3 lg:w-4 lg:h-4" />
+                <span className="text-xs lg:text-sm">{t('navigation.my_finds')}</span>
               </Link>
               <Link 
                 href="/client/browse-finds" 
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'browse-finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
-                <Search className="w-4 h-4" />
-                <span>Browse Finds</span>
+                <Search className="w-3 h-3 lg:w-4 lg:h-4" />
+                <span className="text-xs lg:text-sm">Browse Finds</span>
               </Link>
               <Link 
                 href="/client/contracts" 
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'contracts' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
-                <Handshake className="w-4 h-4" />
-                <span>Contracts</span>
+                <Handshake className="w-3 h-3 lg:w-4 lg:h-4" />
+                <span className="text-xs lg:text-sm">Contracts</span>
               </Link>
               
               {/* Language Switcher */}
@@ -130,7 +130,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden text-white"
+          className="lg:hidden text-white"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
