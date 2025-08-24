@@ -75,8 +75,8 @@ export function LanguageSwitcher({ variant = 'default', className = '' }: Langua
           data-testid="language-switcher"
         >
           <Globe className="w-4 h-4" />
-          <span className="hidden sm:inline">{currentLanguage.flag}</span>
-          <span className="hidden md:inline text-xs">{currentLanguage.name.split(' ')[0]}</span>
+          <span>{currentLanguage.flag}</span>
+          <span className="hidden sm:inline text-xs">{currentLanguage.name.split(' ')[0]}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">

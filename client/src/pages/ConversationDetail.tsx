@@ -29,6 +29,8 @@ import {
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 type Message = {
   id: string;
@@ -71,6 +73,7 @@ export default function ConversationDetail() {
   const params = useParams();
   const [, navigate] = useLocation();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const conversationId = params.conversationId as string;
   const { toast } = useToast();
@@ -187,10 +190,11 @@ export default function ConversationDetail() {
                 className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-100"
               >
                 <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
-                <span className="font-medium text-sm sm:text-base">Messages</span>
+                <span className="font-medium text-sm sm:text-base">{t('navigation.messages')}</span>
               </button>
-              <div className="text-xs sm:text-sm text-slate-500">
-                Loading...
+              <div className="flex items-center space-x-2">
+                <LanguageSwitcher className="text-xs" />
+                <div className="text-xs sm:text-sm text-slate-500">{t('common.loading')}</div>
               </div>
             </div>
           </div>
@@ -243,6 +247,7 @@ export default function ConversationDetail() {
             </button>
             
             <div className="flex items-center space-x-2 sm:space-x-4">
+              <LanguageSwitcher className="mr-2" />
               <div className="flex items-center space-x-2">
                 <Avatar className="w-8 h-8 sm:w-10 sm:h-10 border-2 border-blue-200">
                   <AvatarFallback className="bg-blue-100 text-blue-700 font-semibold text-xs sm:text-sm">

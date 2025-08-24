@@ -145,5 +145,10 @@
     "spanish": "Spanish",
     "portuguese": "Portuguese",
     "arabic": "Arabic"
+  },
+  "messages": {
+    "signin_required": "Please sign in to view your messages.",
+    "start_conversation": "Start the conversation",
+    "first_message_prompt": "Send your first message to {{name}} to discuss the project details."
   }
 }
