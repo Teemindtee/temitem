@@ -131,6 +131,7 @@ export interface IStorage {
   // Transaction operations
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
   getTransactionsByFinderId(finderId: string): Promise<Transaction[]>;
+  getTransactionByReference(reference: string): Promise<Transaction | undefined>;
 
   // Admin operations
   getAllUsers(): Promise<User[]>;
@@ -773,6 +774,15 @@ export class DatabaseStorage implements IStorage {
       .values(insertTransaction)
       .returning();
     return transaction;
+  }
+
+  async getTransactionByReference(reference: string): Promise<Transaction | undefined> {
+    const results = await db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.reference, reference))
+      .limit(1);
+    return results[0];
   }
 
   async getTransactionsByFinderId(finderId: string): Promise<Transaction[]> {

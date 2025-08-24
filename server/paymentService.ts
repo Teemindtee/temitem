@@ -50,30 +50,37 @@ export class PaystackService {
     }
   }
 
-  async initializeTransaction(email: string, amount: number, reference: string, metadata: any = {}) {
+  async initializeTransaction(email: string, amount: number, reference: string, metadata: any = {}, callbackUrl?: string) {
     try {
+      const payload: any = {
+        email,
+        amount: amount * 100, // Convert to kobo
+        reference,
+        currency: 'NGN',
+        metadata: {
+          ...metadata,
+          custom_fields: [
+            {
+              display_name: 'Product',
+              variable_name: 'product',
+              value: 'Token Purchase'
+            }
+          ]
+        }
+      };
+      
+      // Add callback URL if provided
+      if (callbackUrl) {
+        payload.callback_url = callbackUrl;
+      }
+      
       const response = await fetch(`${this.baseUrl}/transaction/initialize`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.secretKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          email,
-          amount: amount * 100, // Convert to kobo
-          reference,
-          currency: 'NGN',
-          metadata: {
-            ...metadata,
-            custom_fields: [
-              {
-                display_name: 'Product',
-                variable_name: 'product',
-                value: 'Token Purchase'
-              }
-            ]
-          }
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();

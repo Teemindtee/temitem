@@ -942,6 +942,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const reference = paystackService.generateTransactionReference(req.user.userId);
       
+      // Create callback URL for after payment
+      const callbackUrl = `${req.protocol}://${req.get('host')}/finder/token-purchase?payment=success&reference=${reference}`;
+      
       const transaction = await paystackService.initializeTransaction(
         user.email,
         amount, // Amount in naira
@@ -950,7 +953,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           userId: req.user.userId,
           tokens: tokenAmount,
           package_type: 'findertoken_special'
-        }
+        },
+        callbackUrl
       );
 
       res.json(transaction);
@@ -994,6 +998,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Payment initialization error:', error);
       res.status(500).json({ message: "Failed to initialize payment" });
+    }
+  });
+
+  // Payment verification endpoint
+  app.get("/api/payments/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { reference } = req.params;
+      const paystackService = new PaystackService();
+      
+      const transaction = await paystackService.verifyTransaction(reference);
+      
+      if (transaction.status === 'success') {
+        const { metadata } = transaction;
+        const { userId, tokens } = metadata;
+        
+        // Verify this transaction belongs to the requesting user
+        if (userId !== req.user.userId) {
+          return res.status(403).json({ message: "Access denied" });
+        }
+        
+        // Update user's findertoken balance if not already done
+        const finder = await storage.getFinderByUserId(userId);
+        if (finder) {
+          // Check if transaction already processed
+          const existingTransaction = await storage.getTransactionByReference(reference);
+          
+          if (!existingTransaction) {
+            // Update balance and create transaction record
+            const currentBalance = finder.findertokenBalance || 0;
+            await storage.updateFinder(finder.id, {
+              findertokenBalance: currentBalance + tokens
+            });
+
+            await storage.createTransaction({
+              userId: userId,
+              type: 'findertoken_purchase',
+              amount: tokens,
+              description: `FinderToken™ purchase - ${tokens} tokens`,
+              reference: reference
+            });
+          }
+        }
+        
+        res.json({ 
+          status: 'success', 
+          data: transaction 
+        });
+      } else {
+        res.json({ 
+          status: 'failed', 
+          message: 'Payment was not successful' 
+        });
+      }
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      res.status(500).json({ message: "Failed to verify payment" });
     }
   });
 
