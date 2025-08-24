@@ -107,7 +107,7 @@ export default function ClientContracts() {
                     <CheckCircle className="w-6 h-6 text-white" />
                   </div>
                   <div className="text-3xl font-bold text-slate-900 mb-2">{completedContracts}</div>
-                  <div className="text-sm text-slate-600 font-medium">Completed Projects</div>
+                  <div className="text-sm text-slate-600 font-medium">Completed Finds</div>
                 </CardContent>
               </Card>
 

@@ -73,7 +73,7 @@ const contextualHelp = {
       "Your token balance is shown in your dashboard"
     ],
     faqs: [
-      { q: "How much do tokens cost?", a: "Token packages start at $10 for 10 tokens" },
+      { q: "How much do tokens cost?", a: "Token packages start at ₦10 for 10 tokens" },
       { q: "Do tokens expire?", a: "No, tokens never expire and remain in your account" }
     ]
   },

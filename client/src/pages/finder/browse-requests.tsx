@@ -95,9 +95,9 @@ export default function BrowseFinds() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Any Budget</SelectItem>
-                    <SelectItem value="under-100">Under $100</SelectItem>
-                    <SelectItem value="100-500">$100 - $500</SelectItem>
-                    <SelectItem value="over-500">Over $500</SelectItem>
+                    <SelectItem value="under-100">Under ₦100</SelectItem>
+                    <SelectItem value="100-500">₦100 - ₦500</SelectItem>
+                    <SelectItem value="over-500">Over ₦500</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
