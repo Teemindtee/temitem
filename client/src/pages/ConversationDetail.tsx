@@ -31,6 +31,8 @@ import { format, formatDistanceToNow } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import ClientHeader from "@/components/client-header";
+import { FinderHeader } from "@/components/finder-header";
 
 type Message = {
   id: string;
@@ -163,16 +165,25 @@ export default function ConversationDetail() {
   // Redirect if not authenticated
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+      <div className="min-h-screen bg-gray-50">
+        {/* App Header for unauthenticated users */}
+        <div className="bg-finder-red text-white px-4 sm:px-6 py-4">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <span className="text-lg sm:text-xl font-bold">FinderMeister</span>
+            <LanguageSwitcher />
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
           <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <User className="w-10 h-10 text-red-600" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h1>
-          <p className="text-slate-600 mb-6">Please sign in to view your messages.</p>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">{t('common.access_denied')}</h1>
+          <p className="text-slate-600 mb-6">{t('messages.signin_required')}</p>
           <Button onClick={() => navigate("/login")} className="bg-blue-600 hover:bg-blue-700">
-            Sign In
+            {t('auth.signin')}
           </Button>
+          </div>
         </div>
       </div>
     );
@@ -180,7 +191,16 @@ export default function ConversationDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-gray-50">
+        {/* App Header */}
+        {user?.role === 'client' ? (
+          <ClientHeader currentPage="messages" />
+        ) : (
+          <FinderHeader currentPage="messages" />
+        )}
+        
+        {/* Loading Content */}
+        <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen">
         {/* Header */}
         <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
           <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8">
@@ -212,12 +232,13 @@ export default function ConversationDetail() {
             </div>
           </div>
         </main>
+        </div>
       </div>
     );
   }
 
   // Get conversation details
-  const otherParticipant = user.role === 'client' 
+  const otherParticipant = user?.role === 'client' 
     ? conversation?.finder?.user 
     : conversation?.client;
 
@@ -233,7 +254,16 @@ export default function ConversationDetail() {
     .slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gray-50">
+      {/* App Header */}
+      {user?.role === 'client' ? (
+        <ClientHeader currentPage="messages" />
+      ) : (
+        <FinderHeader currentPage="messages" />
+      )}
+      
+      {/* Conversation Header */}
+      <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen">
       {/* Header */}
       <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/60 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8">
@@ -243,7 +273,7 @@ export default function ConversationDetail() {
               className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-100"
             >
               <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
-              <span className="font-medium text-sm sm:text-base">Messages</span>
+              <span className="font-medium text-sm sm:text-base">{t('navigation.messages')}</span>
             </button>
             
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -257,7 +287,7 @@ export default function ConversationDetail() {
                 <div className="hidden sm:block">
                   <div className="text-sm font-medium text-slate-900">{participantName}</div>
                   <div className="text-xs text-slate-500">
-                    {user.role === 'client' ? 'Professional Finder' : 'Client'}
+                    {user?.role === 'client' ? t('roles.finder') : t('roles.client')}
                   </div>
                 </div>
               </div>
@@ -517,6 +547,7 @@ export default function ConversationDetail() {
           </Card>
         </div>
       </main>
+    </div>
     </div>
   );
 }

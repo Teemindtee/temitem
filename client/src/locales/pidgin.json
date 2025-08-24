@@ -149,6 +149,12 @@
   "messages": {
     "signin_required": "You need signin first make you see your messages.",
     "start_conversation": "Start the gist",
-    "first_message_prompt": "Send your first message give {{name}} make una discuss the project details."
+    "first_message_prompt": "Send your first message give {{name}} make una discuss the project details.",
+    "about_request": "Send message to {{name}} about dis request",
+    "error_loading": "Error dey load message"
+  },
+  "roles": {
+    "client": "Client",
+    "finder": "Professional Finder"
   }
 }

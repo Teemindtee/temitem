@@ -149,6 +149,12 @@
   "messages": {
     "signin_required": "Please sign in to view your messages.",
     "start_conversation": "Start the conversation",
-    "first_message_prompt": "Send your first message to {{name}} to discuss the project details."
+    "first_message_prompt": "Send your first message to {{name}} to discuss the project details.",
+    "about_request": "Message {{name}} about this request",
+    "error_loading": "Error loading message"
+  },
+  "roles": {
+    "client": "Client",
+    "finder": "Professional Finder"
   }
 }
