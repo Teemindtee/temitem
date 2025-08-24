@@ -8,10 +8,12 @@ import { Plus, Clock, CheckCircle, Search, User as UserIcon, FileText, Eye, Cog,
 import ClientHeader from "@/components/client-header";
 import { apiRequest } from "@/lib/queryClient";
 import type { Find, Proposal, User } from "@shared/schema";
+import { useTranslation } from "react-i18next";
 
 export default function ClientDashboard() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   // Format currency in Naira
@@ -44,10 +46,10 @@ export default function ClientDashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-4">This page is only available for clients.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('common.access_denied')}</h1>
+          <p className="text-gray-600 mb-4">{t('common.client_only_page')}</p>
           <Link href="/finder/dashboard">
-            <Button>Go to Finder Dashboard</Button>
+            <Button>{t('navigation.finder_dashboard')}</Button>
           </Link>
         </div>
       </div>

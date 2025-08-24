@@ -35,7 +35,9 @@
     "post": "Post",
     "send": "Send",
     "update": "Update",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "access_denied": "Access Denied",
+    "client_only_page": "This page is only available for clients."
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -50,7 +52,9 @@
     "help_center": "Help Center",
     "create_find": "Post Find",
     "browse_finds": "Browse Finds",
-    "my_contracts": "My Contracts"
+    "my_contracts": "My Contracts",
+    "finder_dashboard": "Go to Finder Dashboard",
+    "welcome_back": "Welcome back"
   },
   "auth": {
     "welcome": "Welcome to FinderMeister",
@@ -114,6 +118,12 @@
   },
   "contract": {
     "contract_details": "Contract Details",
+    "contract_not_found": "Contract Not Found",
+    "contract_not_found_desc": "The contract you're looking for doesn't exist or you don't have access to it.",
+    "contract_id": "Contract ID",
+    "contract_overview": "Contract Overview",
+    "contract_value": "Contract Value",
+    "started": "Started",
     "work_submission": "Work Submission",
     "under_review": "Under Review",
     "completed": "Completed",

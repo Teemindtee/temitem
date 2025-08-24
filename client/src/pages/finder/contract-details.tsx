@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { ContractDisputeModal } from "@/components/ContractDisputeModal";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface ContractDetails {
   id: string;
@@ -48,6 +49,7 @@ interface ContractDetails {
 
 export default function FinderContractDetails() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [match, params] = useRoute("/finder/contracts/:contractId");
   const contractId = params?.contractId;
   
@@ -79,10 +81,10 @@ export default function FinderContractDetails() {
         <FinderHeader />
         <div className="max-w-4xl mx-auto py-8 px-6">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Contract Not Found</h1>
-            <p className="text-gray-600 mb-6">The contract you're looking for doesn't exist or you don't have access to it.</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('contract.contract_not_found')}</h1>
+            <p className="text-gray-600 mb-6">{t('contract.contract_not_found_desc')}</p>
             <Link href="/finder/contracts">
-              <Button>Back to Contracts</Button>
+              <Button>{t('navigation.contracts')}</Button>
             </Link>
           </div>
         </div>
@@ -92,12 +94,12 @@ export default function FinderContractDetails() {
 
   const getStatusBadge = (contract: ContractDetails) => {
     if (contract.isCompleted) {
-      return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
+      return <Badge className="bg-green-100 text-green-800">{t('contract.completed')}</Badge>;
     }
     if (contract.hasSubmission) {
-      return <Badge className="bg-yellow-100 text-yellow-800">Under Review</Badge>;
+      return <Badge className="bg-yellow-100 text-yellow-800">{t('contract.under_review')}</Badge>;
     }
-    return <Badge className="bg-blue-100 text-blue-800">In Progress</Badge>;
+    return <Badge className="bg-blue-100 text-blue-800">{t('contract.in_progress')}</Badge>;
   };
 
   const formatDate = (dateString: string) => {
@@ -120,17 +122,17 @@ export default function FinderContractDetails() {
           <Link href="/finder/contracts">
             <Button variant="outline" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Contracts
+              {t('common.back')} {t('navigation.contracts')}
             </Button>
           </Link>
           
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {contract.request?.title || 'Contract Details'}
+                {contract.request?.title || t('contract.contract_details')}
               </h1>
               <p className="text-gray-600">
-                Contract ID: {contract.id}
+                {t('contract.contract_id')}: {contract.id}
               </p>
             </div>
             {getStatusBadge(contract)}
@@ -144,7 +146,7 @@ export default function FinderContractDetails() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Briefcase className="w-5 h-5 mr-2" />
-                Contract Overview
+                {t('contract.contract_overview')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -152,7 +154,7 @@ export default function FinderContractDetails() {
                 <div className="flex items-center space-x-3">
                   <DollarSign className="w-5 h-5 text-green-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Contract Value</p>
+                    <p className="text-sm text-gray-600">{t('contract.contract_value')}</p>
                     <p className="text-xl font-semibold text-green-600">${contract.amount}</p>
                   </div>
                 </div>
@@ -160,7 +162,7 @@ export default function FinderContractDetails() {
                 <div className="flex items-center space-x-3">
                   <Calendar className="w-5 h-5 text-blue-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Started</p>
+                    <p className="text-sm text-gray-600">{t('contract.started')}</p>
                     <p className="font-medium">{formatDate(contract.createdAt)}</p>
                   </div>
                 </div>
@@ -169,7 +171,7 @@ export default function FinderContractDetails() {
                   <div className="flex items-center space-x-3">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <div>
-                      <p className="text-sm text-gray-600">Completed</p>
+                      <p className="text-sm text-gray-600">{t('contract.completed')}</p>
                       <p className="font-medium">{formatDate(contract.completedAt)}</p>
                     </div>
                   </div>
@@ -292,7 +294,7 @@ export default function FinderContractDetails() {
                   data-testid="button-dispute-contract"
                 >
                   <AlertTriangle className="w-4 h-4 mr-3" />
-                  {t ? t('dispute.report_issue') : 'Report Issue'}
+                  {t('dispute.report_issue')}
                 </Button>
               </div>
             </CardContent>
