@@ -924,6 +924,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(TOKEN_PACKAGES);
   });
 
+  // FinderToken™ Purchase endpoint
+  app.post("/api/tokens/purchase", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { tokenAmount, amount } = req.body;
+      
+      if (!tokenAmount || !amount || tokenAmount <= 0 || amount <= 0) {
+        return res.status(400).json({ message: "Invalid token amount or price" });
+      }
+      
+      const paystackService = new PaystackService();
+      const user = await storage.getUser(req.user.userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const reference = paystackService.generateTransactionReference(req.user.userId);
+      
+      const transaction = await paystackService.initializeTransaction(
+        user.email,
+        amount, // Amount in naira
+        reference,
+        {
+          userId: req.user.userId,
+          tokens: tokenAmount,
+          package_type: 'findertoken_special'
+        }
+      );
+
+      res.json(transaction);
+    } catch (error) {
+      console.error('Token purchase initialization error:', error);
+      res.status(500).json({ message: "Failed to initialize payment" });
+    }
+  });
+
   // Initialize payment endpoint
   app.post("/api/payments/initialize", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {

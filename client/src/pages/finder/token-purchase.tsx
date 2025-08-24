@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { FinderHeader } from "@/components/finder-header";
 import { useAuth } from "@/hooks/use-auth";
-import { Coins, CreditCard, ArrowLeft } from "lucide-react";
+import { Coins, CreditCard, ArrowLeft, Star, Zap, Users, Crown } from "lucide-react";
 
 interface PricingInfo {
   pricePerToken: number; // in kobo/cents
@@ -35,19 +36,32 @@ export default function TokenPurchase() {
   const totalPrice = pricing ? (tokenAmount * pricing.pricePerToken) : 0;
   const totalPriceInNaira = totalPrice / 100; // Convert kobo to naira
 
-  const handlePurchase = async () => {
-    if (!pricing || tokenAmount <= 0) return;
+  const handlePurchase = async (tokens: number, amount: number) => {
+    if (amount <= 0) return;
     
     setLoading(true);
     
     try {
-      // Simulate purchase process - in real implementation, integrate with Paystack
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: "Purchase Successful!",
-        description: `You have purchased ${tokenAmount} findertokens for ₦${totalPriceInNaira.toFixed(2)}.`,
+      // Initialize Paystack payment
+      const response = await fetch('/api/tokens/purchase', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tokenAmount: tokens,
+          amount: amount
+        })
       });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.authorization_url) {
+        // Redirect to Paystack payment page
+        window.location.href = data.authorization_url;
+      } else {
+        throw new Error(data.message || 'Failed to initialize payment');
+      }
     } catch (error) {
       toast({
         title: "Purchase Failed",
@@ -57,6 +71,11 @@ export default function TokenPurchase() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCustomPurchase = async () => {
+    if (!pricing || tokenAmount <= 0) return;
+    await handlePurchase(tokenAmount, totalPriceInNaira);
   };
 
   const handleTokenAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,10 +142,148 @@ export default function TokenPurchase() {
             </CardContent>
           </Card>
 
-          {/* Main Purchase Card */}
+          {/* FinderToken™ Special Packages */}
           <Card className="mb-8">
             <CardHeader>
-              <CardTitle>Buy Findertokens</CardTitle>
+              <div className="flex items-center space-x-2 mb-2">
+                <Zap className="w-6 h-6 text-yellow-500" />
+                <CardTitle className="text-2xl">FinderToken™ Special Packages</CardTitle>
+                <Badge variant="secondary">Limited Time</Badge>
+              </div>
+              <CardDescription>
+                Special pricing packages with better value for dedicated Finders
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {/* Light Usage Package */}
+                <Card className="border-2 border-muted hover:border-blue-200 transition-colors">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">Light Usage</CardTitle>
+                      <Star className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <CardDescription>Trial engagement</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center space-y-3">
+                      <div className="text-3xl font-bold text-blue-600">25</div>
+                      <div className="text-sm text-muted-foreground">FinderTokens</div>
+                      <div className="text-2xl font-bold">₦500</div>
+                      <div className="text-sm text-muted-foreground">₦20 per token</div>
+                      <Button 
+                        className="w-full" 
+                        onClick={() => handlePurchase(25, 500)}
+                        disabled={loading}
+                      >
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Purchase Now
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Moderate Participation Package */}
+                <Card className="border-2 border-muted hover:border-green-200 transition-colors">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">Moderate Participation</CardTitle>
+                      <Coins className="w-5 h-5 text-green-500" />
+                    </div>
+                    <CardDescription>Regular engagement</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center space-y-3">
+                      <div className="text-3xl font-bold text-green-600">50</div>
+                      <div className="text-sm text-muted-foreground">FinderTokens</div>
+                      <div className="text-2xl font-bold">₦1,000</div>
+                      <div className="text-sm text-muted-foreground">₦20 per token</div>
+                      <Button 
+                        className="w-full" 
+                        onClick={() => handlePurchase(50, 1000)}
+                        disabled={loading}
+                      >
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Purchase Now
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Power Users Package */}
+                <Card className="border-2 border-orange-200 bg-orange-50/50 relative">
+                  <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-orange-500">Most Popular</Badge>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">Power Users</CardTitle>
+                      <Zap className="w-5 h-5 text-orange-500" />
+                    </div>
+                    <CardDescription>Active Finders</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center space-y-3">
+                      <div className="text-3xl font-bold text-orange-600">100</div>
+                      <div className="text-sm text-muted-foreground">FinderTokens</div>
+                      <div className="text-2xl font-bold">₦2,000</div>
+                      <div className="text-sm text-muted-foreground">₦20 per token</div>
+                      <Button 
+                        className="w-full bg-orange-600 hover:bg-orange-700" 
+                        onClick={() => handlePurchase(100, 2000)}
+                        disabled={loading}
+                      >
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Purchase Now
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Prolific Finders Package */}
+                <Card className="border-2 border-purple-200 bg-purple-50/50">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">Prolific Finders</CardTitle>
+                      <Crown className="w-5 h-5 text-purple-500" />
+                    </div>
+                    <CardDescription>Agency teams</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center space-y-3">
+                      <div className="text-3xl font-bold text-purple-600">200</div>
+                      <div className="text-sm text-muted-foreground">FinderTokens</div>
+                      <div className="text-2xl font-bold">₦4,000</div>
+                      <div className="text-sm text-muted-foreground">₦20 per token</div>
+                      <Button 
+                        className="w-full bg-purple-600 hover:bg-purple-700" 
+                        onClick={() => handlePurchase(200, 4000)}
+                        disabled={loading}
+                      >
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Purchase Now
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Monthly Allocation Info */}
+              <Card className="bg-blue-50/50 border-blue-200">
+                <CardContent className="p-4">
+                  <h4 className="font-semibold text-blue-900 mb-2">💎 Monthly Benefits</h4>
+                  <div className="space-y-2 text-sm text-blue-800">
+                    <p>• Each verified Finder receives <strong>20 free FinderTokens</strong> monthly</p>
+                    <p>• <strong>Beta Launch Bonus:</strong> First 50 verified Finders receive 70 FinderTokens + fast-track promotion opportunities</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+
+          {/* Custom Amount Purchase Card */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Custom Amount Purchase</CardTitle>
               <CardDescription>
                 Current price: ₦{pricing ? (pricing.pricePerToken / 100).toFixed(2) : '0.00'} per token
               </CardDescription>
@@ -190,7 +347,7 @@ export default function TokenPurchase() {
               {/* Purchase Button */}
               <Button 
                 className="w-full text-lg py-6" 
-                onClick={handlePurchase}
+                onClick={handleCustomPurchase}
                 disabled={loading || !pricing || tokenAmount <= 0}
                 size="lg"
               >
@@ -206,33 +363,69 @@ export default function TokenPurchase() {
             </CardContent>
           </Card>
           
+          {/* FinderToken™ Usage Overview */}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>FinderToken™ Usage Overview</CardTitle>
+              <CardDescription>How FinderTokens power engagement on FinderMeister</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-900 mb-2">For Finders:</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• Every Find application requires 10 FinderTokens</li>
+                    <li>• Boost your proposal visibility with premium features</li>
+                    <li>• Access exclusive high-value find opportunities</li>
+                  </ul>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-green-900 mb-2">For Clients:</h4>
+                  <ul className="text-sm text-green-800 space-y-1">
+                    <li>• Posting high-budget finds (₦100,000+) requires tokens</li>
+                    <li>• Optional: Boost find visibility (50 FinderTokens)</li>
+                    <li>• Get more serious, quality proposals</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                <h4 className="font-semibold text-yellow-900 mb-2">Why FinderTokens?</h4>
+                <p className="text-sm text-yellow-800">
+                  FinderTokens ensure fairness, limit spam, and promote quality participation in the FinderMeister ecosystem. 
+                  Clients gain more visibility and serious proposals, while Finders increase their chances of winning finds with strategic token use.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* How It Works */}
           <Card>
             <CardHeader>
-              <CardTitle>How Findertokens Work</CardTitle>
+              <CardTitle>How the Process Works</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold shrink-0">1</div>
                 <div>
-                  <h4 className="font-semibold">Submit Proposals</h4>
-                  <p className="text-sm text-muted-foreground">Each proposal submission costs tokens as set by the admin</p>
+                  <h4 className="font-semibold">Purchase Tokens</h4>
+                  <p className="text-sm text-muted-foreground">Buy FinderTokens using secure Paystack payment integration</p>
                 </div>
               </div>
               
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold shrink-0">2</div>
                 <div>
-                  <h4 className="font-semibold">Get Selected</h4>
-                  <p className="text-sm text-muted-foreground">When clients accept your proposal, you start working on their find</p>
+                  <h4 className="font-semibold">Submit Proposals</h4>
+                  <p className="text-sm text-muted-foreground">Use 10 tokens per proposal to apply for finds that match your expertise</p>
                 </div>
               </div>
               
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold shrink-0">3</div>
                 <div>
-                  <h4 className="font-semibold">Earn Money</h4>
-                  <p className="text-sm text-muted-foreground">Complete the work and get paid the agreed amount</p>
+                  <h4 className="font-semibold">Win Contracts & Earn</h4>
+                  <p className="text-sm text-muted-foreground">Get selected by clients, complete the work, and earn the full contract amount</p>
                 </div>
               </div>
             </CardContent>
