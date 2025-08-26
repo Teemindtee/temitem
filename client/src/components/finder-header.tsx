@@ -44,7 +44,7 @@ const formatCurrency = (amount: string | number) => {
     currency: 'NGN',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(numAmount / 100); // Convert from kobo to naira
+  }).format(numAmount); // Amount is already in naira
 };
 
 export function FinderHeader({ currentPage }: FinderHeaderProps) {
