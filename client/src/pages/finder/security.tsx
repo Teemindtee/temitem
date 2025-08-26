@@ -10,10 +10,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Shield, Key, Mail, Smartphone, AlertTriangle, CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function SecuritySettings() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -39,12 +41,12 @@ export default function SecuritySettings() {
           newPassword: data.newPassword
         })
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to change password');
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
@@ -109,11 +111,11 @@ export default function SecuritySettings() {
   return (
     <div className="min-h-screen bg-gray-50">
       <FinderHeader />
-      
+
       <div className="max-w-4xl mx-auto py-6 sm:py-8 px-4 sm:px-6">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Security Settings</h1>
-          <p className="text-gray-600 text-sm sm:text-base">Manage your account security and privacy preferences</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{t('securitySettings.title')}</h1>
+          <p className="text-gray-600 text-sm sm:text-base">{t('securitySettings.description')}</p>
         </div>
 
         <div className="grid gap-6">
@@ -122,52 +124,52 @@ export default function SecuritySettings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Key className="w-5 h-5" />
-                Change Password
+                {t('securitySettings.changePassword.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="currentPassword">Current Password</Label>
+                <Label htmlFor="currentPassword">{t('securitySettings.changePassword.currentPasswordLabel')}</Label>
                 <Input
                   id="currentPassword"
                   type="password"
                   value={passwordData.currentPassword}
                   onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
                   className="mt-1"
-                  placeholder="Enter your current password"
+                  placeholder={t('securitySettings.changePassword.currentPasswordPlaceholder')}
                 />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="newPassword">New Password</Label>
+                  <Label htmlFor="newPassword">{t('securitySettings.changePassword.newPasswordLabel')}</Label>
                   <Input
                     id="newPassword"
                     type="password"
                     value={passwordData.newPassword}
                     onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
                     className="mt-1"
-                    placeholder="Enter new password"
+                    placeholder={t('securitySettings.changePassword.newPasswordPlaceholder')}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Label htmlFor="confirmPassword">{t('securitySettings.changePassword.confirmPasswordLabel')}</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
                     value={passwordData.confirmPassword}
                     onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                     className="mt-1"
-                    placeholder="Confirm new password"
+                    placeholder={t('securitySettings.changePassword.confirmPasswordPlaceholder')}
                   />
                 </div>
               </div>
               <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-2">Password Requirements:</h4>
+                <h4 className="font-medium text-blue-900 mb-2">{t('securitySettings.changePassword.passwordRequirementsTitle')}</h4>
                 <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• At least 8 characters long</li>
-                  <li>• Contains uppercase and lowercase letters</li>
-                  <li>• Contains at least one number</li>
-                  <li>• Contains at least one special character</li>
+                  <li>• {t('securitySettings.changePassword.requirement1')}</li>
+                  <li>• {t('securitySettings.changePassword.requirement2')}</li>
+                  <li>• {t('securitySettings.changePassword.requirement3')}</li>
+                  <li>• {t('securitySettings.changePassword.requirement4')}</li>
                 </ul>
               </div>
               <Button 
@@ -175,7 +177,7 @@ export default function SecuritySettings() {
                 disabled={!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword || changePasswordMutation.isPending}
                 className="bg-finder-red hover:bg-finder-red-dark"
               >
-                Update Password
+                {t('securitySettings.changePassword.updatePasswordButton')}
               </Button>
             </CardContent>
           </Card>
@@ -185,15 +187,15 @@ export default function SecuritySettings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Smartphone className="w-5 h-5" />
-                Two-Factor Authentication
+                {t('securitySettings.twoFactorAuth.title')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-1">Enable 2FA</h4>
+                  <h4 className="font-medium text-gray-900 mb-1">{t('securitySettings.twoFactorAuth.enable2FATitle')}</h4>
                   <p className="text-sm text-gray-600">
-                    Add an extra layer of security to your account with SMS or app-based authentication
+                    {t('securitySettings.twoFactorAuth.enable2FADescription')}
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -211,7 +213,7 @@ export default function SecuritySettings() {
               {securitySettings.twoFactorEnabled && (
                 <div className="mt-4 p-4 bg-green-50 rounded-lg">
                   <p className="text-sm text-green-700">
-                    Two-factor authentication is enabled. You'll receive a verification code via SMS when signing in.
+                    {t('securitySettings.twoFactorAuth.enabledMessage')}
                   </p>
                 </div>
               )}
@@ -223,15 +225,15 @@ export default function SecuritySettings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
-                Security Notifications
+                {t('securitySettings.securityNotifications.title')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-1">Email Notifications</h4>
+                  <h4 className="font-medium text-gray-900 mb-1">{t('securitySettings.securityNotifications.emailNotificationsTitle')}</h4>
                   <p className="text-sm text-gray-600">
-                    Receive email notifications for important account activities
+                    {t('securitySettings.securityNotifications.emailNotificationsDescription')}
                   </p>
                 </div>
                 <Switch
@@ -242,9 +244,9 @@ export default function SecuritySettings() {
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-1">Login Alerts</h4>
+                  <h4 className="font-medium text-gray-900 mb-1">{t('securitySettings.securityNotifications.loginAlertsTitle')}</h4>
                   <p className="text-sm text-gray-600">
-                    Get notified when someone signs into your account from a new device
+                    {t('securitySettings.securityNotifications.loginAlertsDescription')}
                   </p>
                 </div>
                 <Switch
@@ -255,9 +257,9 @@ export default function SecuritySettings() {
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-1">Password Requirements</h4>
+                  <h4 className="font-medium text-gray-900 mb-1">{t('securitySettings.securityNotifications.passwordRequirementsTitle')}</h4>
                   <p className="text-sm text-gray-600">
-                    Enforce strong password requirements for your account
+                    {t('securitySettings.securityNotifications.passwordRequirementsDescription')}
                   </p>
                 </div>
                 <Switch
@@ -273,7 +275,7 @@ export default function SecuritySettings() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="w-5 h-5" />
-                Account Security Status
+                {t('securitySettings.accountSecurityStatus.title')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -285,20 +287,20 @@ export default function SecuritySettings() {
                     ) : (
                       <AlertTriangle className="w-5 h-5 text-orange-600" />
                     )}
-                    <span className="font-medium">Two-Factor Authentication</span>
+                    <span className="font-medium">{t('securitySettings.accountSecurityStatus.twoFactorAuthTitle')}</span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    {securitySettings.twoFactorEnabled ? "Enabled and active" : "Not enabled"}
+                    {securitySettings.twoFactorEnabled ? t('securitySettings.accountSecurityStatus.twoFactorAuthEnabled') : t('securitySettings.accountSecurityStatus.twoFactorAuthDisabled')}
                   </p>
                 </div>
 
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-3 mb-2">
                     <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span className="font-medium">Email Verification</span>
+                    <span className="font-medium">{t('securitySettings.accountSecurityStatus.emailVerificationTitle')}</span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    Your email address is verified
+                    {t('securitySettings.accountSecurityStatus.emailVerificationStatus')}
                   </p>
                 </div>
 
@@ -309,10 +311,10 @@ export default function SecuritySettings() {
                     ) : (
                       <AlertTriangle className="w-5 h-5 text-orange-600" />
                     )}
-                    <span className="font-medium">Strong Password</span>
+                    <span className="font-medium">{t('securitySettings.accountSecurityStatus.strongPasswordTitle')}</span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    {securitySettings.passwordRequirements ? "Requirements enforced" : "Basic requirements"}
+                    {securitySettings.passwordRequirements ? t('securitySettings.accountSecurityStatus.strongPasswordEnforced') : t('securitySettings.accountSecurityStatus.strongPasswordBasic')}
                   </p>
                 </div>
 
@@ -323,10 +325,10 @@ export default function SecuritySettings() {
                     ) : (
                       <AlertTriangle className="w-5 h-5 text-orange-600" />
                     )}
-                    <span className="font-medium">Login Monitoring</span>
+                    <span className="font-medium">{t('securitySettings.accountSecurityStatus.loginMonitoringTitle')}</span>
                   </div>
                   <p className="text-sm text-gray-600">
-                    {securitySettings.loginAlerts ? "Monitoring active" : "Monitoring disabled"}
+                    {securitySettings.loginAlerts ? t('securitySettings.accountSecurityStatus.loginMonitoringActive') : t('securitySettings.accountSecurityStatus.loginMonitoringDisabled')}
                   </p>
                 </div>
               </div>

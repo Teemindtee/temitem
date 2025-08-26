@@ -193,8 +193,8 @@ export default function ClientDashboard() {
       {/* Main Content */}
       <div className="max-w-6xl mx-auto py-8 px-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user?.firstName}!</h1>
-          <p className="text-gray-600">Manage your finds and find the perfect finder.</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('navigation.welcome_back')}, {user?.firstName}!</h1>
+          <p className="text-gray-600">{t('common.dashboard_overview')}</p>
         </div>
 
         {/* Quick Actions */}
@@ -204,11 +204,11 @@ export default function ClientDashboard() {
               <div className="bg-finder-red rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <Plus className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Post New Find</h3>
-              <p className="text-gray-600 mb-4 text-sm">Need help finding something? Create a new find.</p>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('client.post_request')}</h3>
+              <p className="text-gray-600 mb-4 text-sm">{t('client.post_request_description')}</p>
               <Link href="/client/create-find">
                 <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
-                  Create Find
+                  {t('client.create_find')}
                 </Button>
               </Link>
             </CardContent>
@@ -219,9 +219,9 @@ export default function ClientDashboard() {
               <div className="bg-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Open Find(s)</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('client.open_finds')}</h3>
               <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Find) => r.status === 'open').length}</p>
-              <p className="text-gray-600 text-sm">Waiting for proposals</p>
+              <p className="text-gray-600 text-sm">{t('client.waiting_for_proposals')}</p>
             </CardContent>
           </Card>
 
@@ -230,9 +230,9 @@ export default function ClientDashboard() {
               <div className="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">In Progress</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('client.in_progress')}</h3>
               <p className="text-2xl font-bold text-yellow-600 mb-2">{requests.filter((r: Find) => r.status === 'in_progress').length}</p>
-              <p className="text-gray-600 text-sm">Currently being worked on</p>
+              <p className="text-gray-600 text-sm">{t('client.currently_being_worked_on')}</p>
             </CardContent>
           </Card>
 
@@ -241,9 +241,9 @@ export default function ClientDashboard() {
               <div className="bg-green-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Completed</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('client.completed')}</h3>
               <p className="text-2xl font-bold text-green-600 mb-2">{requests.filter((r: Find) => r.status === 'completed').length}</p>
-              <p className="text-gray-600 text-sm">Successfully completed</p>
+              <p className="text-gray-600 text-sm">{t('client.successfully_completed')}</p>
             </CardContent>
           </Card>
 
@@ -252,11 +252,11 @@ export default function ClientDashboard() {
               <div className="bg-purple-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <MessageCircle className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Messages</h3>
-              <p className="text-gray-600 mb-4 text-sm">Chat with finders who submitted proposals.</p>
+              <h3 className="font-semibold text-gray-900 mb-2">{t('client.messages')}</h3>
+              <p className="text-gray-600 mb-4 text-sm">{t('client.chat_with_finders')}</p>
               <Link href="/messages">
                 <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                  View Messages
+                  {t('client.view_messages')}
                 </Button>
               </Link>
             </CardContent>
@@ -267,18 +267,18 @@ export default function ClientDashboard() {
           {/* Recent Requests */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-xl text-gray-900">Your Recent Finds</CardTitle>
+              <CardTitle className="text-xl text-gray-900">{t('client.recent_finds')}</CardTitle>
               <Link href="/client/finds">
-                <Button variant="outline" size="sm">View All</Button>
+                <Button variant="outline" size="sm">{t('common.view_all')}</Button>
               </Link>
             </CardHeader>
             <CardContent className="space-y-4">
               {requests.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>You haven't created any finds yet.</p>
+                  <p>{t('client.no_finds_yet')}</p>
                   <Link href="/client/create-find" className="text-finder-red hover:underline font-medium">
-                    Create your first find
+                    {t('client.create_first_find')}
                   </Link>
                 </div>
               ) : (
@@ -298,7 +298,7 @@ export default function ClientDashboard() {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Budget: {formatCurrency(request.budgetMin)} - {formatCurrency(request.budgetMax)}</span>
                       <Link href={`/client/finds/${request.id}`}>
-                        <Button size="sm" variant="outline">View</Button>
+                        <Button size="sm" variant="outline">{t('common.view')}</Button>
                       </Link>
                     </div>
                   </div>
@@ -310,25 +310,25 @@ export default function ClientDashboard() {
           {/* Recent Proposals */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-xl text-gray-900">Recent Proposals</CardTitle>
+              <CardTitle className="text-xl text-gray-900">{t('client.recent_proposals')}</CardTitle>
               <Link href="/client/proposals">
-                <Button variant="outline" size="sm">View All</Button>
+                <Button variant="outline" size="sm">{t('common.view_all')}</Button>
               </Link>
             </CardHeader>
             <CardContent className="space-y-4">
               {proposals.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <UserIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>No proposals received yet.</p>
-                  <p className="text-sm">Create a find to get started!</p>
+                  <p>{t('client.no_proposals_yet')}</p>
+                  <p className="text-sm">{t('client.create_find_to_get_started')}</p>
                 </div>
               ) : (
                 proposals.slice(0, 3).map((proposal: any) => (
                   <div key={proposal.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h4 className="font-medium text-gray-900">Proposal for Request</h4>
-                        <p className="text-sm text-gray-600">By Finder</p>
+                        <h4 className="font-medium text-gray-900">{t('client.proposal_for_request')}</h4>
+                        <p className="text-sm text-gray-600">{t('client.by_finder')}</p>
                       </div>
                       <span className="text-lg font-bold text-green-600">{formatCurrency(proposal.price)}</span>
                     </div>
@@ -338,7 +338,7 @@ export default function ClientDashboard() {
                         Timeline: {proposal.timeline}
                       </span>
                       <Link href={`/client/proposals/${proposal.id}`}>
-                        <Button size="sm" variant="outline">Review</Button>
+                        <Button size="sm" variant="outline">{t('common.review')}</Button>
                       </Link>
                     </div>
                   </div>

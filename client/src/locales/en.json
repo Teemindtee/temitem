@@ -37,7 +37,21 @@
     "update": "Update",
     "confirm": "Confirm",
     "access_denied": "Access Denied",
-    "client_only_page": "This page is only available for clients."
+    "client_only_page": "This page is for clients only.",
+    "dashboard_overview": "Here's an overview of your activity",
+    "available_balance": "Available Balance",
+    "pending_balance": "Pending Balance",
+    "ready_withdraw": "Ready to withdraw",
+    "from_ongoing_contracts": "From ongoing contracts",
+    "currently_working": "Currently working on",
+    "success_rate": "Success Rate",
+    "completed_successfully": "Completed successfully",
+    "security": "Security",
+    "change_password": "Change Password",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "password_updated": "Password updated successfully",
+    "password_update_failed": "Failed to update password"
   },
   "navigation": {
     "dashboard": "Dashboard",
