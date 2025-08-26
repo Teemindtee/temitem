@@ -67,15 +67,15 @@ export default function ClientDashboard() {
     );
   }
 
-  // Mobile Dashboard Layout - Match exact mockup design
+  // Mobile Dashboard Layout - Simplified and functional
   if (isMobile) {
-    const userName = user?.firstName || "Tosin";
+    const userName = user?.firstName || "User";
 
     return (
       <div className="min-h-screen bg-gray-50">
         <ClientHeader currentPage="dashboard" />
-        {/* Mobile Phone Frame */}
-        <div className="max-w-sm mx-auto min-h-screen bg-white shadow-2xl border border-gray-200 rounded-2xl overflow-hidden">
+        {/* Mobile Dashboard Content */}
+        <div className="max-w-sm mx-auto bg-white min-h-screen">
           {/* Header with User Profile */}
           <div className="bg-finder-red px-4 py-3 flex items-center justify-between">
             <div className="flex items-center">
@@ -171,7 +171,7 @@ export default function ClientDashboard() {
             </div>
 
             {/* Bottom Tagline - Positioned at bottom */}
-            <div className="absolute bottom-8 left-0 right-0">
+            <div className="mt-12">
               <div className="text-center px-4">
                 <p className="text-gray-500 text-base font-medium leading-snug">
                   One successful find<br />
