@@ -10,7 +10,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 import { 
   ArrowLeft, 
-  DollarSign, 
   Calendar, 
   CheckCircle, 
   Clock, 
@@ -23,6 +22,17 @@ import {
 import { ContractDisputeModal } from "@/components/ContractDisputeModal";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+
+// Helper function to format currency
+const formatCurrency = (amount: string | number) => {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  return new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(numAmount);
+};
 
 interface ContractDetails {
   id: string;
@@ -152,10 +162,9 @@ export default function FinderContractDetails() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center space-x-3">
-                  <DollarSign className="w-5 h-5 text-green-600" />
                   <div>
                     <p className="text-sm text-gray-600">{t('contract.contract_value')}</p>
-                    <p className="text-xl font-semibold text-green-600">${contract.amount}</p>
+                    <p className="text-xl font-semibold text-green-600">{formatCurrency(contract.amount)}</p>
                   </div>
                 </div>
                 

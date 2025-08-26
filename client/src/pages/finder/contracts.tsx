@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { FinderHeader } from "@/components/finder-header";
 import { SupportWidget } from "@/components/support-widget";
 import { useAuth } from "@/hooks/use-auth";
-import { DollarSign, Clock, CheckCircle, Upload, ExternalLink, MapPin, FileText, AlertCircle } from "lucide-react";
+import { Clock, CheckCircle, Upload, ExternalLink, MapPin, FileText, AlertCircle } from "lucide-react";
 
 // Helper function to format currency
 const formatCurrency = (amount: string | number) => {
@@ -115,7 +115,6 @@ export default function FinderContracts() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-6">
                         <div className="flex items-center text-green-600">
-                          <DollarSign className="w-5 h-5 mr-1" />
                           <span className="font-semibold text-lg">{formatCurrency(contract.amount)}</span>
                         </div>
                         <div className="flex items-center text-gray-600 text-sm">
