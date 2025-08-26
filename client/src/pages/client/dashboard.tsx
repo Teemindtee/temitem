@@ -219,9 +219,20 @@ export default function ClientDashboard() {
               <div className="bg-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Active Find(s)</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">Open Find(s)</h3>
               <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Find) => r.status === 'open').length}</p>
-              <p className="text-gray-600 text-sm">Finds waiting for proposals</p>
+              <p className="text-gray-600 text-sm">Waiting for proposals</p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-yellow-200">
+            <CardContent className="p-6 text-center">
+              <div className="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">In Progress</h3>
+              <p className="text-2xl font-bold text-yellow-600 mb-2">{requests.filter((r: Find) => r.status === 'in_progress').length}</p>
+              <p className="text-gray-600 text-sm">Currently being worked on</p>
             </CardContent>
           </Card>
 
@@ -230,9 +241,9 @@ export default function ClientDashboard() {
               <div className="bg-green-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-6 h-6 text-white" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Completed Find(s)</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">Completed</h3>
               <p className="text-2xl font-bold text-green-600 mb-2">{requests.filter((r: Find) => r.status === 'completed').length}</p>
-              <p className="text-gray-600 text-sm">Successfully completed finds</p>
+              <p className="text-gray-600 text-sm">Successfully completed</p>
             </CardContent>
           </Card>
 
