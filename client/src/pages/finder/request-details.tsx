@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { FinderHeader } from "@/components/finder-header";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Clock, DollarSign, MapPin, Send } from "lucide-react";
+import { ArrowLeft, Clock, Banknote, MapPin, Send } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { Find, Proposal } from "@shared/schema";
 
@@ -54,12 +54,15 @@ export default function FinderRequestDetails() {
   const submitProposal = useMutation({
     mutationFn: async () => {
       if (!findId) throw new Error("No find ID");
-      return apiRequest("POST", "/api/proposals", {
-        findId: findId, // Fixed: Backend expects findId field
-        approach: proposalData.approach,
-        price: proposalData.price,
-        timeline: proposalData.timeline,
-        notes: proposalData.notes
+      return apiRequest("/api/proposals", {
+        method: "POST",
+        body: JSON.stringify({
+          findId: findId,
+          approach: proposalData.approach,
+          price: proposalData.price,
+          timeline: proposalData.timeline,
+          notes: proposalData.notes
+        })
       });
     },
     onSuccess: () => {
@@ -167,7 +170,7 @@ export default function FinderRequestDetails() {
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Budget Range</h3>
                       <div className="flex items-center text-lg font-semibold text-green-600">
-                        <DollarSign className="w-5 h-5 mr-1" />
+                        <Banknote className="w-5 h-5 mr-1" />
                         {formatCurrency(find.budgetMin)} - {formatCurrency(find.budgetMax)}
                       </div>
                     </div>
