@@ -284,7 +284,7 @@ export default function Messages() {
                                 {displayName}
                               </h3>
                               <p className="text-xs md:text-sm text-finder-red truncate mt-0.5">
-                                {conversation.proposal.request.title}
+                                {conversation.proposal?.request?.title || 'No title available'}
                               </p>
                             </div>
                             
