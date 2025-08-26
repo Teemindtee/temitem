@@ -1532,7 +1532,9 @@ export class DatabaseStorage implements IStorage {
     const [submission] = await db
       .select()
       .from(orderSubmissions)
-      .where(eq(orderSubmissions.contractId, contractId));
+      .where(eq(orderSubmissions.contractId, contractId))
+      .orderBy(desc(orderSubmissions.submittedAt))
+      .limit(1);
     return submission || undefined;
   }
 
@@ -1572,20 +1574,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getContractWithSubmission(contractId: string): Promise<(Contract & {orderSubmission?: OrderSubmission}) | undefined> {
-    const [result] = await db
-      .select({
-        contract: contracts,
-        orderSubmission: orderSubmissions
-      })
-      .from(contracts)
-      .leftJoin(orderSubmissions, eq(orderSubmissions.contractId, contracts.id))
-      .where(eq(contracts.id, contractId));
+    // First get the contract
+    const contract = await this.getContract(contractId);
+    if (!contract) return undefined;
 
-    if (!result) return undefined;
+    // Then get the latest order submission for this contract
+    const latestSubmission = await this.getOrderSubmissionByContractId(contractId);
 
     return {
-      ...result.contract,
-      orderSubmission: result.orderSubmission || undefined
+      ...contract,
+      orderSubmission: latestSubmission || undefined
     };
   }
 

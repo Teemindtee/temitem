@@ -42,6 +42,8 @@ export default function OrderReviewPage() {
   const { data: contract, isLoading } = useQuery<Contract>({
     queryKey: ["/api/orders/contract", contractId],
     enabled: !!contractId,
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always refetch to get latest submission
   });
 
   const reviewSubmissionMutation = useMutation({
