@@ -1322,6 +1322,14 @@ export class DatabaseStorage implements IStorage {
         result[setting.key] = setting.value;
       });
       
+      // Convert underscore keys to camelCase for consistency
+      if (result['high_budget_threshold']) {
+        result['highBudgetThreshold'] = result['high_budget_threshold'];
+      }
+      if (result['high_budget_token_cost']) {
+        result['highBudgetTokenCost'] = result['high_budget_token_cost'];
+      }
+      
       // Set defaults if not exist
       const defaults = {
         proposalTokenCost: "1",

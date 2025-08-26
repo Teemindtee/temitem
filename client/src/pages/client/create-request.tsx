@@ -155,7 +155,7 @@ export default function CreateRequest() {
               onClick={() => {
                 navigate(error.purchaseUrl);
               }}
-              className="bg-white hover:bg-gray-50"
+              className="bg-white hover:bg-gray-50 text-gray-900 border-gray-300"
             >
               <ExternalLink className="w-4 h-4 mr-2" />
               Buy Tokens
@@ -174,7 +174,7 @@ export default function CreateRequest() {
               onClick={() => {
                 navigate("/client/tokens");
               }}
-              className="bg-white hover:bg-gray-50"
+              className="bg-white hover:bg-gray-50 text-gray-900 border-gray-300"
             >
               <ExternalLink className="w-4 h-4 mr-2" />
               Buy Tokens
