@@ -129,6 +129,50 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
           )}
         </nav>
 
+        {/* Mobile User Actions - visible when authenticated */}
+        {user && (
+          <div className="lg:hidden flex items-center space-x-3">
+            {/* User Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="text-white hover:bg-white/10 p-2 rounded-full">
+                  <User className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link href="/client/profile" className="flex items-center w-full cursor-pointer">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/client/change-password" className="flex items-center w-full cursor-pointer">
+                    <Lock className="w-4 h-4 mr-2" />
+                    Change Password
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/support" className="flex items-center w-full cursor-pointer">
+                    <HelpCircle className="w-4 h-4 mr-2" />
+                    Help Center
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="text-white hover:bg-white/10 p-2 rounded-full"
+              title="Log Out"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
         {/* Mobile Menu Button */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetTrigger asChild>
