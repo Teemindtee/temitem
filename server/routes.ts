@@ -1877,6 +1877,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Token Package Admin Routes
+  app.get("/api/admin/token-packages", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const tokenPackages = await storage.getAllTokenPackages();
+      res.json(tokenPackages);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch token packages" });
+    }
+  });
+
+  app.post("/api/admin/token-packages", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { name, description, price, tokenCount, isActive = true } = req.body;
+      
+      // Input validation
+      if (!name || !price || !tokenCount || price <= 0 || tokenCount <= 0) {
+        return res.status(400).json({ message: "Name, price, and token count are required and must be positive" });
+      }
+
+      const tokenPackage = await storage.createTokenPackage({
+        name,
+        description,
+        price: price.toString(),
+        tokenCount,
+        isActive
+      });
+
+      res.status(201).json(tokenPackage);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to create token package", error: error.message });
+    }
+  });
+
+  app.put("/api/admin/token-packages/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { name, description, price, tokenCount, isActive } = req.body;
+
+      // Input validation
+      if (price && price <= 0) {
+        return res.status(400).json({ message: "Price must be positive" });
+      }
+      if (tokenCount && tokenCount <= 0) {
+        return res.status(400).json({ message: "Token count must be positive" });
+      }
+
+      const updates: any = {};
+      if (name) updates.name = name;
+      if (description !== undefined) updates.description = description;
+      if (price) updates.price = price.toString();
+      if (tokenCount) updates.tokenCount = tokenCount;
+      if (isActive !== undefined) updates.isActive = isActive;
+
+      const tokenPackage = await storage.updateTokenPackage(id, updates);
+      
+      if (!tokenPackage) {
+        return res.status(404).json({ message: "Token package not found" });
+      }
+
+      res.json(tokenPackage);
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to update token package", error: error.message });
+    }
+  });
+
+  app.delete("/api/admin/token-packages/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const success = await storage.deleteTokenPackage(id);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Token package not found" });
+      }
+
+      res.json({ message: "Token package deleted successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: "Failed to delete token package", error: error.message });
+    }
+  });
+
+  // Public endpoint for active token packages (for finders to purchase)
+  app.get("/api/token-packages", (req: Request, res: Response) => {
+    // This could be used by finders to see available packages
+    res.json({ message: "Use /api/admin/token-packages for now" });
+  });
+
   // Finder Levels Admin Routes
   app.get("/api/admin/finder-levels", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {

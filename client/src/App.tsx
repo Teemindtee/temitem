@@ -29,6 +29,7 @@ import AdminRequests from "@/pages/admin/requests";
 import AdminCategories from "@/pages/admin/categories";
 import AdminSettings from "@/pages/admin/settings";
 import AdminWithdrawals from "@/pages/admin/withdrawals";
+import AdminTokenPackages from "@/pages/admin/token-packages";
 import AdminTokenManagement from "@/pages/admin/token-management";
 import AdminBlogPosts from "@/pages/admin/blog-posts";
 import AdminBlogPostCreate from "@/pages/admin/blog-post-create";
@@ -109,6 +110,7 @@ function Router() {
       <Route path="/admin/categories" component={AdminCategories} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/withdrawals" component={AdminWithdrawals} />
+      <Route path="/admin/token-packages" component={AdminTokenPackages} />
       <Route path="/admin/token-management" component={AdminTokenManagement} />
       <Route path="/admin/blog-posts" component={AdminBlogPosts} />
       <Route path="/admin/blog-posts/create" component={AdminBlogPostCreate} />

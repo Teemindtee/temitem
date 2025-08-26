@@ -47,6 +47,8 @@ import {
   type InsertTrustedBadge,
   type RestrictedWord,
   type InsertRestrictedWord,
+  type TokenPackage,
+  type InsertTokenPackage,
 
   users,
   finders,
@@ -72,7 +74,8 @@ import {
   disputes,
   behavioralTraining,
   trustedBadges,
-  restrictedWords
+  restrictedWords,
+  tokenPackages
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -244,6 +247,14 @@ export interface IStorage {
   
   // Strike System Analysis
   getUserStrikeLevel(userId: string): Promise<number>;
+
+  // Token Package operations
+  getAllTokenPackages(): Promise<TokenPackage[]>;
+  getActiveTokenPackages(): Promise<TokenPackage[]>;
+  getTokenPackage(id: string): Promise<TokenPackage | undefined>;
+  createTokenPackage(tokenPackage: InsertTokenPackage): Promise<TokenPackage>;
+  updateTokenPackage(id: string, updates: Partial<TokenPackage>): Promise<TokenPackage | undefined>;
+  deleteTokenPackage(id: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2002,6 +2013,58 @@ export class DatabaseStorage implements IStorage {
     });
     
     return foundWords;
+  }
+
+  // Token Package operations
+  async getAllTokenPackages(): Promise<TokenPackage[]> {
+    return await db
+      .select()
+      .from(tokenPackages)
+      .orderBy(desc(tokenPackages.createdAt));
+  }
+
+  async getActiveTokenPackages(): Promise<TokenPackage[]> {
+    return await db
+      .select()
+      .from(tokenPackages)
+      .where(eq(tokenPackages.isActive, true))
+      .orderBy(desc(tokenPackages.createdAt));
+  }
+
+  async getTokenPackage(id: string): Promise<TokenPackage | undefined> {
+    const result = await db
+      .select()
+      .from(tokenPackages)
+      .where(eq(tokenPackages.id, id))
+      .limit(1);
+    return result[0];
+  }
+
+  async createTokenPackage(tokenPackage: InsertTokenPackage): Promise<TokenPackage> {
+    const [result] = await db
+      .insert(tokenPackages)
+      .values(tokenPackage)
+      .returning();
+    return result;
+  }
+
+  async updateTokenPackage(id: string, updates: Partial<TokenPackage>): Promise<TokenPackage | undefined> {
+    const [result] = await db
+      .update(tokenPackages)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(tokenPackages.id, id))
+      .returning();
+    return result;
+  }
+
+  async deleteTokenPackage(id: string): Promise<boolean> {
+    const result = await db
+      .delete(tokenPackages)
+      .where(eq(tokenPackages.id, id));
+    return result.rowCount > 0;
   }
 }
 

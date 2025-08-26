@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
-import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu, ChevronDown, TrendingUp, Coins, Shield } from "lucide-react";
+import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu, ChevronDown, TrendingUp, Coins, Shield, Package } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
@@ -42,6 +42,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
         { path: "/admin/finder-levels", label: "Finder Levels", icon: TrendingUp, id: "finder-levels" },
         { path: "/admin/categories", label: "Categories", icon: Tags, id: "categories" },
         { path: "/admin/requests", label: "Finds", icon: FileText, id: "finds" },
+        { path: "/admin/token-packages", label: "Token Packages", icon: Package, id: "token-packages" },
         { path: "/admin/token-management", label: "Token Management", icon: Coins, id: "token-management" }
       ]
     },

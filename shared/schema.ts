@@ -125,6 +125,17 @@ export const adminSettings = pgTable("admin_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+export const tokenPackages = pgTable("token_packages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description"),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  tokenCount: integer("token_count").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const conversations = pgTable("conversations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   clientId: varchar("client_id").references(() => users.id).notNull(),
@@ -717,6 +728,16 @@ export type InsertMessageType = z.infer<typeof insertMessageSchema>;
 export type InsertBlogPostType = z.infer<typeof insertBlogPostSchema>;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
+
+// Token Package schemas
+export const insertTokenPackageSchema = createInsertSchema(tokenPackages).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type TokenPackage = typeof tokenPackages.$inferSelect;
+export type InsertTokenPackage = z.infer<typeof insertTokenPackageSchema>;
 
 // Order Submissions
 export const insertOrderSubmissionSchema = createInsertSchema(orderSubmissions).omit({
