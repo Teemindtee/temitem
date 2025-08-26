@@ -200,7 +200,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   <span>Dashboard</span>
                 </Link>
                 <Link
-                  href="/client/create-request"
+                  href="/client/create-find"
                   className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
