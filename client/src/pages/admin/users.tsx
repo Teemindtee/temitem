@@ -1,50 +1,56 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import AdminHeader from "@/components/admin-header";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import AdminHeader from "@/components/admin-header";
+import { apiRequest } from "@/lib/queryClient";
 import AdminIssueStrike from "@/components/admin-issue-strike";
 import { 
   Users, 
-  Search,
-  CheckCircle,
-  XCircle,
-  Shield,
-  UserCheck,
-  UserX,
+  Search, 
+  MoreVertical, 
+  UserCheck, 
+  UserX, 
+  CheckCircle, 
+  XCircle, 
+  AlertTriangle,
+  Eye,
   Mail,
   Calendar,
-  MoreVertical,
   Crown,
   Star,
-  Eye,
-  Ban,
   ShieldCheck,
-  AlertTriangle
+  Ban
 } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import type { User } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
-import { useState } from "react";
 import { Link } from "wouter";
 
-interface ExtendedUser extends User {
+interface ExtendedUser {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  role: 'admin' | 'finder' | 'client';
+  isVerified: boolean;
+  isBanned: boolean;
+  createdAt?: string;
   profileImageUrl?: string;
 }
 
-export default function AdminUsersModern() {
+export default function AdminUsers() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [banDialogOpen, setBanDialogOpen] = useState(false);
   const [banReason, setBanReason] = useState("");
   const [selectedUser, setSelectedUser] = useState<ExtendedUser | null>(null);
-  const [banDialogOpen, setBanDialogOpen] = useState(false);
 
   const { data: users = [], isLoading } = useQuery<ExtendedUser[]>({
     queryKey: ['/api/admin/users'],
@@ -111,10 +117,10 @@ export default function AdminUsersModern() {
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'admin': return <Crown className="w-4 h-4" />;
-      case 'finder': return <Star className="w-4 h-4" />;
-      case 'client': return <Users className="w-4 h-4" />;
-      default: return <Users className="w-4 h-4" />;
+      case 'admin': return <Crown className="w-3 h-3" />;
+      case 'finder': return <Star className="w-3 h-3" />;
+      case 'client': return <Users className="w-3 h-3" />;
+      default: return <Users className="w-3 h-3" />;
     }
   };
 
@@ -128,10 +134,9 @@ export default function AdminUsersModern() {
   };
 
   const getProfileUrl = (userData: ExtendedUser) => {
-    // Helper function to create name-based URL segment
     const createNameSlug = (firstName: string, lastName: string, id: string) => {
       const name = `${firstName}${lastName}`.replace(/[^a-zA-Z0-9]/g, '');
-      const idInitials = id.split('-')[0].slice(0, 8); // First 8 chars of ID
+      const idInitials = id.split('-')[0].slice(0, 8);
       return `${name}${idInitials}`;
     };
 
@@ -141,7 +146,7 @@ export default function AdminUsersModern() {
       case 'client':
         return `/client/profile/${createNameSlug(userData.firstName || '', userData.lastName || '', userData.id)}`;
       default:
-        return '#'; // Admin users don't have public profiles
+        return '#';
     }
   };
 
@@ -173,15 +178,15 @@ export default function AdminUsersModern() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-indigo-900/10">
       <AdminHeader currentPage="users" />
       
-      {/* Modern Header Section */}
+      {/* Header Section */}
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 sticky top-16 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl sm:rounded-2xl blur opacity-60"></div>
-                  <div className="relative p-3 sm:p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl sm:rounded-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-60"></div>
+                  <div className="relative p-3 sm:p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl">
                     <Users className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                   </div>
                 </div>
@@ -209,150 +214,138 @@ export default function AdminUsersModern() {
       </div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
-        {/* Modern Users Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-          {filteredUsers.map((userData) => (
-            <Card key={userData.id} className="group bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] rounded-xl sm:rounded-2xl overflow-hidden">
-              <CardContent className="p-4 sm:p-6">
-                {/* User Header */}
-                <div className="flex items-start justify-between mb-3 sm:mb-4">
-                  <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                    {/* Profile Image */}
-                    <div className="relative flex-shrink-0">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-lg shadow-lg">
-                        {userData.profileImageUrl ? (
-                          <img 
-                            src={userData.profileImageUrl} 
-                            alt={`${userData.firstName} ${userData.lastName}`}
-                            className="w-full h-full object-cover rounded-lg sm:rounded-xl"
-                          />
-                        ) : (
-                          `${userData.firstName?.charAt(0) || ''}${userData.lastName?.charAt(0) || ''}`
-                        )}
-                      </div>
-                      {/* Status Indicator */}
-                      <div className={`absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 border-white ${
-                        userData.isBanned ? 'bg-red-500' : userData.isVerified ? 'bg-green-500' : 'bg-gray-400'
-                      }`}></div>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      {userData.role === 'admin' ? (
-                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white truncate">
-                          {userData.firstName} {userData.lastName}
-                        </h3>
-                      ) : (
-                        <Link href={getProfileUrl(userData)}>
-                          <h3 className="text-base sm:text-lg font-bold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 truncate cursor-pointer transition-colors">
+        {/* Compact Users Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+          {filteredUsers.map((userData) => {
+            const CardWrapper = userData.role === 'admin' ? 'div' : Link;
+            const cardProps = userData.role === 'admin' ? {} : { href: getProfileUrl(userData) };
+            
+            return (
+              <CardWrapper key={userData.id} {...cardProps}>
+                <Card className={`group bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-0 shadow-md hover:shadow-xl transition-all duration-300 rounded-lg overflow-hidden ${
+                  userData.role !== 'admin' ? 'hover:scale-[1.02] cursor-pointer' : ''
+                }`}>
+                  <CardContent className="p-3">
+                    {/* Compact User Header */}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        {/* Smaller Profile Image */}
+                        <div className="relative flex-shrink-0">
+                          <div className={`w-8 h-8 bg-gradient-to-br ${
+                            userData.role === 'admin' ? 'from-purple-500 to-purple-600' :
+                            userData.role === 'finder' ? 'from-blue-500 to-blue-600' : 'from-green-500 to-green-600'
+                          } rounded-lg flex items-center justify-center text-white font-bold text-xs`}>
+                            {userData.profileImageUrl ? (
+                              <img 
+                                src={userData.profileImageUrl} 
+                                alt={`${userData.firstName} ${userData.lastName}`}
+                                className="w-full h-full object-cover rounded-lg"
+                              />
+                            ) : (
+                              `${userData.firstName?.charAt(0) || ''}${userData.lastName?.charAt(0) || ''}`
+                            )}
+                          </div>
+                          <div className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border border-white ${
+                            userData.isBanned ? 'bg-red-500' : userData.isVerified ? 'bg-green-500' : 'bg-gray-400'
+                          }`}></div>
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`text-sm font-semibold truncate ${
+                            userData.role === 'admin' ? 'text-gray-900 dark:text-white' : 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors'
+                          }`}>
                             {userData.firstName} {userData.lastName}
                           </h3>
-                        </Link>
-                      )}
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium border ${getRoleColor(userData.role)}`}>
-                          <div className="flex items-center gap-1">
-                            {getRoleIcon(userData.role)}
-                            <span className="hidden sm:inline">
-                              {userData.role.charAt(0).toUpperCase() + userData.role.slice(1)}
-                            </span>
-                          </div>
-                        </Badge>
+                          <Badge className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getRoleColor(userData.role)}`}>
+                            <div className="flex items-center gap-1">
+                              {getRoleIcon(userData.role)}
+                              <span>{userData.role.charAt(0).toUpperCase() + userData.role.slice(1)}</span>
+                            </div>
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {/* Smaller Action Menu */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="opacity-60 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg flex-shrink-0">
+                            <MoreVertical className="w-3 h-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg">
+                          <DropdownMenuItem onClick={() => handleVerifyUser(userData.id, !userData.isVerified)} className="flex items-center gap-2 px-3 py-2 rounded-lg">
+                            {userData.isVerified ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                            {userData.isVerified ? 'Unverify User' : 'Verify User'}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleBanUser(userData, !userData.isBanned)} 
+                            className="flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          >
+                            {userData.isBanned ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                            {userData.isBanned ? 'Unban User' : 'Ban User'}
+                          </DropdownMenuItem>
+                          
+                          {(userData.role === 'client' || userData.role === 'finder') && (
+                            <DropdownMenuItem 
+                              onSelect={(e) => e.preventDefault()}
+                              asChild
+                            >
+                              <div className="p-0">
+                                <AdminIssueStrike
+                                  userId={userData.id}
+                                  userRole={userData.role as 'client' | 'finder'}
+                                  userName={`${userData.firstName} ${userData.lastName}`}
+                                  trigger={
+                                    <button 
+                                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 w-full text-left cursor-pointer"
+                                      type="button"
+                                    >
+                                      <AlertTriangle className="w-4 h-4" />
+                                      Issue Strike
+                                    </button>
+                                  }
+                                  onStrikeIssued={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] })}
+                                />
+                              </div>
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    
+                    {/* Condensed User Details */}
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                        <Mail className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate">{userData.email}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                        <Calendar className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate">Joined {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A'}</span>
+                      </div>
+                      
+                      {/* Compact Status Badges */}
+                      <div className="flex items-center gap-1 pt-1">
+                        {userData.isVerified && (
+                          <Badge className="bg-green-100 text-green-800 border-green-200 px-1.5 py-0.5 rounded-full text-xs">
+                            <CheckCircle className="w-2.5 h-2.5 mr-1" />
+                            Verified
+                          </Badge>
+                        )}
+                        {userData.isBanned && (
+                          <Badge className="bg-red-100 text-red-800 border-red-200 px-1.5 py-0.5 rounded-full text-xs">
+                            <XCircle className="w-2.5 h-2.5 mr-1" />
+                            Banned
+                          </Badge>
+                        )}
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* Action Menu */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="opacity-60 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg sm:rounded-xl flex-shrink-0">
-                        <MoreVertical className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg">
-                      <DropdownMenuItem onClick={() => handleVerifyUser(userData.id, !userData.isVerified)} className="flex items-center gap-2 px-3 py-2 rounded-lg">
-                        {userData.isVerified ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
-                        {userData.isVerified ? 'Unverify User' : 'Verify User'}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => handleBanUser(userData, !userData.isBanned)} 
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      >
-                        {userData.isBanned ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-                        {userData.isBanned ? 'Unban User' : 'Ban User'}
-                      </DropdownMenuItem>
-                      
-                      {(userData.role === 'client' || userData.role === 'finder') && (
-                        <DropdownMenuItem 
-                          onSelect={(e) => {
-                            e.preventDefault();
-                          }}
-                          asChild
-                        >
-                          <div className="p-0">
-                            <AdminIssueStrike
-                              userId={userData.id}
-                              userRole={userData.role as 'client' | 'finder'}
-                              userName={`${userData.firstName} ${userData.lastName}`}
-                              trigger={
-                                <button 
-                                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 w-full text-left cursor-pointer"
-                                  type="button"
-                                  onClick={(e) => {
-                                    console.log("Strike button clicked in dropdown");
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                  }}
-                                >
-                                  <AlertTriangle className="w-4 h-4" />
-                                  Issue Strike
-                                </button>
-                              }
-                              onStrikeIssued={() => queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] })}
-                            />
-                          </div>
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-                
-                {/* User Details */}
-                <div className="space-y-2 sm:space-y-3">
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                    <Mail className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="truncate">{userData.email}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                    <span className="truncate">Joined {userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A'}</span>
-                  </div>
-                  
-                  {/* Status Badges */}
-                  <div className="flex items-center gap-2 pt-2">
-                    {userData.isVerified && (
-                      <Badge className="bg-green-100 text-green-800 border-green-200 px-2 py-1 rounded-full text-xs">
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Verified
-                      </Badge>
-                    )}
-                    {userData.isBanned && (
-                      <Badge className="bg-red-100 text-red-800 border-red-200 px-2 py-1 rounded-full text-xs">
-                        <XCircle className="w-3 h-3 mr-1" />
-                        Banned
-                      </Badge>
-                    )}
-                    {!userData.isVerified && !userData.isBanned && (
-                      <Badge className="bg-gray-100 text-gray-800 border-gray-200 px-2 py-1 rounded-full text-xs">
-                        <Eye className="w-3 h-3 mr-1" />
-                        Pending
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </CardContent>
+                </Card>
+              </CardWrapper>
+            );
+          })}
         </div>
         
         {filteredUsers.length === 0 && (
@@ -365,78 +358,78 @@ export default function AdminUsersModern() {
           </div>
         )}
         
-        {/* Stats Grid - Moved to Bottom */}
+        {/* Compact Stats Grid */}
         <div className="mt-8 sm:mt-12">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6">Platform Statistics</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-3 sm:p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-2">
                 <div className="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
-                  <Users className="w-5 h-5" />
+                  <Users className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Total Users</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.total}</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-3">
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-3 sm:p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-2">
                 <div className="p-2 bg-green-500/10 text-green-600 rounded-lg">
-                  <ShieldCheck className="w-5 h-5" />
+                  <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Verified</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.verified}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Verified</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.verified}</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-3">
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-3 sm:p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-2">
                 <div className="p-2 bg-red-500/10 text-red-600 rounded-lg">
-                  <Ban className="w-5 h-5" />
+                  <Ban className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Banned</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.banned}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Banned</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.banned}</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-3">
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-3 sm:p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-2">
                 <div className="p-2 bg-purple-500/10 text-purple-600 rounded-lg">
-                  <Crown className="w-5 h-5" />
+                  <Crown className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Admins</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.admins}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Admins</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.admins}</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-3">
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-3 sm:p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-2">
                 <div className="p-2 bg-amber-500/10 text-amber-600 rounded-lg">
-                  <Star className="w-5 h-5" />
+                  <Star className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Finders</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.finders}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Finders</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.finders}</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-4 sm:p-6 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
-              <div className="flex items-center gap-3">
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm p-3 sm:p-4 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+              <div className="flex items-center gap-2">
                 <div className="p-2 bg-teal-500/10 text-teal-600 rounded-lg">
-                  <Users className="w-5 h-5" />
+                  <Users className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Clients</p>
-                  <p className="text-xl font-bold text-gray-900 dark:text-white">{stats.clients}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Clients</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.clients}</p>
                 </div>
               </div>
             </div>
@@ -459,23 +452,24 @@ export default function AdminUsersModern() {
               placeholder="Enter ban reason..."
               value={banReason}
               onChange={(e) => setBanReason(e.target.value)}
-              className="min-h-[100px] rounded-xl border-gray-300 dark:border-gray-600"
-              required
+              className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 rounded-xl text-sm"
+              rows={3}
             />
-            <div className="flex gap-3 pt-4">
-              <Button 
-                onClick={confirmBanUser} 
-                disabled={!banReason.trim() || banUserMutation.isPending}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl h-11"
-              >
-                {banUserMutation.isPending ? 'Banning...' : 'Confirm Ban'}
-              </Button>
+            <div className="flex gap-3 justify-end pt-2">
               <Button 
                 variant="outline" 
                 onClick={() => setBanDialogOpen(false)}
-                className="px-6 h-11 border-gray-300 dark:border-gray-600 rounded-xl"
+                className="rounded-xl"
               >
                 Cancel
+              </Button>
+              <Button 
+                variant="destructive"
+                onClick={confirmBanUser}
+                disabled={!banReason.trim() || banUserMutation.isPending}
+                className="rounded-xl"
+              >
+                {banUserMutation.isPending ? "Banning..." : "Ban User"}
               </Button>
             </div>
           </div>
