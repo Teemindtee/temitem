@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { FileText, Calendar, Clock, CheckCircle, XCircle, Download } from "lucide-react";
+import { FileText, Calendar, Clock, CheckCircle, XCircle, Download, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import ClientHeader from "@/components/client-header";
@@ -15,6 +15,7 @@ import ClientHeader from "@/components/client-header";
 interface Contract {
   id: string;
   requestId: string;
+  finderId: string;
   amount: string;
   hasSubmission: boolean;
   isCompleted: boolean;
@@ -22,6 +23,7 @@ interface Contract {
   finder?: {
     name: string;
     email?: string;
+    rating?: string;
   };
   orderSubmission?: {
     id: string;
@@ -38,6 +40,8 @@ interface Contract {
 export default function OrderReviewPage() {
   const { contractId } = useParams<{ contractId: string }>();
   const [feedback, setFeedback] = useState("");
+  const [rating, setRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
   const [showAcceptDialog, setShowAcceptDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const { toast } = useToast();
@@ -80,14 +84,35 @@ export default function OrderReviewPage() {
     },
   });
 
-  const handleAccept = () => {
-    if (!contract?.orderSubmission?.id) return;
+  const handleAccept = async () => {
+    if (!contract?.orderSubmission?.id || !contract?.finder) return;
     
+    // First accept the submission
     reviewSubmissionMutation.mutate({
       submissionId: contract.orderSubmission.id,
       status: "accepted",
       clientFeedback: feedback.trim() || undefined,
     });
+    
+    // Then create the review/rating
+    try {
+      await apiRequest('/api/reviews', {
+        method: 'POST',
+        body: {
+          contractId: contract.id,
+          finderId: contract.finderId,
+          rating: rating,
+          comment: feedback.trim() || undefined
+        }
+      });
+    } catch (error) {
+      console.error('Failed to submit rating:', error);
+      toast({
+        title: "Rating submission failed",
+        description: "Your order was accepted but rating could not be saved",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleReject = () => {
@@ -325,6 +350,38 @@ export default function OrderReviewPage() {
               <CardTitle>Review Submission</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Rating Section */}
+              <div>
+                <Label>Rate {contract.finder?.name || "the finder"}'s work</Label>
+                <div className="flex items-center gap-2 mt-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setRating(star)}
+                      onMouseEnter={() => setHoverRating(star)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      className="p-1 hover:scale-110 transition-transform"
+                    >
+                      <Star
+                        className={`h-6 w-6 ${
+                          star <= (hoverRating || rating)
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  <span className="ml-2 text-sm text-gray-600">
+                    {rating === 1 && "Poor"}
+                    {rating === 2 && "Fair"}
+                    {rating === 3 && "Good"}
+                    {rating === 4 && "Very Good"}
+                    {rating === 5 && "Excellent"}
+                  </span>
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="feedback">Feedback (Optional for acceptance, required for rejection)</Label>
                 <Textarea
@@ -349,12 +406,39 @@ export default function OrderReviewPage() {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Accept Order Submission</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to accept this submission? This will:
-                        <ul className="list-disc list-inside mt-2 space-y-1">
-                          <li>Mark the request as completed</li>
-                          <li>Release funds to the finder in 3 days</li>
-                          <li>Complete the contract</li>
-                        </ul>
+                        <div className="space-y-4">
+                          <div>
+                            <p className="font-medium mb-2">Your rating for {contract.finder?.name || "the finder"}:</p>
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`h-5 w-5 ${
+                                    star <= rating
+                                      ? "fill-yellow-400 text-yellow-400"
+                                      : "text-gray-300"
+                                  }`}
+                                />
+                              ))}
+                              <span className="ml-2 text-sm font-medium">
+                                {rating === 1 && "Poor"}
+                                {rating === 2 && "Fair"}
+                                {rating === 3 && "Good"}
+                                {rating === 4 && "Very Good"}
+                                {rating === 5 && "Excellent"}
+                              </span>
+                            </div>
+                          </div>
+                          <div>
+                            <p>Are you sure you want to accept this submission? This will:</p>
+                            <ul className="list-disc list-inside mt-2 space-y-1">
+                              <li>Mark the request as completed</li>
+                              <li>Release funds to the finder in 3 days</li>
+                              <li>Complete the contract</li>
+                              <li>Submit your {rating}-star rating</li>
+                            </ul>
+                          </div>
+                        </div>
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

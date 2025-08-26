@@ -41,6 +41,7 @@ interface Contract {
   };
   finder?: {
     name: string;
+    rating?: string;
   };
 }
 
@@ -243,6 +244,14 @@ export default function ClientContracts() {
                     <div className="flex items-center text-sm text-slate-600 bg-slate-50/80 rounded-lg p-3">
                       <User className="w-4 h-4 mr-2" style={{ color: "hsl(1, 81%, 53%)" }} />
                       <span className="font-medium">Working with {contract.finder?.name || "Finder"}</span>
+                      {contract.finder?.rating && (
+                        <div className="flex items-center ml-2 text-amber-500">
+                          <Star className="w-3 h-3 fill-current" />
+                          <span className="text-xs font-medium ml-1">
+                            {parseFloat(contract.finder.rating).toFixed(1)}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <p className="text-slate-600 line-clamp-2 text-sm leading-relaxed">

@@ -605,7 +605,8 @@ export class DatabaseStorage implements IStorage {
           description: finds.description
         },
         finder: {
-          name: sql<string>`COALESCE(${users.firstName} || ' ' || ${users.lastName}, 'Unknown Finder')`
+          name: sql<string>`COALESCE(${users.firstName} || ' ' || ${users.lastName}, 'Unknown Finder')`,
+          rating: finders.averageRating
         }
       })
       .from(contracts)
@@ -1590,7 +1591,8 @@ export class DatabaseStorage implements IStorage {
         completedAt: contracts.completedAt,
         finder: {
           name: sql<string>`COALESCE(${users.firstName} || ' ' || ${users.lastName}, 'Unknown Finder')`,
-          email: users.email
+          email: users.email,
+          rating: finders.averageRating
         }
       })
       .from(contracts)

@@ -55,6 +55,7 @@ interface ContractDetails {
   finder?: {
     name: string;
     email?: string;
+    rating?: string;
   };
   orderSubmission?: {
     id: string;
@@ -338,7 +339,9 @@ export default function ContractDetails() {
                       <div className="flex items-center space-x-2 mb-3">
                         <div className="flex items-center text-amber-500">
                           <Star className="w-4 h-4 fill-current" />
-                          <span className="text-sm font-medium ml-1">4.9</span>
+                          <span className="text-sm font-medium ml-1">
+                            {contract.finder?.rating ? parseFloat(contract.finder.rating).toFixed(1) : '5.0'}
+                          </span>
                         </div>
                         <span className="text-slate-400">•</span>
                         <span className="text-sm text-slate-600">Verified Professional</span>
