@@ -11,11 +11,8 @@ export default function FinderProfileView() {
   const [match, params] = useRoute("/finder-profile/:userId");
   const userId = params?.userId;
 
-  // Detect if this is a name slug or a UUID
-  const isNameSlug = userId && /[a-zA-Z]/.test(userId);
-  const apiEndpoint = isNameSlug 
-    ? `/api/admin/finder-profile/by-slug/${userId}`
-    : `/api/admin/finder-profile/${userId}`;
+  // Always use the direct ID endpoint for simplicity
+  const apiEndpoint = `/api/admin/finder-profile/${userId}`;
 
   const { data: finderData, isLoading, error } = useQuery<any>({
     queryKey: [apiEndpoint],
