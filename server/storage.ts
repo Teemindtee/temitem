@@ -1347,6 +1347,15 @@ export class DatabaseStorage implements IStorage {
       .where(eq(finders.id, finderId));
   }
 
+  async updateFinderTokenBalance(finderId: string, tokensToAdd: number): Promise<void> {
+    await db
+      .update(finders)
+      .set({
+        findertokenBalance: sql`findertoken_balance + ${tokensToAdd}`
+      })
+      .where(eq(finders.id, finderId));
+  }
+
   // Finder Levels Management
   async getFinderLevels(): Promise<FinderLevel[]> {
     return await db

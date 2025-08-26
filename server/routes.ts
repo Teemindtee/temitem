@@ -1974,9 +1974,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Public endpoint for active token packages (for finders to purchase)
-  app.get("/api/token-packages", (req: Request, res: Response) => {
-    // This could be used by finders to see available packages
-    res.json({ message: "Use /api/admin/token-packages for now" });
+  app.get("/api/token-packages", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      // Only return active packages for finders to purchase
+      const activePackages = await storage.getActiveTokenPackages();
+      res.json(activePackages);
+    } catch (error) {
+      console.error('Error fetching active token packages:', error);
+      res.status(500).json({ message: "Failed to fetch token packages" });
+    }
+  });
+
+  // Token Purchase Payment Routes
+  app.post("/api/payments/initialize-token-purchase", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { packageId } = req.body;
+      
+      if (!packageId) {
+        return res.status(400).json({ message: "Package ID is required" });
+      }
+
+      // Get the token package
+      const tokenPackage = await storage.getTokenPackage(packageId);
+      if (!tokenPackage || !tokenPackage.isActive) {
+        return res.status(404).json({ message: "Token package not found or inactive" });
+      }
+
+      const user = await storage.getUser(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Initialize payment with Paystack
+      const paymentService = new PaystackService();
+      const reference = paymentService.generateTransactionReference(user.id);
+      
+      const paymentData = await paymentService.initializeTransaction(
+        user.email,
+        parseFloat(tokenPackage.price),
+        reference,
+        {
+          packageId: tokenPackage.id,
+          tokenCount: tokenPackage.tokenCount,
+          userId: user.id,
+          type: 'token_purchase'
+        }
+      );
+
+      res.json({
+        success: true,
+        paymentUrl: paymentData.authorization_url,
+        reference: reference,
+        amount: tokenPackage.price,
+        tokenCount: tokenPackage.tokenCount
+      });
+    } catch (error: any) {
+      console.error('Payment initialization error:', error);
+      res.status(500).json({ message: "Failed to initialize payment", error: error.message });
+    }
+  });
+
+  app.post("/api/payments/verify-token-purchase", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { reference } = req.body;
+      
+      if (!reference) {
+        return res.status(400).json({ message: "Payment reference is required" });
+      }
+
+      // Verify payment with Paystack
+      const paymentService = new PaystackService();
+      const verification = await paymentService.verifyTransaction(reference);
+      
+      if (verification.status === 'success') {
+        const metadata = verification.metadata;
+        const finder = await storage.getFinderByUserId(req.user.userId);
+        
+        if (!finder) {
+          return res.status(404).json({ message: "Finder profile not found" });
+        }
+
+        // Add tokens to finder balance
+        await storage.updateFinderTokenBalance(finder.id, metadata.tokenCount);
+        
+        // Create transaction record
+        await storage.createTransaction({
+          userId: req.user.userId,
+          finderId: finder.id,
+          amount: metadata.tokenCount,
+          type: 'findertoken_purchase',
+          description: `Purchased ${metadata.tokenCount} findertokens`,
+          reference: reference
+        });
+
+        res.json({
+          success: true,
+          message: "Payment verified and tokens added to your account",
+          tokensAdded: metadata.tokenCount
+        });
+      } else {
+        res.status(400).json({ message: "Payment verification failed" });
+      }
+    } catch (error: any) {
+      console.error('Payment verification error:', error);
+      res.status(500).json({ message: "Failed to verify payment", error: error.message });
+    }
   });
 
   // Finder Levels Admin Routes

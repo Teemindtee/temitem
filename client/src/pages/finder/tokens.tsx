@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FinderHeader } from "@/components/finder-header";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   Wallet, 
   Plus, 
@@ -12,20 +14,39 @@ import {
   Clock, 
   TrendingUp, 
   DollarSign,
-  CreditCard 
+  CreditCard,
+  Zap
 } from "lucide-react";
-import type { Transaction } from "@shared/schema";
+import type { Transaction, TokenPackage } from "@shared/schema";
+
+// Helper function to format currency
+const formatCurrency = (amount: string | number) => {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  return new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(numAmount);
+};
 
 export default function FindertokenBalance() {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [purchasingPackage, setPurchasingPackage] = useState<string | null>(null);
 
-  const { data: transactions = [], isLoading } = useQuery<Transaction[]>({
+  const { data: transactions = [], isLoading: transactionsLoading } = useQuery<Transaction[]>({
     queryKey: ['/api/finder/transactions'],
     enabled: !!user
   });
 
   const { data: finder } = useQuery({
     queryKey: ['/api/finder/profile'],
+    enabled: !!user
+  });
+
+  const { data: tokenPackages = [], isLoading: packagesLoading } = useQuery<TokenPackage[]>({
+    queryKey: ['/api/token-packages'],
     enabled: !!user
   });
 
@@ -53,7 +74,42 @@ export default function FindertokenBalance() {
     return type === 'findertoken_purchase' || type === 'refund' ? '+' : '';
   };
 
-  if (isLoading) {
+  const handlePurchase = async (tokenPackage: TokenPackage) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to purchase tokens",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setPurchasingPackage(tokenPackage.id);
+
+    try {
+      // Initialize payment with backend
+      const paymentData = await apiRequest("/api/payments/initialize-token-purchase", {
+        method: "POST",
+        body: JSON.stringify({ packageId: tokenPackage.id })
+      });
+
+      if (paymentData.success) {
+        // Redirect to Paystack payment page
+        window.location.href = paymentData.paymentUrl;
+      } else {
+        throw new Error("Failed to initialize payment");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Payment failed",
+        description: error.message || "Failed to initialize payment",
+        variant: "destructive"
+      });
+      setPurchasingPackage(null);
+    }
+  };
+
+  if (transactionsLoading || packagesLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <FinderHeader />
@@ -139,52 +195,48 @@ export default function FindertokenBalance() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid sm:grid-cols-3 gap-4">
-                <Card className="border-2 hover:border-finder-red/30 cursor-pointer transition-colors">
-                  <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">10 Findertokens</div>
-                    <div className="text-lg font-semibold text-finder-red mb-2">₦5,000</div>
-                    <div className="text-sm text-gray-600 mb-3">Submit 10 proposals</div>
-                    <Button 
-                      className="w-full bg-finder-red hover:bg-finder-red-dark"
-                      onClick={() => window.location.href = '/finder/token-purchase'}
+              {tokenPackages.length === 0 ? (
+                <div className="text-center py-8">
+                  <Zap className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No packages available</h3>
+                  <p className="text-gray-600">Check back later for token packages</p>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {tokenPackages.map((tokenPackage, index) => (
+                    <Card 
+                      key={tokenPackage.id} 
+                      className={`border-2 hover:border-finder-red/30 cursor-pointer transition-colors ${
+                        index === 1 ? 'border-finder-red/30 bg-finder-red/10 relative' : ''
+                      }`}
                     >
-                      Purchase
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 border-finder-red/30 bg-finder-red/10 relative">
-                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-finder-red">Most Popular</Badge>
-                  </div>
-                  <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">25 Findertokens</div>
-                    <div className="text-lg font-semibold text-finder-red mb-2">₦10,000</div>
-                    <div className="text-sm text-gray-600 mb-3">Submit 25 proposals</div>
-                    <Button 
-                      className="w-full bg-finder-red hover:bg-finder-red-dark"
-                      onClick={() => window.location.href = '/finder/token-purchase'}
-                    >
-                      Purchase
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-2 hover:border-finder-red/30 cursor-pointer transition-colors">
-                  <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-gray-900 mb-1">50 Findertokens</div>
-                    <div className="text-lg font-semibold text-finder-red mb-2">₦18,000</div>
-                    <div className="text-sm text-gray-600 mb-3">Submit 50 proposals</div>
-                    <Button 
-                      className="w-full bg-finder-red hover:bg-finder-red-dark"
-                      onClick={() => window.location.href = '/finder/token-purchase'}
-                    >
-                      Purchase
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
+                      {index === 1 && (
+                        <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                          <Badge className="bg-finder-red">Most Popular</Badge>
+                        </div>
+                      )}
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-gray-900 mb-1">
+                          {tokenPackage.tokenCount} Findertokens
+                        </div>
+                        <div className="text-lg font-semibold text-finder-red mb-2">
+                          {formatCurrency(tokenPackage.price)}
+                        </div>
+                        <div className="text-sm text-gray-600 mb-3">
+                          {tokenPackage.description || `Submit ${tokenPackage.tokenCount} proposals`}
+                        </div>
+                        <Button 
+                          className="w-full bg-finder-red hover:bg-finder-red-dark"
+                          onClick={() => handlePurchase(tokenPackage)}
+                          disabled={purchasingPackage === tokenPackage.id}
+                        >
+                          {purchasingPackage === tokenPackage.id ? "Processing..." : "Purchase"}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
               <div className="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg">
                 <strong>Note:</strong> Each proposal submission costs findertokens as set by platform administrators. 
                 Findertokens are non-refundable once used for proposals, but unused findertokens never expire.
@@ -240,6 +292,7 @@ export default function FindertokenBalance() {
           </Card>
         </div>
       </div>
+      
     </div>
   );
 }
