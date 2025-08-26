@@ -136,17 +136,11 @@ export default function AdminUsers() {
   };
 
   const getProfileUrl = (userData: ExtendedUser) => {
-    const createNameSlug = (firstName: string, lastName: string, id: string) => {
-      const name = `${firstName}${lastName}`.replace(/[^a-zA-Z0-9]/g, '');
-      const idInitials = id.split('-')[0].slice(0, 8);
-      return `${name}${idInitials}`;
-    };
-
     switch (userData.role) {
       case 'finder':
-        return `/finder-profile/${createNameSlug(userData.firstName || '', userData.lastName || '', userData.id)}`;
+        return `/finder-profile/${userData.id}`;
       case 'client':
-        return `/client/profile/${createNameSlug(userData.firstName || '', userData.lastName || '', userData.id)}`;
+        return `/client/profile/${userData.id}`;
       default:
         return '#';
     }
