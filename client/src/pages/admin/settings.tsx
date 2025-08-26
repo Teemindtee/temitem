@@ -11,7 +11,7 @@ import AdminHeader from "@/components/admin-header";
 import { 
   Settings, 
   Save, 
-  DollarSign, 
+  Banknote, 
   Coins,
   AlertCircle,
   CheckCircle2,
@@ -198,7 +198,7 @@ export default function AdminSettings() {
                 {/* Findertoken Price */}
                 <div className="space-y-3">
                   <Label htmlFor="tokenPrice" className="text-slate-700 text-sm font-semibold flex items-center">
-                    <DollarSign className="w-4 h-4 mr-2 text-green-600" />
+                    <Banknote className="w-4 h-4 mr-2 text-green-600" />
                     Findertoken Price (Kobo)
                   </Label>
                   <Input
