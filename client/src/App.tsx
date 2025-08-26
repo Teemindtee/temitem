@@ -81,7 +81,7 @@ function Router() {
       <Route path="/client/browse-requests" component={ClientBrowseRequests} />
       <Route path="/client/finds" component={ClientBrowseRequests} />
       <Route path="/client/profile" component={ClientProfile} />
-      <Route path="/client/profile/:nameSlug" component={ClientProfile} />
+      <Route path="/client/profile/:userId" component={ClientProfile} />
       <Route path="/client/change-password" component={ChangePassword} />
       <Route path="/finder/dashboard" component={FinderDashboard} />
       <Route path="/finder/browse-finds" component={FinderBrowseRequests} />

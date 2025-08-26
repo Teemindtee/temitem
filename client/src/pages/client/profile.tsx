@@ -48,40 +48,20 @@ export default function ClientProfile() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // Get userId from URL parameters (query param) or path parameter (name-based)
+  // Get userId from URL parameters (direct userId in path)
   const params = useParams();
   const urlParams = new URLSearchParams(window.location.search);
   const queryUserId = urlParams.get('userId');
   
-  // Extract userId from name-based URL (like "JohnDoe5c8915b9") 
-  const extractUserIdFromSlug = (nameSlug: string) => {
-    // Extract the ID part (last 8 characters + potential additional segments)
-    const match = nameSlug.match(/([a-f0-9]{8}[a-f0-9-]*)$/);
-    if (match) {
-      const idPart = match[1];
-      // Try to reconstruct full UUID format if needed
-      if (idPart.length === 8) {
-        // This is just the first part, we need to get the full ID from the API
-        return idPart;
-      }
-      return idPart;
-    }
-    return null;
-  };
-  
-  const nameSlugUserId = params.nameSlug ? extractUserIdFromSlug(params.nameSlug) : null;
-  const viewUserId = queryUserId || nameSlugUserId;
+  // Handle both nameSlug and direct userId routes
+  const viewUserId = queryUserId || params.userId;
   const isAdminViewing = user?.role === 'admin' && !!viewUserId;
   
   // Fetch user data if admin is viewing another user's profile
   const { data: profileUser, isLoading: profileLoading, error: profileError } = useQuery({
-    queryKey: ['/api/admin/users', viewUserId, nameSlugUserId ? 'by-slug' : 'by-id'],
+    queryKey: ['/api/admin/users', viewUserId],
     queryFn: () => {
-      if (nameSlugUserId) {
-        return apiRequest(`/api/admin/users/by-slug/${params.nameSlug}`);
-      } else {
-        return apiRequest(`/api/admin/users/${viewUserId}`);
-      }
+      return apiRequest(`/api/admin/users/${viewUserId}`);
     },
     enabled: Boolean(isAdminViewing && viewUserId),
   });
