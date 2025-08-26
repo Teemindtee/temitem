@@ -27,7 +27,26 @@ export default function SecuritySettings() {
   });
 
   const changePasswordMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('POST', '/api/auth/change-password', data),
+    mutationFn: async (data: any) => {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('findermeister_token')}`
+        },
+        body: JSON.stringify({
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to change password');
+      }
+      
+      return response.json();
+    },
     onSuccess: () => {
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
       toast({
