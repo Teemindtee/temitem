@@ -94,7 +94,7 @@ export default function ClientDashboard() {
             {/* Action Grid - Exact 2x2 Layout */}
             <div className="grid grid-cols-2 gap-4 mb-12">
               {/* Post a Request - Top Left */}
-              <Link href="/client/create-find">
+              <Link href="/client/create-request">
                 <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                     <div className="flex flex-col items-center">
@@ -206,7 +206,7 @@ export default function ClientDashboard() {
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">{t('client.post_request')}</h3>
               <p className="text-gray-600 mb-4 text-sm">{t('client.post_request_description')}</p>
-              <Link href="/client/create-find">
+              <Link href="/client/create-request">
                 <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
                   {t('client.create_find')}
                 </Button>
@@ -220,7 +220,7 @@ export default function ClientDashboard() {
                 <Clock className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">{t('client.open_finds')}</h3>
-              <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Find) => r.status === 'open').length}</p>
+              <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Find) => r.status === 'open' || r.status === 'active').length}</p>
               <p className="text-gray-600 text-sm">{t('client.waiting_for_proposals')}</p>
             </CardContent>
           </Card>
@@ -277,7 +277,7 @@ export default function ClientDashboard() {
                 <div className="text-center py-8 text-gray-500">
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p>{t('client.no_finds_yet')}</p>
-                  <Link href="/client/create-find" className="text-finder-red hover:underline font-medium">
+                  <Link href="/client/create-request" className="text-finder-red hover:underline font-medium">
                     {t('client.create_first_find')}
                   </Link>
                 </div>
@@ -287,11 +287,15 @@ export default function ClientDashboard() {
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-medium text-gray-900">{request.title}</h4>
                       <span className={`px-2 py-1 text-xs rounded-full font-medium ${
-                        request.status === 'active' ? 'bg-blue-100 text-blue-700' :
+                        (request.status === 'active' || request.status === 'open') ? 'bg-blue-100 text-blue-700' :
                         request.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-green-100 text-green-700'
+                        request.status === 'completed' ? 'bg-green-100 text-green-700' :
+                        'bg-gray-100 text-gray-700'
                       }`}>
-                        {request.status === 'active' ? 'Active' : request.status?.replace('_', ' ') || 'pending'}
+                        {request.status === 'active' || request.status === 'open' ? t('common.open') : 
+                         request.status === 'in_progress' ? t('common.in_progress') :
+                         request.status === 'completed' ? t('common.completed') :
+                         request.status?.replace('_', ' ') || 'pending'}
                       </span>
                     </div>
                     <p className="text-gray-600 text-sm mb-3">{request.description.substring(0, 100)}...</p>
