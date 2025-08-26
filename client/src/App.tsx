@@ -45,6 +45,7 @@ import FinderProfile from "@/pages/finder/profile";
 import FinderTokens from "@/pages/finder/tokens";
 import FinderTokenPurchase from "@/pages/finder/token-purchase";
 import FinderPaymentSuccess from "@/pages/finder/payment-success";
+import ClientTokens from "@/pages/client/tokens";
 import FinderWithdrawals from "@/pages/finder/withdrawals";
 import FinderSecurity from "@/pages/finder/security";
 import FinderContracts from "@/pages/finder/contracts";
@@ -82,6 +83,7 @@ function Router() {
       <Route path="/client/finds" component={ClientBrowseRequests} />
       <Route path="/client/profile" component={ClientProfile} />
       <Route path="/client/profile/:userId" component={ClientProfile} />
+      <Route path="/client/tokens" component={ClientTokens} />
       <Route path="/client/change-password" component={ChangePassword} />
       <Route path="/finder/dashboard" component={FinderDashboard} />
       <Route path="/finder/browse-finds" component={FinderBrowseRequests} />

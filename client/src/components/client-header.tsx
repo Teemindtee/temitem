@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/use-auth";
-import { Handshake, User, Settings, Lock, LogOut, Menu, X, FileText, MessageSquare, Search, HelpCircle, Plus } from "lucide-react";
+import { Handshake, User, Settings, Lock, LogOut, Menu, X, FileText, MessageSquare, Search, HelpCircle, Plus, Coins } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
@@ -72,6 +72,13 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
               >
                 <Handshake className="w-3 h-3 lg:w-4 lg:h-4" />
                 <span className="text-xs lg:text-sm">Contracts</span>
+              </Link>
+              <Link 
+                href="/client/tokens" 
+                className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'tokens' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+              >
+                <Coins className="w-3 h-3 lg:w-4 lg:h-4" />
+                <span className="text-xs lg:text-sm">Findertokens</span>
               </Link>
               
               {/* Language Switcher */}
@@ -223,6 +230,14 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 >
                   <Handshake className="w-4 h-4" />
                   <span>Contracts</span>
+                </Link>
+                <Link 
+                  href="/client/tokens" 
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'tokens' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Coins className="w-4 h-4" />
+                  <span>Findertokens</span>
                 </Link>
                 <Link 
                   href="/messages" 
