@@ -8,7 +8,7 @@ import { Link } from "wouter";
 import { 
   Clock, 
   CheckCircle, 
-  DollarSign, 
+ 
   MessageCircle, 
   FileText, 
   TrendingUp, 
@@ -54,9 +54,14 @@ export default function ClientContracts() {
 
   // Format currency in Naira
   const formatCurrency = (amount: string | number | null) => {
-    if (amount === null || amount === undefined) return '₦0.00';
+    if (amount === null || amount === undefined) return '₦0';
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return `₦${(numAmount / 100).toFixed(2)}`;
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(numAmount);
   };
 
   // Calculate stats
@@ -114,7 +119,7 @@ export default function ClientContracts() {
               <Card className="bg-white/80 backdrop-blur-xl border-white/30 shadow-2xl transition-all duration-500 hover:shadow-3xl hover:scale-105">
                 <CardContent className="p-6 text-center">
                   <div className="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(to right, hsl(42, 92%, 56%), hsl(45, 100%, 51%))" }}>
-                    <DollarSign className="w-6 h-6 text-white" />
+                    <TrendingUp className="w-6 h-6 text-white" />
                   </div>
                   <div className="text-3xl font-bold text-slate-900 mb-2">{formatCurrency(totalSpent)}</div>
                   <div className="text-sm text-slate-600 font-medium">Total Invested</div>
