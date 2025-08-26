@@ -1573,16 +1573,38 @@ export class DatabaseStorage implements IStorage {
     return submission || undefined;
   }
 
-  async getContractWithSubmission(contractId: string): Promise<(Contract & {orderSubmission?: OrderSubmission}) | undefined> {
-    // First get the contract
-    const contract = await this.getContract(contractId);
-    if (!contract) return undefined;
+  async getContractWithSubmission(contractId: string): Promise<(Contract & {orderSubmission?: OrderSubmission, finder?: any}) | undefined> {
+    // Get the contract with finder information
+    const [contractData] = await db
+      .select({
+        id: contracts.id,
+        findId: contracts.findId,
+        proposalId: contracts.proposalId,
+        clientId: contracts.clientId,
+        finderId: contracts.finderId,
+        amount: contracts.amount,
+        escrowStatus: contracts.escrowStatus,
+        isCompleted: contracts.isCompleted,
+        hasSubmission: contracts.hasSubmission,
+        createdAt: contracts.createdAt,
+        completedAt: contracts.completedAt,
+        finder: {
+          name: sql<string>`COALESCE(${users.firstName} || ' ' || ${users.lastName}, 'Unknown Finder')`,
+          email: users.email
+        }
+      })
+      .from(contracts)
+      .leftJoin(finders, eq(contracts.finderId, finders.id))
+      .leftJoin(users, eq(finders.userId, users.id))
+      .where(eq(contracts.id, contractId));
+
+    if (!contractData) return undefined;
 
     // Then get the latest order submission for this contract
     const latestSubmission = await this.getOrderSubmissionByContractId(contractId);
 
     return {
-      ...contract,
+      ...contractData,
       orderSubmission: latestSubmission || undefined
     };
   }

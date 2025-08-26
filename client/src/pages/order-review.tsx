@@ -19,6 +19,10 @@ interface Contract {
   hasSubmission: boolean;
   isCompleted: boolean;
   createdAt: string;
+  finder?: {
+    name: string;
+    email?: string;
+  };
   orderSubmission?: {
     id: string;
     submissionText?: string;
@@ -199,7 +203,7 @@ export default function OrderReviewPage() {
             <CardTitle>Contract Details</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <Label className="text-sm font-medium text-gray-500">Contract Amount</Label>
                 <p className="text-lg font-semibold">{formatCurrency(contract.amount)}</p>
@@ -209,6 +213,10 @@ export default function OrderReviewPage() {
                 <div className="mt-1">
                   {getStatusBadge(contract.orderSubmission.status)}
                 </div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-500">Finder</Label>
+                <p className="text-sm font-semibold">{contract.finder?.name || "Unknown Finder"}</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-500">Contract Created</Label>
