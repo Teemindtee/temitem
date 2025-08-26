@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Coins, Gift, Calendar, User, Clock } from "lucide-react";
+import { Coins, Gift, Calendar, User, Clock, TrendingUp, Target, Settings } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import AdminHeader from "@/components/admin-header";
@@ -69,6 +69,8 @@ export default function TokenManagement() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [showGrantDialog, setShowGrantDialog] = useState(false);
+  const [highBudgetThreshold, setHighBudgetThreshold] = useState("");
+  const [highBudgetTokenCost, setHighBudgetTokenCost] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -77,6 +79,19 @@ export default function TokenManagement() {
     queryKey: ["/api/admin/users"],
     select: (data: any[]) => data.filter((user: any) => user.role === 'finder')
   });
+
+  // Fetch admin settings
+  const { data: settings } = useQuery({
+    queryKey: ['/api/admin/settings']
+  });
+
+  // Set initial values when settings are loaded
+  useEffect(() => {
+    if (settings) {
+      setHighBudgetThreshold(settings.highBudgetThreshold || "100000");
+      setHighBudgetTokenCost(settings.highBudgetTokenCost || "5");
+    }
+  }, [settings]);
 
   // Fetch token grants
   const { data: tokenGrants = [], isLoading: isLoadingGrants } = useQuery<TokenGrant[]>({
@@ -142,6 +157,49 @@ export default function TokenManagement() {
     },
   });
 
+  // Update high budget settings mutation
+  const updateHighBudgetSettings = useMutation({
+    mutationFn: (data: { highBudgetThreshold: string; highBudgetTokenCost: string }) =>
+      apiRequest("/api/admin/settings", {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }),
+    onSuccess: () => {
+      toast({
+        title: "Settings Updated",
+        description: "High budget posting settings have been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/settings"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update settings",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleUpdateHighBudgetSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!highBudgetThreshold || !highBudgetTokenCost) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateHighBudgetSettings.mutate({
+      highBudgetThreshold,
+      highBudgetTokenCost,
+    });
+  };
+
   const handleGrantTokens = () => {
     if (!selectedFinderId || !grantAmount || !grantReason) {
       toast({
@@ -184,9 +242,10 @@ export default function TokenManagement() {
         </div>
 
       <Tabs defaultValue="distribute" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="distribute">Monthly Distribution</TabsTrigger>
           <TabsTrigger value="grant">Grant Tokens</TabsTrigger>
+          <TabsTrigger value="settings">High Budget Settings</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
 
@@ -339,6 +398,84 @@ export default function TokenManagement() {
                   </div>
                 </DialogContent>
               </Dialog>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="settings">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                High Budget Posting Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateHighBudgetSettings} className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* High Budget Threshold */}
+                  <div className="space-y-3">
+                    <Label htmlFor="highBudgetThreshold" className="text-slate-700 text-sm font-semibold flex items-center">
+                      <Target className="w-4 h-4 mr-2 text-purple-600" />
+                      High Budget Threshold (₦)
+                    </Label>
+                    <Input
+                      id="highBudgetThreshold"
+                      type="number"
+                      min="1000"
+                      step="100"
+                      value={highBudgetThreshold}
+                      onChange={(e) => setHighBudgetThreshold(e.target.value)}
+                      className="h-12 text-lg"
+                      placeholder="Enter threshold amount"
+                    />
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <p className="text-sm text-purple-700">
+                        <strong>Current:</strong> ₦{parseInt(highBudgetThreshold || "100000").toLocaleString()} threshold
+                      </p>
+                      <p className="text-xs text-purple-600 mt-1">
+                        Posts with budget ≥ this amount require findertokens
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* High Budget Token Cost */}
+                  <div className="space-y-3">
+                    <Label htmlFor="highBudgetTokenCost" className="text-slate-700 text-sm font-semibold flex items-center">
+                      <Coins className="w-4 h-4 mr-2 text-indigo-600" />
+                      Required Findertokens
+                    </Label>
+                    <Input
+                      id="highBudgetTokenCost"
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={highBudgetTokenCost}
+                      onChange={(e) => setHighBudgetTokenCost(e.target.value)}
+                      className="h-12 text-lg"
+                      placeholder="Enter token count"
+                    />
+                    <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                      <p className="text-sm text-indigo-700">
+                        <strong>Current:</strong> {highBudgetTokenCost || "5"} findertokens required
+                      </p>
+                      <p className="text-xs text-indigo-600 mt-1">
+                        Tokens deducted for high-budget posts
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    type="submit"
+                    disabled={updateHighBudgetSettings.isPending}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    {updateHighBudgetSettings.isPending ? "Updating..." : "Update Settings"}
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </TabsContent>
