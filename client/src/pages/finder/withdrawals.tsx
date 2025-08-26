@@ -118,7 +118,7 @@ export default function WithdrawalSettings() {
     const availableBalanceNaira = availableBalanceKobo / 100;
     const minimumThresholdNaira = parseInt(formData.minimumThreshold);
     const minimumThresholdKobo = minimumThresholdNaira * 100;
-    
+
     // Check if balance is sufficient for minimum threshold
     if (availableBalanceKobo < minimumThresholdKobo) {
       toast({
@@ -128,12 +128,12 @@ export default function WithdrawalSettings() {
       });
       return;
     }
-    
+
     // Calculate withdrawal fees (5% fee)
     const feePercentage = 0.05;
     const withdrawalFee = Math.round(availableBalanceKobo * feePercentage);
     const netAmount = availableBalanceKobo - withdrawalFee;
-    
+
     // Double check net amount is positive
     if (netAmount <= 0) {
       toast({
@@ -143,14 +143,14 @@ export default function WithdrawalSettings() {
       });
       return;
     }
-    
+
     const paymentDetails = {
       accountName: formData.accountHolder,
       accountNumber: formData.accountNumber,
       bankName: formData.bankName,
       routingNumber: formData.routingNumber
     };
-    
+
     requestWithdrawalMutation.mutate({ 
       amount: netAmount,
       paymentDetails
@@ -183,18 +183,18 @@ export default function WithdrawalSettings() {
   return (
     <div className="min-h-screen bg-gray-50">
       <FinderHeader />
-      
+
       <div className="max-w-4xl mx-auto py-6 sm:py-8 px-4 sm:px-6">
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Withdrawal Settings</h1>
           <p className="text-gray-600 text-sm sm:text-base">Manage your bank account and withdrawal preferences</p>
         </div>
 
-        <div className="grid gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Available Balance */}
           <Card>
             <CardContent className="p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">Available Balance</h3>
                   <p className="text-3xl font-bold text-green-600">
@@ -204,17 +204,32 @@ export default function WithdrawalSettings() {
                     After 5% withdrawal fee: ₦{((Math.max(0, parseFloat(finder?.availableBalance || '0')) * 0.95) / 100).toFixed(2)}
                   </p>
                 </div>
-                <Button 
-                  onClick={handleWithdrawalRequest}
-                  disabled={!finder?.availableBalance || Math.max(0, parseFloat(finder.availableBalance)) < (parseInt(formData.minimumThreshold) * 100)}
-                  className="bg-finder-red hover:bg-finder-red-dark"
-                >
-                  Request Withdrawal
-                </Button>
               </div>
             </CardContent>
           </Card>
 
+          {/* Pending Balance */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-gray-600" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Pending Balance</h3>
+                  </div>
+                  <p className="text-3xl font-bold text-yellow-600">
+                    ₦{((Math.max(0, parseFloat(finder?.pendingBalance || '0'))) / 100).toFixed(2)}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Will be available upon processing
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="mt-6 grid gap-6">
           {/* Bank Account Settings */}
           <Card>
             <CardHeader>
