@@ -39,6 +39,11 @@ export default function WithdrawalSettings() {
     enabled: !!user
   });
 
+  const { data: pendingEarnings } = useQuery({
+    queryKey: ['/api/finder/pending-earnings'],
+    enabled: !!user
+  });
+
   // Update form data when withdrawal settings change
   useEffect(() => {
     if (withdrawalSettings && withdrawalSettings.bankDetails) {
@@ -218,10 +223,10 @@ export default function WithdrawalSettings() {
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Pending Balance</h3>
                   </div>
                   <p className="text-3xl font-bold text-yellow-600">
-                    ₦{((Math.max(0, parseFloat(finder?.pendingBalance || '0'))) / 100).toFixed(2)}
+                    ₦{((pendingEarnings?.netAmount || 0) / 100).toFixed(2)}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Will be available upon processing
+                    {pendingEarnings?.contractCount || 0} contract{(pendingEarnings?.contractCount || 0) !== 1 ? 's' : ''} awaiting release
                   </p>
                 </div>
               </div>

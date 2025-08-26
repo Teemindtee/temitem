@@ -340,7 +340,8 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(contracts.finderId, finderId),
-          eq(contracts.escrowStatus, 'completed')
+          eq(contracts.isCompleted, true),
+          sql`${contracts.escrowStatus} != 'released'`
         )
       );
 
