@@ -15,7 +15,6 @@ import {
   CheckCircle, 
   FileText, 
   Calendar, 
-  DollarSign,
   MessageCircle,
   Download,
   Eye,
@@ -502,12 +501,11 @@ export default function ContractDetails() {
                     You'll be notified once they submit their completed work.
                   </p>
                   <Button 
-                    onClick={handleMessageFinder}
-                    disabled={createConversation.isPending}
+                    onClick={() => navigate(`/orders/review/${contract.id}`)}
                     variant="outline" 
                     className="border-blue-200 text-blue-700 hover:bg-blue-50"
                   >
-                    <MessageCircle className="w-4 h-4 mr-2" />
+                    <Eye className="w-4 h-4 mr-2" />
                     Check Progress
                   </Button>
                 </CardContent>
@@ -521,7 +519,6 @@ export default function ContractDetails() {
             <Card className="bg-white/70 backdrop-blur-sm border-slate-200/60 shadow-xl">
               <CardContent className="p-6 sm:p-8">
                 <h3 className="font-semibold text-slate-900 mb-6 flex items-center">
-                  <DollarSign className="w-5 h-5 mr-2 text-green-600" />
                   Contract Summary
                 </h3>
                 
@@ -534,7 +531,7 @@ export default function ContractDetails() {
                       </p>
                     </div>
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                      <DollarSign className="w-6 h-6 text-green-600" />
+                      <CreditCard className="w-6 h-6 text-green-600" />
                     </div>
                   </div>
 
