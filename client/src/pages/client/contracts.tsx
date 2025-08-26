@@ -269,7 +269,7 @@ export default function ClientContracts() {
                         Message Finder
                       </StartConversationButton>
                       
-                      {!contract.isCompleted && (
+                      {!contract.isCompleted && !contract.hasSubmission && (
                         <Link href={`/client/contracts/${contract.id}`}>
                           <Button 
                             size="sm" 
@@ -282,11 +282,24 @@ export default function ClientContracts() {
                         </Link>
                       )}
                       
+                      {!contract.isCompleted && contract.hasSubmission && (
+                        <Link href={`/orders/review/${contract.id}`}>
+                          <Button 
+                            size="sm" 
+                            className="text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                            style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}
+                          >
+                            <Star className="w-4 h-4 mr-1" />
+                            Review Work
+                          </Button>
+                        </Link>
+                      )}
+                      
                       {contract.isCompleted && (
                         <Link href={`/orders/review/${contract.id}`}>
                           <Button size="sm" variant="secondary" className="shadow-lg hover:shadow-xl transition-all">
-                            <Star className="w-4 h-4 mr-1" />
-                            Review
+                            <Eye className="w-4 h-4 mr-1" />
+                            View Details
                           </Button>
                         </Link>
                       )}
