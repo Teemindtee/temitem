@@ -375,6 +375,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Create find request body:', req.body);
       console.log('Create find files:', req.files);
 
+      // Get admin settings for high budget posting
+      const settings = await storage.getAdminSettings();
+      const highBudgetThreshold = parseInt(settings.highBudgetThreshold || "100000");
+      const highBudgetTokenCost = parseInt(settings.highBudgetTokenCost || "5");
+      
+      // Check if this is a high budget request
+      const maxBudget = parseInt(req.body.budgetMax || "0");
+      const isHighBudget = maxBudget >= highBudgetThreshold;
+
+      // If high budget, check if client has enough findertokens
+      if (isHighBudget) {
+        const clientProfile = await storage.getClientProfile(req.user.userId);
+        if (!clientProfile || (clientProfile.findertokens || 0) < highBudgetTokenCost) {
+          return res.status(400).json({ 
+            message: `High budget posts (₦${highBudgetThreshold.toLocaleString()}+) require ${highBudgetTokenCost} findertokens. You have ${clientProfile?.findertokens || 0} findertokens.`,
+            code: "INSUFFICIENT_FINDERTOKENS",
+            required: highBudgetTokenCost,
+            available: clientProfile?.findertokens || 0
+          });
+        }
+      }
+
       // Get uploaded file paths
       const files = req.files as Express.Multer.File[];
       const attachmentPaths = files ? files.map(file => `/uploads/${file.filename}`) : [];
@@ -389,10 +411,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         attachments: attachmentPaths,
         status: flaggedWords.length > 0 ? 'under_review' : 'open',
         flaggedWords: flaggedWords.length > 0 ? flaggedWords : undefined,
-        reviewReason: flaggedWords.length > 0 ? `Find contains restricted words: ${flaggedWords.join(', ')}` : undefined
+        reviewReason: flaggedWords.length > 0 ? `Find contains restricted words: ${flaggedWords.join(', ')}` : undefined,
+        isHighBudget: isHighBudget
       });
 
       const request = await storage.createFind(requestData);
+
+      // If high budget, deduct findertokens
+      if (isHighBudget) {
+        await storage.deductClientFindertokens(req.user.userId, highBudgetTokenCost);
+      }
 
       // If flagged, notify the client that their find is under review
       if (flaggedWords.length > 0) {
@@ -402,7 +430,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      res.status(201).json(request);
+      const responseMessage = isHighBudget 
+        ? `Find posted successfully! ${highBudgetTokenCost} findertokens have been deducted for this high-budget posting.`
+        : "Find posted successfully!";
+
+      res.status(201).json({
+        ...request,
+        message: responseMessage
+      });
     } catch (error: any) {
       console.error('Create find error:', error);
       res.status(400).json({ message: "Failed to create find", error: error.message });

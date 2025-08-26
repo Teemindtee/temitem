@@ -140,7 +140,12 @@ export interface IStorage {
   // Admin operations
   getAllUsers(): Promise<User[]>;
   getAdminSetting(key: string): Promise<AdminSetting | undefined>;
+  getAdminSettings(): Promise<{[key: string]: string}>;
   setAdminSetting(key: string, value: string): Promise<AdminSetting>;
+  
+  // Client operations
+  getClientProfile(clientId: string): Promise<Client | undefined>;
+  deductClientFindertokens(clientId: string, amount: number): Promise<void>;
   
   // Token charging
   chargeFinderTokens(finderId: string, amount: number, reason: string, chargedBy: string): Promise<boolean>;
@@ -1315,6 +1320,80 @@ export class DatabaseStorage implements IStorage {
       }
     } catch (error) {
       console.error('Error setting admin setting:', error);
+      throw error;
+    }
+  }
+
+  async getAdminSettings(): Promise<{[key: string]: string}> {
+    try {
+      const settings = await db.select().from(adminSettings);
+      const result: {[key: string]: string} = {};
+      settings.forEach(setting => {
+        result[setting.key] = setting.value;
+      });
+      
+      // Set defaults if not exist
+      const defaults = {
+        proposalTokenCost: "1",
+        findertokenPrice: "100",
+        platformFeePercentage: "10",
+        clientPaymentChargePercentage: "2.5",
+        finderEarningsChargePercentage: "5",
+        highBudgetThreshold: "100000",
+        highBudgetTokenCost: "5"
+      };
+      
+      Object.keys(defaults).forEach(key => {
+        if (!result[key]) {
+          result[key] = defaults[key as keyof typeof defaults];
+        }
+      });
+      
+      return result;
+    } catch (error) {
+      console.error('Error getting admin settings:', error);
+      return {
+        proposalTokenCost: "1",
+        findertokenPrice: "100",
+        platformFeePercentage: "10",
+        clientPaymentChargePercentage: "2.5",
+        finderEarningsChargePercentage: "5",
+        highBudgetThreshold: "100000",
+        highBudgetTokenCost: "5"
+      };
+    }
+  }
+
+  async getClientProfile(clientId: string): Promise<Client | undefined> {
+    try {
+      const [client] = await db
+        .select()
+        .from(clients)
+        .where(eq(clients.userId, clientId))
+        .limit(1);
+      return client || undefined;
+    } catch (error) {
+      console.error('Error getting client profile:', error);
+      return undefined;
+    }
+  }
+
+  async deductClientFindertokens(clientId: string, amount: number): Promise<void> {
+    try {
+      const client = await this.getClientProfile(clientId);
+      if (!client) {
+        throw new Error('Client not found');
+      }
+
+      const currentTokens = client.findertokens || 0;
+      const newBalance = Math.max(0, currentTokens - amount);
+
+      await db
+        .update(clients)
+        .set({ findertokens: newBalance })
+        .where(eq(clients.userId, clientId));
+    } catch (error) {
+      console.error('Error deducting client findertokens:', error);
       throw error;
     }
   }

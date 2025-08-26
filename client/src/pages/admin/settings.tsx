@@ -16,7 +16,9 @@ import {
   AlertCircle,
   CheckCircle2,
   Percent,
-  CreditCard
+  CreditCard,
+  TrendingUp,
+  Target
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -26,6 +28,8 @@ interface AdminSettings {
   platformFeePercentage: string;
   clientPaymentChargePercentage: string;
   finderEarningsChargePercentage: string;
+  highBudgetThreshold: string;
+  highBudgetTokenCost: string;
 }
 
 export default function AdminSettings() {
@@ -37,6 +41,8 @@ export default function AdminSettings() {
   const [platformFeePercentage, setPlatformFeePercentage] = useState("");
   const [clientPaymentChargePercentage, setClientPaymentChargePercentage] = useState("");
   const [finderEarningsChargePercentage, setFinderEarningsChargePercentage] = useState("");
+  const [highBudgetThreshold, setHighBudgetThreshold] = useState("");
+  const [highBudgetTokenCost, setHighBudgetTokenCost] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
 
   // Fetch admin settings
@@ -53,6 +59,8 @@ export default function AdminSettings() {
       setPlatformFeePercentage(settings.platformFeePercentage || "10");
       setClientPaymentChargePercentage(settings.clientPaymentChargePercentage || "2.5");
       setFinderEarningsChargePercentage(settings.finderEarningsChargePercentage || "5");
+      setHighBudgetThreshold(settings.highBudgetThreshold || "100000");
+      setHighBudgetTokenCost(settings.highBudgetTokenCost || "5");
     }
   }, [settings]);
 
@@ -64,9 +72,11 @@ export default function AdminSettings() {
       const hasPlatformFeeChange = platformFeePercentage !== (settings.platformFeePercentage || "10");
       const hasClientChargeChange = clientPaymentChargePercentage !== (settings.clientPaymentChargePercentage || "2.5");
       const hasFinderChargeChange = finderEarningsChargePercentage !== (settings.finderEarningsChargePercentage || "5");
-      setHasChanges(hasTokenCostChange || hasPriceChange || hasPlatformFeeChange || hasClientChargeChange || hasFinderChargeChange);
+      const hasHighBudgetThresholdChange = highBudgetThreshold !== (settings.highBudgetThreshold || "100000");
+      const hasHighBudgetTokenCostChange = highBudgetTokenCost !== (settings.highBudgetTokenCost || "5");
+      setHasChanges(hasTokenCostChange || hasPriceChange || hasPlatformFeeChange || hasClientChargeChange || hasFinderChargeChange || hasHighBudgetThresholdChange || hasHighBudgetTokenCostChange);
     }
-  }, [proposalTokenCost, findertokenPrice, platformFeePercentage, clientPaymentChargePercentage, finderEarningsChargePercentage, settings]);
+  }, [proposalTokenCost, findertokenPrice, platformFeePercentage, clientPaymentChargePercentage, finderEarningsChargePercentage, highBudgetThreshold, highBudgetTokenCost, settings]);
 
   // Update settings mutation
   const updateSettingsMutation = useMutation({
@@ -76,6 +86,8 @@ export default function AdminSettings() {
       platformFeePercentage?: string;
       clientPaymentChargePercentage?: string;
       finderEarningsChargePercentage?: string;
+      highBudgetThreshold?: string;
+      highBudgetTokenCost?: string;
     }) => {
       return await apiRequest('/api/admin/settings', {
         method: 'PUT',
@@ -106,7 +118,9 @@ export default function AdminSettings() {
       findertokenPrice,
       platformFeePercentage,
       clientPaymentChargePercentage,
-      finderEarningsChargePercentage
+      finderEarningsChargePercentage,
+      highBudgetThreshold,
+      highBudgetTokenCost
     });
   };
 
@@ -303,13 +317,76 @@ export default function AdminSettings() {
 
               <Separator className="my-8" />
 
+              {/* High Budget Posting Configuration */}
+              <div>
+                <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center">
+                  <TrendingUp className="w-6 h-6 mr-3 text-purple-600" />
+                  High Budget Posting
+                </h3>
+                <div className="grid md:grid-cols-2 gap-8">
+                  {/* High Budget Threshold */}
+                  <div className="space-y-3">
+                    <Label htmlFor="highBudgetThreshold" className="text-slate-700 text-sm font-semibold flex items-center">
+                      <Target className="w-4 h-4 mr-2 text-purple-600" />
+                      High Budget Threshold (₦)
+                    </Label>
+                    <Input
+                      id="highBudgetThreshold"
+                      type="number"
+                      min="1000"
+                      step="100"
+                      value={highBudgetThreshold}
+                      onChange={(e) => setHighBudgetThreshold(e.target.value)}
+                      className="h-12 text-lg bg-white/80 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20"
+                      placeholder="Enter threshold amount"
+                    />
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                      <p className="text-sm text-purple-700">
+                        <strong>Current:</strong> ₦{parseInt(highBudgetThreshold || "100000").toLocaleString()} threshold
+                      </p>
+                      <p className="text-xs text-purple-600 mt-1">
+                        Posts with budget ≥ this amount require findertokens
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* High Budget Token Cost */}
+                  <div className="space-y-3">
+                    <Label htmlFor="highBudgetTokenCost" className="text-slate-700 text-sm font-semibold flex items-center">
+                      <Coins className="w-4 h-4 mr-2 text-indigo-600" />
+                      Required Findertokens
+                    </Label>
+                    <Input
+                      id="highBudgetTokenCost"
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={highBudgetTokenCost}
+                      onChange={(e) => setHighBudgetTokenCost(e.target.value)}
+                      className="h-12 text-lg bg-white/80 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
+                      placeholder="Enter token count"
+                    />
+                    <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                      <p className="text-sm text-indigo-700">
+                        <strong>Current:</strong> {highBudgetTokenCost || "5"} findertokens required
+                      </p>
+                      <p className="text-xs text-indigo-600 mt-1">
+                        Tokens deducted for high-budget posts
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Separator className="my-8" />
+
               {/* Pricing Summary */}
               <div className="bg-slate-50 border border-slate-200 rounded-lg p-6">
                 <h3 className="font-semibold text-slate-800 mb-4 flex items-center">
                   <AlertCircle className="w-5 h-5 mr-2 text-slate-600" />
                   Current Configuration
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4 text-sm">
                   <div className="text-center p-3 bg-white rounded border">
                     <div className="text-xl font-bold text-blue-600">{proposalTokenCost || "1"}</div>
                     <div className="text-slate-600 text-xs">Tokens per proposal</div>
@@ -333,6 +410,14 @@ export default function AdminSettings() {
                   <div className="text-center p-3 bg-white rounded border">
                     <div className="text-xl font-bold text-red-600">{finderEarningsChargePercentage || "5"}%</div>
                     <div className="text-slate-600 text-xs">Finder charge</div>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded border">
+                    <div className="text-xl font-bold text-purple-600">₦{parseInt(highBudgetThreshold || "100000").toLocaleString()}</div>
+                    <div className="text-slate-600 text-xs">High budget threshold</div>
+                  </div>
+                  <div className="text-center p-3 bg-white rounded border">
+                    <div className="text-xl font-bold text-indigo-600">{highBudgetTokenCost || "5"}</div>
+                    <div className="text-slate-600 text-xs">High budget tokens</div>
                   </div>
                 </div>
               </div>

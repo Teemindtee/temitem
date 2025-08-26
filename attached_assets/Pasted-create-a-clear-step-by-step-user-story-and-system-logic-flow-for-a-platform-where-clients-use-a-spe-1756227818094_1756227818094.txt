@@ -1,0 +1,38 @@
+create a clear, step-by-step user story and system logic flow for a platform where clients use a special "findertoken" to post high-budget finds. The documentation should be comprehensive and cover the perspectives of both the Admin and the Client.
+
+Core Requirements:
+
+Admin Configuration: Describe the actions the Admin can take from a central dashboard:
+
+The ability to define a specific dollar amount that serves as the threshold for a "high budget" find (e.g., $1,000).
+
+The ability to set the number of findertokens required to post a find that meets or exceeds this threshold.
+
+Client Posting Workflow: Detail the complete user journey for a client attempting to post a find. This flow must include:
+
+The client inputs the details of their find, including the budget.
+
+The system's initial check: it must compare the client's entered budget with the "high budget" threshold set by the Admin.
+
+Conditional Logic:
+
+If the client's budget is below the threshold, the system should allow the post to be submitted without any token deduction.
+
+If the client's budget is equal to or above the threshold, the system must proceed with a token check.
+
+Token Deduction & Payment Logic:
+
+The system must look up the client's current findertoken balance.
+
+If the client's balance is sufficient, the system should deduct the required amount of findertokens and successfully post the find.
+
+If the client's balance is insufficient, a modal popup must appear. The modal should explain that a findertoken purchase is required to complete the high-budget post.
+
+Within the modal, the client must be able to specify the number of findertokens they wish to purchase.
+
+Upon confirmation, the system must initiate a payment process (e.g., via a payment gateway like Paystack), taking the client to a dedicated payment page.
+
+After a successful payment, the system should automatically credit the purchased findertokens to the client's wallet.
+
+Finally, after the wallet has been successfully credited, the system must automatically re-process the original post submission, deduct the required findertokens, and then publish the find.
+

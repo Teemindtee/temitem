@@ -69,6 +69,12 @@ export default function CreateRequest() {
     enabled: !!user
   });
 
+  // Fetch admin settings for high budget thresholds
+  const { data: adminSettings } = useQuery<{[key: string]: string}>({
+    queryKey: ['/api/admin/settings'],
+    enabled: !!user
+  });
+
   const createRequestMutation = useMutation({
     mutationFn: async (data: any) => {
       const token = localStorage.getItem('findermeister_token');
@@ -135,11 +141,19 @@ export default function CreateRequest() {
       }, 1500);
     },
     onError: (error: any) => {
-      toast({
-        variant: "destructive",
-        title: "Failed to Post Find",
-        description: error.message || "Please try again later",
-      });
+      if (error.message && error.message.includes("High budget posts") && error.message.includes("findertokens")) {
+        toast({
+          variant: "destructive",
+          title: "Insufficient Findertokens",
+          description: error.message,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Failed to Post Find",
+          description: error.message || "Please try again later",
+        });
+      }
     }
   });
 
@@ -475,6 +489,25 @@ export default function CreateRequest() {
                         />
                       </div>
                     </div>
+
+                    {/* High Budget Warning */}
+                    {adminSettings && formData.maxBudget && parseInt(formData.maxBudget) >= parseInt(adminSettings.highBudgetThreshold || "100000") && (
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <div className="flex items-start">
+                          <AlertCircle className="w-5 h-5 text-purple-600 mr-3 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <h4 className="font-semibold text-purple-800 mb-1">High Budget Posting</h4>
+                            <p className="text-sm text-purple-700 mb-2">
+                              Your budget (₦{parseInt(formData.maxBudget).toLocaleString()}) qualifies as a high-budget posting. 
+                              This requires <strong>{adminSettings.highBudgetTokenCost || "5"} findertokens</strong> to post.
+                            </p>
+                            <p className="text-xs text-purple-600">
+                              High-budget posts get priority visibility and attract experienced finders.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     <div>
                       <Label htmlFor="timeframe" className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">

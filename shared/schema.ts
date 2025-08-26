@@ -57,6 +57,7 @@ export const finds = pgTable("finds", {
   attachments: text("attachments").array(), // Array of file paths stored locally
   flaggedWords: text("flagged_words").array(), // Array of detected restricted words
   reviewReason: text("review_reason"), // Reason why find is under review
+  isHighBudget: boolean("is_high_budget").default(false), // High budget posting requiring findertokens
   createdAt: timestamp("created_at").defaultNow(),
 });
 
