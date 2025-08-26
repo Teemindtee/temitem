@@ -187,7 +187,7 @@ export default function OrderSubmissionPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label className="text-sm font-medium text-gray-500">Contract Amount</Label>
-                <p className="text-lg font-semibold">${contract.amount}</p>
+                <p className="text-lg font-semibold">₦{new Intl.NumberFormat('en-NG').format(parseFloat(contract.amount))}</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-500">Status</Label>
