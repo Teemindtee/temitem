@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowLeft, Handshake, Clock, DollarSign, CheckCircle, XCircle, Calendar } from "lucide-react";
+import { ArrowLeft, Handshake, Clock, Banknote, CheckCircle, XCircle, Calendar } from "lucide-react";
 import type { Proposal } from "@shared/schema";
 
 export default function FinderProposals() {
@@ -185,8 +185,8 @@ export default function FinderProposals() {
                         
                         <div className="grid md:grid-cols-3 gap-4 text-sm">
                           <div className="flex items-center text-gray-600">
-                            <DollarSign className="w-4 h-4 mr-1" />
-                            <span>Proposed: ${proposal.price}</span>
+                            <Banknote className="w-4 h-4 mr-1" />
+                            <span>Proposed: ₦{proposal.price}</span>
                           </div>
                           <div className="flex items-center text-gray-600">
                             <Clock className="w-4 h-4 mr-1" />

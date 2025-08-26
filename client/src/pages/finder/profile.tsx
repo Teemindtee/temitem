@@ -188,7 +188,7 @@ export default function FinderProfile() {
                   <div className="text-sm text-gray-600">Jobs Completed</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">${finder.totalEarned || 0}</div>
+                  <div className="text-2xl font-bold text-green-600">₦{finder.totalEarned || 0}</div>
                   <div className="text-sm text-gray-600">Total Earnings</div>
                 </div>
                 <div className="text-center">
@@ -220,7 +220,7 @@ export default function FinderProfile() {
 
               {/* Hourly Rate */}
               <div>
-                <Label htmlFor="hourlyRate" className="text-sm font-medium">Hourly Rate ($)</Label>
+                <Label htmlFor="hourlyRate" className="text-sm font-medium">Hourly Rate (₦)</Label>
                 <Input
                   id="hourlyRate"
                   type="number"

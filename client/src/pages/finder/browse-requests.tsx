@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FinderHeader } from "@/components/finder-header";
-import { Search, Filter, Calendar, DollarSign, ArrowLeft } from "lucide-react";
+import { Search, Filter, Calendar, Banknote, ArrowLeft } from "lucide-react";
 import type { Find } from "@shared/schema";
 
 export default function BrowseFinds() {
@@ -143,8 +143,8 @@ export default function BrowseFinds() {
                     
                     <div className="flex flex-wrap gap-3 sm:gap-4 text-sm text-gray-600">
                       <div className="flex items-center">
-                        <DollarSign className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span>${find.budgetMin} - ${find.budgetMax}</span>
+                        <Banknote className="w-4 h-4 mr-1 flex-shrink-0" />
+                        <span>₦{find.budgetMin} - ₦{find.budgetMax}</span>
                       </div>
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
