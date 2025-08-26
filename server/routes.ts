@@ -2943,6 +2943,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Review order submission (PUT /api/orders/submission/:submissionId)
+  app.put('/api/orders/submission/:submissionId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: 'Access denied. Client role required.' });
+      }
+
+      const { submissionId } = req.params;
+      const { status, clientFeedback } = req.body;
+
+      if (!status || !['accepted', 'rejected'].includes(status)) {
+        return res.status(400).json({ message: 'Invalid status. Must be "accepted" or "rejected".' });
+      }
+
+      const submission = await storage.updateOrderSubmission(submissionId, {
+        status,
+        clientFeedback
+      });
+
+      if (!submission) {
+        return res.status(404).json({ message: 'Order submission not found' });
+      }
+
+      res.json(submission);
+    } catch (error: any) {
+      console.error('Error reviewing submission:', error);
+      res.status(400).json({ message: 'Failed to review submission', error: error.message });
+    }
+  });
+
   app.get('/api/orders/contract/:contractId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { contractId } = req.params;
