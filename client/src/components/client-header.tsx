@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/use-auth";
 import { Handshake, User, Settings, Lock, LogOut, Menu, X, FileText, MessageSquare, Search, HelpCircle, Plus } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
@@ -129,23 +130,19 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
         </nav>
 
         {/* Mobile Menu Button */}
-        <button
-          className="lg:hidden text-white"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </div>
-
-      {/* Mobile Navigation */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-finder-red/70 mt-4 pt-4">
-          <nav className="flex flex-col space-y-3">
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <button className="lg:hidden text-white">
+              <Menu className="w-6 h-6" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-80 bg-finder-red text-white">
+            <nav className="flex flex-col space-y-3 mt-6">
             {user ? (
               <>
                 <Link 
                   href="/client/dashboard" 
-                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Handshake className="w-4 h-4" />
@@ -153,7 +150,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 </Link>
                 <Link 
                   href="/client/create-find" 
-                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Plus className="w-4 h-4" />
@@ -161,7 +158,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 </Link>
                 <Link 
                   href="/client/finds" 
-                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <FileText className="w-4 h-4" />
@@ -169,7 +166,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 </Link>
                 <Link 
                   href="/client/browse-finds" 
-                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'browse-finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'browse-finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Search className="w-4 h-4" />
@@ -177,7 +174,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 </Link>
                 <Link 
                   href="/client/contracts" 
-                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'contracts' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'contracts' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Handshake className="w-4 h-4" />
@@ -185,20 +182,20 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 </Link>
                 <Link 
                   href="/messages" 
-                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'messages' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
+                  className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'messages' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <MessageSquare className="w-4 h-4" />
                   <span>Messages</span>
                 </Link>
-                <div className="border-t border-finder-red/70 pt-3 mt-3">
+                <div className="border-t border-white/20 pt-3 mt-3">
                   <div className="flex items-center py-2 px-3 text-white font-medium">
                     <User className="w-5 h-5 mr-2" />
                     {user.firstName || 'Profile'}
                   </div>
                   <Link 
                     href="/client/profile" 
-                    className="block py-2 px-6 hover:bg-finder-red-dark rounded"
+                    className="block py-2 px-6 hover:bg-white/10 rounded"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Settings className="w-4 h-4 mr-2 inline" />
@@ -206,7 +203,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   </Link>
                   <Link 
                     href="/client/change-password" 
-                    className="block py-2 px-6 hover:bg-finder-red-dark rounded"
+                    className="block py-2 px-6 hover:bg-white/10 rounded"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Lock className="w-4 h-4 mr-2 inline" />
@@ -214,7 +211,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   </Link>
                   <Link 
                     href="/support" 
-                    className="block py-2 px-6 hover:bg-finder-red-dark rounded"
+                    className="block py-2 px-6 hover:bg-white/10 rounded"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <HelpCircle className="w-4 h-4 mr-2 inline" />
@@ -222,28 +219,29 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                   </Link>
                   <button 
                     onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                    className="flex items-center w-full py-2 px-6 hover:bg-finder-red-dark rounded text-left"
+                    className="flex items-center w-full py-2 px-6 hover:bg-white/10 rounded text-left"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Log Out
                   </button>
                   
                   {/* Mobile Language Switcher */}
-                  <div className="border-t border-finder-red/50 pt-4 mt-4">
+                  <div className="border-t border-white/20 pt-4 mt-4">
                     <LanguageSwitcher variant="mobile" className="px-6" />
                   </div>
                 </div>
               </>
             ) : (
               <>
-                <Link href="/login" className="block py-2 px-3 hover:bg-finder-red-dark rounded" onClick={() => setMobileMenuOpen(false)}>How it Works</Link>
-                <Link href="/login" className="block py-2 px-3 hover:bg-finder-red-dark rounded" onClick={() => setMobileMenuOpen(false)}>Log In</Link>
-                <Link href="/register" className="block py-2 px-3 hover:bg-finder-red-dark rounded" onClick={() => setMobileMenuOpen(false)}>Sign Up</Link>
+                <Link href="/login" className="block py-2 px-3 hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>How it Works</Link>
+                <Link href="/login" className="block py-2 px-3 hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Log In</Link>
+                <Link href="/register" className="block py-2 px-3 hover:bg-white/10 rounded" onClick={() => setMobileMenuOpen(false)}>Sign Up</Link>
               </>
             )}
-          </nav>
-        </div>
-      )}
+            </nav>
+          </SheetContent>
+        </Sheet>
+      </div>
     </header>
   );
 }
