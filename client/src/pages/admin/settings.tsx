@@ -220,6 +220,67 @@ export default function AdminSettings() {
                     </p>
                   </div>
                 </div>
+
+                {/* High Budget Posting Configuration */}
+                <div className="mt-8">
+                  <h4 className="text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                    <TrendingUp className="w-5 h-5 mr-2 text-purple-600" />
+                    High Budget Posting
+                  </h4>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* High Budget Threshold */}
+                    <div className="space-y-3">
+                      <Label htmlFor="highBudgetThreshold" className="text-slate-700 text-sm font-semibold flex items-center">
+                        <Target className="w-4 h-4 mr-2 text-purple-600" />
+                        High Budget Threshold (₦)
+                      </Label>
+                      <Input
+                        id="highBudgetThreshold"
+                        type="number"
+                        min="1000"
+                        step="100"
+                        value={highBudgetThreshold}
+                        onChange={(e) => setHighBudgetThreshold(e.target.value)}
+                        className="h-12 text-lg bg-white/80 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20"
+                        placeholder="Enter threshold amount"
+                      />
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                        <p className="text-sm text-purple-700">
+                          <strong>Current:</strong> ₦{parseInt(highBudgetThreshold || "100000").toLocaleString()} threshold
+                        </p>
+                        <p className="text-xs text-purple-600 mt-1">
+                          Posts with budget ≥ this amount require findertokens
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* High Budget Token Cost */}
+                    <div className="space-y-3">
+                      <Label htmlFor="highBudgetTokenCost" className="text-slate-700 text-sm font-semibold flex items-center">
+                        <Coins className="w-4 h-4 mr-2 text-indigo-600" />
+                        Required Findertokens
+                      </Label>
+                      <Input
+                        id="highBudgetTokenCost"
+                        type="number"
+                        min="1"
+                        max="50"
+                        value={highBudgetTokenCost}
+                        onChange={(e) => setHighBudgetTokenCost(e.target.value)}
+                        className="h-12 text-lg bg-white/80 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
+                        placeholder="Enter token count"
+                      />
+                      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                        <p className="text-sm text-indigo-700">
+                          <strong>Current:</strong> {highBudgetTokenCost || "5"} findertokens required
+                        </p>
+                        <p className="text-xs text-indigo-600 mt-1">
+                          Tokens deducted for high-budget posts
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <Separator className="my-8" />
@@ -289,7 +350,7 @@ export default function AdminSettings() {
                   {/* Finder Earnings Charge */}
                   <div className="space-y-3">
                     <Label htmlFor="finderCharge" className="text-slate-700 text-sm font-semibold flex items-center">
-                      <DollarSign className="w-4 h-4 mr-2 text-red-600" />
+                      <Banknote className="w-4 h-4 mr-2 text-red-600" />
                       Finder Earnings Charge (%)
                     </Label>
                     <Input
@@ -309,69 +370,6 @@ export default function AdminSettings() {
                       </p>
                       <p className="text-xs text-red-600 mt-1">
                         Percentage deducted from finder earnings
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <Separator className="my-8" />
-
-              {/* High Budget Posting Configuration */}
-              <div>
-                <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center">
-                  <TrendingUp className="w-6 h-6 mr-3 text-purple-600" />
-                  High Budget Posting
-                </h3>
-                <div className="grid md:grid-cols-2 gap-8">
-                  {/* High Budget Threshold */}
-                  <div className="space-y-3">
-                    <Label htmlFor="highBudgetThreshold" className="text-slate-700 text-sm font-semibold flex items-center">
-                      <Target className="w-4 h-4 mr-2 text-purple-600" />
-                      High Budget Threshold (₦)
-                    </Label>
-                    <Input
-                      id="highBudgetThreshold"
-                      type="number"
-                      min="1000"
-                      step="100"
-                      value={highBudgetThreshold}
-                      onChange={(e) => setHighBudgetThreshold(e.target.value)}
-                      className="h-12 text-lg bg-white/80 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20"
-                      placeholder="Enter threshold amount"
-                    />
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                      <p className="text-sm text-purple-700">
-                        <strong>Current:</strong> ₦{parseInt(highBudgetThreshold || "100000").toLocaleString()} threshold
-                      </p>
-                      <p className="text-xs text-purple-600 mt-1">
-                        Posts with budget ≥ this amount require findertokens
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* High Budget Token Cost */}
-                  <div className="space-y-3">
-                    <Label htmlFor="highBudgetTokenCost" className="text-slate-700 text-sm font-semibold flex items-center">
-                      <Coins className="w-4 h-4 mr-2 text-indigo-600" />
-                      Required Findertokens
-                    </Label>
-                    <Input
-                      id="highBudgetTokenCost"
-                      type="number"
-                      min="1"
-                      max="50"
-                      value={highBudgetTokenCost}
-                      onChange={(e) => setHighBudgetTokenCost(e.target.value)}
-                      className="h-12 text-lg bg-white/80 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
-                      placeholder="Enter token count"
-                    />
-                    <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
-                      <p className="text-sm text-indigo-700">
-                        <strong>Current:</strong> {highBudgetTokenCost || "5"} findertokens required
-                      </p>
-                      <p className="text-xs text-indigo-600 mt-1">
-                        Tokens deducted for high-budget posts
                       </p>
                     </div>
                   </div>
