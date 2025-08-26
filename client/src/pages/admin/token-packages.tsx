@@ -39,7 +39,7 @@ const formatCurrency = (amount: string | number) => {
 export default function TokenPackagesPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { getToken } = useAuth();
+  // Remove getToken from useAuth hook
   
   const [isCreating, setIsCreating] = useState(false);
   const [editingPackage, setEditingPackage] = useState<TokenPackage | null>(null);
@@ -64,7 +64,7 @@ export default function TokenPackagesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${localStorage.getItem('findermeister_token')}`
         },
         body: JSON.stringify(packageData)
       });
@@ -101,7 +101,7 @@ export default function TokenPackagesPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${localStorage.getItem('findermeister_token')}`
         },
         body: JSON.stringify(data)
       });
@@ -138,7 +138,7 @@ export default function TokenPackagesPage() {
       const response = await fetch(`/api/admin/token-packages/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${getToken()}`
+          'Authorization': `Bearer ${localStorage.getItem('findermeister_token')}`
         }
       });
       
@@ -294,7 +294,7 @@ export default function TokenPackagesPage() {
                       id="tokenCount"
                       type="number"
                       min="1"
-                      value={formData.tokenCount}
+                      value={formData.tokenCount || ''}
                       onChange={(e) => setFormData(prev => ({ ...prev, tokenCount: parseInt(e.target.value) || 0 }))}
                       placeholder="e.g., 100"
                       className="bg-white/80"
@@ -327,7 +327,7 @@ export default function TokenPackagesPage() {
                     </Label>
                     <div className="flex items-center space-x-2 mt-2">
                       <Switch
-                        checked={formData.isActive}
+                        checked={formData.isActive || false}
                         onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
                       />
                       <span className="text-sm text-gray-600">
@@ -341,7 +341,7 @@ export default function TokenPackagesPage() {
                   <Label htmlFor="description">Description</Label>
                   <Textarea
                     id="description"
-                    value={formData.description}
+                    value={formData.description || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="e.g., 100 tokens to get you started"
                     className="bg-white/80 min-h-[100px]"
@@ -440,7 +440,7 @@ export default function TokenPackagesPage() {
                     id="edit-tokenCount"
                     type="number"
                     min="1"
-                    value={formData.tokenCount}
+                    value={formData.tokenCount || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, tokenCount: parseInt(e.target.value) || 0 }))}
                     placeholder="e.g., 100"
                     required
@@ -471,7 +471,7 @@ export default function TokenPackagesPage() {
                   </Label>
                   <div className="flex items-center space-x-2 mt-2">
                     <Switch
-                      checked={formData.isActive}
+                      checked={formData.isActive || false}
                       onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
                     />
                     <span className="text-sm text-gray-600">
