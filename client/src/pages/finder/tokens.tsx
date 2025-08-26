@@ -15,7 +15,8 @@ import {
   TrendingUp, 
   DollarSign,
   CreditCard,
-  Zap
+  Zap,
+  Award
 } from "lucide-react";
 import type { Transaction, TokenPackage } from "@shared/schema";
 
