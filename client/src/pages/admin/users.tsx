@@ -107,12 +107,14 @@ export default function AdminUsers() {
     banUserMutation.mutate({ userId: selectedUser.id, action: 'ban', reason: banReason });
   };
 
-  // Filter users based on search term
+  // Filter users based on search term and exclude admins
   const filteredUsers = users.filter(u => 
-    u.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.role.toLowerCase().includes(searchTerm.toLowerCase())
+    u.role !== 'admin' && (
+      u.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.role.toLowerCase().includes(searchTerm.toLowerCase())
+    )
   );
 
   const getRoleIcon = (role: string) => {
@@ -216,16 +218,10 @@ export default function AdminUsers() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {/* Compact Users Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
-          {filteredUsers.map((userData) => {
-            const CardWrapper = userData.role === 'admin' ? 'div' : Link;
-            const cardProps = userData.role === 'admin' ? {} : { href: getProfileUrl(userData) };
-            
-            return (
-              <CardWrapper key={userData.id} {...cardProps}>
-                <Card className={`group bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-0 shadow-md hover:shadow-xl transition-all duration-300 rounded-lg overflow-hidden ${
-                  userData.role !== 'admin' ? 'hover:scale-[1.02] cursor-pointer' : ''
-                }`}>
-                  <CardContent className="p-3">
+          {filteredUsers.map((userData) => (
+            <Link key={userData.id} href={getProfileUrl(userData)}>
+              <Card className="group bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-0 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer rounded-lg overflow-hidden">
+                <CardContent className="p-3">
                     {/* Compact User Header */}
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -251,9 +247,7 @@ export default function AdminUsers() {
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                          <h3 className={`text-sm font-semibold truncate ${
-                            userData.role === 'admin' ? 'text-gray-900 dark:text-white' : 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors'
-                          }`}>
+                          <h3 className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 truncate transition-colors">
                             {userData.firstName} {userData.lastName}
                           </h3>
                           <Badge className={`px-2 py-0.5 rounded-full text-xs font-medium border ${getRoleColor(userData.role)}`}>
@@ -343,9 +337,8 @@ export default function AdminUsers() {
                     </div>
                   </CardContent>
                 </Card>
-              </CardWrapper>
-            );
-          })}
+              </Link>
+          ))}
         </div>
         
         {filteredUsers.length === 0 && (
