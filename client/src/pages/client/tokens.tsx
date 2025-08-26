@@ -42,8 +42,8 @@ export default function ClientTokens() {
     enabled: !!user
   });
 
-  const { data: client } = useQuery({
-    queryKey: ['/api/client/profile'],
+  const { data: balanceData } = useQuery({
+    queryKey: ['/api/client/balance'],
     enabled: !!user
   });
 
@@ -52,7 +52,7 @@ export default function ClientTokens() {
     enabled: !!user
   });
 
-  const currentBalance = (client as any)?.findertokenBalance || 0;
+  const currentBalance = (balanceData as any)?.balance || 0;
   
   const getTransactionIcon = (type: string) => {
     switch (type) {

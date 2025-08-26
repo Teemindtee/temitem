@@ -834,6 +834,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(transactions.createdAt));
   }
 
+  async getTransactionsByUserId(userId: string): Promise<Transaction[]> {
+    return await db
+      .select()
+      .from(transactions)
+      .where(eq(transactions.userId, userId))
+      .orderBy(desc(transactions.createdAt));
+  }
+
   async getAllUsers(): Promise<User[]> {
     const allUsers = await db
       .select()
@@ -1360,10 +1368,44 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async deductClientFindertokens(clientId: string, amount: number): Promise<void> {
-    // Note: This method needs to be removed or reimplemented since users table doesn't have findertokens field
-    // For now, throwing an error to indicate this needs proper implementation
-    throw new Error('Client findertokens functionality not implemented - users table has no findertokens field');
+  async deductClientFindertokens(clientId: string, amount: number, description: string): Promise<void> {
+    try {
+      // First, check current balance
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, clientId))
+        .limit(1);
+      
+      if (!user) {
+        throw new Error('Client not found');
+      }
+
+      const currentBalance = user.findertokenBalance || 0;
+      if (currentBalance < amount) {
+        throw new Error(`Insufficient findertokens. Required: ${amount}, Available: ${currentBalance}`);
+      }
+
+      // Deduct tokens from user balance
+      await db
+        .update(users)
+        .set({ 
+          findertokenBalance: sql`${users.findertokenBalance} - ${amount}` 
+        })
+        .where(eq(users.id, clientId));
+
+      // Record transaction
+      await db.insert(transactions).values({
+        userId: clientId,
+        amount: -amount, // Negative for deduction
+        type: 'find_posting',
+        description: description
+      });
+
+    } catch (error) {
+      console.error('Error deducting client findertokens:', error);
+      throw error;
+    }
   }
 
   // Withdrawal Requests

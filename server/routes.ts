@@ -385,11 +385,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const isHighBudget = maxBudget >= highBudgetThreshold;
 
       // If high budget, check if client has enough findertokens
-      // Note: Client findertoken functionality needs to be implemented properly
-      // For now, we'll skip this check until the data model is updated
       if (isHighBudget) {
-        // TODO: Implement client findertoken balance checking
-        console.log('High budget posting detected - findertoken check needed but not implemented');
+        const client = await storage.getClientProfile(req.user.userId);
+        if (!client) {
+          return res.status(404).json({ message: "Client profile not found" });
+        }
+
+        const clientBalance = client.findertokenBalance || 0;
+        if (clientBalance < highBudgetTokenCost) {
+          return res.status(400).json({ 
+            message: `Insufficient findertokens. You need ${highBudgetTokenCost} findertokens for high-budget postings but only have ${clientBalance}.`,
+            requiredTokens: highBudgetTokenCost,
+            currentBalance: clientBalance
+          });
+        }
       }
 
       // Get uploaded file paths
@@ -414,8 +423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // If high budget, deduct findertokens
       if (isHighBudget) {
-        // TODO: Implement client findertoken deduction
-        console.log('High budget posting - findertoken deduction needed but not implemented');
+        await storage.deductClientFindertokens(req.user.userId, highBudgetTokenCost, `High-budget find posting: ${request.title}`);
       }
 
       // If flagged, notify the client that their find is under review
@@ -453,6 +461,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Failed to fetch client proposals:', error);
       res.status(500).json({ message: "Failed to fetch proposals" });
+    }
+  });
+
+  app.get("/api/client/transactions", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can view transactions" });
+      }
+
+      const transactions = await storage.getTransactionsByUserId(req.user.userId);
+      res.json(transactions);
+    } catch (error) {
+      console.error('Failed to fetch client transactions:', error);
+      res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  app.get("/api/client/balance", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can view balance" });
+      }
+
+      const client = await storage.getClientProfile(req.user.userId);
+      if (!client) {
+        return res.status(404).json({ message: "Client profile not found" });
+      }
+
+      res.json({ 
+        balance: client.findertokenBalance || 0 
+      });
+    } catch (error) {
+      console.error('Failed to fetch client balance:', error);
+      res.status(500).json({ message: "Failed to fetch balance" });
     }
   });
 
