@@ -25,7 +25,8 @@ import {
   CheckCircle2,
   AlertCircle,
   X,
-  Loader2
+  Loader2,
+  ExternalLink
 } from "lucide-react";
 import type { Category } from "@shared/schema";
 
@@ -141,11 +142,44 @@ export default function CreateRequest() {
       }, 1500);
     },
     onError: (error: any) => {
-      if (error.message && error.message.includes("High budget posts") && error.message.includes("findertokens")) {
+      // Check if this is a findertokens error with purchase info
+      if (error.needsToPurchaseTokens && error.purchaseUrl) {
         toast({
           variant: "destructive",
           title: "Insufficient Findertokens",
           description: error.message,
+          action: (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigate(error.purchaseUrl);
+              }}
+              className="bg-white hover:bg-gray-50"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Buy Tokens
+            </Button>
+          ),
+        });
+      } else if (error.message && (error.message.includes("findertokens") || error.message.includes("Insufficient"))) {
+        toast({
+          variant: "destructive",
+          title: "Insufficient Findertokens",
+          description: error.message + " Go to Token Management to purchase findertokens.",
+          action: (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigate("/client/tokens");
+              }}
+              className="bg-white hover:bg-gray-50"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Buy Tokens
+            </Button>
+          ),
         });
       } else {
         toast({

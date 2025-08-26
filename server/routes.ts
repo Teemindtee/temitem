@@ -394,9 +394,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const clientBalance = client.findertokenBalance || 0;
         if (clientBalance < highBudgetTokenCost) {
           return res.status(400).json({ 
-            message: `Insufficient findertokens. You need ${highBudgetTokenCost} findertokens for high-budget postings but only have ${clientBalance}.`,
+            message: `Insufficient findertokens. You need ${highBudgetTokenCost} findertokens for high-budget postings but only have ${clientBalance}. Please purchase findertokens to post this find.`,
             requiredTokens: highBudgetTokenCost,
-            currentBalance: clientBalance
+            currentBalance: clientBalance,
+            needsToPurchaseTokens: true,
+            purchaseUrl: "/client/tokens"
           });
         }
       }
