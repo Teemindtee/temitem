@@ -7,7 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 import AdminHeader from '@/components/admin-header';
 import { 
   Package, 
@@ -37,9 +39,11 @@ const formatCurrency = (amount: string | number) => {
 export default function TokenPackagesPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
   
   const [isCreating, setIsCreating] = useState(false);
   const [editingPackage, setEditingPackage] = useState<TokenPackage | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [formData, setFormData] = useState<Partial<InsertTokenPackage>>({
     name: '',
     description: '',
@@ -60,7 +64,7 @@ export default function TokenPackagesPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify(packageData)
       });
@@ -97,7 +101,7 @@ export default function TokenPackagesPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${getToken()}`
         },
         body: JSON.stringify(data)
       });
@@ -112,6 +116,7 @@ export default function TokenPackagesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/token-packages'] });
       setEditingPackage(null);
+      setEditModalOpen(false);
       resetForm();
       toast({
         title: "Success",
@@ -133,7 +138,7 @@ export default function TokenPackagesPage() {
       const response = await fetch(`/api/admin/token-packages/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${getToken()}`
         }
       });
       
@@ -179,6 +184,7 @@ export default function TokenPackagesPage() {
       tokenCount: pkg.tokenCount,
       isActive: pkg.isActive
     });
+    setEditModalOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -196,22 +202,11 @@ export default function TokenPackagesPage() {
       return;
     }
 
-    if (editingPackage) {
-      updatePackageMutation.mutate({
-        id: editingPackage.id,
-        data: {
-          ...formData,
-          price: price.toString(),
-          tokenCount
-        }
-      });
-    } else {
-      createPackageMutation.mutate({
-        ...formData,
-        price: price.toString(),
-        tokenCount
-      } as InsertTokenPackage);
-    }
+    createPackageMutation.mutate({
+      ...formData,
+      price: price.toString(),
+      tokenCount
+    } as InsertTokenPackage);
   };
 
   if (isLoading) {
@@ -263,13 +258,13 @@ export default function TokenPackagesPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Create/Edit Form */}
-        {(isCreating || editingPackage) && (
+        {/* Create Form */}
+        {isCreating && (
           <Card className="mb-8 backdrop-blur-sm bg-white/90 border border-white/20 shadow-xl">
             <CardHeader>
               <CardTitle className="text-slate-800 flex items-center">
-                {editingPackage ? <Edit className="w-5 h-5 mr-2 text-blue-600" /> : <Plus className="w-5 h-5 mr-2 text-green-600" />}
-                {editingPackage ? 'Edit Token Package' : 'Create New Token Package'}
+                <Plus className="w-5 h-5 mr-2 text-green-600" />
+                Create New Token Package
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -357,13 +352,13 @@ export default function TokenPackagesPage() {
                 <div className="flex gap-4">
                   <Button 
                     type="submit" 
-                    disabled={createPackageMutation.isPending || updatePackageMutation.isPending}
+                    disabled={createPackageMutation.isPending}
                     className="bg-green-600 hover:bg-green-700"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {createPackageMutation.isPending || updatePackageMutation.isPending 
+                    {createPackageMutation.isPending 
                       ? "Saving..." 
-                      : editingPackage ? "Update Package" : "Create Package"
+                      : "Create Package"
                     }
                   </Button>
                   <Button 
@@ -371,7 +366,6 @@ export default function TokenPackagesPage() {
                     variant="outline"
                     onClick={() => {
                       setIsCreating(false);
-                      setEditingPackage(null);
                       resetForm();
                     }}
                   >
@@ -383,6 +377,148 @@ export default function TokenPackagesPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Edit Modal */}
+        <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center text-xl">
+                <Edit className="w-5 h-5 mr-2 text-blue-600" />
+                Edit Token Package
+              </DialogTitle>
+              <DialogDescription>
+                Update the details of this token package. Changes will be saved immediately.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const price = parseFloat(formData.price || '0');
+              const tokenCount = parseInt(formData.tokenCount?.toString() || '0');
+              
+              if (!formData.name || price <= 0 || tokenCount <= 0) {
+                toast({
+                  title: "Validation Error",
+                  description: "Please fill in all required fields with valid values",
+                  variant: "destructive"
+                });
+                return;
+              }
+
+              if (editingPackage) {
+                updatePackageMutation.mutate({
+                  id: editingPackage.id,
+                  data: {
+                    ...formData,
+                    price: price.toString(),
+                    tokenCount
+                  }
+                });
+              }
+            }} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name" className="flex items-center">
+                    <FileText className="w-4 h-4 mr-2 text-blue-500" />
+                    Package Name *
+                  </Label>
+                  <Input
+                    id="edit-name"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g., Bronze Tier, Mega Pack"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-tokenCount" className="flex items-center">
+                    <Hash className="w-4 h-4 mr-2 text-orange-500" />
+                    Token Count *
+                  </Label>
+                  <Input
+                    id="edit-tokenCount"
+                    type="number"
+                    min="1"
+                    value={formData.tokenCount}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tokenCount: parseInt(e.target.value) || 0 }))}
+                    placeholder="e.g., 100"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-price" className="flex items-center">
+                    <DollarSign className="w-4 h-4 mr-2 text-green-500" />
+                    Price (₦) *
+                  </Label>
+                  <Input
+                    id="edit-price"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={formData.price}
+                    onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                    placeholder="e.g., 5000.00"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="flex items-center">
+                    <Coins className="w-4 h-4 mr-2 text-purple-500" />
+                    Active Status
+                  </Label>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Switch
+                      checked={formData.isActive}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isActive: checked }))}
+                    />
+                    <span className="text-sm text-gray-600">
+                      {formData.isActive ? 'Active (available for purchase)' : 'Inactive (hidden from finders)'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <Textarea
+                  id="edit-description"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="e.g., 100 tokens to get you started"
+                  className="min-h-[100px]"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4 border-t">
+                <Button 
+                  type="submit" 
+                  disabled={updatePackageMutation.isPending}
+                  className="bg-blue-600 hover:bg-blue-700 flex-1"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {updatePackageMutation.isPending ? "Updating..." : "Update Package"}
+                </Button>
+                <Button 
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setEditModalOpen(false);
+                    setEditingPackage(null);
+                    resetForm();
+                  }}
+                  className="flex-1"
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         {/* Token Packages List */}
         <Card className="backdrop-blur-sm bg-white/90 border border-white/20 shadow-xl">
