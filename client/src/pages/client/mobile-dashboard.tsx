@@ -35,7 +35,7 @@ export default function ClientMobileDashboard() {
           {/* Action Grid - Exact 2x2 Layout */}
           <div className="grid grid-cols-2 gap-4 mb-12">
             {/* Post a Request - Top Left */}
-            <Link href="/client/create-request">
+            <Link href="/client/create-find">
               <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
                 <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                   <div className="flex flex-col items-center">

@@ -94,7 +94,7 @@ export default function ClientDashboard() {
             {/* Action Grid - Exact 2x2 Layout */}
             <div className="grid grid-cols-2 gap-4 mb-12">
               {/* Post a Request - Top Left */}
-              <Link href="/client/create-request">
+              <Link href="/client/create-find">
                 <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
                   <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
                     <div className="flex flex-col items-center">
@@ -206,7 +206,7 @@ export default function ClientDashboard() {
               </div>
               <h3 className="font-semibold text-gray-900 mb-2">{t('client.post_request')}</h3>
               <p className="text-gray-600 mb-4 text-sm">{t('client.post_request_description')}</p>
-              <Link href="/client/create-request">
+              <Link href="/client/create-find">
                 <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
                   {t('client.create_find')}
                 </Button>
