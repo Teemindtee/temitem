@@ -1774,6 +1774,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get a specific conversation by ID
+  app.get("/api/messages/conversations/:conversationId", authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { conversationId } = req.params;
+      
+      const conversation = await storage.getConversationById(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversation not found" });
+      }
+
+      // TODO: Add permission check to ensure user is part of the conversation
+      
+      res.json(conversation);
+    } catch (error) {
+      console.error('Get conversation error:', error);
+      res.status(500).json({ message: "Failed to fetch conversation" });
+    }
+  });
+
   // Get messages for a conversation
   app.get("/api/messages/conversations/:conversationId/messages", authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
