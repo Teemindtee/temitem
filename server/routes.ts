@@ -2503,7 +2503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Current and new password are required' });
       }
 
-      const user = await storage.getUserById(req.user.userId);
+      const user = await storage.getUser(req.user.userId);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
