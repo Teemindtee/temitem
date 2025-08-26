@@ -26,64 +26,64 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
     <header className="bg-finder-red text-white px-4 sm:px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <img 
-            src={logoImage} 
-            alt="FinderMeister Logo" 
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-contain bg-white p-1" 
+          <img
+            src={logoImage}
+            alt="FinderMeister Logo"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-contain bg-white p-1"
           />
           <span className="text-lg sm:text-xl font-bold">FinderMeister</span>
         </Link>
-        
+
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2">
           {user ? (
             <>
-              <Link 
-                href="/client/dashboard" 
+              <Link
+                href="/client/dashboard"
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Handshake className="w-3 h-3 lg:w-4 lg:h-4" />
                 <span className="text-xs lg:text-sm">{t('navigation.dashboard')}</span>
               </Link>
-              <Link 
-                href="/client/create-find" 
+              <Link
+                href="/client/create-find"
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Plus className="w-3 h-3 lg:w-4 lg:h-4" />
                 <span className="text-xs lg:text-sm">{t('navigation.create_find')}</span>
               </Link>
-              <Link 
-                href="/client/finds" 
+              <Link
+                href="/client/finds"
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <FileText className="w-3 h-3 lg:w-4 lg:h-4" />
                 <span className="text-xs lg:text-sm">{t('navigation.my_finds')}</span>
               </Link>
-              <Link 
-                href="/client/browse-finds" 
+              <Link
+                href="/client/browse-finds"
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'browse-finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Search className="w-3 h-3 lg:w-4 lg:h-4" />
                 <span className="text-xs lg:text-sm">Browse Finds</span>
               </Link>
-              <Link 
-                href="/client/contracts" 
+              <Link
+                href="/client/contracts"
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'contracts' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Handshake className="w-3 h-3 lg:w-4 lg:h-4" />
                 <span className="text-xs lg:text-sm">Contracts</span>
               </Link>
-              <Link 
-                href="/client/tokens" 
+              <Link
+                href="/client/tokens"
                 className={`flex items-center space-x-1 hover:underline px-2 py-1 rounded transition-colors text-sm ${currentPage === 'tokens' ? 'bg-white text-finder-red font-medium' : 'hover:bg-finder-red-dark'}`}
               >
                 <Coins className="w-3 h-3 lg:w-4 lg:h-4" />
                 <span className="text-xs lg:text-sm">Findertokens</span>
               </Link>
-              
+
               {/* Language Switcher */}
               <LanguageSwitcher />
-              
+
               {/* Profile Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -168,7 +168,7 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            
+
             {/* Logout Button */}
             <button
               onClick={handleLogout}
@@ -191,56 +191,56 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
             <nav className="flex flex-col space-y-3 mt-6">
             {user ? (
               <>
-                <Link 
-                  href="/client/dashboard" 
+                <Link
+                  href="/client/dashboard"
                   className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'dashboard' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Handshake className="w-4 h-4" />
                   <span>Dashboard</span>
                 </Link>
-                <Link 
-                  href="/client/create-find" 
+                <Link
+                  href="/client/create-request"
                   className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'create-find' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Plus className="w-4 h-4" />
                   <span>Post Find</span>
                 </Link>
-                <Link 
-                  href="/client/finds" 
+                <Link
+                  href="/client/finds"
                   className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <FileText className="w-4 h-4" />
                   <span>My Finds</span>
                 </Link>
-                <Link 
-                  href="/client/browse-finds" 
+                <Link
+                  href="/client/browse-finds"
                   className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'browse-finds' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Search className="w-4 h-4" />
                   <span>Browse Finds</span>
                 </Link>
-                <Link 
-                  href="/client/contracts" 
+                <Link
+                  href="/client/contracts"
                   className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'contracts' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Handshake className="w-4 h-4" />
                   <span>Contracts</span>
                 </Link>
-                <Link 
-                  href="/client/tokens" 
+                <Link
+                  href="/client/tokens"
                   className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'tokens' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Coins className="w-4 h-4" />
                   <span>Findertokens</span>
                 </Link>
-                <Link 
-                  href="/messages" 
+                <Link
+                  href="/messages"
                   className={`flex items-center space-x-2 py-2 px-3 rounded ${currentPage === 'messages' ? 'bg-white text-finder-red font-medium' : 'hover:bg-white/10'}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -252,38 +252,38 @@ export default function ClientHeader({ currentPage }: ClientHeaderProps) {
                     <User className="w-5 h-5 mr-2" />
                     {user.firstName || 'Profile'}
                   </div>
-                  <Link 
-                    href="/client/profile" 
+                  <Link
+                    href="/client/profile"
                     className="block py-2 px-6 hover:bg-white/10 rounded"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Settings className="w-4 h-4 mr-2 inline" />
                     Edit Profile
                   </Link>
-                  <Link 
-                    href="/client/change-password" 
+                  <Link
+                    href="/client/change-password"
                     className="block py-2 px-6 hover:bg-white/10 rounded"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Lock className="w-4 h-4 mr-2 inline" />
                     Change Password
                   </Link>
-                  <Link 
-                    href="/support" 
+                  <Link
+                    href="/support"
                     className="block py-2 px-6 hover:bg-white/10 rounded"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <HelpCircle className="w-4 h-4 mr-2 inline" />
                     Help Center
                   </Link>
-                  <button 
+                  <button
                     onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
                     className="flex items-center w-full py-2 px-6 hover:bg-white/10 rounded text-left"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Log Out
                   </button>
-                  
+
                   {/* Mobile Language Switcher */}
                   <div className="border-t border-white/20 pt-4 mt-4">
                     <LanguageSwitcher variant="mobile" className="px-6" />
