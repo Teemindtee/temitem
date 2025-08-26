@@ -223,7 +223,7 @@ export default function WithdrawalSettings() {
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">Pending Balance</h3>
                   </div>
                   <p className="text-3xl font-bold text-yellow-600">
-                    ₦{((pendingEarnings?.netAmount || 0) / 100).toFixed(2)}
+                    ₦{(pendingEarnings?.netAmount || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                   <p className="text-sm text-gray-600">
                     {pendingEarnings?.contractCount || 0} contract{(pendingEarnings?.contractCount || 0) !== 1 ? 's' : ''} awaiting release
