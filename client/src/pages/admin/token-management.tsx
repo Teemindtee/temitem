@@ -104,6 +104,28 @@ export default function TokenManagement() {
     queryFn: () => apiRequest(`/api/admin/monthly-distributions?month=${selectedMonth}&year=${selectedYear}`)
   });
 
+  // Sync token balances mutation
+  const syncTokenBalances = useMutation({
+    mutationFn: () => apiRequest("/api/admin/sync-token-balances", {
+      method: "POST",
+    }),
+    onSuccess: (data) => {
+      toast({
+        title: "Token Balances Synced",
+        description: data.message,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/token-grants"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Sync Failed",
+        description: error.message || "Failed to sync token balances",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Distribute monthly tokens mutation
   const distributeMonthlyTokens = useMutation({
     mutationFn: () => apiRequest("/api/admin/distribute-monthly-tokens", {
@@ -262,7 +284,7 @@ export default function TokenManagement() {
                 Distribute 20 tokens to all active finders for the current month.
                 This can only be done once per month per finder.
               </p>
-              
+
               <Button
                 onClick={() => distributeMonthlyTokens.mutate()}
                 disabled={distributeMonthlyTokens.isPending}
@@ -341,8 +363,8 @@ export default function TokenManagement() {
                         </SelectTrigger>
                         <SelectContent>
                           {finders.map((finder: any) => (
-                            <SelectItem 
-                              key={finder.id} 
+                            <SelectItem
+                              key={finder.id}
                               value={finder.finders?.[0]?.id || finder.id}
                             >
                               {finder.firstName} {finder.lastName} ({finder.email})
@@ -356,7 +378,7 @@ export default function TokenManagement() {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="amount">Amount</Label>
                       <Input
@@ -368,7 +390,7 @@ export default function TokenManagement() {
                         placeholder="Number of tokens to grant"
                       />
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="reason">Reason</Label>
                       <Textarea
@@ -379,7 +401,7 @@ export default function TokenManagement() {
                         rows={3}
                       />
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <Button
                         onClick={handleGrantTokens}
@@ -388,8 +410,8 @@ export default function TokenManagement() {
                       >
                         {grantTokens.isPending ? "Granting..." : "Grant Tokens"}
                       </Button>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setShowGrantDialog(false)}
                       >
                         Cancel
@@ -406,75 +428,31 @@ export default function TokenManagement() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                High Budget Posting Settings
+                <Settings className="w-5 h-5" />
+                Token Balance Management
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleUpdateHighBudgetSettings} className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* High Budget Threshold */}
-                  <div className="space-y-3">
-                    <Label htmlFor="highBudgetThreshold" className="text-slate-700 text-sm font-semibold flex items-center">
-                      <Target className="w-4 h-4 mr-2 text-purple-600" />
-                      High Budget Threshold (₦)
-                    </Label>
-                    <Input
-                      id="highBudgetThreshold"
-                      type="number"
-                      min="1000"
-                      step="100"
-                      value={highBudgetThreshold}
-                      onChange={(e) => setHighBudgetThreshold(e.target.value)}
-                      className="h-12 text-lg"
-                      placeholder="Enter threshold amount"
-                    />
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                      <p className="text-sm text-purple-700">
-                        <strong>Current:</strong> ₦{parseInt(highBudgetThreshold || "100000").toLocaleString()} threshold
-                      </p>
-                      <p className="text-xs text-purple-600 mt-1">
-                        Posts with budget ≥ this amount require findertokens
-                      </p>
-                    </div>
-                  </div>
+            <CardContent className="space-y-6">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-yellow-800 mb-2">Token Balance Synchronization</h3>
+                <p className="text-yellow-700 mb-4">
+                  If you notice discrepancies in finder token balances, use this tool to recalculate and sync all balances based on transaction history.
+                </p>
+                <Button
+                  onClick={() => syncTokenBalances.mutate()}
+                  disabled={syncTokenBalances.isPending}
+                  variant="outline"
+                  className="border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                >
+                  {syncTokenBalances.isPending ? "Syncing..." : "Sync All Token Balances"}
+                </Button>
+              </div>
 
-                  {/* High Budget Token Cost */}
-                  <div className="space-y-3">
-                    <Label htmlFor="highBudgetTokenCost" className="text-slate-700 text-sm font-semibold flex items-center">
-                      <Coins className="w-4 h-4 mr-2 text-indigo-600" />
-                      Required Findertokens
-                    </Label>
-                    <Input
-                      id="highBudgetTokenCost"
-                      type="number"
-                      min="1"
-                      value={highBudgetTokenCost}
-                      onChange={(e) => setHighBudgetTokenCost(e.target.value)}
-                      className="h-12 text-lg"
-                      placeholder="Enter token count"
-                    />
-                    <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
-                      <p className="text-sm text-indigo-700">
-                        <strong>Current:</strong> {highBudgetTokenCost || "5"} findertokens required
-                      </p>
-                      <p className="text-xs text-indigo-600 mt-1">
-                        Tokens deducted for high-budget posts
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <Button
-                    type="submit"
-                    disabled={updateHighBudgetSettings.isPending}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    {updateHighBudgetSettings.isPending ? "Updating..." : "Update Settings"}
-                  </Button>
-                </div>
-              </form>
+              <div className="text-center py-8">
+                <Target className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">High Budget Configuration</h3>
+                <p className="text-gray-600">Configure settings for high-budget posting requirements</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -514,7 +492,7 @@ export default function TokenManagement() {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="text-right">
                           <Badge variant="secondary" className="mb-1">
                             +{grant.amount} tokens
@@ -558,7 +536,7 @@ export default function TokenManagement() {
                       ))}
                     </SelectContent>
                   </Select>
-                  
+
                   <Select
                     value={selectedYear.toString()}
                     onValueChange={(value) => setSelectedYear(parseInt(value))}
@@ -600,7 +578,7 @@ export default function TokenManagement() {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="text-right">
                           <Badge variant="secondary" className="mb-1">
                             +{distribution.tokensGranted} tokens

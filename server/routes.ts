@@ -2552,6 +2552,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Sync token balances - Admin only
+  app.post("/api/admin/sync-token-balances", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      await storage.syncFinderTokenBalances();
+      
+      res.json({ message: "Token balances synchronized successfully" });
+    } catch (error) {
+      console.error('Token balance sync error:', error);
+      res.status(500).json({ message: "Failed to sync token balances" });
+    }
+  });
+
   // Get pricing info for token purchases
   app.get("/api/tokens/pricing", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {

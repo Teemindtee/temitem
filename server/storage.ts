@@ -1,6 +1,6 @@
-import { 
-  type User, 
-  type InsertUser, 
+import {
+  type User,
+  type InsertUser,
   type Finder,
   type InsertFinder,
   type Find,
@@ -142,27 +142,27 @@ export interface IStorage {
   getAdminSetting(key: string): Promise<AdminSetting | undefined>;
   getAdminSettings(): Promise<{[key: string]: string}>;
   setAdminSetting(key: string, value: string): Promise<AdminSetting>;
-  
+
   // Client operations
   getClientProfile(clientId: string): Promise<User | undefined>;
-  deductClientFindertokens(clientId: string, amount: number): Promise<void>;
-  
+  deductClientFindertokens(clientId: string, amount: number, description: string): Promise<void>;
+
   // Token charging
   chargeFinderTokens(finderId: string, amount: number, reason: string, chargedBy: string): Promise<boolean>;
-  
+
   // Category operations
   getCategories(): Promise<Category[]>;
   getActiveCategories(): Promise<Category[]>;
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: string, updates: Partial<Category>): Promise<Category | undefined>;
   deleteCategory(id: string): Promise<void>;
-  
+
   // User management operations
   banUser(userId: string, reason: string): Promise<User | undefined>;
   unbanUser(userId: string): Promise<User | undefined>;
   verifyUser(userId: string): Promise<User | undefined>;
   unverifyUser(userId: string): Promise<User | undefined>;
-  
+
   // Withdrawal operations
   createWithdrawalRequest(request: InsertWithdrawalRequest): Promise<WithdrawalRequest>;
   getWithdrawalRequests(): Promise<any[]>;
@@ -174,14 +174,14 @@ export interface IStorage {
   getConversationById(conversationId: string): Promise<Conversation | undefined>;
   createConversation(conversation: InsertConversation): Promise<Conversation>;
   getConversationsByClientId(clientId: string): Promise<Array<Conversation & {
-    proposal: { find: { title: string; }; }; 
-    finder: { user: { firstName: string; lastName: string; }; }; 
+    proposal: { find: { title: string; }; };
+    finder: { user: { firstName: string; lastName: string; }; };
     lastMessage?: { content: string; createdAt: Date; senderId: string; };
     unreadCount: number;
   }>>;
   getConversationsByFinderId(finderId: string): Promise<Array<Conversation & {
-    proposal: { find: { title: string; }; }; 
-    client: { firstName: string; lastName: string; }; 
+    proposal: { find: { title: string; }; };
+    client: { firstName: string; lastName: string; };
     lastMessage?: { content: string; createdAt: Date; senderId: string; };
     unreadCount: number;
   }>>;
@@ -229,28 +229,28 @@ export interface IStorage {
   getStrikesByUserId(userId: string): Promise<Strike[]>;
   getActiveStrikesCount(userId: string): Promise<number>;
   updateStrike(id: string, updates: Partial<Strike>): Promise<Strike | undefined>;
-  
+
   // User Restrictions operations
   createUserRestriction(restriction: InsertUserRestriction): Promise<UserRestriction>;
   getUserActiveRestrictions(userId: string): Promise<UserRestriction[]>;
   updateUserRestriction(id: string, updates: Partial<UserRestriction>): Promise<UserRestriction | undefined>;
-  
+
   // Dispute operations
   createDispute(dispute: InsertDispute): Promise<Dispute>;
   getDisputesByUserId(userId: string): Promise<Dispute[]>;
   getAllDisputes(): Promise<Dispute[]>;
   updateDispute(id: string, updates: Partial<Dispute>): Promise<Dispute | undefined>;
-  
+
   // Behavioral Training operations
   assignTraining(training: InsertBehavioralTraining): Promise<BehavioralTraining>;
   getTrainingsByUserId(userId: string): Promise<BehavioralTraining[]>;
   updateTraining(id: string, updates: Partial<BehavioralTraining>): Promise<BehavioralTraining | undefined>;
-  
+
   // Trusted Badge operations
   awardBadge(badge: InsertTrustedBadge): Promise<TrustedBadge>;
   getUserBadges(userId: string): Promise<TrustedBadge[]>;
   updateBadge(id: string, updates: Partial<TrustedBadge>): Promise<TrustedBadge | undefined>;
-  
+
   // Strike System Analysis
   getUserStrikeLevel(userId: string): Promise<number>;
 
@@ -264,6 +264,7 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // Use `db` directly instead of `this.db`
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
@@ -313,10 +314,10 @@ export class DatabaseStorage implements IStorage {
       .insert(finders)
       .values(insertFinder)
       .returning();
-    
+
     // Create initial findertoken record
     await this.createFindertokenRecord(finder.id);
-    
+
     return finder;
   }
 
@@ -394,7 +395,7 @@ export class DatabaseStorage implements IStorage {
       .from(finds)
       .where(eq(finds.status, "open"))
       .orderBy(desc(finds.createdAt));
-    
+
     // Filter out finds that have accepted proposals
     const filteredFinds = [];
     for (const find of availableFinds) {
@@ -403,7 +404,7 @@ export class DatabaseStorage implements IStorage {
         filteredFinds.push(find);
       }
     }
-    
+
     return filteredFinds;
   }
 
@@ -583,7 +584,7 @@ export class DatabaseStorage implements IStorage {
         eq(proposals.finderId, finderId),
         eq(proposals.status, 'accepted')
       ));
-    
+
     if (result) {
       return {
         ...result,
@@ -725,7 +726,7 @@ export class DatabaseStorage implements IStorage {
         .from(orderSubmissions)
         .where(eq(orderSubmissions.contractId, contractId))
         .limit(1);
-      
+
       if (submissionResult.length > 0) {
         orderSubmission = submissionResult[0];
       }
@@ -759,16 +760,16 @@ export class DatabaseStorage implements IStorage {
       .insert(reviews)
       .values(insertReview)
       .returning();
-    
+
     // Update finder's average rating
     const finderReviews = await this.getReviewsByFinderId(insertReview.finderId);
     const avgRating = finderReviews.reduce((sum, r) => sum + r.rating, 0) / finderReviews.length;
-    
+
     const finder = await this.getFinderByUserId(insertReview.finderId);
     if (finder) {
       await this.updateFinder(finder.id, { averageRating: avgRating.toFixed(2) });
     }
-    
+
     return review;
   }
 
@@ -803,10 +804,36 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateFinderTokenBalance(finderId: string, newBalance: number): Promise<void> {
+    // Get current balance first
+    const finder = await db.query.finders.findFirst({
+      where: eq(finders.id, finderId),
+    });
+
+    if (!finder) return;
+
+    // Update finder balance
     await db
       .update(finders)
-      .set({ findertokenBalance: newBalance })
+      .set({
+        findertokenBalance: newBalance
+      })
       .where(eq(finders.id, finderId));
+
+    // Also update or create findertokens record for consistency
+    const tokenRecord = await db.query.findertokens.findFirst({
+      where: eq(findertokens.finderId, finderId),
+    });
+
+    if (tokenRecord) {
+      await db.update(findertokens)
+        .set({ balance: newBalance })
+        .where(eq(findertokens.finderId, finderId));
+    } else {
+      await db.insert(findertokens).values({
+        finderId,
+        balance: newBalance,
+      });
+    }
   }
 
   async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
@@ -847,7 +874,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(users)
       .orderBy(desc(users.createdAt));
-    
+
     // Add finder data for users with finder role
     const usersWithFinderData = await Promise.all(
       allUsers.map(async (user) => {
@@ -864,7 +891,7 @@ export class DatabaseStorage implements IStorage {
         return user;
       })
     );
-    
+
     return usersWithFinderData;
   }
 
@@ -896,8 +923,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getConversationsByClientId(clientId: string): Promise<Array<Conversation & {
-    proposal: { request: { title: string; }; }; 
-    finder: { user: { firstName: string; lastName: string; }; }; 
+    proposal: { request: { title: string; }; };
+    finder: { user: { firstName: string; lastName: string; }; };
     lastMessage?: { content: string; createdAt: Date; senderId: string; };
     unreadCount: number;
   }>> {
@@ -908,23 +935,23 @@ export class DatabaseStorage implements IStorage {
         finderFirstName: users.firstName,
         finderLastName: users.lastName,
         lastMessageContent: sql<string>`(
-          SELECT content FROM messages 
-          WHERE conversation_id = conversations.id 
+          SELECT content FROM messages
+          WHERE conversation_id = conversations.id
           ORDER BY created_at DESC LIMIT 1
         )`.as('lastMessageContent'),
         lastMessageCreatedAt: sql<Date>`(
-          SELECT created_at FROM messages 
-          WHERE conversation_id = conversations.id 
+          SELECT created_at FROM messages
+          WHERE conversation_id = conversations.id
           ORDER BY created_at DESC LIMIT 1
         )`.as('lastMessageCreatedAt'),
         lastMessageSenderId: sql<string>`(
-          SELECT sender_id FROM messages 
-          WHERE conversation_id = conversations.id 
+          SELECT sender_id FROM messages
+          WHERE conversation_id = conversations.id
           ORDER BY created_at DESC LIMIT 1
         )`.as('lastMessageSenderId'),
         unreadCount: sql<number>`(
-          SELECT COUNT(*) FROM messages 
-          WHERE conversation_id = conversations.id 
+          SELECT COUNT(*) FROM messages
+          WHERE conversation_id = conversations.id
             AND sender_id != ${clientId}
             AND is_read = false
         )`.as('unreadCount')
@@ -960,8 +987,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getConversationsByFinderId(finderId: string): Promise<Array<Conversation & {
-    proposal: { request: { title: string; }; }; 
-    client: { firstName: string; lastName: string; }; 
+    proposal: { request: { title: string; }; };
+    client: { firstName: string; lastName: string; };
     lastMessage?: { content: string; createdAt: Date; senderId: string; };
     unreadCount: number;
   }>> {
@@ -972,23 +999,23 @@ export class DatabaseStorage implements IStorage {
         clientFirstName: users.firstName,
         clientLastName: users.lastName,
         lastMessageContent: sql<string>`(
-          SELECT content FROM messages 
-          WHERE conversation_id = conversations.id 
+          SELECT content FROM messages
+          WHERE conversation_id = conversations.id
           ORDER BY created_at DESC LIMIT 1
         )`.as('lastMessageContent'),
         lastMessageCreatedAt: sql<Date>`(
-          SELECT created_at FROM messages 
-          WHERE conversation_id = conversations.id 
+          SELECT created_at FROM messages
+          WHERE conversation_id = conversations.id
           ORDER BY created_at DESC LIMIT 1
         )`.as('lastMessageCreatedAt'),
         lastMessageSenderId: sql<string>`(
-          SELECT sender_id FROM messages 
-          WHERE conversation_id = conversations.id 
+          SELECT sender_id FROM messages
+          WHERE conversation_id = conversations.id
           ORDER BY created_at DESC LIMIT 1
         )`.as('lastMessageSenderId'),
         unreadCount: sql<number>`(
-          SELECT COUNT(*) FROM messages 
-          WHERE conversation_id = conversations.id 
+          SELECT COUNT(*) FROM messages
+          WHERE conversation_id = conversations.id
             AND sender_id != (SELECT user_id FROM finders WHERE id = ${finderId})
             AND is_read = false
         )`.as('unreadCount')
@@ -1293,7 +1320,7 @@ export class DatabaseStorage implements IStorage {
   async setAdminSetting(key: string, value: string): Promise<AdminSetting> {
     try {
       const existing = await this.getAdminSetting(key);
-      
+
       if (existing) {
         const [updated] = await db
           .update(adminSettings)
@@ -1321,7 +1348,7 @@ export class DatabaseStorage implements IStorage {
       settings.forEach(setting => {
         result[setting.key] = setting.value;
       });
-      
+
       // Convert underscore keys to camelCase for consistency
       if (result['high_budget_threshold']) {
         result['highBudgetThreshold'] = result['high_budget_threshold'];
@@ -1329,7 +1356,7 @@ export class DatabaseStorage implements IStorage {
       if (result['high_budget_token_cost']) {
         result['highBudgetTokenCost'] = result['high_budget_token_cost'];
       }
-      
+
       // Set defaults if not exist
       const defaults = {
         proposalTokenCost: "1",
@@ -1340,13 +1367,13 @@ export class DatabaseStorage implements IStorage {
         highBudgetThreshold: "100000",
         highBudgetTokenCost: "5"
       };
-      
+
       Object.keys(defaults).forEach(key => {
         if (!result[key]) {
           result[key] = defaults[key as keyof typeof defaults];
         }
       });
-      
+
       return result;
     } catch (error) {
       console.error('Error getting admin settings:', error);
@@ -1384,7 +1411,7 @@ export class DatabaseStorage implements IStorage {
         .from(users)
         .where(eq(users.id, clientId))
         .limit(1);
-      
+
       if (!user) {
         throw new Error('Client not found');
       }
@@ -1397,8 +1424,8 @@ export class DatabaseStorage implements IStorage {
       // Deduct tokens from user balance
       await db
         .update(users)
-        .set({ 
-          findertokenBalance: sql`${users.findertokenBalance} - ${amount}` 
+        .set({
+          findertokenBalance: sql`${users.findertokenBalance} - ${amount}`
         })
         .where(eq(users.id, clientId));
 
@@ -1470,12 +1497,38 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateFinderTokenBalance(finderId: string, tokensToAdd: number): Promise<void> {
+    // Get current balance first
+    const finder = await db.query.finders.findFirst({
+      where: eq(finders.id, finderId),
+    });
+
+    if (!finder) return;
+
+    const newBalance = (finder.findertokenBalance || 0) + tokensToAdd;
+
+    // Update finder balance
     await db
       .update(finders)
       .set({
-        findertokenBalance: sql`findertoken_balance + ${tokensToAdd}`
+        findertokenBalance: newBalance
       })
       .where(eq(finders.id, finderId));
+
+    // Also update or create findertokens record for consistency
+    const tokenRecord = await db.query.findertokens.findFirst({
+      where: eq(findertokens.finderId, finderId),
+    });
+
+    if (tokenRecord) {
+      await db.update(findertokens)
+        .set({ balance: newBalance })
+        .where(eq(findertokens.finderId, finderId));
+    } else {
+      await db.insert(findertokens).values({
+        finderId,
+        balance: newBalance,
+      });
+    }
   }
 
   // Finder Levels Management
@@ -1545,8 +1598,8 @@ export class DatabaseStorage implements IStorage {
       const minJobs = level.minJobsCompleted || 0;
       const minRating = level.minReviewPercentage || 0;
 
-      if (totalEarned >= minEarned && 
-          jobsCompleted >= minJobs && 
+      if (totalEarned >= minEarned &&
+          jobsCompleted >= minJobs &&
           (avgRating * 20) >= minRating) { // Convert 5-star rating to percentage
         return level;
       }
@@ -1557,7 +1610,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(finderLevels)
       .where(eq(finderLevels.name, "Novice"));
-    
+
     return noviceLevel || undefined;
   }
 
@@ -1774,14 +1827,14 @@ export class DatabaseStorage implements IStorage {
 
     // Get all active finders
     const allFinders = await this.getAllFindersForTokens();
-    
+
     let distributed = 0;
     let alreadyDistributed = 0;
 
     for (const finder of allFinders) {
       // Check if already received tokens this month
       const hasReceived = await this.hasReceivedMonthlyTokens(finder.id, month, year);
-      
+
       if (!hasReceived) {
         // Grant tokens
         await this.createMonthlyDistribution({
@@ -1898,20 +1951,20 @@ export class DatabaseStorage implements IStorage {
 
   async getTokenGrants(finderId?: string): Promise<TokenGrant[]> {
     let query = db.select().from(tokenGrants);
-    
+
     if (finderId) {
       query = query.where(eq(tokenGrants.finderId, finderId));
     }
-    
+
     const grants = await query.orderBy(desc(tokenGrants.createdAt));
-    
+
     // Manually fetch user data for each grant
     const grantsWithUserData = await Promise.all(
       grants.map(async (grant) => {
         const finder = await this.getFinder(grant.finderId);
         const finderUser = finder ? await this.getUser(finder.userId) : null;
         const grantedByUser = await this.getUser(grant.grantedBy);
-        
+
         return {
           ...grant,
           finder: {
@@ -1928,7 +1981,7 @@ export class DatabaseStorage implements IStorage {
         };
       })
     );
-    
+
     return grantsWithUserData;
   }
 
@@ -1956,7 +2009,7 @@ export class DatabaseStorage implements IStorage {
       .from(finders)
       .innerJoin(users, eq(finders.userId, users.id))
       .where(eq(users.isBanned, false));
-    
+
     return results;
   }
 
@@ -2156,14 +2209,14 @@ export class DatabaseStorage implements IStorage {
   async checkContentForRestrictedWords(content: string): Promise<string[]> {
     const words = await this.getRestrictedWords();
     const foundWords: string[] = [];
-    
+
     const contentLower = content.toLowerCase();
     words.forEach(restrictedWord => {
       if (contentLower.includes(restrictedWord.word.toLowerCase())) {
         foundWords.push(restrictedWord.word);
       }
     });
-    
+
     return foundWords;
   }
 
