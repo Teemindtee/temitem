@@ -2338,13 +2338,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const platformFeePercentage = await storage.getAdminSetting('platform_fee_percentage');
       const clientPaymentChargePercentage = await storage.getAdminSetting('client_payment_charge_percentage');
       const finderEarningsChargePercentage = await storage.getAdminSetting('finder_earnings_charge_percentage');
+      const highBudgetThreshold = await storage.getAdminSetting('high_budget_threshold');
+      const highBudgetTokenCost = await storage.getAdminSetting('high_budget_token_cost');
       
       res.json({
         proposalTokenCost: proposalTokenCost?.value || '1',
         findertokenPrice: findertokenPrice?.value || '100', // Default 100 per token in kobo/cents
         platformFeePercentage: platformFeePercentage?.value || '10',
         clientPaymentChargePercentage: clientPaymentChargePercentage?.value || '2.5',
-        finderEarningsChargePercentage: finderEarningsChargePercentage?.value || '5'
+        finderEarningsChargePercentage: finderEarningsChargePercentage?.value || '5',
+        highBudgetThreshold: highBudgetThreshold?.value || '100000',
+        highBudgetTokenCost: highBudgetTokenCost?.value || '5'
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch admin settings" });
@@ -2362,7 +2366,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         findertokenPrice, 
         platformFeePercentage, 
         clientPaymentChargePercentage, 
-        finderEarningsChargePercentage 
+        finderEarningsChargePercentage,
+        highBudgetThreshold,
+        highBudgetTokenCost
       } = req.body;
 
       if (proposalTokenCost !== undefined) {
@@ -2383,6 +2389,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (finderEarningsChargePercentage !== undefined) {
         await storage.setAdminSetting('finder_earnings_charge_percentage', finderEarningsChargePercentage.toString());
+      }
+
+      if (highBudgetThreshold !== undefined) {
+        await storage.setAdminSetting('high_budget_threshold', highBudgetThreshold.toString());
+      }
+
+      if (highBudgetTokenCost !== undefined) {
+        await storage.setAdminSetting('high_budget_token_cost', highBudgetTokenCost.toString());
       }
 
       res.json({ message: "Settings updated successfully" });
