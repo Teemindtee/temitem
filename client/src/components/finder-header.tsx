@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
 import { 
   Handshake, 
   User, 
@@ -24,7 +25,8 @@ import {
   FileText,
   Search,
   Home,
-  MessageCircle
+  MessageCircle,
+  Clock
 } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -34,10 +36,32 @@ interface FinderHeaderProps {
   currentPage?: string;
 }
 
+// Helper function to format currency
+const formatCurrency = (amount: string | number) => {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  return new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(numAmount / 100); // Convert from kobo to naira
+};
+
 export function FinderHeader({ currentPage }: FinderHeaderProps) {
   const { user, logout } = useAuth();
   const { t } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Fetch finder profile and pending earnings
+  const { data: finder } = useQuery({
+    queryKey: ['/api/finder/profile'],
+    enabled: !!user && user.role === 'finder'
+  });
+
+  const { data: pendingEarnings } = useQuery({
+    queryKey: ['/api/finder/pending-earnings'],
+    enabled: !!user && user.role === 'finder'
+  });
 
   const handleLogout = () => {
     logout();
@@ -136,6 +160,32 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{user?.firstName} {user?.lastName}</p>
                   <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                  
+                  {/* Balance Information */}
+                  <div className="pt-2 space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-green-600 font-medium">Available:</span>
+                      <span className="font-semibold text-green-700">
+                        {finder?.availableBalance ? formatCurrency(finder.availableBalance) : '₦0.00'}
+                      </span>
+                    </div>
+                    {pendingEarnings && pendingEarnings.contractCount > 0 && (
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-orange-600 font-medium flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Pending:
+                        </span>
+                        <span className="font-semibold text-orange-700">
+                          {formatCurrency(pendingEarnings.netAmount)}
+                        </span>
+                      </div>
+                    )}
+                    {pendingEarnings && pendingEarnings.contractCount > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        {pendingEarnings.contractCount} contract{pendingEarnings.contractCount !== 1 ? 's' : ''} awaiting release
+                      </div>
+                    )}
+                  </div>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

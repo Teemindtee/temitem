@@ -93,6 +93,7 @@ export interface IStorage {
   getFinderByUserId(userId: string): Promise<Finder | undefined>;
   createFinder(finder: InsertFinder): Promise<Finder>;
   updateFinder(id: string, updates: Partial<Finder>): Promise<Finder | undefined>;
+  getFinderPendingEarnings(finderId: string): Promise<{ pendingAmount: number; contractCount: number; }>;
 
   // Find operations
   getFind(id: string): Promise<Find | undefined>;
@@ -321,6 +322,29 @@ export class DatabaseStorage implements IStorage {
       .where(eq(finders.id, id))
       .returning();
     return finder || undefined;
+  }
+
+  async getFinderPendingEarnings(finderId: string): Promise<{ pendingAmount: number; contractCount: number; }> {
+    const result = await db
+      .select({
+        totalAmount: sql<string>`COALESCE(SUM(${contracts.amount}), 0)`,
+        count: sql<number>`COUNT(*)::integer`
+      })
+      .from(contracts)
+      .where(
+        and(
+          eq(contracts.finderId, finderId),
+          eq(contracts.escrowStatus, 'completed')
+        )
+      );
+
+    const totalAmount = parseFloat(result[0]?.totalAmount || '0');
+    const contractCount = result[0]?.count || 0;
+
+    return {
+      pendingAmount: totalAmount,
+      contractCount
+    };
   }
 
   async getFind(id: string): Promise<Find | undefined> {

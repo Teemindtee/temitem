@@ -17,7 +17,9 @@ import {
   FileText,
   User,
   Briefcase,
-  AlertTriangle
+  AlertTriangle,
+  Calculator,
+  TrendingUp
 } from "lucide-react";
 import { ContractDisputeModal } from "@/components/ContractDisputeModal";
 import { useState } from "react";
@@ -70,6 +72,29 @@ export default function FinderContractDetails() {
     queryKey: ['/api/finder/contracts', contractId],
     enabled: !!user && !!contractId
   });
+
+  // Get admin settings for fee calculations
+  const { data: adminSettings } = useQuery({
+    queryKey: ['/api/admin/settings'],
+    enabled: !!contract
+  });
+
+  // Calculate earnings with fee breakdown
+  const calculateEarnings = () => {
+    if (!contract || !adminSettings) return null;
+    
+    const contractAmount = parseFloat(contract.amount);
+    const feePercentage = parseFloat(adminSettings.finderEarningsChargePercentage || '5');
+    const feeAmount = contractAmount * (feePercentage / 100);
+    const netEarnings = contractAmount - feeAmount;
+    
+    return {
+      grossAmount: contractAmount,
+      feeAmount,
+      netEarnings,
+      feePercentage
+    };
+  };
 
   if (isLoading) {
     return (
@@ -260,6 +285,60 @@ export default function FinderContractDetails() {
               )}
             </CardContent>
           </Card>
+
+          {/* Earnings Breakdown */}
+          {calculateEarnings() && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Calculator className="w-5 h-5 mr-2" />
+                  Earnings Breakdown
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-blue-600 font-medium">Contract Value</span>
+                      <TrendingUp className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <p className="text-xl font-bold text-blue-700">
+                      {formatCurrency(calculateEarnings()!.grossAmount)}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-red-600 font-medium">Platform Fee ({calculateEarnings()!.feePercentage}%)</span>
+                    </div>
+                    <p className="text-xl font-bold text-red-700">
+                      -{formatCurrency(calculateEarnings()!.feeAmount)}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-green-600 font-medium">Your Earnings</span>
+                    </div>
+                    <p className="text-xl font-bold text-green-700">
+                      {formatCurrency(calculateEarnings()!.netEarnings)}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-xs text-gray-600">
+                    * Platform fee is automatically deducted from contract value. 
+                    {contract.escrowStatus === 'released' ? 
+                      'Earnings have been added to your available balance.' : 
+                      contract.escrowStatus === 'completed' ?
+                      'Earnings will be added to your balance once payment is released.' :
+                      'Earnings will be calculated once work is completed and approved.'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Escrow Information */}
           <Card>

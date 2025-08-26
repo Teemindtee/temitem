@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { FinderHeader } from "@/components/finder-header";
 import { SupportWidget } from "@/components/support-widget";
 import { useAuth } from "@/hooks/use-auth";
-import { Clock, CheckCircle, Upload, ExternalLink, MapPin, FileText, AlertCircle } from "lucide-react";
+import { Clock, CheckCircle, Upload, ExternalLink, MapPin, FileText, AlertCircle, TrendingUp, Calculator } from "lucide-react";
 
 // Helper function to format currency
 const formatCurrency = (amount: string | number) => {
@@ -27,7 +27,23 @@ export default function FinderContracts() {
     enabled: !!user
   });
 
+  // Get admin settings for fee calculations
+  const { data: adminSettings } = useQuery({
+    queryKey: ['/api/admin/settings'],
+    enabled: contracts.length > 0
+  });
+
   console.log('Finder Contracts Data:', contracts); // Debug log
+
+  // Calculate net earnings for a contract
+  const calculateNetEarnings = (contractAmount: string) => {
+    if (!adminSettings) return parseFloat(contractAmount);
+    
+    const amount = parseFloat(contractAmount);
+    const feePercentage = parseFloat(adminSettings.finderEarningsChargePercentage || '5');
+    const feeAmount = amount * (feePercentage / 100);
+    return amount - feeAmount;
+  };
 
   if (isLoading) {
     return (
@@ -114,8 +130,18 @@ export default function FinderContracts() {
                   <CardContent>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-6">
-                        <div className="flex items-center text-green-600">
-                          <span className="font-semibold text-lg">{formatCurrency(contract.amount)}</span>
+                        <div className="flex flex-col">
+                          <div className="flex items-center text-blue-600 text-sm">
+                            <span className="font-medium">{formatCurrency(contract.amount)}</span>
+                            <span className="ml-1 text-xs text-gray-500">(gross)</span>
+                          </div>
+                          {(contract.isCompleted || contract.escrowStatus === 'completed') && adminSettings && (
+                            <div className="flex items-center text-green-600 text-sm font-semibold">
+                              <Calculator className="w-3 h-3 mr-1" />
+                              <span>{formatCurrency(calculateNetEarnings(contract.amount))}</span>
+                              <span className="ml-1 text-xs text-gray-500">(earned)</span>
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center text-gray-600 text-sm">
                           <Clock className="w-4 h-4 mr-1" />

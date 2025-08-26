@@ -2551,6 +2551,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get finder pending earnings
+  app.get('/api/finder/pending-earnings', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder profile not found" });
+      }
+
+      const pendingEarnings = await storage.getFinderPendingEarnings(finder.id);
+      
+      // Get admin fee to calculate net earnings
+      const finderEarningsCharge = await storage.getAdminSetting('finder_earnings_charge_percentage');
+      const feePercentage = parseFloat(finderEarningsCharge?.value || '5');
+      
+      const grossAmount = pendingEarnings.pendingAmount;
+      const feeAmount = grossAmount * (feePercentage / 100);
+      const netAmount = grossAmount - feeAmount;
+
+      res.json({
+        grossAmount,
+        feeAmount,
+        netAmount,
+        feePercentage,
+        contractCount: pendingEarnings.contractCount
+      });
+    } catch (error) {
+      console.error('Error fetching pending earnings:', error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // Additional Finder Profile Management Routes
   app.get('/api/finder/profile', authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
