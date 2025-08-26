@@ -46,7 +46,10 @@ export default function OrderSubmissionPage() {
 
   const submitOrderMutation = useMutation({
     mutationFn: async (data: { contractId: string; submissionText?: string; attachmentPaths: string[] }) => {
-      return apiRequest("POST", "/api/orders/submit", data);
+      return apiRequest("/api/orders/submit", {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
     },
     onSuccess: () => {
       toast({ title: "Order submitted successfully!" });
@@ -64,7 +67,9 @@ export default function OrderSubmissionPage() {
   });
 
   const handleGetUploadParameters = async () => {
-    const data = await apiRequest("POST", "/api/objects/upload");
+    const data = await apiRequest("/api/objects/upload", {
+      method: "POST"
+    });
     return {
       method: "PUT" as const,
       url: data.uploadURL,
@@ -76,9 +81,12 @@ export default function OrderSubmissionPage() {
       if (file.uploadURL) {
         // Set ACL for the uploaded file
         try {
-          const aclData = await apiRequest("PUT", "/api/objects/acl", {
-            objectURL: file.uploadURL,
-            visibility: "private"
+          const aclData = await apiRequest("/api/objects/acl", {
+            method: "PUT",
+            body: JSON.stringify({
+              objectURL: file.uploadURL,
+              visibility: "private"
+            })
           });
           setAttachmentPaths(prev => [...prev, aclData.objectPath]);
           toast({ title: "File uploaded successfully!" });
