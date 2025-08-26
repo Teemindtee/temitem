@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FinderLevelBadge } from "@/components/finder-level-badge";
+import AdminHeader from "@/components/admin-header";
 import { ArrowLeft, User, Star, Award, Clock, DollarSign, CheckCircle, XCircle } from "lucide-react";
 import type { Finder } from "@shared/schema";
 
@@ -58,27 +59,7 @@ export default function FinderProfileView() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-finder-red text-white px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link href="/admin/users">
-              <Button variant="ghost" className="text-white hover:bg-finder-red-dark p-2">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div className="flex items-center space-x-2">
-              <User className="w-6 h-6" />
-              <span className="text-xl font-bold">Finder Profile</span>
-            </div>
-          </div>
-          <Link href="/admin/users">
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-finder-red">
-              Back to Users
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <AdminHeader currentPage="users" />
 
       <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6">
         {/* Beautiful Profile Card - Like the Design */}
