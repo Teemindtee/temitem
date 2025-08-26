@@ -59,7 +59,7 @@ export default function FinderDashboard() {
                 <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">Total Earnings</h3>
-              <p className="text-xl sm:text-2xl font-bold text-green-600">${(finder as any)?.totalEarnings || 0}</p>
+              <p className="text-xl sm:text-2xl font-bold text-green-600">₦{((finder as any)?.totalEarnings || 0).toLocaleString()}</p>
               <p className="text-gray-600 text-xs sm:text-sm">All time</p>
             </CardContent>
           </Card>
@@ -142,7 +142,7 @@ export default function FinderDashboard() {
                     </div>
                     <p className="text-gray-600 text-sm mb-3">{find.description.substring(0, 100)}...</p>
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">Budget: ${find.budgetMin} - ${find.budgetMax}</span>
+                      <span className="text-gray-600 text-sm">Budget: ₦{parseInt(find.budgetMin || '0').toLocaleString()} - ₦{parseInt(find.budgetMax || '0').toLocaleString()}</span>
                       <Link href={`/finder/finds/${find.id}`}>
                         <Button size="sm" className="bg-finder-red hover:bg-finder-red-dark">View</Button>
                       </Link>
@@ -185,7 +185,7 @@ export default function FinderDashboard() {
                     </div>
                     <p className="text-gray-600 text-sm mb-3">{proposal.approach?.substring(0, 100)}...</p>
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-bold text-green-600">${proposal.price}</span>
+                      <span className="text-lg font-bold text-green-600">₦{parseInt(proposal.price).toLocaleString()}</span>
                       <Link href={`/finder/proposals/${proposal.id}`}>
                         <Button size="sm" variant="outline">View</Button>
                       </Link>
