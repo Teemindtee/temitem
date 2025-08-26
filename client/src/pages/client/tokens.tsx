@@ -13,7 +13,7 @@ import {
   Minus, 
   Clock, 
   TrendingUp, 
-  DollarSign,
+  Banknote,
   CreditCard,
   Zap,
   Award,
@@ -169,7 +169,7 @@ export default function ClientTokens() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-medium flex items-center gap-2 text-gray-700">
-                <DollarSign className="w-5 h-5" />
+                <Banknote className="w-5 h-5" />
                 Total Spent
               </CardTitle>
             </CardHeader>

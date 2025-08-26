@@ -18,7 +18,7 @@ import {
   PlusCircle, 
   Clock, 
   MapPin, 
-  DollarSign, 
+  Banknote, 
   Tag,
   FileText,
   Upload,
@@ -456,7 +456,7 @@ export default function CreateRequest() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                       <div>
                         <Label htmlFor="minBudget" className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">
-                          <DollarSign className="w-4 h-4 mr-2 text-green-600" />
+                          <Banknote className="w-4 h-4 mr-2 text-green-600" />
                           Min Budget (₦) *
                         </Label>
                         <Input
@@ -473,7 +473,7 @@ export default function CreateRequest() {
                       </div>
                       <div>
                         <Label htmlFor="maxBudget" className="text-slate-700 font-semibold flex items-center mb-2 text-sm sm:text-base">
-                          <DollarSign className="w-4 h-4 mr-2 text-green-600" />
+                          <Banknote className="w-4 h-4 mr-2 text-green-600" />
                           Max Budget (₦) *
                         </Label>
                         <Input
@@ -666,7 +666,7 @@ export default function CreateRequest() {
                     
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4">
                       <div className="text-center p-3 bg-white rounded-lg border">
-                        <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mx-auto mb-1" />
+                        <Banknote className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mx-auto mb-1" />
                         <div className="text-xs sm:text-sm font-medium text-slate-900">
                           ₦{parseInt(formData.minBudget || "0").toLocaleString()} - ₦{parseInt(formData.maxBudget || "0").toLocaleString()}
                         </div>
