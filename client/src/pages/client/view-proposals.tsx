@@ -236,7 +236,6 @@ export default function ViewProposals() {
                     {/* Proposal Details */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-green-50/80 rounded-lg p-4 text-center">
-                        <DollarSign className="w-5 h-5 text-green-600 mx-auto mb-2" />
                         <div className="text-lg font-bold text-green-700">
                           ₦{proposal.price ? parseInt(proposal.price).toLocaleString() : 'TBD'}
                         </div>
