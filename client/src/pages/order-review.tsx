@@ -10,6 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { FileText, Calendar, Clock, CheckCircle, XCircle, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import ClientHeader from "@/components/client-header";
 
 interface Contract {
   id: string;
@@ -111,6 +112,16 @@ export default function OrderReviewPage() {
     });
   };
 
+  const formatCurrency = (amount: string | number) => {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(numAmount);
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "submitted":
@@ -173,10 +184,13 @@ export default function OrderReviewPage() {
   const daysUntilRelease = getDaysUntilAutoRelease(contract.orderSubmission.autoReleaseDate);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8">Review Order Submission</h1>
+    <div className="min-h-screen bg-gray-50">
+      <ClientHeader currentPage="contracts" />
+      
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 className="text-3xl font-bold mb-8">Review Order Submission</h1>
 
-      <div className="grid gap-6">
+        <div className="grid gap-6">
         {/* Contract Info */}
         <Card>
           <CardHeader>
@@ -186,7 +200,7 @@ export default function OrderReviewPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label className="text-sm font-medium text-gray-500">Contract Amount</Label>
-                <p className="text-lg font-semibold">${contract.amount}</p>
+                <p className="text-lg font-semibold">{formatCurrency(contract.amount)}</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-gray-500">Status</Label>
@@ -405,6 +419,7 @@ export default function OrderReviewPage() {
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
     </div>
   );
