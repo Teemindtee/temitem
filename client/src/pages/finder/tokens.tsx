@@ -179,7 +179,7 @@ export default function FindertokenBalance() {
                     <p className="text-sm text-gray-500">Lifetime</p>
                   </div>
                   <div className="p-3 bg-green-100 rounded-full">
-                    <DollarSign className="w-6 h-6 text-green-600" />
+                    <Award className="w-6 h-6 text-green-600" />
                   </div>
                 </div>
               </CardContent>
