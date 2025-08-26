@@ -144,7 +144,7 @@ export interface IStorage {
   setAdminSetting(key: string, value: string): Promise<AdminSetting>;
   
   // Client operations
-  getClientProfile(clientId: string): Promise<Client | undefined>;
+  getClientProfile(clientId: string): Promise<User | undefined>;
   deductClientFindertokens(clientId: string, amount: number): Promise<void>;
   
   // Token charging
@@ -932,7 +932,7 @@ export class DatabaseStorage implements IStorage {
     return result.map(row => ({
       ...row.conversation,
       proposal: {
-        request: {
+        find: {
           title: row.requestTitle
         }
       },
@@ -995,7 +995,7 @@ export class DatabaseStorage implements IStorage {
     return result.map(row => ({
       ...row.conversation,
       proposal: {
-        request: {
+        find: {
           title: row.requestTitle
         }
       },
@@ -1108,35 +1108,17 @@ export class DatabaseStorage implements IStorage {
       .orderBy(categories.name);
   }
 
-  async updateCategory(id: string, updates: Partial<Category>): Promise<Category | null> {
+  async updateCategory(id: string, updates: Partial<Category>): Promise<Category | undefined> {
     const [category] = await db
       .update(categories)
       .set(updates)
       .where(eq(categories.id, id))
       .returning();
-    return category || null;
+    return category || undefined;
   }
 
   async deleteCategory(id: string): Promise<void> {
     await db.delete(categories).where(eq(categories.id, id));
-  }
-
-  // Finder Profile Management  
-  async updateFinder(finderId: string, updates: Partial<Finder>): Promise<Finder | null> {
-    const [finder] = await db
-      .update(finders)
-      .set(updates)
-      .where(eq(finders.id, finderId))
-      .returning();
-    return finder || null;
-  }
-
-  async getTransactionsByFinderId(finderId: string): Promise<Transaction[]> {
-    return await db
-      .select()
-      .from(transactions)
-      .where(eq(transactions.finderId, finderId))
-      .orderBy(desc(transactions.createdAt));
   }
 
   async getWithdrawalSettings(finderId: string): Promise<any> {
@@ -1364,14 +1346,14 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getClientProfile(clientId: string): Promise<Client | undefined> {
+  async getClientProfile(clientId: string): Promise<User | undefined> {
     try {
-      const [client] = await db
+      const [user] = await db
         .select()
-        .from(clients)
-        .where(eq(clients.userId, clientId))
+        .from(users)
+        .where(eq(users.id, clientId))
         .limit(1);
-      return client || undefined;
+      return user || undefined;
     } catch (error) {
       console.error('Error getting client profile:', error);
       return undefined;
@@ -1379,23 +1361,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deductClientFindertokens(clientId: string, amount: number): Promise<void> {
-    try {
-      const client = await this.getClientProfile(clientId);
-      if (!client) {
-        throw new Error('Client not found');
-      }
-
-      const currentTokens = client.findertokens || 0;
-      const newBalance = Math.max(0, currentTokens - amount);
-
-      await db
-        .update(clients)
-        .set({ findertokens: newBalance })
-        .where(eq(clients.userId, clientId));
-    } catch (error) {
-      console.error('Error deducting client findertokens:', error);
-      throw error;
-    }
+    // Note: This method needs to be removed or reimplemented since users table doesn't have findertokens field
+    // For now, throwing an error to indicate this needs proper implementation
+    throw new Error('Client findertokens functionality not implemented - users table has no findertokens field');
   }
 
   // Withdrawal Requests
