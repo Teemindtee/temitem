@@ -9,7 +9,7 @@ if (process.env.SENDGRID_API_KEY) {
 
 // SMTP fallback configuration
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false, // true for 465, false for other ports
   auth: {
@@ -27,7 +27,7 @@ export interface EmailTemplate {
 
 export class EmailService {
   private static instance: EmailService;
-  
+
   public static getInstance(): EmailService {
     if (!EmailService.instance) {
       EmailService.instance = new EmailService();
@@ -40,7 +40,7 @@ export class EmailService {
       // Try SendGrid first if available
       if (process.env.SENDGRID_API_KEY) {
         console.log('Using SendGrid email service');
-        
+
         const msg = {
           to: template.to,
           from: process.env.FROM_EMAIL || 'noreply@findermeister.com',
