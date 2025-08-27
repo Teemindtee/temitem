@@ -30,17 +30,39 @@ export class EmailService {
 
   async sendEmail(template: EmailTemplate): Promise<boolean> {
     try {
-      await transporter.sendMail({
+      // Verify SMTP configuration
+      console.log('SMTP Configuration:', {
+        host: process.env.SMTP_HOST || 'smtp.gmail.com',
+        port: process.env.SMTP_PORT || '587',
+        user: process.env.SMTP_USER ? 'configured' : 'missing',
+        pass: process.env.SMTP_PASS ? 'configured' : 'missing',
+        from: process.env.FROM_EMAIL || 'noreply@findermeister.com'
+      });
+
+      // Test connection first
+      await transporter.verify();
+      console.log('SMTP connection verified successfully');
+
+      const mailOptions = {
         from: process.env.FROM_EMAIL || 'noreply@findermeister.com',
         to: template.to,
         subject: template.subject,
         html: template.html,
         text: template.text || this.extractTextFromHtml(template.html),
-      });
-      console.log(`Email sent successfully to ${template.to}`);
+      };
+
+      console.log(`Attempting to send email to: ${template.to}`);
+      const result = await transporter.sendMail(mailOptions);
+      console.log(`Email sent successfully to ${template.to}. Message ID: ${result.messageId}`);
       return true;
-    } catch (error) {
-      console.error('Failed to send email:', error);
+    } catch (error: any) {
+      console.error('Failed to send email:', {
+        error: error.message,
+        code: error.code,
+        command: error.command,
+        to: template.to,
+        subject: template.subject
+      });
       return false;
     }
   }

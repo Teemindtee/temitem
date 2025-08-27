@@ -197,13 +197,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Email is required" });
       }
 
+      console.log(`Password reset requested for email: ${email}`);
+
       // Check if user exists
       const user = await storage.getUserByEmail(email);
       
       // Always return success to prevent email enumeration
       if (!user) {
+        console.log(`No user found for email: ${email}`);
         return res.json({ message: "If an account with that email exists, we've sent you a password reset link." });
       }
+
+      console.log(`User found: ${user.id} - ${user.firstName} ${user.lastName}`);
 
       // Generate reset token (expires in 1 hour)
       const resetToken = jwt.sign(
@@ -214,13 +219,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Create reset link
       const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+      console.log(`Generated reset link: ${resetLink}`);
 
       // Send reset email
       try {
-        await emailService.sendPasswordResetEmail(user.email, `${user.firstName} ${user.lastName}`, resetLink);
+        const emailSent = await emailService.sendPasswordResetEmail(user.email, `${user.firstName} ${user.lastName}`, resetLink);
+        
+        if (!emailSent) {
+          console.error('Email service returned false for password reset email');
+          return res.status(500).json({ message: "Failed to send reset email. Please check your email configuration." });
+        }
+        
+        console.log(`Password reset email sent successfully to ${user.email}`);
       } catch (emailError) {
         console.error('Failed to send password reset email:', emailError);
-        return res.status(500).json({ message: "Failed to send reset email" });
+        return res.status(500).json({ message: "Failed to send reset email. Please check your email configuration." });
       }
 
       res.json({ message: "If an account with that email exists, we've sent you a password reset link." });
