@@ -62,6 +62,9 @@ import { AuthProvider } from "@/hooks/use-auth";
 import "./lib/i18n"; // Initialize i18n
 import { lazy } from "react";
 
+// Dynamically import ResetPassword component
+const ResetPassword = lazy(() => import("@/pages/auth/reset-password"));
+
 function Router() {
   return (
     <Switch>
@@ -72,6 +75,8 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/register/finder" component={RegisterFinder} />
+      {/* Add reset password route */}
+      <Route path="/reset-password" component={ResetPassword} />
       <Route path="/client/dashboard" component={ClientDashboard} />
       <Route path="/client/create-find" component={CreateRequest} />
       <Route path="/client/finds/:id" component={RequestDetails} />

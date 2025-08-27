@@ -189,6 +189,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/auth/forgot-password", async (req: Request, res: Response) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Check if user exists
+      const user = await storage.getUserByEmail(email);
+      
+      // Always return success to prevent email enumeration
+      if (!user) {
+        return res.json({ message: "If an account with that email exists, we've sent you a password reset link." });
+      }
+
+      // Generate reset token (expires in 1 hour)
+      const resetToken = jwt.sign(
+        { userId: user.id, email: user.email, type: 'password_reset' },
+        JWT_SECRET,
+        { expiresIn: '1h' }
+      );
+
+      // Create reset link
+      const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+
+      // Send reset email
+      try {
+        await emailService.sendPasswordResetEmail(user.email, `${user.firstName} ${user.lastName}`, resetLink);
+      } catch (emailError) {
+        console.error('Failed to send password reset email:', emailError);
+        return res.status(500).json({ message: "Failed to send reset email" });
+      }
+
+      res.json({ message: "If an account with that email exists, we've sent you a password reset link." });
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      res.status(500).json({ message: "Failed to process password reset request" });
+    }
+  });
+
+  app.post("/api/auth/reset-password", async (req: Request, res: Response) => {
+    try {
+      const { token, newPassword } = req.body;
+
+      if (!token || !newPassword) {
+        return res.status(400).json({ message: "Token and new password are required" });
+      }
+
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: "New password must be at least 8 characters long" });
+      }
+
+      // Verify reset token
+      let decoded: any;
+      try {
+        decoded = jwt.verify(token, JWT_SECRET);
+        if (decoded.type !== 'password_reset') {
+          throw new Error('Invalid token type');
+        }
+      } catch (jwtError) {
+        return res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+
+      // Get user and update password
+      const user = await storage.getUser(decoded.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+      // Update password
+      await storage.updateUser(decoded.userId, { password: hashedPassword });
+
+      res.json({ message: "Password reset successful" });
+    } catch (error) {
+      console.error('Reset password error:', error);
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
   app.post("/api/auth/change-password", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { currentPassword, newPassword } = req.body;

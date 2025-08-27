@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { AuthHeader } from "@/components/AuthHeader";
@@ -18,6 +19,9 @@ export default function Login() {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +47,46 @@ export default function Login() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsResetting(true);
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: resetEmail }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Reset Email Sent",
+          description: "If an account with that email exists, we've sent you a password reset link.",
+        });
+        setResetDialogOpen(false);
+        setResetEmail("");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: data.message || "Failed to send reset email",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+      });
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   return (
@@ -109,6 +153,59 @@ export default function Login() {
                 {isLoading ? "Logging in..." : "Log In"}
               </Button>
             </form>
+
+            {/* Forgot Password Dialog */}
+            <div className="text-center mt-4">
+              <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="text-sm text-finder-red hover:underline font-medium"
+                  >
+                    Forgot your password?
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Reset Password</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div>
+                      <Label htmlFor="reset-email" className="text-gray-700 font-medium">
+                        Email Address
+                      </Label>
+                      <Input
+                        id="reset-email"
+                        type="email"
+                        placeholder="Enter your email address"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => setResetDialogOpen(false)}
+                        disabled={isResetting}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="flex-1 bg-finder-red hover:bg-finder-red-dark"
+                        disabled={isResetting}
+                      >
+                        {isResetting ? "Sending..." : "Send Reset Link"}
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
       </section>
