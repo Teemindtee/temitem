@@ -1,6 +1,13 @@
 import nodemailer from 'nodemailer';
+import { MailService } from '@sendgrid/mail';
 
-// Email service configuration
+// SendGrid configuration for Replit
+const sendGridService = new MailService();
+if (process.env.SENDGRID_API_KEY) {
+  sendGridService.setApiKey(process.env.SENDGRID_API_KEY);
+}
+
+// SMTP fallback configuration
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
@@ -30,7 +37,25 @@ export class EmailService {
 
   async sendEmail(template: EmailTemplate): Promise<boolean> {
     try {
-      // Verify SMTP configuration
+      // Try SendGrid first if available
+      if (process.env.SENDGRID_API_KEY) {
+        console.log('Using SendGrid email service');
+        
+        const msg = {
+          to: template.to,
+          from: process.env.FROM_EMAIL || 'noreply@findermeister.com',
+          subject: template.subject,
+          html: template.html,
+          text: template.text || this.extractTextFromHtml(template.html),
+        };
+
+        await sendGridService.send(msg);
+        console.log(`SendGrid email sent successfully to: ${template.to}`);
+        return true;
+      }
+
+      // Fallback to SMTP
+      console.log('Using SMTP email service');
       console.log('SMTP Configuration:', {
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
         port: process.env.SMTP_PORT || '587',
