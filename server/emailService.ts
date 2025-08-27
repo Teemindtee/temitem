@@ -37,24 +37,7 @@ export class EmailService {
 
   async sendEmail(template: EmailTemplate): Promise<boolean> {
     try {
-      // Try SendGrid first if available
-      if (process.env.SENDGRID_API_KEY) {
-        console.log('Using SendGrid email service');
-
-        const msg = {
-          to: template.to,
-          from: process.env.FROM_EMAIL || 'noreply@findermeister.com',
-          subject: template.subject,
-          html: template.html,
-          text: template.text || this.extractTextFromHtml(template.html),
-        };
-
-        await sendGridService.send(msg);
-        console.log(`SendGrid email sent successfully to: ${template.to}`);
-        return true;
-      }
-
-      // Fallback to SMTP
+      // Use SMTP (Brevo)
       console.log('Using SMTP email service');
       console.log('SMTP Configuration:', {
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
