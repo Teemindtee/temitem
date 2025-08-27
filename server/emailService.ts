@@ -44,7 +44,7 @@ export class EmailService {
         port: process.env.SMTP_PORT || '587',
         user: process.env.SMTP_USER ? 'configured' : 'missing',
         pass: process.env.SMTP_PASS ? 'configured' : 'missing',
-        from: process.env.FROM_EMAIL || 'noreply@findermeister.com'
+        from: process.env.FROM_EMAIL || '95bd74001@smtp-brevo.com'
       });
 
       // Test connection first
@@ -52,7 +52,7 @@ export class EmailService {
       console.log('SMTP connection verified successfully');
 
       const mailOptions = {
-        from: process.env.FROM_EMAIL || 'noreply@findermeister.com',
+        from: process.env.FROM_EMAIL || '95bd74001@smtp-brevo.com',
         to: template.to,
         subject: template.subject,
         html: template.html,
