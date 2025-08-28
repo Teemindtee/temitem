@@ -244,7 +244,9 @@ export default function ConversationDetail() {
 
   const participantName = otherParticipant 
     ? `${otherParticipant.firstName} ${otherParticipant.lastName}`
-    : "Unknown User";
+    : user?.role === 'client' 
+      ? "Finder" 
+      : "Client";
 
   const participantInitials = participantName
     .split(' ')
