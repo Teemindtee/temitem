@@ -33,7 +33,7 @@ export default function Landing() {
             <img 
               src={logoImage} 
               alt="FinderMeister Logo" 
-              className="w-12 h-12 object-contain mr-3" 
+              className="w-12 h-12 object-contain mr-3 rounded-full" 
             />
             <h1 className="text-2xl font-bold text-white">FinderMeister</h1>
           </div>
@@ -83,7 +83,7 @@ export default function Landing() {
             <img 
               src={logoImage} 
               alt="FinderMeister Logo" 
-              className="w-12 h-12 object-contain" 
+              className="w-12 h-12 object-contain rounded-full" 
             />
             <span className="text-xl font-bold">FinderMeister</span>
           </div>
