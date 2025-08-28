@@ -2935,6 +2935,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/finder/security-settings', authenticateToken, async (req: AuthenticatedRequest, res) => {
+    try {
+      if (req.user.role !== 'finder') {
+        return res.status(403).json({ message: 'Access denied. Finder role required.' });
+      }
+
+      const finder = await storage.getFinderByUserId(req.user.userId);
+      if (!finder) {
+        return res.status(404).json({ message: 'Finder profile not found' });
+      }
+
+      const settings = await storage.getSecuritySettings(finder.id);
+      res.json(settings);
+    } catch (error) {
+      console.error('Error fetching security settings:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   app.put('/api/finder/security-settings', authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
       if (req.user.role !== 'finder') {

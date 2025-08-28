@@ -28,6 +28,23 @@ export default function SecuritySettings() {
     passwordRequirements: true
   });
 
+  // Fetch security settings
+  const { data: fetchedSettings, isLoading: settingsLoading } = useQuery({
+    queryKey: ['security-settings'],
+    queryFn: () => apiRequest('GET', '/api/finder/security-settings'),
+    onSuccess: (data) => {
+      setSecuritySettings(data);
+    },
+    onError: (error: any) => {
+      console.error('Error fetching security settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load security settings",
+        variant: "destructive",
+      });
+    },
+  });
+
   const changePasswordMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await fetch('/api/auth/change-password', {
@@ -107,6 +124,20 @@ export default function SecuritySettings() {
     setSecuritySettings(newSettings);
     updateSecuritySettingsMutation.mutate(newSettings);
   };
+
+  if (settingsLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <FinderHeader />
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-finder-red mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading security settings...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

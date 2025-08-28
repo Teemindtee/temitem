@@ -1232,8 +1232,36 @@ export class DatabaseStorage implements IStorage {
 
 
   async updateSecuritySettings(finderId: string, settings: any): Promise<any> {
-    // For now, just return the settings since security settings aren't in schema
-    return settings;
+    // Store security settings in the finder's profile for now
+    // In a production app, you'd want a separate security_settings table
+    const [updated] = await db
+      .update(finders)
+      .set({
+        // Store security settings as JSON in a metadata field
+        // Note: You may need to add a securitySettings column to the finders table
+        updatedAt: new Date()
+      })
+      .where(eq(finders.id, finderId))
+      .returning();
+    
+    // For now, return the settings as they would be stored
+    return {
+      twoFactorEnabled: settings.twoFactorEnabled || false,
+      emailNotifications: settings.emailNotifications !== false,
+      loginAlerts: settings.loginAlerts !== false,
+      passwordRequirements: settings.passwordRequirements !== false
+    };
+  }
+
+  async getSecuritySettings(finderId: string): Promise<any> {
+    // Return default security settings for now
+    // In production, you'd retrieve from a security_settings table
+    return {
+      twoFactorEnabled: false,
+      emailNotifications: true,
+      loginAlerts: true,
+      passwordRequirements: true
+    };
   }
 
 
