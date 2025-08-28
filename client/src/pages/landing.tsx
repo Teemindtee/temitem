@@ -33,7 +33,7 @@ export default function Landing() {
             <img 
               src={logoImage} 
               alt="FinderMeister Logo" 
-              className="w-10 h-10 rounded-full object-contain bg-white p-1 mr-3" 
+              className="w-12 h-12 rounded-full object-contain bg-white p-1 mr-3 shadow-lg" 
             />
             <h1 className="text-2xl font-bold text-white">FinderMeister</h1>
           </div>
@@ -79,11 +79,11 @@ export default function Landing() {
       {/* Header */}
       <header className="bg-finder-red text-white px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3">
             <img 
               src={logoImage} 
               alt="FinderMeister Logo" 
-              className="w-8 h-8 rounded-full object-contain bg-white p-1" 
+              className="w-12 h-12 rounded-full object-contain bg-white p-1 shadow-lg border-2 border-white/20" 
             />
             <span className="text-xl font-bold">FinderMeister</span>
           </div>
