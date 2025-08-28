@@ -205,9 +205,6 @@ export default function WithdrawalSettings() {
                   <p className="text-3xl font-bold text-green-600">
                     ₦{((Math.max(0, parseFloat(finder?.availableBalance || '0'))) / 100).toFixed(2)}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    After 5% withdrawal fee: ₦{((Math.max(0, parseFloat(finder?.availableBalance || '0')) * 0.95) / 100).toFixed(2)}
-                  </p>
                 </div>
               </div>
             </CardContent>
