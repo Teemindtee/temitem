@@ -322,6 +322,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Finder profile endpoints
+  app.get("/api/finder/profile", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const user = await storage.getUser(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.role !== 'finder') {
+        return res.status(403).json({ message: "Access denied. Only finders can access this endpoint." });
+      }
+
+      const finder = await storage.getFinderByUserId(user.id);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder profile not found" });
+      }
+
+      res.json({
+        ...finder,
+        user: { ...user, password: undefined }
+      });
+    } catch (error) {
+      console.error('Get finder profile error:', error);
+      res.status(500).json({ message: "Failed to get finder profile" });
+    }
+  });
+
+  app.patch("/api/finder/profile", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { bio, category, skills, availability } = req.body;
+      
+      const user = await storage.getUser(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.role !== 'finder') {
+        return res.status(403).json({ message: "Access denied. Only finders can update their profile." });
+      }
+
+      const finder = await storage.getFinderByUserId(user.id);
+      if (!finder) {
+        return res.status(404).json({ message: "Finder profile not found" });
+      }
+
+      // Update finder profile
+      const updatedFinder = await storage.updateFinder(finder.id, {
+        bio,
+        category,
+        skills,
+        availability
+      });
+
+      if (!updatedFinder) {
+        return res.status(404).json({ message: "Failed to update finder profile" });
+      }
+
+      res.json({ 
+        message: "Profile updated successfully",
+        profile: updatedFinder
+      });
+    } catch (error) {
+      console.error('Update finder profile error:', error);
+      res.status(500).json({ message: "Failed to update finder profile" });
+    }
+  });
+
   app.post("/api/auth/update-profile", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { firstName, lastName, email, phone } = req.body;
