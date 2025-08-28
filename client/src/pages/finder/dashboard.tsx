@@ -100,21 +100,6 @@ export default function FinderDashboard() {
               <p className="text-gray-600 text-xs sm:text-sm">{t('common.available', 'Available')}</p>
             </CardContent>
           </Card>
-
-          <Card className="border-finder-red/30 hover:border-finder-red/60 transition-colors">
-            <CardContent className="p-6 text-center">
-              <div className="bg-finder-red rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{t('dashboard.submit_proposal', 'Submit Proposal')}</h3>
-              <p className="text-gray-600 mb-4 text-sm">{t('dashboard.find_opportunities', 'Find new opportunities')}</p>
-              <Link href="/finder/browse-finds">
-                <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
-                  {t('dashboard.browse_finds', 'Browse Finds')}
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
