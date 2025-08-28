@@ -60,7 +60,32 @@ export default function FinderProfile() {
           : data.skills || [],
         availability: data.availability || "full-time"
       };
-      return apiRequest('PATCH', '/api/finder/profile', payload);
+      
+      try {
+        const response = await fetch('/api/finder/profile', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          try {
+            const errorJson = JSON.parse(errorText);
+            throw new Error(errorJson.message || `HTTP error! status: ${response.status}`);
+          } catch {
+            throw new Error(`Server error: ${response.status} - ${errorText.substring(0, 100)}`);
+          }
+        }
+
+        return await response.json();
+      } catch (error) {
+        console.error('API request error:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });
