@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { Search, Star, Handshake } from "lucide-react";
-import logoImage from "@assets/findermeister-logo-real.jpg";
+import logoImage from "@assets/findermeister logo real_1756394803364.jpg";
 
 export default function Landing() {
   const { isAuthenticated, user } = useAuth();
