@@ -24,7 +24,6 @@ export default function FinderProfile() {
     bio: "",
     category: "",
     skills: "",
-    hourlyRate: "",
     availability: "full-time"
   });
 
@@ -46,7 +45,6 @@ export default function FinderProfile() {
         bio: finder.bio || "",
         category: finder.category || "",
         skills: Array.isArray(finder.skills) ? finder.skills.join(", ") : "",
-        hourlyRate: finder.hourlyRate?.toString() || "",
         availability: finder.availability || "full-time"
       });
     }
@@ -57,7 +55,6 @@ export default function FinderProfile() {
       bio: data.bio,
       category: data.category,
       skills: data.skills.split(",").map((s: string) => s.trim()).filter(Boolean),
-      hourlyRate: data.hourlyRate ? parseFloat(data.hourlyRate) : null,
       availability: data.availability
     }),
     onSuccess: () => {
@@ -216,19 +213,6 @@ export default function FinderProfile() {
                   className="mt-1 bg-gray-100"
                 />
                 <p className="text-xs text-gray-500 mt-1">Contact admin to change your name</p>
-              </div>
-
-              {/* Hourly Rate */}
-              <div>
-                <Label htmlFor="hourlyRate" className="text-sm font-medium">Hourly Rate (₦)</Label>
-                <Input
-                  id="hourlyRate"
-                  type="number"
-                  value={formData.hourlyRate}
-                  onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: e.target.value }))}
-                  placeholder="Enter your hourly rate"
-                  className="mt-1"
-                />
               </div>
 
               {/* Category */}
