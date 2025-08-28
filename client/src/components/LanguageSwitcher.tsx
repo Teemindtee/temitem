@@ -10,16 +10,16 @@ import {
 import { Button } from "@/components/ui/button";
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'pidgin', name: 'Pidgin English', flag: '🇳🇬' },
-  { code: 'yo', name: 'Yoruba', flag: '🇳🇬' },
-  { code: 'ha', name: 'Hausa', flag: '🇳🇬' },
-  { code: 'ig', name: 'Igbo', flag: '🇳🇬' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'pt', name: 'Português', flag: '🇵🇹' },
-  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+  { code: 'en', name: 'language.english', flag: '🇺🇸' },
+  { code: 'pidgin', name: 'language.pidgin', flag: '🇳🇬' },
+  { code: 'yo', name: 'language.yoruba', flag: '🇳🇬' },
+  { code: 'ha', name: 'language.hausa', flag: '🇳🇬' },
+  { code: 'ig', name: 'language.igbo', flag: '🇳🇬' },
+  { code: 'fr', name: 'language.french', flag: '🇫🇷' },
+  { code: 'de', name: 'language.german', flag: '🇩🇪' },
+  { code: 'es', name: 'language.spanish', flag: '🇪🇸' },
+  { code: 'pt', name: 'language.portuguese', flag: '🇵🇹' },
+  { code: 'ar', name: 'language.arabic', flag: '🇸🇦' },
 ];
 
 interface LanguageSwitcherProps {
@@ -57,7 +57,7 @@ export function LanguageSwitcher({ variant = 'default', className = '' }: Langua
               }`}
             >
               <span>{language.flag}</span>
-              <span className="truncate">{language.name}</span>
+              <span className="truncate">{t(language.name)}</span>
             </button>
           ))}
         </div>
@@ -76,7 +76,7 @@ export function LanguageSwitcher({ variant = 'default', className = '' }: Langua
         >
           <Globe className="w-4 h-4" />
           <span>{currentLanguage.flag}</span>
-          <span className="hidden sm:inline text-xs">{currentLanguage.name.split(' ')[0]}</span>
+          <span className="hidden sm:inline text-xs">{t(currentLanguage.name).split(' ')[0]}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
@@ -90,7 +90,7 @@ export function LanguageSwitcher({ variant = 'default', className = '' }: Langua
           >
             <div className="flex items-center space-x-2">
               <span>{language.flag}</span>
-              <span className="font-medium">{language.name}</span>
+              <span className="font-medium">{t(language.name)}</span>
             </div>
             {i18n.language === language.code && (
               <div className="w-2 h-2 bg-finder-red rounded-full" />

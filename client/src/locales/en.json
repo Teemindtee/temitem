@@ -168,11 +168,11 @@
     "yoruba": "Yoruba",
     "hausa": "Hausa",
     "igbo": "Igbo",
-    "french": "French",
-    "german": "German",
-    "spanish": "Spanish",
-    "portuguese": "Portuguese",
-    "arabic": "Arabic"
+    "french": "Français",
+    "german": "Deutsch",
+    "spanish": "Español",
+    "portuguese": "Português",
+    "arabic": "العربية"
   },
   "messages": {
     "signin_required": "Please sign in to view your messages.",
