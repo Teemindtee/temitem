@@ -51,12 +51,17 @@ export default function FinderProfile() {
   }, [finder]);
 
   const updateProfileMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('PATCH', '/api/finder/profile', {
-      bio: data.bio,
-      category: data.category,
-      skills: data.skills.split(",").map((s: string) => s.trim()).filter(Boolean),
-      availability: data.availability
-    }),
+    mutationFn: async (data: any) => {
+      const payload = {
+        bio: data.bio || "",
+        category: data.category || "",
+        skills: typeof data.skills === 'string' 
+          ? data.skills.split(",").map((s: string) => s.trim()).filter(Boolean)
+          : data.skills || [],
+        availability: data.availability || "full-time"
+      };
+      return apiRequest('PATCH', '/api/finder/profile', payload);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });
       toast({
@@ -65,15 +70,26 @@ export default function FinderProfile() {
       });
     },
     onError: (error: any) => {
+      console.error('Profile update error:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to update profile",
+        description: error.message || "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     },
   });
 
   const handleUpdateProfile = () => {
+    // Basic validation
+    if (!formData.category) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a specialty category.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     updateProfileMutation.mutate(formData);
   };
 
