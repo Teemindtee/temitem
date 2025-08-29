@@ -116,57 +116,90 @@ export default function BrowseFinds() {
         {/* Request List */}
         <div className="space-y-6">
           {filteredFinds.length === 0 ? (
-            <div className="text-center py-12">
-              <Search className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No finds found</h3>
-              <p className="text-gray-600">Try adjusting your search criteria or check back later for new opportunities.</p>
+            <div className="text-center py-20">
+              <div className="bg-gray-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                <Search className="w-12 h-12 text-gray-300" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">No finds found</h3>
+              <p className="text-gray-500 text-lg max-w-md mx-auto">Try adjusting your search criteria or check back later for new opportunities.</p>
             </div>
           ) : (
-            filteredFinds.map((find: Find) => (
-              <Card key={find.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-start gap-4">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 break-words">{find.title}</h3>
-                        <p className="text-gray-600 mb-4 text-sm sm:text-base line-clamp-3">{find.description}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {filteredFinds.map((find: Find) => (
+                <Card key={find.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-white hover:bg-gray-50/50">
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      {/* Header */}
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
+                              find.status === 'open' 
+                                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
+                                : 'bg-amber-100 text-amber-700 border border-amber-200'
+                            }`}>
+                              {find.status === 'open' ? '🟢 Open' : '🟡 In Progress'}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-finder-red transition-colors">{find.title}</h3>
+                        </div>
                       </div>
-                      <div className="flex-shrink-0">
-                        <span className={`px-2 sm:px-3 py-1 text-xs rounded-full font-medium whitespace-nowrap ${
-                          find.status === 'open' ? 'bg-green-100 text-green-700' :
-                          'bg-yellow-100 text-yellow-700'
-                        }`}>
-                          {find.status === 'open' ? 'Open' : 'In Progress'}
-                        </span>
+                      
+                      {/* Description */}
+                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">{find.description}</p>
+                      
+                      {/* Meta Information */}
+                      <div className="space-y-2.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">
+                              {find.client?.firstName?.[0] || 'A'}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {find.client?.firstName && find.client?.lastName 
+                                ? `${find.client.firstName} ${find.client.lastName}` 
+                                : 'Anonymous Client'
+                              }
+                            </p>
+                            <p className="text-xs text-gray-500">Client</p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          <div className="flex items-center gap-1.5 text-gray-600">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                            <span className="font-medium">₦{parseInt(find.budgetMin || "0").toLocaleString()} - ₦{parseInt(find.budgetMax || "0").toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-gray-600">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>{new Date(find.createdAt || "").toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-1.5">
+                          <span className="inline-flex px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md font-medium">
+                            {find.category.replace('_', ' ').split(' ').map(word => 
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                            ).join(' ')}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Action Button */}
+                      <div className="pt-2 border-t border-gray-100">
+                        <Link href={`/finder/finds/${find.id}`} className="block">
+                          <Button className="w-full bg-finder-red hover:bg-finder-red-dark text-white font-medium py-2.5 transition-all duration-200 hover:shadow-lg group-hover:bg-finder-red-dark">
+                            View Details →
+                          </Button>
+                        </Link>
                       </div>
                     </div>
-                    
-                    <div className="flex flex-wrap gap-3 sm:gap-4 text-sm text-gray-600">
-                      <div className="flex items-center">
-                        <span>{find.client?.firstName && find.client?.lastName ? `${find.client.firstName} ${find.client.lastName}` : 'Anonymous Client'} - ₦{parseInt(find.budgetMin || "0").toLocaleString()} - ₦{parseInt(find.budgetMax || "0").toLocaleString()}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span>{new Date(find.createdAt || "").toLocaleDateString()}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <Filter className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span className="capitalize">{find.category.replace('_', ' ')}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-end pt-2">
-                      <Link href={`/finder/finds/${find.id}`}>
-                        <Button className="bg-finder-red hover:bg-finder-red-dark text-white w-full sm:w-auto">
-                          <span className="sm:hidden">View</span>
-                          <span className="hidden sm:inline">View Details</span>
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </div>
       </div>
