@@ -31,9 +31,9 @@ export default function FinderRequestDetails() {
 
   // Format currency in Naira
   const formatCurrency = (amount: string | number | null) => {
-    if (amount === null || amount === undefined) return '₦0.00';
-    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return `₦${(numAmount / 100).toFixed(2)}`;
+    if (amount === null || amount === undefined) return '₦0';
+    const numAmount = typeof amount === 'string' ? parseInt(amount) : amount;
+    return `₦${numAmount.toLocaleString()}`;
   };
 
   const findId = paramsFinds?.id || paramsRequests?.id;
@@ -208,7 +208,7 @@ export default function FinderRequestDetails() {
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <h4 className="font-semibold mb-1">Price</h4>
-                        <p className="text-gray-700">{formatCurrency(userProposal.price)}</p>
+                        <p className="text-gray-700">₦{parseInt(userProposal.price || "0").toLocaleString()}</p>
                       </div>
                       <div>
                         <h4 className="font-semibold mb-1">Timeline</h4>

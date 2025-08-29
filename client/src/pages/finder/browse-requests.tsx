@@ -144,7 +144,7 @@ export default function BrowseFinds() {
                     <div className="flex flex-wrap gap-3 sm:gap-4 text-sm text-gray-600">
                       <div className="flex items-center">
                         <Banknote className="w-4 h-4 mr-1 flex-shrink-0" />
-                        <span>₦{find.budgetMin} - ₦{find.budgetMax}</span>
+                        <span>₦{parseInt(find.budgetMin || "0").toLocaleString()} - ₦{parseInt(find.budgetMax || "0").toLocaleString()}</span>
                       </div>
                       <div className="flex items-center">
                         <Calendar className="w-4 h-4 mr-1 flex-shrink-0" />
