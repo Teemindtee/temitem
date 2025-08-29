@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
@@ -6,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FinderHeader } from "@/components/finder-header";
-import { Search, Filter, Calendar, Banknote, ArrowLeft } from "lucide-react";
+import { Search, ArrowLeft } from "lucide-react";
 import type { Find } from "@shared/schema";
 
 export default function BrowseFinds() {
@@ -31,6 +32,19 @@ export default function BrowseFinds() {
     return matchesSearch && matchesCategory && matchesBudget;
   });
 
+  const getTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) return "1 day ago";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 14) return "1 week ago";
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return `${Math.floor(diffDays / 30)} months ago`;
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -53,7 +67,7 @@ export default function BrowseFinds() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Browse Finds</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Browse Requests</h1>
           <p className="text-gray-600 text-sm sm:text-base">Find opportunities that match your skills and interests.</p>
         </div>
 
@@ -106,102 +120,82 @@ export default function BrowseFinds() {
         </Card>
 
         {/* Results Summary */}
-        <div className="mb-6">
+        <div className="mb-4 flex justify-between items-center">
           <p className="text-gray-600">
             Showing {filteredFinds.length} find{filteredFinds.length !== 1 ? 's' : ''}
             {searchQuery && ` matching "${searchQuery}"`}
           </p>
+          <span className="text-sm font-medium text-finder-red">Open Requests</span>
         </div>
 
-        {/* Request List */}
-        <div className="space-y-6">
-          {filteredFinds.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="bg-gray-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-                <Search className="w-12 h-12 text-gray-300" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">No finds found</h3>
-              <p className="text-gray-500 text-lg max-w-md mx-auto">Try adjusting your search criteria or check back later for new opportunities.</p>
+        {/* Request Table */}
+        {filteredFinds.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="bg-gray-50 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+              <Search className="w-12 h-12 text-gray-300" />
             </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {filteredFinds.map((find: Find) => (
-                <Card key={find.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md bg-white hover:bg-gray-50/50">
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      {/* Header */}
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
-                              find.status === 'open' 
-                                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
-                                : 'bg-amber-100 text-amber-700 border border-amber-200'
-                            }`}>
-                              {find.status === 'open' ? '🟢 Open' : '🟡 In Progress'}
-                            </span>
-                          </div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-finder-red transition-colors">{find.title}</h3>
-                        </div>
-                      </div>
-                      
-                      {/* Description */}
-                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">{find.description}</p>
-                      
-                      {/* Meta Information */}
-                      <div className="space-y-2.5">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">
-                              {find.client?.firstName?.[0] || 'A'}
-                            </span>
-                          </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">No finds found</h3>
+            <p className="text-gray-500 text-lg max-w-md mx-auto">Try adjusting your search criteria or check back later for new opportunities.</p>
+          </div>
+        ) : (
+          <Card className="bg-white shadow-sm">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b">
+                    <tr>
+                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Title</th>
+                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Budget</th>
+                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Posted</th>
+                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredFinds.map((find: Find, index) => (
+                      <tr 
+                        key={find.id} 
+                        className={`border-b hover:bg-gray-50 transition-colors ${
+                          index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
+                        }`}
+                      >
+                        <td className="py-4 px-6">
                           <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {find.client?.firstName && find.client?.lastName 
-                                ? `${find.client.firstName} ${find.client.lastName}` 
-                                : 'Anonymous Client'
-                              }
+                            <h3 className="font-medium text-gray-900 hover:text-finder-red transition-colors cursor-pointer">
+                              {find.title}
+                            </h3>
+                            <p className="text-sm text-gray-500 mt-1 line-clamp-1">
+                              {find.description}
                             </p>
-                            <p className="text-xs text-gray-500">Client</p>
                           </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-3 text-xs">
-                          <div className="flex items-center gap-1.5 text-gray-600">
-                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                            <span className="font-medium">₦{parseInt(find.budgetMin || "0").toLocaleString()} - ₦{parseInt(find.budgetMax || "0").toLocaleString()}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-gray-600">
-                            <Calendar className="w-3.5 h-3.5" />
-                            <span>{new Date(find.createdAt || "").toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-1.5">
-                          <span className="inline-flex px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md font-medium">
-                            {find.category.replace('_', ' ').split(' ').map(word => 
-                              word.charAt(0).toUpperCase() + word.slice(1)
-                            ).join(' ')}
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className="font-semibold text-green-600">
+                            ₦{parseInt(find.budgetMin || "0").toLocaleString()} - ₦{parseInt(find.budgetMax || "0").toLocaleString()}
                           </span>
-                        </div>
-                      </div>
-                      
-                      {/* Action Button */}
-                      <div className="pt-2 border-t border-gray-100">
-                        <Link href={`/finder/finds/${find.id}`} className="block">
-                          <Button className="w-full bg-finder-red hover:bg-finder-red-dark text-white font-medium py-2.5 transition-all duration-200 hover:shadow-lg group-hover:bg-finder-red-dark">
-                            View Details →
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <span className="text-gray-600">
+                            {getTimeAgo(find.createdAt || "")}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6">
+                          <Link href={`/finder/finds/${find.id}`}>
+                            <Button 
+                              size="sm" 
+                              className="bg-finder-red hover:bg-finder-red-dark text-white"
+                            >
+                              View Details
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
