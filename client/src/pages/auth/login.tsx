@@ -117,8 +117,19 @@ export default function Login() {
                   required
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="mt-1"
+                  className="mt-1 h-12 bg-white border-gray-300 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
                   placeholder=""
+                  style={{ 
+                    borderColor: "hsl(210, 20%, 90%)",
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = "hsl(1, 81%, 53%)";
+                    e.currentTarget.style.boxShadow = "0 0 0 3px hsl(1, 81%, 90%)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = "hsl(210, 20%, 90%)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
                 />
               </div>
 
@@ -132,8 +143,19 @@ export default function Login() {
                     required
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pr-12"
+                    className="pr-12 h-12 bg-white border-gray-300 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
                     placeholder=""
+                    style={{ 
+                      borderColor: "hsl(210, 20%, 90%)",
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = "hsl(1, 81%, 53%)";
+                      e.currentTarget.style.boxShadow = "0 0 0 3px hsl(1, 81%, 90%)";
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = "hsl(210, 20%, 90%)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
                   />
                   <button
                     type="button"
