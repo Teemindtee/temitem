@@ -271,13 +271,13 @@ export default function ProposalDetail() {
               {/* Action Buttons */}
               <div className="flex space-x-4 pt-4 border-t">
                 <div className="flex-1">
-                  <StartConversationButton 
-                    proposalId={proposal.id} 
+                  <StartConversationButton
+                    proposalId={proposal.id}
                     finderName={`${proposal.finder.user.firstName} ${proposal.finder.user.lastName}`}
                   />
                 </div>
                 {proposal.status === 'pending' && (
-                  <Button 
+                  <Button
                     onClick={() => handleAcceptProposal(proposal.id)}
                     className="bg-finder-red hover:bg-finder-red-dark text-white flex-1"
                     disabled={acceptProposal.isPending}
