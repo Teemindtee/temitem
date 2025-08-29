@@ -14,7 +14,7 @@ export const users = pgTable("users", {
   isVerified: boolean("is_verified").default(false),
   isBanned: boolean("is_banned").default(false),
   bannedReason: text("banned_reason"),
-  bannedAt: timestamp("bannedAt"),
+  bannedAt: timestamp("banned_at"),
   findertokenBalance: integer("findertoken_balance").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
