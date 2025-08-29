@@ -79,7 +79,7 @@ import {
   disputes,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql, alias } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { generateId } from "@shared/utils";
 
 export interface IStorage {
@@ -2023,10 +2023,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTokenGrants(userId?: string): Promise<any[]> {
-    const grantedByUser = alias(users, 'grantedByUser');
-
     // Get finder grants
-    const finderGrantsQuery = db
+    const finderGrants = await db
       .select({
         id: tokenGrants.id,
         userId: users.id,
@@ -2039,19 +2037,15 @@ export class DatabaseStorage implements IStorage {
           firstName: users.firstName,
           lastName: users.lastName,
           email: users.email,
-        },
-        grantedByUser: {
-          firstName: grantedByUser.firstName,
-          lastName: grantedByUser.lastName,
         }
       })
       .from(tokenGrants)
       .leftJoin(finders, eq(tokenGrants.finderId, finders.id))
       .leftJoin(users, eq(finders.userId, users.id))
-      .leftJoin(grantedByUser, eq(tokenGrants.grantedBy, grantedByUser.id));
+      .where(userId ? eq(users.id, userId) : undefined);
 
     // Get client grants
-    const clientGrantsQuery = db
+    const clientGrants = await db
       .select({
         id: clientTokenGrants.id,
         userId: users.id,
@@ -2064,26 +2058,11 @@ export class DatabaseStorage implements IStorage {
           firstName: users.firstName,
           lastName: users.lastName,
           email: users.email,
-        },
-        grantedByUser: {
-          firstName: grantedByUser.firstName,
-          lastName: grantedByUser.lastName,
         }
       })
       .from(clientTokenGrants)
       .leftJoin(users, eq(clientTokenGrants.clientId, users.id))
-      .leftJoin(grantedByUser, eq(clientTokenGrants.grantedBy, grantedByUser.id));
-
-    if (userId) {
-      finderGrantsQuery.where(eq(users.id, userId));
-      clientGrantsQuery.where(eq(users.id, userId));
-    }
-
-    // Execute both queries
-    const [finderGrants, clientGrants] = await Promise.all([
-      finderGrantsQuery,
-      clientGrantsQuery
-    ]);
+      .where(userId ? eq(users.id, userId) : undefined);
 
     // Combine and sort by creation date
     const allGrants = [...finderGrants, ...clientGrants];
