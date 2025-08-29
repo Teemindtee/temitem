@@ -169,8 +169,7 @@ export default function FinderRequestDetails() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-2">Budget Range</h3>
-                      <div className="flex items-center text-lg font-semibold text-green-600">
-                        <Banknote className="w-5 h-5 mr-1" />
+                      <div className="text-lg font-semibold text-green-600">
                         {formatCurrency(find.budgetMin)} - {formatCurrency(find.budgetMax)}
                       </div>
                     </div>
