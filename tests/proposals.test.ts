@@ -13,7 +13,7 @@ describe('Proposals Tests', () => {
   beforeAll(async () => {
     app = express();
     app.use(express.json());
-    server = await registerRoutes(app);
+    server = await registerRoutes(app as any);
 
     // Create client and finder users
     const clientResponse = await request(app)

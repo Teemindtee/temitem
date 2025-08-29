@@ -1,7 +1,7 @@
 
 import request from 'supertest';
 import express from 'express';
-import { registerRoutes } from '../server/routes';
+import { registerRoutes } from '../../server/routes';
 
 describe('Integration Tests - User Flows', () => {
   let app: express.Application;
@@ -10,7 +10,7 @@ describe('Integration Tests - User Flows', () => {
   beforeAll(async () => {
     app = express();
     app.use(express.json());
-    server = await registerRoutes(app);
+    server = await registerRoutes(app as any);
   });
 
   afterAll(() => {

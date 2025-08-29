@@ -15,7 +15,7 @@ describe('Strike System Tests', () => {
   beforeAll(async () => {
     app = express();
     app.use(express.json());
-    server = await registerRoutes(app);
+    server = await registerRoutes(app as any);
 
     // Create admin
     const adminResponse = await request(app)

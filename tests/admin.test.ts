@@ -12,7 +12,7 @@ describe('Admin Tests', () => {
   beforeAll(async () => {
     app = express();
     app.use(express.json());
-    server = await registerRoutes(app);
+    server = await registerRoutes(app as any);
 
     // Create admin user
     const adminResponse = await request(app)

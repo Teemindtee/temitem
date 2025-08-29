@@ -11,7 +11,7 @@ describe('Payments Tests', () => {
   beforeAll(async () => {
     app = express();
     app.use(express.json());
-    server = await registerRoutes(app);
+    server = await registerRoutes(app as any);
 
     const finderResponse = await request(app)
       .post('/api/auth/register')

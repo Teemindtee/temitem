@@ -29,3 +29,21 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn(),
 }));
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock
+});
+
+// Mock fetch globally
+global.fetch = jest.fn();
+
+// Mock TextEncoder and TextDecoder for Node.js environment
+global.TextEncoder = global.TextEncoder || require('util').TextEncoder;
+global.TextDecoder = global.TextDecoder || require('util').TextDecoder;
