@@ -838,6 +838,31 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  async syncFinderTokenBalances(): Promise<void> {
+    // Sync all finder token balances between finders table and findertokens table
+    const allFinders = await db.query.finders.findMany();
+    
+    for (const finder of allFinders) {
+      const tokenRecord = await db.query.findertokens.findFirst({
+        where: eq(findertokens.finderId, finder.id),
+      });
+
+      if (tokenRecord) {
+        // Update finder table with token balance
+        await db.update(finders)
+          .set({ findertokenBalance: tokenRecord.balance })
+          .where(eq(finders.id, finder.id));
+      } else {
+        // Create missing token record with current finder balance
+        const currentBalance = finder.findertokenBalance || 5;
+        await db.insert(findertokens).values({
+          finderId: finder.id,
+          balance: currentBalance,
+        });
+      }
+    }
+  }
+
   async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
     const [transaction] = await db
       .insert(transactions)
@@ -1526,40 +1551,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(finders.id, finderId));
   }
 
-  async updateFinderTokenBalance(finderId: string, tokensToAdd: number): Promise<void> {
-    // Get current balance first
-    const finder = await db.query.finders.findFirst({
-      where: eq(finders.id, finderId),
-    });
-
-    if (!finder) return;
-
-    const newBalance = (finder.findertokenBalance || 0) + tokensToAdd;
-
-    // Update finder balance
-    await db
-      .update(finders)
-      .set({
-        findertokenBalance: newBalance
-      })
-      .where(eq(finders.id, finderId));
-
-    // Also update or create findertokens record for consistency
-    const tokenRecord = await db.query.findertokens.findFirst({
-      where: eq(findertokens.finderId, finderId),
-    });
-
-    if (tokenRecord) {
-      await db.update(findertokens)
-        .set({ balance: newBalance })
-        .where(eq(findertokens.finderId, finderId));
-    } else {
-      await db.insert(findertokens).values({
-        finderId,
-        balance: newBalance,
-      });
-    }
-  }
 
   // Finder Levels Management
   async getFinderLevels(): Promise<FinderLevel[]> {

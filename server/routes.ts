@@ -962,7 +962,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         paymentData = await paystackService.initializeTransaction(
           clientUser!.email,
-          proposal.price,
+          parseFloat(proposal.price.toString()),
           reference,
           {
             contractId: contract.id,
@@ -1071,16 +1071,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Initialize payment with Paystack
       const paystackService = new PaystackService();
-      const paymentData = await paystackService.initializeTransaction({
-        email: user.email,
-        amount: parseInt(contract.amount) * 100, // Convert to kobo
-        reference: `CONTRACT_${contractId}_${Date.now()}`,
-        metadata: {
+      const paymentData = await paystackService.initializeTransaction(
+        user.email,
+        parseInt(contract.amount.toString()),
+        `CONTRACT_${contractId}_${Date.now()}`,
+        {
           contractId: contract.id,
           userId: user.id,
           type: 'escrow_funding'
         }
-      });
+      );
 
       res.json({
         authorization_url: paymentData.authorization_url,
@@ -2786,7 +2786,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(withdrawals);
     } catch (error) {
       console.error('Withdrawals API error:', error);
-      res.status(500).json({ message: "Failed to fetch withdrawal requests", error: error.message });
+      res.status(500).json({ message: "Failed to fetch withdrawal requests", error: (error as Error).message });
     }
   });
 

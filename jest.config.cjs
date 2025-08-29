@@ -11,7 +11,7 @@ module.exports = {
       transform: {
         '^.+\\.(ts)$': 'ts-jest'
       },
-      moduleNameMapping: {
+      moduleNameMapper: {
         '^@shared/(.*)$': '<rootDir>/shared/$1'
       },
       collectCoverageFrom: [
@@ -32,7 +32,7 @@ module.exports = {
         '^.+\\.(ts|tsx)$': 'ts-jest',
         '^.+\\.(js|jsx)$': 'babel-jest'
       },
-      moduleNameMapping: {
+      moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/client/src/$1',
         '^@shared/(.*)$': '<rootDir>/shared/$1',
         '^@assets/(.*)$': '<rootDir>/attached_assets/$1'
