@@ -1,4 +1,4 @@
-import { useParams, Link, navigate } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,7 +52,7 @@ export default function ProposalDetail() {
 
   const acceptProposal = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest("POST", `/api/proposals/${id}/accept`, {});
+      return apiRequest(`/api/proposals/${id}/accept`, { method: "POST" });
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/proposals', proposalId] });
@@ -80,7 +80,7 @@ export default function ProposalDetail() {
           title: "Success",
           description: "Proposal accepted and contract created!",
         });
-        navigate("/client/contracts");
+        window.location.href = "/client/contracts";
       }
     },
     onError: (error: any) => {
@@ -179,8 +179,7 @@ export default function ProposalDetail() {
   }
 
   return (
-    <>
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
         <ClientHeader />
 
         <div className="container mx-auto py-8">
@@ -313,10 +312,10 @@ export default function ProposalDetail() {
               description: "Escrow has been funded. Work can now begin.",
             });
             setPaymentModal({ isOpen: false }); // Close modal after success
-            navigate("/client/contracts"); // Navigate to contracts page
+            window.location.href = "/client/contracts"; // Navigate to contracts page
           }}
         />
       )}
-    </>
+    </div>
   );
 }
