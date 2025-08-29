@@ -79,6 +79,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
+import { generateId } from "@shared/utils";
 
 export interface IStorage {
   // User operations
@@ -1243,7 +1244,7 @@ export class DatabaseStorage implements IStorage {
       })
       .where(eq(finders.id, finderId))
       .returning();
-    
+
     // For now, return the settings as they would be stored
     return {
       twoFactorEnabled: settings.twoFactorEnabled || false,

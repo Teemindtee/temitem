@@ -1,5 +1,5 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp, boolean, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, boolean, decimal, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -14,7 +14,7 @@ export const users = pgTable("users", {
   isVerified: boolean("is_verified").default(false),
   isBanned: boolean("is_banned").default(false),
   bannedReason: text("banned_reason"),
-  bannedAt: timestamp("banned_at"),
+  bannedAt: timestamp("bannedAt"),
   findertokenBalance: integer("findertoken_balance").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -546,6 +546,15 @@ export type InsertAdminSetting = typeof adminSettings.$inferInsert;
 export type Conversation = typeof conversations.$inferSelect;
 export type InsertConversation = typeof conversations.$inferInsert;
 export type Message = typeof messages.$inferSelect;
+export type InsertMessage = typeof messages.$inferInsert;
+export type FinderLevel = typeof finderLevels.$inferSelect;
+export type InsertFinderLevel = typeof finderLevels.$inferInsert;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type InsertBlogPost = typeof blogPosts.$inferInsert;
+export type TokenPackage = typeof tokenPackages.$inferSelect;
+export type InsertTokenPackage = typeof tokenPackages.$inferInsert;
+export type OrderSubmission = typeof orderSubmissions.$inferSelect;
+export type InsertOrderSubmission = typeof orderSubmissions.$inferInsert;
 
 // Categories
 export const insertCategorySchema = createInsertSchema(categories);
@@ -565,9 +574,6 @@ export type WithdrawalSettings = typeof withdrawalSettings.$inferSelect;
 export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalRequests);
 export type InsertWithdrawalRequest = z.infer<typeof insertWithdrawalRequestSchema>;
 export type WithdrawalRequest = typeof withdrawalRequests.$inferSelect;
-export type InsertMessage = typeof messages.$inferInsert;
-export type FinderLevel = typeof finderLevels.$inferSelect;
-export type InsertFinderLevel = typeof finderLevels.$inferInsert;
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -588,52 +594,6 @@ export const insertProposalSchema = createInsertSchema(proposals).omit({
   id: true,
   createdAt: true,
 });
-
-// Strike System Schemas
-export const insertStrikeSchema = createInsertSchema(strikes).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertUserRestrictionSchema = createInsertSchema(userRestrictions).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const insertDisputeSchema = createInsertSchema(disputes).omit({
-  id: true,
-  submittedAt: true,
-});
-
-export const insertBehavioralTrainingSchema = createInsertSchema(behavioralTraining).omit({
-  id: true,
-  assignedDate: true,
-});
-
-export const insertTrustedBadgeSchema = createInsertSchema(trustedBadges).omit({
-  id: true,
-  earnedDate: true,
-});
-
-// Strike System Types
-export type Strike = typeof strikes.$inferSelect;
-export type InsertStrike = z.infer<typeof insertStrikeSchema>;
-export type UserRestriction = typeof userRestrictions.$inferSelect;
-export type InsertUserRestriction = z.infer<typeof insertUserRestrictionSchema>;
-export type Dispute = typeof disputes.$inferSelect;
-export type InsertDispute = z.infer<typeof insertDisputeSchema>;
-export type BehavioralTraining = typeof behavioralTraining.$inferSelect;
-export type InsertBehavioralTraining = z.infer<typeof insertBehavioralTrainingSchema>;
-export type TrustedBadge = typeof trustedBadges.$inferSelect;
-export type InsertTrustedBadge = z.infer<typeof insertTrustedBadgeSchema>;
-
-// Restricted Words Types
-export type RestrictedWord = typeof restrictedWords.$inferSelect;
-export const insertRestrictedWordSchema = createInsertSchema(restrictedWords).omit({
-  id: true,
-  createdAt: true,
-});
-export type InsertRestrictedWord = z.infer<typeof insertRestrictedWordSchema>;
 
 export const insertContractSchema = createInsertSchema(contracts).omit({
   id: true,
@@ -728,8 +688,6 @@ export type InsertAdminSettingType = z.infer<typeof insertAdminSettingSchema>;
 export type InsertConversationType = z.infer<typeof insertConversationSchema>;
 export type InsertMessageType = z.infer<typeof insertMessageSchema>;
 export type InsertBlogPostType = z.infer<typeof insertBlogPostSchema>;
-export type BlogPost = typeof blogPosts.$inferSelect;
-export type InsertBlogPost = typeof blogPosts.$inferInsert;
 
 // Token Package schemas
 export const insertTokenPackageSchema = createInsertSchema(tokenPackages).omit({
@@ -737,9 +695,6 @@ export const insertTokenPackageSchema = createInsertSchema(tokenPackages).omit({
   createdAt: true,
   updatedAt: true,
 });
-
-export type TokenPackage = typeof tokenPackages.$inferSelect;
-export type InsertTokenPackage = z.infer<typeof insertTokenPackageSchema>;
 
 // Order Submissions
 export const insertOrderSubmissionSchema = createInsertSchema(orderSubmissions).omit({
@@ -749,5 +704,58 @@ export const insertOrderSubmissionSchema = createInsertSchema(orderSubmissions).
   autoReleaseDate: true,
 });
 export type InsertOrderSubmissionType = z.infer<typeof insertOrderSubmissionSchema>;
-export type OrderSubmission = typeof orderSubmissions.$inferSelect;
-export type InsertOrderSubmission = typeof orderSubmissions.$inferInsert;
+
+// Strike System Schemas
+export const insertStrikeSchema = createInsertSchema(strikes).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserRestrictionSchema = createInsertSchema(userRestrictions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDisputeSchema = createInsertSchema(disputes).omit({
+  id: true,
+  submittedAt: true,
+});
+
+export const insertBehavioralTrainingSchema = createInsertSchema(behavioralTraining).omit({
+  id: true,
+  assignedDate: true,
+});
+
+export const insertTrustedBadgeSchema = createInsertSchema(trustedBadges).omit({
+  id: true,
+  earnedDate: true,
+});
+
+// Strike System Types
+export type Strike = typeof strikes.$inferSelect;
+export type InsertStrike = typeof strikes.$inferInsert;
+export type SelectStrike = typeof strikes.$inferSelect;
+
+export type UserRestriction = typeof userRestrictions.$inferSelect;
+export type InsertUserRestriction = typeof userRestrictions.$inferInsert;
+export type SelectUserRestriction = typeof userRestrictions.$inferSelect;
+
+export type Dispute = typeof disputes.$inferSelect;
+export type InsertDispute = typeof disputes.$inferInsert;
+export type SelectDispute = typeof disputes.$inferSelect;
+
+export type BehavioralTraining = typeof behavioralTraining.$inferSelect;
+export type InsertBehavioralTraining = typeof behavioralTraining.$inferInsert;
+export type SelectBehavioralTraining = typeof behavioralTraining.$inferSelect;
+
+export type TrustedBadge = typeof trustedBadges.$inferSelect;
+export type InsertTrustedBadge = typeof trustedBadges.$inferInsert;
+export type SelectTrustedBadge = typeof trustedBadges.$inferSelect;
+
+// Restricted Words Types
+export type RestrictedWord = typeof restrictedWords.$inferSelect;
+export const insertRestrictedWordSchema = createInsertSchema(restrictedWords).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertRestrictedWord = z.infer<typeof insertRestrictedWordSchema>;

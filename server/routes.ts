@@ -54,7 +54,7 @@ const upload = multer({
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'text/plain'
     ];
-    
+
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -94,7 +94,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/register", async (req, res) => {
     try {
       const { email, password, firstName, lastName, role, phone } = req.body;
-      
+
       // Validate input
       const userData = insertUserSchema.parse({
         email,
@@ -201,7 +201,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Check if user exists
       const user = await storage.getUserByEmail(email);
-      
+
       // Always return success to prevent email enumeration
       if (!user) {
         console.log(`No user found for email: ${email}`);
@@ -224,12 +224,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send reset email
       try {
         const emailSent = await emailService.sendPasswordResetEmail(user.email, `${user.firstName} ${user.lastName}`, resetLink);
-        
+
         if (!emailSent) {
           console.error('Email service returned false for password reset email');
           return res.status(500).json({ message: "Failed to send reset email. Please check your email configuration." });
         }
-        
+
         console.log(`Password reset email sent successfully to ${user.email}`);
       } catch (emailError) {
         console.error('Failed to send password reset email:', emailError);
@@ -288,7 +288,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/change-password", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { currentPassword, newPassword } = req.body;
-      
+
       if (!currentPassword || !newPassword) {
         return res.status(400).json({ message: "Current password and new password are required" });
       }
@@ -352,7 +352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/finder/profile", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { bio, category, skills, availability } = req.body;
-      
+
       const user = await storage.getUser(req.user.userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -392,7 +392,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/update-profile", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { firstName, lastName, email, phone } = req.body;
-      
+
       if (!firstName || !lastName || !email) {
         return res.status(400).json({ message: "First name, last name, and email are required" });
       }
@@ -442,7 +442,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const find = await storage.getFind(id);
-      
+
       if (!find) {
         return res.status(404).json({ message: "Find not found" });
       }
@@ -542,7 +542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const settings = await storage.getAdminSettings();
       const highBudgetThreshold = parseInt(settings.highBudgetThreshold || "100000");
       const highBudgetTokenCost = parseInt(settings.highBudgetTokenCost || "5");
-      
+
       // Check if this is a high budget request
       const maxBudget = parseInt(req.body.budgetMax || "0");
       const isHighBudget = maxBudget >= highBudgetThreshold;
@@ -698,7 +698,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const request = await storage.getFind(id);
-      
+
       if (!request) {
         return res.status(404).json({ message: "Find not found" });
       }
@@ -724,7 +724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/finder/finds/:id/proposals", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
-      
+
       if (req.user.role !== 'finder') {
         return res.status(403).json({ message: "Only finders can use this endpoint" });
       }
@@ -781,7 +781,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check findertoken balance
       const tokenCost = await storage.getAdminSetting('proposal_token_cost');
       const requiredTokens = parseInt(tokenCost?.value || '1');
-      
+
       if ((finder.findertokenBalance ?? 0) < requiredTokens) {
         return res.status(400).json({ message: `Insufficient findertokens to submit proposal. Required: ${requiredTokens}, Available: ${finder.findertokenBalance ?? 0}` });
       }
@@ -791,7 +791,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Deduct findertoken - update finder balance directly  
       const newBalance = (finder.findertokenBalance ?? 0) - requiredTokens;
       await storage.updateFinderTokenBalance(finder.id, newBalance);
-      
+
       // Record transaction
       await storage.createTransaction({
         userId: req.user.userId,
@@ -807,7 +807,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (request) {
           const clientUser = await storage.getUser(request.clientId);
           const finderUser = await storage.getUser(req.user.userId);
-          
+
           if (clientUser && finderUser) {
             await emailService.notifyClientNewProposal(
               clientUser.email,
@@ -831,7 +831,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const proposalWithDetails = await storage.getProposalWithDetails(id);
-      
+
       if (!proposalWithDetails) {
         return res.status(404).json({ message: "Proposal not found" });
       }
@@ -909,7 +909,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { contractId } = req.params;
       const contractDetails = await storage.getContractDetails(contractId, finder.id);
-      
+
       if (!contractDetails) {
         return res.status(404).json({ message: "Contract not found" });
       }
@@ -925,7 +925,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const proposal = await storage.getProposal(id);
-      
+
       if (!proposal) {
         return res.status(404).json({ message: "Proposal not found" });
       }
@@ -956,7 +956,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Generate payment information immediately
       const paystackService = new PaystackService();
       const reference = paystackService.generateTransactionReference(request.clientId);
-      
+
       // Initialize payment for escrow funding
       let paymentData = null;
       try {
@@ -1022,10 +1022,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/support/tickets", async (req: Request, res: Response) => {
     try {
       const { name, email, category, priority, subject, message } = req.body;
-      
+
       // In a real application, you would save this to a database or send to a support system
       console.log('Support ticket submitted:', { name, email, category, priority, subject, message });
-      
+
       // For now, just return success
       res.json({ 
         success: true, 
@@ -1118,7 +1118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (paymentData.status === 'success') {
         // Update contract escrow status to 'held'
         await storage.updateContract(contractId, { escrowStatus: 'held' });
-        
+
         // Update the find status to 'in progress'
         await storage.updateFind(contract.findId, { status: 'in_progress' });
 
@@ -1162,7 +1162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/contracts/:contractId/payment-status", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { contractId } = req.params;
-      
+
       const contract = await storage.getContract(contractId);
       if (!contract) {
         return res.status(404).json({ message: "Contract not found" });
@@ -1194,23 +1194,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/tokens/purchase", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { tokenAmount, amount } = req.body;
-      
+
       if (!tokenAmount || !amount || tokenAmount <= 0 || amount <= 0) {
         return res.status(400).json({ message: "Invalid token amount or price" });
       }
-      
+
       const paystackService = new PaystackService();
       const user = await storage.getUser(req.user.userId);
-      
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
 
       const reference = paystackService.generateTransactionReference(req.user.userId);
-      
+
       // Create callback URL for after payment
       const callbackUrl = `${req.protocol}://${req.get('host')}/finder/payment-success?payment=success&reference=${reference}`;
-      
+
       const transaction = await paystackService.initializeTransaction(
         user.email,
         amount, // Amount in naira
@@ -1234,10 +1234,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/payments/initialize", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { packageId } = req.body;
-      
+
       const paystackService = new PaystackService();
       const selectedPackage = TOKEN_PACKAGES.find((pkg: any) => pkg.id === packageId);
-      
+
       if (!selectedPackage) {
         return res.status(404).json({ message: "Package not found" });
       }
@@ -1248,7 +1248,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const reference = paystackService.generateTransactionReference(req.user.userId);
-      
+
       const transaction = await paystackService.initializeTransaction(
         user.email,
         selectedPackage.price,
@@ -1272,24 +1272,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { reference } = req.params;
       const paystackService = new PaystackService();
-      
+
       const transaction = await paystackService.verifyTransaction(reference);
-      
+
       if (transaction.status === 'success') {
         const { metadata } = transaction;
         const { userId, tokens } = metadata;
-        
+
         // Verify this transaction belongs to the requesting user
         if (userId !== req.user.userId) {
           return res.status(403).json({ message: "Access denied" });
         }
-        
+
         // Update user's findertoken balance if not already done
         const finder = await storage.getFinderByUserId(userId);
         if (finder) {
           // Check if transaction already processed
           const existingTransaction = await storage.getTransactionByReference(reference);
-          
+
           if (!existingTransaction) {
             // Update balance and create transaction record
             const currentBalance = finder.findertokenBalance || 0;
@@ -1306,7 +1306,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             });
           }
         }
-        
+
         res.json({ 
           status: 'success', 
           data: transaction 
@@ -1327,20 +1327,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
     try {
       const paystackService = new PaystackService();
-      
+
       const signature = req.headers['x-paystack-signature'] as string;
       const payload = req.body.toString();
-      
+
       if (!paystackService.verifyWebhookSignature(payload, signature)) {
         return res.status(400).send('Invalid signature');
       }
 
       const event = JSON.parse(payload);
-      
+
       if (event.event === 'charge.success') {
         const { reference, metadata } = event.data;
         const { userId, tokens } = metadata;
-        
+
         // Update user's findertoken balance
         const finder = await storage.getFinderByUserId(userId);
         if (finder) {
@@ -1371,13 +1371,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/payments/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { reference } = req.params;
-      
+
       const paystackService = new PaystackService();
       const transaction = await paystackService.verifyTransaction(reference);
-      
+
       if (transaction.status === 'success' && transaction.metadata.userId === req.user.userId) {
         const { tokens } = transaction.metadata;
-        
+
         // Update user's findertoken balance
         const finder = await storage.getFinderByUserId(req.user.userId);
         if (finder) {
@@ -1396,7 +1396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
       }
-      
+
       res.json(transaction);
     } catch (error) {
       console.error('Payment verification error:', error);
@@ -1429,7 +1429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { contractId } = req.params;
       const contracts = await storage.getContractsByClientId(req.user.userId);
       const contract = contracts.find(c => c.id === contractId);
-      
+
       if (!contract) {
         return res.status(404).json({ message: "Contract not found or access denied" });
       }
@@ -1467,7 +1467,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const contract = await storage.getContract(id);
-      
+
       if (!contract) {
         return res.status(404).json({ message: "Contract not found" });
       }
@@ -1494,7 +1494,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const contract = await storage.getContract(id);
-      
+
       if (!contract) {
         return res.status(404).json({ message: "Contract not found" });
       }
@@ -1617,19 +1617,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { nameSlug } = req.params;
-      
+
       // Extract the ID part from the name slug (last 8 characters)
       const match = nameSlug.match(/([a-f0-9]{8})$/);
       if (!match) {
         return res.status(400).json({ message: "Invalid name slug format" });
       }
-      
+
       const idPrefix = match[1];
-      
+
       // Get all users and find the one with matching ID prefix
       const users = await storage.getAllUsers();
       const user = users.find(u => u.id.startsWith(idPrefix));
-      
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1703,7 +1703,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { userId } = req.params;
       const user = await storage.getUser(userId);
-      
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1725,19 +1725,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { nameSlug } = req.params;
-      
+
       // Extract the ID part from the name slug (last 8 characters)
       const match = nameSlug.match(/([a-f0-9]{8})$/);
       if (!match) {
         return res.status(400).json({ message: "Invalid name slug format" });
       }
-      
+
       const idPrefix = match[1];
-      
+
       // Get all users and find the one with matching ID prefix
       const users = await storage.getAllUsers();
       const user = users.find(u => u.id.startsWith(idPrefix));
-      
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1759,7 +1759,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { id } = req.params;
       const user = await storage.updateUser(id, { isBanned: true });
-      
+
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1813,7 +1813,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/messages/attach", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { fileUrl, fileName } = req.body;
-      
+
       if (!fileUrl || !fileName) {
         return res.status(400).json({ message: "File URL and name are required" });
       }
@@ -1843,18 +1843,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const objectStorageService = new ObjectStorageService();
       const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-      
+
       // Check if user can access this file
       const canAccess = await objectStorageService.canAccessObjectEntity({
         objectFile,
         userId: req.user.id,
         requestedPermission: ObjectPermission.READ,
       });
-      
+
       if (!canAccess) {
         return res.status(403).json({ message: "Access denied" });
       }
-      
+
       objectStorageService.downloadObject(objectFile, res);
     } catch (error) {
       console.error("Error accessing file:", error);
@@ -1881,13 +1881,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/messages/attach", authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
       const { fileUrl, fileName } = req.body;
-      
+
       if (!fileUrl || !fileName) {
         return res.status(400).json({ message: "File URL and name are required" });
       }
 
       const objectStorageService = new ObjectStorageService();
-      
+
       // Normalize the object path and set ACL policy
       const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(fileUrl, {
         owner: req.user.id,
@@ -1916,7 +1916,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { proposalId } = req.body;
       const proposal = await storage.getProposal(proposalId);
-      
+
       if (!proposal) {
         return res.status(404).json({ message: "Proposal not found" });
       }
@@ -1945,7 +1945,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/messages/conversations", authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
       let conversations;
-      
+
       if (req.user.role === 'client') {
         conversations = await storage.getConversationsByClientId(req.user.userId);
       } else if (req.user.role === 'finder') {
@@ -1969,14 +1969,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/messages/conversations/:conversationId", authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
       const { conversationId } = req.params;
-      
+
       const conversation = await storage.getConversationById(conversationId);
       if (!conversation) {
         return res.status(404).json({ message: "Conversation not found" });
       }
 
       // TODO: Add permission check to ensure user is part of the conversation
-      
+
       res.json(conversation);
     } catch (error) {
       console.error('Get conversation error:', error);
@@ -1988,18 +1988,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/messages/conversations/:conversationId/messages", authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
       const { conversationId } = req.params;
-      
+
       // Prevent caching of messages
       res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.set('Pragma', 'no-cache');
       res.set('Expires', '0');
-      
+
       // TODO: Add permission check to ensure user is part of the conversation
       const messages = await storage.getMessages(conversationId);
-      
+
       // Mark messages as read for the current user
       await storage.markMessagesAsRead(conversationId, req.user.userId);
-      
+
       res.json(messages);
     } catch (error) {
       console.error('Get messages error:', error);
@@ -2082,13 +2082,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/finders/:finderId/profile", authenticateToken, async (req: AuthenticatedRequest, res) => {
     try {
       const { finderId } = req.params;
-      
+
       const finderProfile = await storage.getFinderProfile(finderId);
-      
+
       if (!finderProfile) {
         return res.status(404).json({ message: "Finder profile not found" });
       }
-      
+
       res.json(finderProfile);
     } catch (error) {
       console.error('Get finder profile error:', error);
@@ -2183,7 +2183,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { name, description, price, tokenCount, isActive = true } = req.body;
-      
+
       // Input validation
       if (!name || !price || !tokenCount || price <= 0 || tokenCount <= 0) {
         return res.status(400).json({ message: "Name, price, and token count are required and must be positive" });
@@ -2228,7 +2228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isActive !== undefined) updates.isActive = isActive;
 
       const tokenPackage = await storage.updateTokenPackage(id, updates);
-      
+
       if (!tokenPackage) {
         return res.status(404).json({ message: "Token package not found" });
       }
@@ -2247,7 +2247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { id } = req.params;
       const success = await storage.deleteTokenPackage(id);
-      
+
       if (!success) {
         return res.status(404).json({ message: "Token package not found" });
       }
@@ -2258,7 +2258,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Public endpoint for active token packages (for finders to purchase)
+  // Public active token packages endpoint (for finders to purchase)
   app.get("/api/token-packages", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       // Only return active packages for finders to purchase
@@ -2274,7 +2274,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/payments/initialize-token-purchase", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { packageId } = req.body;
-      
+
       if (!packageId) {
         return res.status(400).json({ message: "Package ID is required" });
       }
@@ -2293,7 +2293,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Initialize payment with Paystack
       const paymentService = new PaystackService();
       const reference = paymentService.generateTransactionReference(user.id);
-      
+
       const paymentData = await paymentService.initializeTransaction(
         user.email,
         parseFloat(tokenPackage.price),
@@ -2322,7 +2322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/payments/verify-token-purchase", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { reference } = req.body;
-      
+
       if (!reference) {
         return res.status(400).json({ message: "Payment reference is required" });
       }
@@ -2330,18 +2330,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Verify payment with Paystack
       const paymentService = new PaystackService();
       const verification = await paymentService.verifyTransaction(reference);
-      
+
       if (verification.status === 'success') {
         const metadata = verification.metadata;
         const finder = await storage.getFinderByUserId(req.user.userId);
-        
+
         if (!finder) {
           return res.status(404).json({ message: "Finder profile not found" });
         }
 
         // Add tokens to finder balance
         await storage.updateFinderTokenBalance(finder.id, metadata.tokenCount);
-        
+
         // Create transaction record
         await storage.createTransaction({
           userId: req.user.userId,
@@ -2423,7 +2423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { id } = req.params;
       const deleted = await storage.deleteFinderLevel(id);
-      
+
       if (!deleted) {
         return res.status(404).json({ message: "Finder level not found" });
       }
@@ -2552,7 +2552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const finderEarningsChargePercentage = await storage.getAdminSetting('finder_earnings_charge_percentage');
       const highBudgetThreshold = await storage.getAdminSetting('high_budget_threshold');
       const highBudgetTokenCost = await storage.getAdminSetting('high_budget_token_cost');
-      
+
       res.json({
         proposalTokenCost: proposalTokenCost?.value || '1',
         findertokenPrice: findertokenPrice?.value || '100', // Default 100 per token in kobo/cents
@@ -2586,7 +2586,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (proposalTokenCost !== undefined) {
         await storage.setAdminSetting('proposal_token_cost', proposalTokenCost.toString());
       }
-      
+
       if (findertokenPrice !== undefined) {
         await storage.setAdminSetting('findertoken_price', findertokenPrice.toString());
       }
@@ -2625,7 +2625,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { finderId, amount, reason } = req.body;
-      
+
       if (!finderId || !amount || !reason) {
         return res.status(400).json({ message: "Finder ID, amount, and reason are required" });
       }
@@ -2638,7 +2638,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Charge tokens from finder's balance
       const success = await storage.chargeFinderTokens(finderId, Math.abs(amount), reason, req.user.userId);
-      
+
       if (!success) {
         return res.status(400).json({ message: "Insufficient token balance" });
       }
@@ -2658,7 +2658,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const result = await storage.distributeMonthlyTokens();
-      
+
       res.json({
         message: "Monthly token distribution completed",
         distributed: result.distributed,
@@ -2678,7 +2678,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { finderId, amount, reason } = req.body;
-      
+
       if (!finderId || !amount || !reason) {
         return res.status(400).json({ message: "Finder ID, amount, and reason are required" });
       }
@@ -2695,7 +2695,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Grant tokens to finder
       const grant = await storage.grantTokensToFinder(finderId, amount, reason, req.user.userId);
-      
+
       res.json({
         message: "Tokens granted successfully",
         grant
@@ -2706,7 +2706,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get token grants history
+  // Get tokens grants history
   app.get("/api/admin/token-grants", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {
@@ -2715,7 +2715,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { finderId } = req.query;
       const grants = await storage.getTokenGrants(finderId as string);
-      
+
       res.json(grants);
     } catch (error) {
       console.error('Get token grants error:', error);
@@ -2733,9 +2733,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const now = new Date();
       const month = parseInt(req.query.month as string) || (now.getMonth() + 1);
       const year = parseInt(req.query.year as string) || now.getFullYear();
-      
+
       const distributions = await storage.getMonthlyDistributions(month, year);
-      
+
       res.json(distributions);
     } catch (error) {
       console.error('Get monthly distributions error:', error);
@@ -2751,7 +2751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       await storage.syncFinderTokenBalances();
-      
+
       res.json({ message: "Token balances synchronized successfully" });
     } catch (error) {
       console.error('Token balance sync error:', error);
@@ -2764,7 +2764,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const findertokenPrice = await storage.getAdminSetting('findertoken_price');
       const pricePerToken = parseFloat(findertokenPrice?.value || '100'); // Default 100 kobo per token
-      
+
       res.json({
         pricePerToken, // in kobo/cents
         currency: 'NGN'
@@ -2879,11 +2879,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const pendingEarnings = await storage.getFinderPendingEarnings(finder.id);
-      
+
       // Get admin fee to calculate net earnings
       const finderEarningsCharge = await storage.getAdminSetting('finder_earnings_charge_percentage');
       const feePercentage = parseFloat(finderEarningsCharge?.value || '5');
-      
+
       const grossAmount = pendingEarnings.pendingAmount;
       const feeAmount = grossAmount * (feePercentage / 100);
       const netAmount = grossAmount - feeAmount;
@@ -2912,13 +2912,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!finder) {
         return res.status(404).json({ message: 'Finder profile not found' });
       }
-      
+
       // Get user information as well
       const user = await storage.getUser(req.user.userId);
-      
+
       // Calculate completed jobs from contracts
       const completedContracts = await storage.getCompletedContractsByFinder(finder.id);
-      
+
       res.json({
         ...finder,
         completedJobs: completedContracts.length,
@@ -2964,7 +2964,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!finder) {
         return res.status(404).json({ message: 'Finder profile not found' });
       }
-      
+
       const transactions = await storage.getTransactionsByFinderId(finder.id);
       res.json(transactions);
     } catch (error) {
@@ -2983,7 +2983,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!finder) {
         return res.status(404).json({ message: 'Finder profile not found' });
       }
-      
+
       const settings = await storage.getWithdrawalSettings(finder.id);
       res.json(settings);
     } catch (error) {
@@ -3021,7 +3021,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!finder) {
         return res.status(404).json({ message: 'Finder profile not found' });
       }
-      
+
       const withdrawals = await storage.getWithdrawalsByFinderId(finder.id);
       res.json(withdrawals);
     } catch (error) {
@@ -3068,7 +3068,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  
+
 
   // Object Storage API
   app.get("/public-objects/:filePath(*)", async (req, res) => {
@@ -3128,14 +3128,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Add authorId to request body before validation
       const userId = req.user.userId;
-      
+
       const requestWithAuthor = {
         ...req.body,
         authorId: userId
       };
-      
+
       const blogPostData = insertBlogPostSchema.parse(requestWithAuthor);
-      
+
       const post = await storage.createBlogPost({
         ...blogPostData,
         publishedAt: blogPostData.isPublished ? new Date() : null
@@ -3176,14 +3176,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { id } = req.params;
       const userId = req.user.userId;
-      
+
       const requestWithAuthor = {
         ...req.body,
         authorId: userId
       };
-      
+
       const blogPostData = insertBlogPostSchema.parse(requestWithAuthor);
-      
+
       const post = await storage.updateBlogPost(id, {
         ...blogPostData,
         publishedAt: blogPostData.isPublished ? new Date() : null
@@ -3257,7 +3257,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const submission = await storage.createOrderSubmission(submissionData);
-      
+
       // Send email notification to client about order submission
       try {
         const contract = await storage.getContract(submissionData.contractId);
@@ -3266,7 +3266,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const finderUser = await storage.getUser(req.user.userId);
           const proposal = await storage.getProposal(contract.proposalId);
           const request = proposal ? await storage.getFind(proposal.findId) : null;
-          
+
           if (clientUser && finderUser && request) {
             await emailService.notifyClientOrderSubmission(
               clientUser.email,
@@ -3278,7 +3278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (emailError) {
         console.error('Failed to send order submission notification email:', emailError);
       }
-      
+
       res.status(201).json(submission);
     } catch (error: any) {
       console.error('Error submitting order:', error);
@@ -3319,7 +3319,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/orders/contract/:contractId', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { contractId } = req.params;
-      
+
       const contractWithSubmission = await storage.getContractWithSubmission(contractId);
       if (!contractWithSubmission) {
         return res.status(404).json({ message: 'Contract not found' });
@@ -3427,11 +3427,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         objectFile,
         userId: req.user.userId,
       });
-      
+
       if (!canAccess) {
         return res.sendStatus(403);
       }
-      
+
       objectStorageService.downloadObject(objectFile, res);
     } catch (error: any) {
       console.error('Error accessing object:', error);
@@ -3445,7 +3445,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/objects/acl', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { objectURL, visibility = 'private' } = req.body;
-      
+
       if (!objectURL) {
         return res.status(400).json({ error: 'objectURL is required' });
       }
@@ -3517,7 +3517,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
 
-      // Users can only view their own strikes unless admin
+      // Users can only view their own strikes, or admins can view any
       if (req.user.role !== 'admin' && req.user.userId !== userId) {
         return res.status(403).json({ message: 'Access denied' });
       }
@@ -3579,7 +3579,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if user is either the client or finder on this contract
       const isClient = req.user.role === 'client' && contract.clientId === req.user.userId;
       const isContractFinder = req.user.role === 'finder';
-      
+
       if (isContractFinder) {
         const finder = await storage.getFinderByUserId(req.user.userId);
         if (!finder || contract.finderId !== finder.id) {
@@ -3708,7 +3708,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { role } = req.params;
-      
+
       // Predefined offenses for different user roles
       const offenseTypes = {
         client: [
@@ -3805,7 +3805,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         addedBy: req.user.userId,
         isActive: true
       };
-      
+
       console.log('Adding restricted word with data:', wordData);
       const restrictedWord = await storage.addRestrictedWord(wordData);
       console.log('Successfully added restricted word:', restrictedWord);
