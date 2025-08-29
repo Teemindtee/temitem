@@ -30,10 +30,10 @@ export default function Landing() {
         <div className="max-w-sm mx-auto min-h-screen bg-white shadow-xl relative">
           {/* Header with Logo */}
           <div className="bg-finder-red px-6 py-4 flex items-center rounded-t-3xl">
-            <img
-              src={logoImage}
-              alt="FinderMeister Logo"
-              className="w-10 h-12 object-contain"
+            <img 
+              src={logoImage} 
+              alt="FinderMeister Logo" 
+              className="w-12 h-12 object-contain mr-3 rounded-full" 
             />
             <h1 className="text-2xl font-bold text-white">FinderMeister</h1>
           </div>
@@ -80,10 +80,10 @@ export default function Landing() {
       <header className="bg-finder-red text-white px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <img
-              src={logoImage}
-              alt="FinderMeister Logo"
-              className="w-12 h-14 object-contain mr-3"
+            <img 
+              src={logoImage} 
+              alt="FinderMeister Logo" 
+              className="w-12 h-12 object-contain rounded-full" 
             />
             <span className="text-xl font-bold">FinderMeister</span>
           </div>
@@ -170,7 +170,7 @@ export default function Landing() {
                 Choose a Finder
               </h3>
               <p className="text-gray-600">
-                Compare proposals and select the right finder for the job.
+                Compare proposals and select the right finder for th job.
               </p>
             </div>
           </div>
