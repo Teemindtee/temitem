@@ -155,79 +155,77 @@ export function FinderHeader({ currentPage }: FinderHeaderProps) {
                 <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel className="font-normal">
+            <DropdownMenuContent align="end" className="w-64">
+              {/* Balance Information at Top */}
+              <div className="p-3 bg-gradient-to-r from-green-50 to-blue-50 border-b">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-gray-600">Available Balance</span>
+                  <span className="text-lg font-bold text-green-600">
+                    {finder?.availableBalance ? formatCurrency(finder.availableBalance) : '₦0.00'}
+                  </span>
+                </div>
+                {pendingEarnings && pendingEarnings.contractCount > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-orange-600 flex items-center">
+                      <Clock className="w-3 h-3 mr-1" />
+                      Pending ({pendingEarnings.contractCount})
+                    </span>
+                    <span className="text-sm font-semibold text-orange-700">
+                      {formatCurrency(pendingEarnings.netAmount)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <DropdownMenuLabel className="font-normal px-3 py-2">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{user?.firstName} {user?.lastName}</p>
                   <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
-                  
-                  {/* Balance Information */}
-                  <div className="pt-2 space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-green-600 font-medium">Available:</span>
-                      <span className="font-semibold text-green-700">
-                        {finder?.availableBalance ? formatCurrency(finder.availableBalance) : '₦0.00'}
-                      </span>
-                    </div>
-                    {pendingEarnings && pendingEarnings.contractCount > 0 && (
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-orange-600 font-medium flex items-center">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Pending:
-                        </span>
-                        <span className="font-semibold text-orange-700">
-                          {formatCurrency(pendingEarnings.netAmount)}
-                        </span>
-                      </div>
-                    )}
-                    {pendingEarnings && pendingEarnings.contractCount > 0 && (
-                      <div className="text-xs text-muted-foreground">
-                        {pendingEarnings.contractCount} contract{pendingEarnings.contractCount !== 1 ? 's' : ''} awaiting release
-                      </div>
-                    )}
-                  </div>
                 </div>
               </DropdownMenuLabel>
+              
               <DropdownMenuSeparator />
               
               <DropdownMenuItem asChild>
-                <Link href="/messages" className="flex items-center cursor-pointer">
+                <Link href="/messages" className="flex items-center cursor-pointer px-3 py-2">
                   <MessageCircle className="mr-2 h-4 w-4" />
                   Messages
                 </Link>
               </DropdownMenuItem>
               
               <DropdownMenuItem asChild>
-                <Link href="/finder/profile" className="flex items-center cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  Profile Settings
-                </Link>
-              </DropdownMenuItem>
-              
-              <DropdownMenuItem asChild>
-                <Link href="/finder/tokens" className="flex items-center cursor-pointer">
+                <Link href="/finder/tokens" className="flex items-center cursor-pointer px-3 py-2">
                   <Wallet className="mr-2 h-4 w-4" />
-                  Findertoken Balance
-                </Link>
-              </DropdownMenuItem>
-              
-              <DropdownMenuItem asChild>
-                <Link href="/finder/withdrawals" className="flex items-center cursor-pointer">
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Withdrawal Settings
-                </Link>
-              </DropdownMenuItem>
-              
-              <DropdownMenuItem asChild>
-                <Link href="/finder/security" className="flex items-center cursor-pointer">
-                  <Shield className="mr-2 h-4 w-4" />
-                  Security Settings
+                  Findertokens
                 </Link>
               </DropdownMenuItem>
               
               <DropdownMenuSeparator />
               
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+              <DropdownMenuItem asChild>
+                <Link href="/finder/profile" className="flex items-center cursor-pointer px-3 py-2">
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem asChild>
+                <Link href="/finder/withdrawals" className="flex items-center cursor-pointer px-3 py-2">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Withdrawals
+                </Link>
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem asChild>
+                <Link href="/finder/security" className="flex items-center cursor-pointer px-3 py-2">
+                  <Shield className="mr-2 h-4 w-4" />
+                  Security
+                </Link>
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer px-3 py-2 text-red-600 focus:text-red-600">
                 <LogOut className="mr-2 h-4 w-4" />
                 Log Out
               </DropdownMenuItem>
