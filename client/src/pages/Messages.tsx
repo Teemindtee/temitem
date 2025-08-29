@@ -222,17 +222,12 @@ export default function Messages() {
                       <MessageCircle className="w-8 h-8 text-finder-red" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">No messages yet</h3>
-                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                    <p className="text-gray-600 max-w-md mx-auto">
                       {user?.role === 'client' 
                         ? "Your conversations with finders will appear here when they respond to your project requests."
                         : "Your conversations with clients will appear here when they message you about your proposals."
                       }
                     </p>
-                    {user?.role === 'client' && (
-                      <Button asChild className="bg-finder-red hover:bg-finder-red/90">
-                        <Link href="/client/create-find">Post Your First Find</Link>
-                      </Button>
-                    )}
                   </div>
                 )}
               </div>
