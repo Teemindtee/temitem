@@ -259,6 +259,15 @@ export const tokenGrants = pgTable("token_grants", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const clientTokenGrants = pgTable("client_token_grants", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  clientId: varchar("client_id").references(() => users.id).notNull(),
+  amount: integer("amount").notNull(), // number of tokens granted
+  reason: text("reason").notNull(), // reason for grant
+  grantedBy: varchar("granted_by").references(() => users.id).notNull(), // admin who granted
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Strike System Tables
 export const strikes = pgTable("strikes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -517,6 +526,17 @@ export const tokenGrantsRelations = relations(tokenGrants, ({ one }) => ({
   }),
 }));
 
+export const clientTokenGrantsRelations = relations(clientTokenGrants, ({ one }) => ({
+  client: one(users, {
+    fields: [clientTokenGrants.clientId],
+    references: [users.id],
+  }),
+  grantedBy: one(users, {
+    fields: [clientTokenGrants.grantedBy],
+    references: [users.id],
+  }),
+}));
+
 export const restrictedWordsRelations = relations(restrictedWords, ({ one }) => ({
   addedByUser: one(users, {
     fields: [restrictedWords.addedBy],
@@ -652,6 +672,14 @@ export type InsertMonthlyTokenDistribution = z.infer<typeof insertMonthlyTokenDi
 // Token Grant Types  
 export type TokenGrant = typeof tokenGrants.$inferSelect;
 export type InsertTokenGrant = z.infer<typeof insertTokenGrantSchema>;
+
+// Client Token Grant Types
+export type ClientTokenGrant = typeof clientTokenGrants.$inferSelect;
+export const insertClientTokenGrantSchema = createInsertSchema(clientTokenGrants).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertClientTokenGrant = z.infer<typeof insertClientTokenGrantSchema>;
 
 export const insertConversationSchema = createInsertSchema(conversations).omit({
   id: true,

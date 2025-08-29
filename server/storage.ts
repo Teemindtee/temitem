@@ -49,6 +49,8 @@ import {
   type InsertRestrictedWord,
   type TokenPackage,
   type InsertTokenPackage,
+  type ClientTokenGrant,
+  type InsertClientTokenGrant,
 
   users,
   finders,
@@ -62,23 +64,22 @@ import {
   conversations,
   messages,
   categories,
-  withdrawalRequests,
   withdrawalSettings,
+  withdrawalRequests,
   blogPosts,
   orderSubmissions,
   finderLevels,
+  tokenCharges,
   monthlyTokenDistributions,
   tokenGrants,
+  clientTokenGrants,
+  restrictedWords,
   strikes,
   userRestrictions,
   disputes,
-  behavioralTraining,
-  trustedBadges,
-  restrictedWords,
-  tokenPackages
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and, sql, alias } from "drizzle-orm";
 import { generateId } from "@shared/utils";
 
 export interface IStorage {
@@ -132,10 +133,12 @@ export interface IStorage {
   createFindertokenRecord(finderId: string): Promise<Findertoken>;
   updateFindertokenBalance(finderId: string, newBalance: number): Promise<Findertoken | undefined>;
   updateFinderTokenBalance(finderId: string, newBalance: number): Promise<void>;
+  syncFinderTokenBalances(): Promise<void>;
 
   // Transaction operations
   createTransaction(transaction: InsertTransaction): Promise<Transaction>;
   getTransactionsByFinderId(finderId: string): Promise<Transaction[]>;
+  getTransactionsByUserId(userId: string): Promise<Transaction[]>;
   getTransactionByReference(reference: string): Promise<Transaction | undefined>;
 
   // Admin operations
@@ -163,12 +166,17 @@ export interface IStorage {
   unbanUser(userId: string): Promise<User | undefined>;
   verifyUser(userId: string): Promise<User | undefined>;
   unverifyUser(userId: string): Promise<User | undefined>;
+  verifyFinder(finderId: string): Promise<Finder | null>;
+  unverifyFinder(finderId: string): Promise<Finder | null>;
 
   // Withdrawal operations
   createWithdrawalRequest(request: InsertWithdrawalRequest): Promise<WithdrawalRequest>;
   getWithdrawalRequests(): Promise<any[]>;
   updateWithdrawalRequest(id: string, updates: Partial<WithdrawalRequest>): Promise<WithdrawalRequest | undefined>;
   updateFinderBalance(finderId: string, amount: string): Promise<void>;
+  getWithdrawalSettings(finderId: string): Promise<any>;
+  updateWithdrawalSettings(finderId: string, settings: any): Promise<any>;
+  getWithdrawalsByFinderId(finderId: string): Promise<WithdrawalRequest[]>;
 
   // Messaging operations
   getConversation(clientId: string, proposalId: string): Promise<Conversation | undefined>;
@@ -189,6 +197,7 @@ export interface IStorage {
   getMessages(conversationId: string): Promise<Array<Message & { sender: { firstName: string; lastName: string; }; }>>;
   createMessage(message: InsertMessage): Promise<Message>;
   markMessagesAsRead(conversationId: string, userId: string): Promise<void>;
+  getFinderProfile(finderId: string): Promise<any>;
 
   // Blog post operations
   getBlogPosts(): Promise<BlogPost[]>;
@@ -203,7 +212,7 @@ export interface IStorage {
   createOrderSubmission(submission: InsertOrderSubmission): Promise<OrderSubmission>;
   getOrderSubmissionByContractId(contractId: string): Promise<OrderSubmission | undefined>;
   updateOrderSubmission(id: string, updates: Partial<OrderSubmission>): Promise<OrderSubmission | undefined>;
-  getContractWithSubmission(contractId: string): Promise<(Contract & {orderSubmission?: OrderSubmission}) | undefined>;
+  getContractWithSubmission(contractId: string): Promise<(Contract & {orderSubmission?: OrderSubmission, finder?: any}) | undefined>;
 
   // Finder level operations
   getFinderLevels(): Promise<FinderLevel[]>;
@@ -222,7 +231,8 @@ export interface IStorage {
 
   // Token grant operations
   grantTokensToFinder(finderId: string, amount: number, reason: string, grantedBy: string): Promise<TokenGrant>;
-  getTokenGrants(finderId?: string): Promise<TokenGrant[]>;
+  grantTokensToClient(userId: string, amount: number, reason: string, grantedBy: string): Promise<ClientTokenGrant>;
+  getTokenGrants(userId?: string): Promise<any[]>;
   getAllFindersForTokens(): Promise<Finder[]>;
 
   // Strike System operations
@@ -262,6 +272,13 @@ export interface IStorage {
   createTokenPackage(tokenPackage: InsertTokenPackage): Promise<TokenPackage>;
   updateTokenPackage(id: string, updates: Partial<TokenPackage>): Promise<TokenPackage | undefined>;
   deleteTokenPackage(id: string): Promise<boolean>;
+
+  // Restricted Words Management
+  addRestrictedWord(word: InsertRestrictedWord): Promise<RestrictedWord>;
+  getRestrictedWords(): Promise<RestrictedWord[]>;
+  removeRestrictedWord(id: string): Promise<boolean>;
+  updateRestrictedWord(id: string, updates: Partial<RestrictedWord>): Promise<RestrictedWord | undefined>;
+  checkContentForRestrictedWords(content: string): Promise<string[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -840,8 +857,8 @@ export class DatabaseStorage implements IStorage {
 
   async syncFinderTokenBalances(): Promise<void> {
     // Sync all finder token balances between finders table and findertokens table
-    const allFinders = await db.query.finders.findMany();
-    
+    const allFinders = await this.getAllFindersForTokens();
+
     for (const finder of allFinders) {
       const tokenRecord = await db.query.findertokens.findFirst({
         where: eq(findertokens.finderId, finder.id),
@@ -1880,7 +1897,7 @@ export class DatabaseStorage implements IStorage {
     return { distributed, alreadyDistributed };
   }
 
-  async getMonthlyDistributions(month: number, year: number): Promise<MonthlyTokenDistribution[]> {
+  async getMonthlyDistributions(month: number, year: number): Promise<MonthlyTokenDistribution[]>{
     const result = await db
       .select({
         id: monthlyTokenDistributions.id,
@@ -1970,40 +1987,107 @@ export class DatabaseStorage implements IStorage {
     return grant;
   }
 
-  async getTokenGrants(finderId?: string): Promise<TokenGrant[]> {
-    let query = db.select().from(tokenGrants);
+  async grantTokensToClient(userId: string, amount: number, reason: string, grantedBy: string): Promise<ClientTokenGrant> {
+    return await db.transaction(async (tx) => {
+      // Verify user is a client
+      const user = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
+      if (user.length === 0 || user[0].role !== 'client') {
+        throw new Error('Client not found');
+      }
 
-    if (finderId) {
-      query = query.where(eq(tokenGrants.finderId, finderId));
+      // Create client token grant record
+      const [grant] = await tx.insert(clientTokenGrants).values({
+        clientId: userId,
+        amount,
+        reason,
+        grantedBy
+      }).returning();
+
+      // Update client token balance
+      const newBalance = (user[0].findertokenBalance || 0) + amount;
+      await tx.update(users)
+        .set({ findertokenBalance: newBalance })
+        .where(eq(users.id, userId));
+
+      // Create transaction record
+      await tx.insert(transactions).values({
+        userId,
+        finderId: null,
+        amount,
+        type: 'admin_grant',
+        description: `Admin granted tokens to client: ${reason}`
+      });
+
+      return grant;
+    });
+  }
+
+  async getTokenGrants(userId?: string): Promise<any[]> {
+    const grantedByUser = alias(users, 'grantedByUser');
+
+    // Get finder grants
+    const finderGrantsQuery = db
+      .select({
+        id: tokenGrants.id,
+        userId: users.id,
+        userType: sql<string>`'finder'`.as('userType'),
+        amount: tokenGrants.amount,
+        reason: tokenGrants.reason,
+        grantedBy: tokenGrants.grantedBy,
+        createdAt: tokenGrants.createdAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+        },
+        grantedByUser: {
+          firstName: grantedByUser.firstName,
+          lastName: grantedByUser.lastName,
+        }
+      })
+      .from(tokenGrants)
+      .leftJoin(finders, eq(tokenGrants.finderId, finders.id))
+      .leftJoin(users, eq(finders.userId, users.id))
+      .leftJoin(grantedByUser, eq(tokenGrants.grantedBy, grantedByUser.id));
+
+    // Get client grants
+    const clientGrantsQuery = db
+      .select({
+        id: clientTokenGrants.id,
+        userId: users.id,
+        userType: sql<string>`'client'`.as('userType'),
+        amount: clientTokenGrants.amount,
+        reason: clientTokenGrants.reason,
+        grantedBy: clientTokenGrants.grantedBy,
+        createdAt: clientTokenGrants.createdAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+        },
+        grantedByUser: {
+          firstName: grantedByUser.firstName,
+          lastName: grantedByUser.lastName,
+        }
+      })
+      .from(clientTokenGrants)
+      .leftJoin(users, eq(clientTokenGrants.clientId, users.id))
+      .leftJoin(grantedByUser, eq(clientTokenGrants.grantedBy, grantedByUser.id));
+
+    if (userId) {
+      finderGrantsQuery.where(eq(users.id, userId));
+      clientGrantsQuery.where(eq(users.id, userId));
     }
 
-    const grants = await query.orderBy(desc(tokenGrants.createdAt));
+    // Execute both queries
+    const [finderGrants, clientGrants] = await Promise.all([
+      finderGrantsQuery,
+      clientGrantsQuery
+    ]);
 
-    // Manually fetch user data for each grant
-    const grantsWithUserData = await Promise.all(
-      grants.map(async (grant) => {
-        const finder = await this.getFinder(grant.finderId);
-        const finderUser = finder ? await this.getUser(finder.userId) : null;
-        const grantedByUser = await this.getUser(grant.grantedBy);
-
-        return {
-          ...grant,
-          finder: {
-            user: finderUser ? {
-              firstName: finderUser.firstName,
-              lastName: finderUser.lastName,
-              email: finderUser.email
-            } : null
-          },
-          grantedByUser: grantedByUser ? {
-            firstName: grantedByUser.firstName,
-            lastName: grantedByUser.lastName
-          } : null
-        };
-      })
-    );
-
-    return grantsWithUserData;
+    // Combine and sort by creation date
+    const allGrants = [...finderGrants, ...clientGrants];
+    return allGrants.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   async getAllFindersForTokens(): Promise<Finder[]> {

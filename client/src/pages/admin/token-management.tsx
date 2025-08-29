@@ -28,12 +28,19 @@ interface Finder {
 
 interface TokenGrant {
   id: string;
-  finderId: string;
+  userId?: string;
+  finderId?: string;
+  userType: 'finder' | 'client';
   amount: number;
   reason: string;
   grantedBy: string;
   createdAt: string;
-  finder: {
+  user?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  finder?: {
     user: {
       firstName: string;
       lastName: string;
@@ -63,7 +70,8 @@ interface MonthlyDistribution {
 }
 
 export default function TokenManagement() {
-  const [selectedFinderId, setSelectedFinderId] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [selectedUserRole, setSelectedUserRole] = useState<"finder" | "client">("finder");
   const [grantAmount, setGrantAmount] = useState("");
   const [grantReason, setGrantReason] = useState("");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -74,11 +82,14 @@ export default function TokenManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch all finders
-  const { data: finders = [], isLoading: isLoadingFinders } = useQuery({
-    queryKey: ["/api/admin/users"],
-    select: (data: any[]) => data.filter((user: any) => user.role === 'finder')
+  // Fetch all users (finders and clients)
+  const { data: users = [], isLoading: isLoadingUsers } = useQuery({
+    queryKey: ["/api/admin/users"]
   });
+
+  // Filter users by role
+  const finders = users.filter((user: any) => user.role === 'finder');
+  const clients = users.filter((user: any) => user.role === 'client');
 
   // Fetch admin settings
   const { data: settings } = useQuery({
@@ -148,9 +159,9 @@ export default function TokenManagement() {
     },
   });
 
-  // Grant tokens to specific finder mutation
+  // Grant tokens to specific user mutation
   const grantTokens = useMutation({
-    mutationFn: (data: { finderId: string; amount: number; reason: string }) =>
+    mutationFn: (data: { userId: string; userRole: string; amount: number; reason: string }) =>
       apiRequest("/api/admin/grant-tokens", {
         method: "POST",
         body: JSON.stringify(data),
@@ -161,12 +172,13 @@ export default function TokenManagement() {
     onSuccess: () => {
       toast({
         title: "Tokens Granted",
-        description: "Tokens have been successfully granted to the finder.",
+        description: `Tokens have been successfully granted to the ${selectedUserRole}.`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/token-grants"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       setShowGrantDialog(false);
-      setSelectedFinderId("");
+      setSelectedUserId("");
+      setSelectedUserRole("finder");
       setGrantAmount("");
       setGrantReason("");
     },
@@ -223,7 +235,7 @@ export default function TokenManagement() {
   };
 
   const handleGrantTokens = () => {
-    if (!selectedFinderId || !grantAmount || !grantReason) {
+    if (!selectedUserId || !grantAmount || !grantReason) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields",
@@ -243,7 +255,8 @@ export default function TokenManagement() {
     }
 
     grantTokens.mutate({
-      finderId: selectedFinderId,
+      userId: selectedUserId,
+      userRole: selectedUserRole,
       amount,
       reason: grantReason,
     });
@@ -352,27 +365,38 @@ export default function TokenManagement() {
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Grant Tokens to Finder</DialogTitle>
+                    <DialogTitle>Grant Tokens to {selectedUserRole === 'finder' ? 'Finder' : 'Client'}</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="finder-select">Select Finder</Label>
-                      <Select value={selectedFinderId} onValueChange={setSelectedFinderId}>
+                      <Label htmlFor="role-select">User Type</Label>
+                      <Select value={selectedUserRole} onValueChange={(value: "finder" | "client") => {
+                        setSelectedUserRole(value);
+                        setSelectedUserId(""); // Reset user selection when role changes
+                      }}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Choose a finder..." />
+                          <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {finders.map((finder: any) => (
-                            <SelectItem
-                              key={finder.id}
-                              value={finder.finders?.[0]?.id || finder.id}
-                            >
-                              {finder.firstName} {finder.lastName} ({finder.email})
-                              {finder.finders?.[0] && (
-                                <span className="ml-2 text-muted-foreground">
-                                  - Balance: {finder.finders[0].findertokenBalance || 0} tokens
-                                </span>
-                              )}
+                          <SelectItem value="finder">Finder</SelectItem>
+                          <SelectItem value="client">Client</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="user-select">Select {selectedUserRole === 'finder' ? 'Finder' : 'Client'}</Label>
+                      <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={`Choose a ${selectedUserRole}...`} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(selectedUserRole === 'finder' ? finders : clients).map((user: any) => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.firstName} {user.lastName} ({user.email})
+                              <span className="ml-2 text-muted-foreground">
+                                - Balance: {user.findertokenBalance || 0} tokens
+                              </span>
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -476,36 +500,49 @@ export default function TokenManagement() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {tokenGrants.map((grant: TokenGrant) => (
-                      <div
-                        key={grant.id}
-                        className="flex items-center justify-between p-4 border rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <div>
-                            <div className="font-medium">
-                              {grant.finder?.user?.firstName || 'Unknown'} {grant.finder?.user?.lastName || 'User'}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              {grant.finder?.user?.email || 'No email'}
+                    {tokenGrants.map((grant: TokenGrant) => {
+                      const userName = grant.user?.firstName && grant.user?.lastName 
+                        ? `${grant.user.firstName} ${grant.user.lastName}`
+                        : grant.finder?.user?.firstName && grant.finder?.user?.lastName
+                        ? `${grant.finder.user.firstName} ${grant.finder.user.lastName}`
+                        : 'Unknown User';
+                      
+                      const userEmail = grant.user?.email || grant.finder?.user?.email || 'No email';
+                      
+                      return (
+                        <div
+                          key={grant.id}
+                          className="flex items-center justify-between p-4 border rounded-lg"
+                        >
+                          <div className="flex items-center gap-3">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <div className="font-medium">{userName}</div>
+                                <Badge variant="outline" className="text-xs">
+                                  {grant.userType}
+                                </Badge>
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {userEmail}
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="text-right">
-                          <Badge variant="secondary" className="mb-1">
-                            +{grant.amount} tokens
-                          </Badge>
-                          <div className="text-xs text-muted-foreground">
-                            by {grant.grantedByUser?.firstName || 'Unknown'} {grant.grantedByUser?.lastName || 'Admin'}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {format(new Date(grant.createdAt), 'MMM d, yyyy h:mm a')}
+                          <div className="text-right">
+                            <Badge variant="secondary" className="mb-1">
+                              +{grant.amount} tokens
+                            </Badge>
+                            <div className="text-xs text-muted-foreground">
+                              by {grant.grantedByUser?.firstName || 'Unknown'} {grant.grantedByUser?.lastName || 'Admin'}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {format(new Date(grant.createdAt), 'MMM d, yyyy h:mm a')}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>

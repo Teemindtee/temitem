@@ -2670,34 +2670,79 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Grant tokens to a specific finder
+  // Grant tokens to a specific user (finder or client)
   app.post("/api/admin/grant-tokens", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const { finderId, amount, reason } = req.body;
+      const { userId, userRole, amount, reason, finderId } = req.body;
 
-      if (!finderId || !amount || !reason) {
-        return res.status(400).json({ message: "Finder ID, amount, and reason are required" });
+      // Support both old API (finderId) and new API (userId + userRole)
+      if (finderId && !userId) {
+        // Legacy support for existing calls
+        if (!finderId || !amount || !reason) {
+          return res.status(400).json({ message: "Finder ID, amount, and reason are required" });
+        }
+
+        if (amount <= 0) {
+          return res.status(400).json({ message: "Amount must be positive" });
+        }
+
+        // Verify finder exists
+        const finder = await storage.getFinder(finderId);
+        if (!finder) {
+          return res.status(404).json({ message: "Finder not found" });
+        }
+
+        // Grant tokens to finder
+        const grant = await storage.grantTokensToFinder(finderId, amount, reason, req.user.userId);
+
+        return res.json({
+          message: "Tokens granted successfully",
+          grant
+        });
+      }
+
+      // New API for both finders and clients
+      if (!userId || !userRole || !amount || !reason) {
+        return res.status(400).json({ message: "User ID, user role, amount, and reason are required" });
       }
 
       if (amount <= 0) {
         return res.status(400).json({ message: "Amount must be positive" });
       }
 
-      // Verify finder exists
-      const finder = await storage.getFinder(finderId);
-      if (!finder) {
-        return res.status(404).json({ message: "Finder not found" });
+      if (!['finder', 'client'].includes(userRole)) {
+        return res.status(400).json({ message: "User role must be 'finder' or 'client'" });
       }
 
-      // Grant tokens to finder
-      const grant = await storage.grantTokensToFinder(finderId, amount, reason, req.user.userId);
+      // Verify user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.role !== userRole) {
+        return res.status(400).json({ message: "User role mismatch" });
+      }
+
+      let grant;
+      if (userRole === 'finder') {
+        // Grant tokens to finder
+        const finder = await storage.getFinderByUserId(userId);
+        if (!finder) {
+          return res.status(404).json({ message: "Finder profile not found" });
+        }
+        grant = await storage.grantTokensToFinder(finder.id, amount, reason, req.user.userId);
+      } else {
+        // Grant tokens to client
+        grant = await storage.grantTokensToClient(userId, amount, reason, req.user.userId);
+      }
 
       res.json({
-        message: "Tokens granted successfully",
+        message: `Tokens granted successfully to ${userRole}`,
         grant
       });
     } catch (error) {
@@ -2713,8 +2758,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const { finderId } = req.query;
-      const grants = await storage.getTokenGrants(finderId as string);
+      const { userId, finderId } = req.query;
+      // Support both userId (new) and finderId (legacy) parameters
+      const queryUserId = userId || finderId;
+      const grants = await storage.getTokenGrants(queryUserId as string);
 
       res.json(grants);
     } catch (error) {
