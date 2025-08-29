@@ -1,4 +1,4 @@
-import { useParams, Link } from "wouter";
+import { useParams, Link, navigate } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,57 +44,56 @@ export default function ProposalDetail() {
     findTitle?: string;
     finderName?: string;
   }>({ isOpen: false });
-  
+
   const { data: proposal, isLoading } = useQuery<ProposalWithDetails>({
     queryKey: ['/api/proposals', proposalId],
     enabled: !!proposalId && !!user
   });
 
-  const acceptProposalMutation = useMutation({
+  const acceptProposal = useMutation({
     mutationFn: async (id: string) => {
       return apiRequest("POST", `/api/proposals/${id}/accept`, {});
     },
-    onSuccess: (response: any) => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/proposals', proposalId] });
       queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
       queryClient.invalidateQueries({ queryKey: ['/api/client/proposals'] });
-      
-      // Check if payment is required
-      if (response.payment && response.payment.required) {
-        // Show payment modal
+
+      if (data.payment && data.payment.paymentUrl) {
+        // Open payment modal with the contract details
         setPaymentModal({
           isOpen: true,
-          contractId: response.contract.id,
-          amount: response.payment.amount,
-          paymentUrl: response.payment.paymentUrl,
-          reference: response.payment.reference,
-          findTitle: proposal?.request.title || "Find Request",
-          finderName: proposal ? `${proposal.finder.user.firstName} ${proposal.finder.user.lastName}` : "Finder"
+          contractId: data.contract.id,
+          amount: data.payment.amount,
+          paymentUrl: data.payment.paymentUrl,
+          reference: data.payment.reference,
+          findTitle: data.request.title || 'Find Request',
+          finderName: proposal ? `${proposal.finder.user.firstName} ${proposal.finder.user.lastName}` : 'Finder',
         });
-        
+
         toast({
-          title: "Proposal Accepted!",
-          description: "Please fund the escrow to begin work.",
+          title: "Contract Created!",
+          description: "Please complete payment to fund the escrow and start work.",
         });
       } else {
-        // Standard acceptance (no payment required)
         toast({
-          title: "Proposal Accepted!",
-          description: "The proposal has been accepted and a contract has been created.",
+          title: "Success",
+          description: "Proposal accepted and contract created!",
         });
+        navigate("/client/contracts");
       }
     },
     onError: (error: any) => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to accept proposal",
+        description: error.message || "Failed to accept proposal and create contract. Please try again.",
       });
     }
   });
 
   const handleAcceptProposal = (id: string) => {
-    acceptProposalMutation.mutate(id);
+    acceptProposal.mutate(id);
   };
 
   if (isLoading) {
@@ -183,7 +182,7 @@ export default function ProposalDetail() {
     <>
       <div className="min-h-screen bg-gray-50">
         <ClientHeader />
-        
+
         <div className="container mx-auto py-8">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center mb-6">
@@ -281,9 +280,9 @@ export default function ProposalDetail() {
                   <Button 
                     onClick={() => handleAcceptProposal(proposal.id)}
                     className="bg-finder-red hover:bg-finder-red-dark text-white flex-1"
-                    disabled={acceptProposalMutation.isPending}
+                    disabled={acceptProposal.isPending}
                   >
-                    {acceptProposalMutation.isPending ? "Accepting..." : "Accept Proposal"}
+                    {acceptProposal.isPending ? "Accepting..." : "Accept Proposal"}
                   </Button>
                 )}
               </div>
@@ -291,32 +290,33 @@ export default function ProposalDetail() {
           </Card>
         </div>
       </div>
-    </div>
 
-    {/* Payment Modal */}
-    {paymentModal.isOpen && paymentModal.contractId && (
-      <PaymentModal
-        isOpen={paymentModal.isOpen}
-        onClose={() => setPaymentModal({ isOpen: false })}
-        contractId={paymentModal.contractId}
-        amount={paymentModal.amount || 0}
-        paymentUrl={paymentModal.paymentUrl || ''}
-        reference={paymentModal.reference || ''}
-        findTitle={paymentModal.findTitle || 'Find Request'}
-        finderName={paymentModal.finderName || 'Finder'}
-        onPaymentSuccess={() => {
-          // Refresh proposal data after payment
-          queryClient.invalidateQueries({ queryKey: ['/api/proposals', proposalId] });
-          queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
-          queryClient.invalidateQueries({ queryKey: ['/api/client/proposals'] });
-          
-          toast({
-            title: "Payment Successful!",
-            description: "Escrow has been funded. Work can now begin.",
-          });
-        }}
-      />
-    )}
+      {/* Payment Modal */}
+      {paymentModal.isOpen && paymentModal.contractId && (
+        <PaymentModal
+          isOpen={paymentModal.isOpen}
+          onClose={() => setPaymentModal({ isOpen: false })}
+          contractId={paymentModal.contractId}
+          amount={paymentModal.amount || 0}
+          paymentUrl={paymentModal.paymentUrl || ''}
+          reference={paymentModal.reference || ''}
+          findTitle={paymentModal.findTitle || 'Find Request'}
+          finderName={paymentModal.finderName || 'Finder'}
+          onPaymentSuccess={() => {
+            // Refresh proposal data after payment
+            queryClient.invalidateQueries({ queryKey: ['/api/proposals', proposalId] });
+            queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
+            queryClient.invalidateQueries({ queryKey: ['/api/client/proposals'] });
+
+            toast({
+              title: "Payment Successful!",
+              description: "Escrow has been funded. Work can now begin.",
+            });
+            setPaymentModal({ isOpen: false }); // Close modal after success
+            navigate("/client/contracts"); // Navigate to contracts page
+          }}
+        />
+      )}
     </>
   );
 }

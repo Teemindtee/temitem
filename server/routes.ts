@@ -953,14 +953,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         escrowStatus: 'pending'
       });
 
-      // Generate payment information
+      // Generate payment information immediately
       const paystackService = new PaystackService();
       const reference = paystackService.generateTransactionReference(request.clientId);
       
       // Initialize payment for escrow funding
-      let paymentUrl = null;
+      let paymentData = null;
       try {
-        const paymentData = await paystackService.initializeTransaction(
+        paymentData = await paystackService.initializeTransaction(
           clientUser!.email,
           proposal.price,
           reference,
@@ -971,14 +971,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             finderName: finderUser ? `${finderUser.firstName} ${finderUser.lastName}` : 'Unknown Finder'
           }
         );
-        paymentUrl = paymentData.authorization_url;
       } catch (paymentError) {
         console.error('Failed to initialize payment:', paymentError);
-        // Don't fail the request, just log the error
+        // Delete the contract if payment initialization fails
+        await storage.updateContract(contract.id, { escrowStatus: 'failed' });
+        return res.status(500).json({ 
+          message: "Failed to initialize payment. Please try again.",
+          error: "Payment initialization failed"
+        });
       }
-
-      // Keep request status as active until payment is confirmed
-      // Status will be updated to 'in progress' after successful payment
 
       // Send email notification to finder about being hired (pending payment)
       if (finderUser && clientUser) {
@@ -995,17 +996,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({ 
+        success: true,
+        message: "Proposal accepted and contract created. Please complete payment to start work.",
         proposal, 
-        contract, 
+        contract: {
+          ...contract,
+          findTitle: request.title,
+          finderName: finderUser ? `${finderUser.firstName} ${finderUser.lastName}` : 'Unknown Finder'
+        },
         payment: {
           required: true,
           amount: proposal.price,
           reference,
-          paymentUrl
+          paymentUrl: paymentData.authorization_url,
+          contractId: contract.id
         }
       });
     } catch (error) {
-      res.status(500).json({ message: "Failed to accept proposal" });
+      console.error('Accept proposal error:', error);
+      res.status(500).json({ message: "Failed to accept proposal and create contract" });
     }
   });
 
@@ -1111,11 +1120,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateContract(contractId, { escrowStatus: 'held' });
         
         // Update the find status to 'in progress'
-        await storage.updateFind(contract.findId, { status: 'in progress' });
+        await storage.updateFind(contract.findId, { status: 'in_progress' });
+
+        // Send email notification to finder that work can begin
+        try {
+          const finder = await storage.getFinder(contract.finderId);
+          const finderUser = finder ? await storage.getUser(finder.userId) : null;
+          const clientUser = await storage.getUser(contract.clientId);
+          const request = await storage.getFind(contract.findId);
+
+          if (finderUser && clientUser && request) {
+            await emailService.notifyFinderWorkCanBegin(
+              finderUser.email,
+              `${clientUser.firstName} ${clientUser.lastName}`,
+              request.title,
+              contract.amount.toString()
+            );
+          }
+        } catch (emailError) {
+          console.error('Failed to send work begin notification email:', emailError);
+        }
 
         res.json({
           success: true,
-          message: "Payment verified and escrow funded successfully",
+          message: "Payment verified and escrow funded successfully. Work can now begin.",
           contract: { ...contract, escrowStatus: 'held' }
         });
       } else {

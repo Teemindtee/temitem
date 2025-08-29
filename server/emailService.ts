@@ -105,29 +105,64 @@ export class EmailService {
   }
 
   async notifyFinderHired(finderEmail: string, clientName: string, requestTitle: string, amount: string): Promise<boolean> {
-    const template: EmailTemplate = {
-      to: finderEmail,
-      subject: `Congratulations! You've been hired - FinderMeister`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #16a34a;">Congratulations! You've Been Hired</h2>
-          <p>Hi there,</p>
-          <p>Great news! <strong>${clientName}</strong> has accepted your proposal and hired you for:</p>
-          <div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
-            <h3 style="margin: 0 0 10px 0; color: #1e40af;">${requestTitle}</h3>
-            <p style="margin: 0; color: #374151;">Contract Amount: <strong>₦${amount}</strong></p>
-          </div>
-          <p>The funds have been placed in escrow and will be released to you upon successful completion of the work.</p>
-          <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/finder/contracts" 
-             style="background-color: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 20px 0;">
-            View Contract
-          </a>
-          <p>Best regards,<br>The FinderMeister Team</p>
+    const subject = `🎉 You've been hired for "${requestTitle}"!`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #059669;">Congratulations! You've been hired!</h2>
+        <p>Great news! <strong>${clientName}</strong> has accepted your proposal and hired you for the project:</p>
+        <div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
+          <h3 style="margin: 0; color: #0369a1;">${requestTitle}</h3>
         </div>
-      `,
-    };
+        <p><strong>Contract Amount:</strong> ₦${amount}</p>
+        <p>The client will now fund the escrow, and once payment is complete, you can begin working on the project.</p>
+        <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 15px 0;">
+          <p style="margin: 0;"><strong>Next Steps:</strong></p>
+          <ul style="margin: 10px 0;">
+            <li>Wait for escrow funding confirmation</li>
+            <li>You'll receive another notification when work can begin</li>
+            <li>Start communicating with the client about project details</li>
+          </ul>
+        </div>
+        <p>Log in to your FinderMeister dashboard to view the contract details and start messaging the client.</p>
+        <p>Best of luck with your project!</p>
+        <p>Best regards,<br>The FinderMeister Team</p>
+      </div>
+    `;
+
     return this.sendEmail(template);
   }
+
+  async notifyFinderWorkCanBegin(finderEmail: string, clientName: string, requestTitle: string, amount: string): Promise<boolean> {
+    const subject = `🚀 Escrow funded! You can now start work on "${requestTitle}"`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #059669;">Escrow Funded - Work Can Begin!</h2>
+        <p>Excellent news! <strong>${clientName}</strong> has funded the escrow for your project:</p>
+        <div style="background-color: #f0f9ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
+          <h3 style="margin: 0; color: #0369a1;">${requestTitle}</h3>
+        </div>
+        <p><strong>Contract Amount:</strong> ₦${amount}</p>
+        <div style="background-color: #d1fae5; padding: 15px; border-radius: 8px; margin: 15px 0;">
+          <p style="margin: 0; color: #065f46;"><strong>✅ Payment Secured:</strong> The full contract amount is now held in escrow and will be released to you upon successful completion of the work.</p>
+        </div>
+        <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 15px 0;">
+          <p style="margin: 0;"><strong>Ready to Start:</strong></p>
+          <ul style="margin: 10px 0;">
+            <li>Begin working on the project immediately</li>
+            <li>Communicate regularly with the client</li>
+            <li>Submit your completed work through the platform</li>
+            <li>Payment will be released once client approves your work</li>
+          </ul>
+        </div>
+        <p>Log in to your FinderMeister dashboard to view the contract details and start messaging the client.</p>
+        <p>Good luck with your project!</p>
+        <p>Best regards,<br>The FinderMeister Team</p>
+      </div>
+    `;
+
+    return this.sendEmail(template);
+  }
+
 
   async notifyFinderSubmissionApproved(finderEmail: string, clientName: string, requestTitle: string, amount: string): Promise<boolean> {
     const template: EmailTemplate = {

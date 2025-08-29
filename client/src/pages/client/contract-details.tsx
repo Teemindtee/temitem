@@ -592,16 +592,17 @@ export default function ContractDetails() {
               <CardContent className="p-6 sm:p-8">
                 <h3 className="font-semibold text-slate-900 mb-4">Quick Actions</h3>
                 <div className="space-y-3">
-                  {/* Payment Button - Show only if contract is not funded */}
-                  {contract.escrowStatus !== 'funded' && contract.escrowStatus !== 'held' && (
-                    <Button 
-                      onClick={handleInitiatePayment}
-                      disabled={initializePaymentMutation.isPending}
-                      className="w-full justify-start bg-finder-red hover:bg-finder-red-dark text-white"
-                    >
-                      <CreditCard className="w-4 h-4 mr-3" />
-                      {initializePaymentMutation.isPending ? "Initializing..." : "Complete Payment"}
-                    </Button>
+                  {/* Payment warning for pending escrow */}
+                  {contract.escrowStatus === 'pending' && (
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        <AlertTriangle className="w-5 h-5 text-amber-600" />
+                        <div>
+                          <p className="text-sm font-medium text-amber-800">Payment Required</p>
+                          <p className="text-xs text-amber-700">This contract is pending payment. Work cannot begin until escrow is funded.</p>
+                        </div>
+                      </div>
+                    </div>
                   )}
                   
                   <Button 
