@@ -154,7 +154,8 @@ export const messages = pgTable("messages", {
   content: text("content").notNull(),
   attachmentPaths: text("attachment_paths").array(), // Array of file paths in object storage
   attachmentNames: text("attachment_names").array(), // Array of original file names
-  isRead: boolean("is_read").default(false),
+  quotedMessageId: text("quoted_message_id").references(() => messages.id),
+  isRead: boolean("is_read").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

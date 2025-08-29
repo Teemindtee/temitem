@@ -77,9 +77,12 @@ import {
   strikes,
   userRestrictions,
   disputes,
+  behavioralTraining,
+  trustedBadges,
+  tokenPackages,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and, sql, asc } from "drizzle-orm";
 import { generateId } from "@shared/utils";
 
 export interface IStorage {
@@ -194,7 +197,7 @@ export interface IStorage {
     lastMessage?: { content: string; createdAt: Date; senderId: string; };
     unreadCount: number;
   }>>;
-  getMessages(conversationId: string): Promise<Array<Message & { sender: { firstName: string; lastName: string; }; }>>;
+  getMessages(conversationId: string): Promise<Array<Message & { sender: { firstName: string; lastName: string; }; quotedMessage?: { content: string; sender: { firstName: string; lastName: string; } } }>>;
   createMessage(message: InsertMessage): Promise<Message>;
   markMessagesAsRead(conversationId: string, userId: string): Promise<void>;
   getFinderProfile(finderId: string): Promise<any>;
@@ -1091,24 +1094,55 @@ export class DatabaseStorage implements IStorage {
     }));
   }
 
-  async getMessages(conversationId: string): Promise<Array<Message & { sender: { firstName: string; lastName: string; }; }>> {
-    return await db
+  async getMessages(conversationId: string): Promise<Array<Message & { sender: { firstName: string; lastName: string; }; quotedMessage?: { content: string; sender: { firstName: string; lastName: string; } } }>> {
+    const messagesWithSender = await db
       .select({
-        message: messages,
-        senderFirstName: users.firstName,
-        senderLastName: users.lastName
+        id: messages.id,
+        conversationId: messages.conversationId,
+        senderId: messages.senderId,
+        content: messages.content,
+        attachmentPaths: messages.attachmentPaths,
+        attachmentNames: messages.attachmentNames,
+        quotedMessageId: messages.quotedMessageId,
+        isRead: messages.isRead,
+        createdAt: messages.createdAt,
+        sender: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+        }
       })
       .from(messages)
       .innerJoin(users, eq(messages.senderId, users.id))
       .where(eq(messages.conversationId, conversationId))
-      .orderBy(messages.createdAt)
-      .then(result => result.map(row => ({
-        ...row.message,
-        sender: {
-          firstName: row.senderFirstName,
-          lastName: row.senderLastName
-        }
-      })));
+      .orderBy(asc(messages.createdAt));
+
+    // Fetch quoted messages separately
+    const messagesWithQuoted = await Promise.all(
+      messagesWithSender.map(async (message) => {
+        if (!message.quotedMessageId) return message;
+
+        const quotedMessage = await db
+          .select({
+            id: messages.id,
+            content: messages.content,
+            sender: {
+              firstName: users.firstName,
+              lastName: users.lastName,
+            }
+          })
+          .from(messages)
+          .innerJoin(users, eq(messages.senderId, users.id))
+          .where(eq(messages.id, message.quotedMessageId))
+          .limit(1);
+
+        return {
+          ...message,
+          quotedMessage: quotedMessage[0] || null
+        };
+      })
+    );
+
+    return messagesWithQuoted;
   }
 
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
@@ -1271,7 +1305,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(withdrawalRequests.finderId, finderId))
       .orderBy(desc(withdrawalRequests.requestedAt));
   }
-
 
 
   async updateSecuritySettings(finderId: string, settings: any): Promise<any> {

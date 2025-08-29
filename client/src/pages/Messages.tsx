@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
@@ -8,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, Clock, User, Search, Filter, MoreVertical, CheckCircle2, Circle, Star, ExternalLink, Bell } from "lucide-react";
+import { MessageCircle, Clock, User, Search, Filter, MoreVertical, CheckCircle2, Circle, Star, ExternalLink, Bell, Reply, X } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import ClientHeader from "@/components/client-header";
 
@@ -26,11 +25,20 @@ type ConversationListItem = {
   unreadCount: number;
 };
 
+type Message = {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  createdAt: Date;
+  sender?: { firstName: string; lastName: string; };
+};
+
 export default function Messages() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
-  
+
   const { data: conversations = [], isLoading } = useQuery<ConversationListItem[]>({
     queryKey: ['/api/messages/conversations'],
     enabled: !!user
@@ -38,16 +46,16 @@ export default function Messages() {
 
   // Filter conversations based on search
   const filteredConversations = conversations.filter(conversation => {
-    const otherUser = user?.role === 'client' 
-      ? conversation.finder?.user 
+    const otherUser = user?.role === 'client'
+      ? conversation.finder?.user
       : conversation.client;
     const userName = otherUser ? `${otherUser.firstName} ${otherUser.lastName}` : '';
     const projectTitle = conversation.proposal?.request?.title || '';
-    
-    const matchesSearch = searchTerm === '' || 
+
+    const matchesSearch = searchTerm === '' ||
       userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       projectTitle.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     return matchesSearch;
   });
 
@@ -101,7 +109,7 @@ export default function Messages() {
   return (
     <div className="min-h-screen bg-gray-50">
       <ClientHeader currentPage="messages" />
-      
+
       <div className="flex h-[calc(100vh-80px)]">
         {/* Left Panel - Conversation List */}
         <div className="w-1/3 bg-white border-r border-gray-200 flex flex-col">
@@ -132,7 +140,7 @@ export default function Messages() {
                 </Avatar>
               </div>
             </div>
-            
+
             {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -157,16 +165,16 @@ export default function Messages() {
             ) : (
               <div>
                 {filteredConversations.map((conversation) => {
-                  const otherUser = user?.role === 'client' 
-                    ? conversation.finder?.user 
+                  const otherUser = user?.role === 'client'
+                    ? conversation.finder?.user
                     : conversation.client;
-                  const displayName = otherUser 
-                    ? `${otherUser.firstName} ${otherUser.lastName}` 
+                  const displayName = otherUser
+                    ? `${otherUser.firstName} ${otherUser.lastName}`
                     : 'Unknown User';
-                  const initials = otherUser 
+                  const initials = otherUser
                     ? `${otherUser.firstName.charAt(0)}${otherUser.lastName.charAt(0)}`.toUpperCase()
                     : 'U';
-                  const lastMessageTime = conversation.lastMessage?.createdAt 
+                  const lastMessageTime = conversation.lastMessage?.createdAt
                     ? format(new Date(conversation.lastMessage.createdAt), 'HH:mm')
                     : format(new Date(conversation.lastMessageAt), 'HH:mm');
                   const isUnread = conversation.unreadCount > 0;
@@ -191,7 +199,7 @@ export default function Messages() {
                           </Avatar>
                           <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                         </div>
-                        
+
                         {/* Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
@@ -204,14 +212,14 @@ export default function Messages() {
                               {lastMessageTime}
                             </span>
                           </div>
-                          
+
                           <p className={`text-sm truncate ${
                             isUnread ? 'font-medium text-gray-900' : 'text-gray-600'
                           }`}>
                             {conversation.lastMessage?.content || 'No messages yet'}
                           </p>
                         </div>
-                        
+
                         {isUnread && (
                           <div className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></div>
                         )}
@@ -250,22 +258,23 @@ export default function Messages() {
 function ConversationView({ conversationId }: { conversationId: string }) {
   const { user } = useAuth();
   const [newMessage, setNewMessage] = useState("");
+  const [quotedMessage, setQuotedMessage] = useState<Message | null>(null);
 
   const { data: conversation } = useQuery({
     queryKey: ['/api/messages/conversations', conversationId],
     enabled: !!conversationId && !!user,
   });
 
-  const { data: messages = [] } = useQuery({
+  const { data: messages = [] } = useQuery<Message[]>({
     queryKey: ['/api/messages/conversations', conversationId, 'messages'],
     enabled: !!conversationId && !!user,
     refetchInterval: 3000,
   });
 
-  const otherUser = user?.role === 'client' 
-    ? conversation?.finder?.user 
+  const otherUser = user?.role === 'client'
+    ? conversation?.finder?.user
     : conversation?.client;
-  const participantName = otherUser 
+  const participantName = otherUser
     ? `${otherUser.firstName} ${otherUser.lastName}`
     : 'Client A';
 
@@ -273,6 +282,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
     if (!newMessage.trim()) return;
     // Send message logic here
     setNewMessage("");
+    setQuotedMessage(null); // Clear quoted message after sending
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -281,6 +291,11 @@ function ConversationView({ conversationId }: { conversationId: string }) {
       handleSendMessage();
     }
   };
+
+  const handleQuoteMessage = (message: Message) => {
+    setQuotedMessage(message);
+  };
+
 
   return (
     <>
@@ -326,10 +341,10 @@ function ConversationView({ conversationId }: { conversationId: string }) {
             </div>
           </div>
         ) : (
-          messages.map((message: any, index: number) => {
+          messages.map((message: Message, index: number) => {
             const isOwnMessage = message.senderId === user.id;
             const messageTime = format(new Date(message.createdAt), 'HH:mm');
-            
+
             return (
               <div key={message.id} className="flex items-start space-x-3">
                 {!isOwnMessage && (
@@ -339,15 +354,17 @@ function ConversationView({ conversationId }: { conversationId: string }) {
                     </AvatarFallback>
                   </Avatar>
                 )}
-                
+
                 <div className={`flex-1 ${isOwnMessage ? 'flex justify-end' : ''}`}>
                   <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
-                    isOwnMessage 
-                      ? 'bg-blue-500 text-white rounded-br-md' 
+                    isOwnMessage
+                      ? 'bg-blue-500 text-white rounded-br-md'
                       : 'bg-white border border-gray-200 rounded-bl-md'
-                  }`}>
+                  }`}
+                    onDoubleClick={() => handleQuoteMessage(message)} // Quote on double click
+                  >
                     <p className="text-sm leading-relaxed">{message.content}</p>
-                    
+
                     {/* Emoji reactions */}
                     {index === messages.length - 1 && !isOwnMessage && (
                       <div className="flex items-center space-x-1 mt-2">
@@ -358,7 +375,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="text-xs text-gray-500 mt-1 px-1">
                     {messageTime}
                   </div>
@@ -370,39 +387,68 @@ function ConversationView({ conversationId }: { conversationId: string }) {
       </div>
 
       {/* Message Input */}
-      <div className="bg-white border-t border-gray-200 p-4">
-        <div className="flex items-center space-x-3">
-          <Avatar className="w-10 h-10">
-            <AvatarFallback className="bg-gray-400 text-white">
-              <User className="w-5 h-5" />
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1 flex items-center space-x-2">
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type a message..."
-              className="flex-1 border-gray-200 rounded-full px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            />
-            
-            <div className="flex items-center space-x-1">
-              <Button size="sm" variant="ghost" className="p-2 rounded-full">
-                <span className="text-lg">😊</span>
-              </Button>
-              <Button size="sm" variant="ghost" className="p-2 rounded-full">
-                <span className="text-lg">😊</span>
+      <div className="bg-white border-t border-gray-200">
+        {/* Quoted Message Preview */}
+        {quotedMessage && (
+          <div className="p-4 bg-gray-50 border-b border-gray-200">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 mb-1">
+                  <Reply className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-700">
+                    Replying to {quotedMessage.sender?.firstName} {quotedMessage.sender?.lastName}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 bg-white p-2 rounded border-l-4 border-blue-500">
+                  {quotedMessage.content}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setQuotedMessage(null)}
+                className="ml-2"
+              >
+                <X className="w-4 h-4" />
               </Button>
             </div>
-            
-            <Button 
-              onClick={handleSendMessage}
-              disabled={!newMessage.trim()}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 rounded-full"
-            >
-              Send
-            </Button>
+          </div>
+        )}
+
+        <div className="p-4">
+          <div className="flex items-center space-x-3">
+            <Avatar className="w-10 h-10">
+              <AvatarFallback className="bg-gray-400 text-white">
+                <User className="w-5 h-5" />
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1 flex items-center space-x-2">
+              <Input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={quotedMessage ? "Type a reply..." : "Type a message..."}
+                className="flex-1 border-gray-200 rounded-full px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              />
+
+              <div className="flex items-center space-x-1">
+                <Button size="sm" variant="ghost" className="p-2 rounded-full">
+                  <span className="text-lg">😊</span>
+                </Button>
+                <Button size="sm" variant="ghost" className="p-2 rounded-full">
+                  <span className="text-lg">😊</span>
+                </Button>
+              </div>
+
+              <Button
+                onClick={handleSendMessage}
+                disabled={!newMessage.trim()}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 rounded-full"
+              >
+                Send
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -2008,10 +2008,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Send a message
-  app.post("/api/messages/conversations/:conversationId/messages", authenticateToken, async (req: AuthenticatedRequest, res) => {
+  app.post("/api/messages/conversations/:conversationId/messages", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { conversationId } = req.params;
-      const { content, attachmentPaths, attachmentNames } = req.body;
+      const { content, attachmentPaths, attachmentNames, quotedMessageId } = req.body;
 
       if ((!content || content.trim().length === 0) && (!attachmentPaths || attachmentPaths.length === 0)) {
         return res.status(400).json({ message: "Message content or attachments are required" });
@@ -2028,7 +2028,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         senderId: req.user.userId,
         content: content ? content.trim() : '',
         attachmentPaths: attachmentPaths || [],
-        attachmentNames: attachmentNames || []
+        attachmentNames: attachmentNames || [],
+        quotedMessageId,
       });
 
       // Send email notification to the recipient
@@ -3684,7 +3685,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get available offense types for a role
+  // Get offense types for a role
   app.get('/api/offenses/:role', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {

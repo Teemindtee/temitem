@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
@@ -20,7 +19,8 @@ import {
   CheckCircle2,
   Loader2,
   ExternalLink,
-  Bell
+  Bell,
+  Reply
 } from "lucide-react";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
@@ -41,6 +41,14 @@ type Message = {
   sender: { 
     firstName: string; 
     lastName: string; 
+  };
+  quotedMessageId?: string;
+  quotedMessage?: {
+    sender: {
+      firstName: string;
+      lastName: string;
+    };
+    content: string;
   };
 };
 
@@ -74,8 +82,9 @@ export default function ConversationDetail() {
   const queryClient = useQueryClient();
   const conversationId = params.conversationId as string;
   const { toast } = useToast();
-  
+
   const [newMessage, setNewMessage] = useState("");
+  const [quotedMessage, setQuotedMessage] = useState<Message | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data: conversation } = useQuery<ConversationDetail>({
@@ -92,15 +101,16 @@ export default function ConversationDetail() {
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: async ({ content }: { content: string }) => {
+    mutationFn: async ({ content, quotedMessageId }: { content: string, quotedMessageId?: string }) => {
       const response = await apiRequest(`/api/messages/conversations/${conversationId}/messages`, {
         method: 'POST',
-        body: JSON.stringify({ content: content.trim() }),
+        body: JSON.stringify({ content: content.trim(), quotedMessageId }),
       });
       return response;
     },
     onSuccess: () => {
       setNewMessage("");
+      setQuotedMessage(null); // Clear quoted message after sending
       queryClient.invalidateQueries({ 
         queryKey: ['/api/messages/conversations', conversationId, 'messages'] 
       });
@@ -121,7 +131,7 @@ export default function ConversationDetail() {
   const handleSend = () => {
     const content = newMessage.trim();
     if (!content) return;
-    sendMessageMutation.mutate({ content });
+    sendMessageMutation.mutate({ content, quotedMessageId: quotedMessage?.id });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -134,6 +144,16 @@ export default function ConversationDetail() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Function to handle quoting a message
+  const handleQuoteMessage = (messageToQuote: Message) => {
+    setQuotedMessage(messageToQuote);
+  };
+
+  // Function to cancel quoting
+  const cancelQuote = () => {
+    setQuotedMessage(null);
+  };
 
   if (!user) {
     return (
@@ -162,7 +182,7 @@ export default function ConversationDetail() {
       ) : (
         <FinderHeader currentPage="messages" />
       )}
-      
+
       <div className="flex h-[calc(100vh-80px)]">
         {/* Back button for mobile - hidden on desktop */}
         <div className="md:hidden w-full">
@@ -228,7 +248,7 @@ export default function ConversationDetail() {
               messages.map((message: any, index: number) => {
                 const isOwnMessage = message.senderId === user.id;
                 const messageTime = format(new Date(message.createdAt), 'HH:mm');
-                
+
                 return (
                   <div key={message.id} className="flex items-start space-x-3">
                     {!isOwnMessage && (
@@ -238,15 +258,39 @@ export default function ConversationDetail() {
                         </AvatarFallback>
                       </Avatar>
                     )}
-                    
+
                     <div className={`flex-1 ${isOwnMessage ? 'flex justify-end' : ''}`}>
-                      <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
-                        isOwnMessage 
-                          ? 'bg-blue-500 text-white rounded-br-md' 
-                          : 'bg-white border border-gray-200 rounded-bl-md'
-                      }`}>
+                      <div 
+                        className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl cursor-pointer group relative ${
+                          isOwnMessage 
+                            ? 'bg-blue-500 text-white rounded-br-md' 
+                            : 'bg-white border border-gray-200 rounded-bl-md'
+                        }`}
+                        onClick={() => handleQuoteMessage(message)}
+                      >
+                        {/* Quote indicator */}
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Reply className="w-4 h-4 text-gray-400" />
+                        </div>
+
+                        {/* Quoted message display */}
+                        {message.quotedMessageId && (
+                          <div className={`mb-2 p-2 rounded-lg border-l-4 ${
+                            isOwnMessage 
+                              ? 'bg-blue-600 border-blue-300' 
+                              : 'bg-gray-50 border-gray-300'
+                          }`}>
+                            <p className={`text-xs ${isOwnMessage ? 'text-blue-100' : 'text-gray-600'}`}>
+                              {message.quotedMessage?.sender?.firstName} {message.quotedMessage?.sender?.lastName}
+                            </p>
+                            <p className={`text-sm truncate ${isOwnMessage ? 'text-blue-50' : 'text-gray-700'}`}>
+                              {message.quotedMessage?.content || 'Message not found'}
+                            </p>
+                          </div>
+                        )}
+
                         <p className="text-sm leading-relaxed">{message.content}</p>
-                        
+
                         {/* Sample emoji reactions for the last message */}
                         {index === messages.length - 1 && !isOwnMessage && (
                           <div className="flex items-center space-x-1 mt-2">
@@ -257,7 +301,7 @@ export default function ConversationDetail() {
                           </div>
                         )}
                       </div>
-                      
+
                       <div className="text-xs text-gray-500 mt-1 px-1">
                         {messageTime}
                       </div>
@@ -271,13 +315,24 @@ export default function ConversationDetail() {
 
           {/* Message Input */}
           <div className="bg-white border-t border-gray-200 p-4">
+            {quotedMessage && (
+              <div className="flex items-center justify-between p-2 mb-2 border rounded-lg bg-gray-100">
+                <div>
+                  <p className="text-xs text-gray-600">Replying to {quotedMessage.sender?.firstName} {quotedMessage.sender?.lastName}</p>
+                  <p className="text-sm text-gray-800 truncate max-w-md">{quotedMessage.content}</p>
+                </div>
+                <Button variant="ghost" size="sm" onClick={cancelQuote}>
+                  <X className="w-4 h-4 text-gray-500" />
+                </Button>
+              </div>
+            )}
             <div className="flex items-center space-x-3">
               <Avatar className="w-10 h-10">
                 <AvatarFallback className="bg-gray-400 text-white">
                   <User className="w-5 h-5" />
                 </AvatarFallback>
               </Avatar>
-              
+
               <div className="flex-1 flex items-center space-x-2">
                 <Input
                   value={newMessage}
@@ -287,7 +342,7 @@ export default function ConversationDetail() {
                   className="flex-1 border-gray-200 rounded-full px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   disabled={sendMessageMutation.isPending}
                 />
-                
+
                 <div className="flex items-center space-x-1">
                   <Button size="sm" variant="ghost" className="p-2 rounded-full">
                     <span className="text-lg">😊</span>
@@ -296,10 +351,10 @@ export default function ConversationDetail() {
                     <span className="text-lg">😊</span>
                   </Button>
                 </div>
-                
+
                 <Button 
                   onClick={handleSend}
-                  disabled={sendMessageMutation.isPending || !newMessage.trim()}
+                  disabled={sendMessageMutation.isPending || (!newMessage.trim() && !quotedMessage)}
                   className="bg-blue-500 hover:bg-blue-600 text-white px-6 rounded-full"
                 >
                   {sendMessageMutation.isPending ? (
