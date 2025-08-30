@@ -402,13 +402,13 @@ export default function RequestDetails() {
                           <div>
                             <p className="text-xs text-slate-500 mb-1">Proposal Amount</p>
                             <p className="font-semibold text-green-600">
-                              ₦{parseInt(proposal.amount || "0").toLocaleString()}
+                              ₦{parseFloat(proposal.amount || "0").toLocaleString()}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-slate-500 mb-1">Delivery Time</p>
                             <p className="font-semibold text-blue-600">
-                              {proposal.deliveryTime}
+                              {proposal.deliveryTime || "Not specified"}
                             </p>
                           </div>
                         </div>
