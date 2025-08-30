@@ -409,7 +409,7 @@ export default function RequestDetails() {
                           <div>
                             <p className="text-xs text-slate-500 mb-1">Delivery Time</p>
                             <p className="font-semibold text-blue-600">
-                              {proposal.deliveryTime || "Not specified"}
+                              {proposal.timeline || proposal.deliveryTime || "Not specified"}
                             </p>
                           </div>
                         </div>
