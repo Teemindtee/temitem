@@ -207,6 +207,11 @@ export default function FinderContractDetails() {
                     <div>
                       <p className="text-sm text-gray-600">{t('contract.completed')}</p>
                       <p className="font-medium">{formatDate(contract.completedAt)}</p>
+                      {contract.orderSubmission?.autoReleaseDate && (
+                        <p className="text-xs text-gray-500">
+                          Funds release: {formatDate(contract.orderSubmission.autoReleaseDate)}
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}
