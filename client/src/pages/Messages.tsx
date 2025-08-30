@@ -263,7 +263,19 @@ function ConversationView({ conversationId }: { conversationId: string }) {
   const { user } = useAuth();
   const [newMessage, setNewMessage] = useState("");
   const [quotedMessage, setQuotedMessage] = useState<Message | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const queryClient = useQueryClient();
+
+  // Popular emojis for quick access
+  const popularEmojis = ["😊", "👍", "❤️", "😂", "😢", "😮", "😡", "🙏", "👏", "🔥", "💯", "✅", "❌", "⭐", "🎉", "💪"];
+  
+  // Extended emoji collection
+  const emojiCategories = {
+    "Faces": ["😊", "😂", "🥰", "😍", "🤗", "🤔", "😎", "😴", "🤯", "😇", "🥺", "😭", "😤", "🙄", "😬", "🤐"],
+    "Gestures": ["👍", "👎", "👏", "🙌", "👌", "✌️", "🤞", "🤟", "🤘", "👊", "✊", "🙏", "👐", "🤲", "💪", "🦾"],
+    "Hearts": ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "🤍", "🤎", "💔", "❣️", "💕", "💞", "💓", "💗", "💖"],
+    "Objects": ["🔥", "💯", "⭐", "✨", "🎉", "🎊", "💥", "💫", "⚡", "💦", "☀️", "🌙", "⭐", "🌟", "✅", "❌"]
+  };
 
   const { data: conversation } = useQuery({
     queryKey: ['/api/messages/conversations', conversationId],
@@ -329,6 +341,21 @@ function ConversationView({ conversationId }: { conversationId: string }) {
   const handleQuoteMessage = (message: Message) => {
     setQuotedMessage(message);
   };
+
+  // Close emoji picker when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showEmojiPicker && !target.closest('.emoji-picker-container')) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
 
   return (
@@ -477,11 +504,12 @@ function ConversationView({ conversationId }: { conversationId: string }) {
                 className="flex-1 border-gray-200 rounded-full px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
 
-              <div className="flex items-center space-x-1">
+              <div className="relative flex items-center space-x-1 emoji-picker-container">
+                {/* Quick emoji buttons */}
                 <Button 
                   size="sm" 
                   variant="ghost" 
-                  className="p-2 rounded-full"
+                  className="p-2 rounded-full hover:bg-gray-100"
                   onClick={() => setNewMessage(prev => prev + "😊")}
                 >
                   <span className="text-lg">😊</span>
@@ -489,11 +517,70 @@ function ConversationView({ conversationId }: { conversationId: string }) {
                 <Button 
                   size="sm" 
                   variant="ghost" 
-                  className="p-2 rounded-full"
-                  onClick={() => setNewMessage(prev => prev + "👍")}
+                  className="p-2 rounded-full hover:bg-gray-100"
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 >
-                  <span className="text-lg">👍</span>
+                  <span className="text-lg">😀</span>
                 </Button>
+
+                {/* Emoji Picker Modal */}
+                {showEmojiPicker && (
+                  <div className="absolute bottom-12 right-0 w-80 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium text-gray-700">Emojis</h3>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setShowEmojiPicker(false)}
+                        className="p-1 h-6 w-6"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {/* Popular/Recent Emojis */}
+                    <div className="mb-4">
+                      <h4 className="text-xs font-medium text-gray-500 mb-2">Popular</h4>
+                      <div className="grid grid-cols-8 gap-1">
+                        {popularEmojis.map((emoji, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setNewMessage(prev => prev + emoji);
+                              setShowEmojiPicker(false);
+                            }}
+                            className="p-2 hover:bg-gray-100 rounded text-lg flex items-center justify-center"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Emoji Categories */}
+                    <div className="max-h-48 overflow-y-auto">
+                      {Object.entries(emojiCategories).map(([category, emojis]) => (
+                        <div key={category} className="mb-3">
+                          <h4 className="text-xs font-medium text-gray-500 mb-2">{category}</h4>
+                          <div className="grid grid-cols-8 gap-1">
+                            {emojis.map((emoji, index) => (
+                              <button
+                                key={index}
+                                onClick={() => {
+                                  setNewMessage(prev => prev + emoji);
+                                  setShowEmojiPicker(false);
+                                }}
+                                className="p-2 hover:bg-gray-100 rounded text-lg flex items-center justify-center"
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <Button
