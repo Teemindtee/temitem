@@ -1086,6 +1086,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Initialize payment with Paystack
       const paystackService = new PaystackService();
+      
+      // Check if Paystack is properly configured
+      if (!paystackService.isConfigured()) {
+        return res.status(500).json({ 
+          message: "Payment service is currently unavailable. Please contact support to complete your payment.",
+          error: "Payment service not configured"
+        });
+      }
+
       const paymentData = await paystackService.initializeTransaction(
         user.email,
         parseInt(contract.amount.toString()),

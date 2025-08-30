@@ -129,13 +129,20 @@ export default function ContractDetails() {
           findTitle: contract?.request?.title || 'Find Request',
           finderName: contract?.finder?.name || 'Finder',
         });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Payment Setup Failed",
+          description: "Payment service is currently unavailable. Please contact support.",
+        });
       }
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error('Payment initialization error:', error);
       toast({
         variant: "destructive",
         title: "Payment Error",
-        description: "Unable to initialize payment. Please try again.",
+        description: error.message || "Unable to initialize payment. Please try again or contact support.",
       });
     },
   });
@@ -594,14 +601,31 @@ export default function ContractDetails() {
                 <div className="space-y-3">
                   {/* Payment warning for pending escrow */}
                   {contract.escrowStatus === 'pending' && (
-                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                      <div className="flex items-center space-x-2">
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-3">
+                      <div className="flex items-center space-x-2 mb-3">
                         <AlertTriangle className="w-5 h-5 text-amber-600" />
                         <div>
                           <p className="text-sm font-medium text-amber-800">Payment Required</p>
                           <p className="text-xs text-amber-700">This contract is pending payment. Work cannot begin until escrow is funded.</p>
                         </div>
                       </div>
+                      <Button 
+                        onClick={handleInitiatePayment}
+                        disabled={initializePaymentMutation.isPending}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        {initializePaymentMutation.isPending ? (
+                          <>
+                            <Loader2 className="animate-spin w-4 h-4 mr-2" />
+                            Setting up payment...
+                          </>
+                        ) : (
+                          <>
+                            <CreditCard className="w-4 h-4 mr-2" />
+                            Fund Contract Escrow
+                          </>
+                        )}
+                      </Button>
                     </div>
                   )}
                   

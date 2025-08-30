@@ -8,7 +8,7 @@ import { Link } from "wouter";
 import { 
   Clock, 
   CheckCircle, 
- 
+
   MessageCircle, 
   FileText, 
   TrendingUp, 
@@ -71,6 +71,48 @@ export default function ClientContracts() {
   const totalSpent = contracts
     .filter(c => c.isCompleted)
     .reduce((sum, c) => sum + parseFloat(c.amount), 0);
+
+  // Helper functions for contract status
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'funded':
+        return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'completed':
+        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'disputed':
+        return 'bg-red-100 text-red-700 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Pending Funding';
+      case 'funded':
+        return 'Funded';
+      case 'completed':
+        return 'Completed';
+      case 'disputed':
+        return 'Disputed';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const timeAgo = (timestamp: string) => {
+    const now = new Date();
+    const then = new Date(timestamp);
+    const diffInSeconds = Math.floor((now.getTime() - then.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-slate-100 relative overflow-hidden">
@@ -268,7 +310,7 @@ export default function ClientContracts() {
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Message Finder
                       </StartConversationButton>
-                      
+
                       {!contract.isCompleted && !contract.hasSubmission && (
                         <Link href={`/client/contracts/${contract.id}`}>
                           <Button 
@@ -281,7 +323,7 @@ export default function ClientContracts() {
                           </Button>
                         </Link>
                       )}
-                      
+
                       {!contract.isCompleted && contract.hasSubmission && (
                         <Link href={`/orders/review/${contract.id}`}>
                           <Button 
@@ -294,12 +336,26 @@ export default function ClientContracts() {
                           </Button>
                         </Link>
                       )}
-                      
+
                       {contract.isCompleted && (
                         <Link href={`/orders/review/${contract.id}`}>
                           <Button size="sm" variant="secondary" className="shadow-lg hover:shadow-xl transition-all">
                             <Eye className="w-4 h-4 mr-1" />
                             View Details
+                          </Button>
+                        </Link>
+                      )}
+
+                      {/* Payment Button for pending contracts */}
+                      {!contract.isCompleted && contract.escrowStatus === 'pending' && (
+                        <Link href={`/client/fund-contract/${contract.id}`}>
+                          <Button
+                            size="sm"
+                            className="text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                            style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}
+                          >
+                            <Shield className="w-4 h-4 mr-1" />
+                            Fund Contract
                           </Button>
                         </Link>
                       )}
