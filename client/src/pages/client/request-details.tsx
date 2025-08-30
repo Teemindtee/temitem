@@ -502,11 +502,6 @@ export default function RequestDetails() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-600">Views</span>
-                    <span className="font-semibold text-slate-900">127</span>
-                  </div>
-
-                  <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Proposals</span>
                     <span className="font-semibold text-slate-900">{proposals.length}</span>
                   </div>
