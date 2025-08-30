@@ -285,11 +285,21 @@ function ConversationView({ conversationId }: { conversationId: string }) {
 
   const sendMessageMutation = useMutation({
     mutationFn: async ({ content, quotedMessageId }: { content: string, quotedMessageId?: string }) => {
+      const token = localStorage.getItem('findermeister_token');
       const response = await fetch(`/api/messages/conversations/${conversationId}/messages`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ content: content.trim(), quotedMessageId }),
       });
-      return response;
+      
+      if (!response.ok) {
+        throw new Error(`Failed to send message: ${response.statusText}`);
+      }
+      
+      return response.json();
     },
     onSuccess: () => {
       setNewMessage("");
