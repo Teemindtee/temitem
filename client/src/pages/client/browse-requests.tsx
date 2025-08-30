@@ -74,7 +74,7 @@ export default function BrowseRequests() {
   const [showFilters, setShowFilters] = useState(false);
 
   const { data: finds = [], isLoading } = useQuery<FindItem[]>({
-    queryKey: ['/api/client/finds'],
+    queryKey: ['/api/client/requests'],
     enabled: !!user
   });
 
