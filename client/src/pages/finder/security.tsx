@@ -204,30 +204,6 @@ export default function SecuritySettings() {
             </CardContent>
           </Card>
 
-          {/* Two-Factor Authentication */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Smartphone className="w-5 h-5" />
-                Two-Factor Authentication
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-1">Enable 2FA</h4>
-                  <p className="text-sm text-gray-600">
-                    Add extra security to your account
-                  </p>
-                </div>
-                <Switch
-                  checked={securitySettings.twoFactorEnabled}
-                  onCheckedChange={(checked) => handleSecuritySettingChange('twoFactorEnabled', checked)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Security Notifications */}
           <Card>
             <CardHeader>
