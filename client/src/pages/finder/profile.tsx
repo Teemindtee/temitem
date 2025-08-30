@@ -61,22 +61,7 @@ export default function FinderProfile() {
         availability: data.availability || "full-time"
       };
       
-      const response = await fetch('/api/finder/profile', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Profile update failed:', response.status, errorText);
-        throw new Error(`Failed to update profile: ${response.status}`);
-      }
-
-      return response.json();
+      return apiRequest('PATCH', '/api/finder/profile', payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });
