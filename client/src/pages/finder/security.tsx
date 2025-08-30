@@ -204,41 +204,7 @@ export default function SecuritySettings() {
             </CardContent>
           </Card>
 
-          {/* Security Notifications */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="w-5 h-5" />
-                Notifications
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-1">Email Notifications</h4>
-                  <p className="text-sm text-gray-600">Receive security alerts via email</p>
-                </div>
-                <Switch
-                  checked={securitySettings.emailNotifications}
-                  onCheckedChange={(checked) => handleSecuritySettingChange('emailNotifications', checked)}
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex-1">
-                  <h4 className="font-medium text-gray-900 mb-1">Login Alerts</h4>
-                  <p className="text-sm text-gray-600">Get notified of new logins</p>
-                </div>
-                <Switch
-                  checked={securitySettings.loginAlerts}
-                  onCheckedChange={(checked) => handleSecuritySettingChange('loginAlerts', checked)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          
-        </div>
+          </div>
       </div>
     </div>
   );
