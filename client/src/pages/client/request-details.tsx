@@ -62,6 +62,7 @@ interface Proposal {
   findId: string;
   finderId: string;
   amount: string;
+  price: string; // Added price field
   deliveryTime: string;
   status: string;
   createdAt: string;
@@ -226,7 +227,7 @@ export default function RequestDetails() {
                     ₦{parseInt(find.budgetMin || "0").toLocaleString()} - ₦{parseInt(find.budgetMax || "0").toLocaleString()}
                   </p>
                 </div>
-                
+
                 <div className="text-center">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
                     <Users className="w-6 h-6 text-blue-600" />
@@ -234,7 +235,7 @@ export default function RequestDetails() {
                   <p className="text-xs sm:text-sm text-slate-600 mb-1">Proposals</p>
                   <p className="text-sm sm:text-lg font-bold text-blue-600">{proposalCount}</p>
                 </div>
-                
+
                 <div className="text-center">
                   <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-2">
                     <Clock className="w-6 h-6 text-amber-600" />
@@ -244,7 +245,7 @@ export default function RequestDetails() {
                     {find.timeframe || "Flexible"}
                   </p>
                 </div>
-                
+
                 <div className="text-center">
                   <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
                     <Tag className="w-6 h-6 text-purple-600" />
@@ -384,7 +385,7 @@ export default function RequestDetails() {
                               </div>
                             </div>
                           </div>
-                          
+
                           <Badge 
                             variant="outline"
                             className={proposal.status === 'pending' 
@@ -402,7 +403,7 @@ export default function RequestDetails() {
                           <div>
                             <p className="text-xs text-slate-500 mb-1">Proposal Amount</p>
                             <p className="font-semibold text-green-600">
-                              ₦{parseFloat(proposal.amount || "0").toLocaleString()}
+                              ₦{parseFloat(proposal.price || "0").toLocaleString()}
                             </p>
                           </div>
                           <div>
@@ -423,7 +424,7 @@ export default function RequestDetails() {
                             <Eye className="w-4 h-4 mr-1" />
                             View Details
                           </Button>
-                          
+
                           {proposal.status === 'pending' && (
                             <Button 
                               onClick={() => acceptProposal.mutate(proposal.id)}
@@ -479,7 +480,7 @@ export default function RequestDetails() {
                     <Users className="w-4 h-4 mr-2" />
                     View All Proposals
                   </Button>
-                  
+
                   <Button 
                     variant="outline" 
                     className="w-full border-slate-200 hover:bg-slate-50"
@@ -498,18 +499,18 @@ export default function RequestDetails() {
                   <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
                   Find Performance
                 </h3>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Views</span>
                     <span className="font-semibold text-slate-900">127</span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Proposals</span>
                     <span className="font-semibold text-slate-900">{proposals.length}</span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-slate-600">Response Rate</span>
                     <span className="font-semibold text-green-600">
@@ -518,10 +519,10 @@ export default function RequestDetails() {
                   </div>
 
                   <Separator />
-                  
+
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600 mb-1">
-                      {proposals.length > 0 ? Math.round(proposals.reduce((sum, p) => sum + parseInt(p.amount || "0"), 0) / proposals.length) : 0}
+                      {proposals.length > 0 ? Math.round(proposals.reduce((sum, p) => sum + parseInt(p.price || "0"), 0) / proposals.length) : 0}
                     </div>
                     <div className="text-xs text-slate-600">Average Proposal Amount (₦)</div>
                   </div>
