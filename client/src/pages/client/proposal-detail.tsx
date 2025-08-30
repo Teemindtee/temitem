@@ -59,7 +59,7 @@ export default function ProposalDetail() {
       queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
       queryClient.invalidateQueries({ queryKey: ['/api/client/proposals'] });
 
-      if (data.payment && data.payment.paymentUrl) {
+      if (data.success && data.payment && data.payment.required) {
         // Open payment modal with the contract details
         setPaymentModal({
           isOpen: true,
@@ -67,8 +67,8 @@ export default function ProposalDetail() {
           amount: data.payment.amount,
           paymentUrl: data.payment.paymentUrl,
           reference: data.payment.reference,
-          findTitle: data.request.title || 'Find Request',
-          finderName: proposal ? `${proposal.finder.user.firstName} ${proposal.finder.user.lastName}` : 'Finder',
+          findTitle: data.contract.findTitle || proposal?.request.title || 'Find Request',
+          finderName: data.contract.finderName || (proposal ? `${proposal.finder.user.firstName} ${proposal.finder.user.lastName}` : 'Finder'),
         });
 
         toast({
