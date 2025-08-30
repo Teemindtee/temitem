@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { MessageCircle, Clock, User, Search, Filter, MoreVertical, CheckCircle2, Circle, Star, ExternalLink, Bell, Reply, X, Loader2 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import ClientHeader from "@/components/client-header";
-import { apiRequest } from "@/lib/auth";
+import { AuthService } from "@/lib/auth";
 
 type ConversationListItem = {
   id: string;
@@ -285,7 +285,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
 
   const sendMessageMutation = useMutation({
     mutationFn: async ({ content, quotedMessageId }: { content: string, quotedMessageId?: string }) => {
-      const response = await apiRequest(`/api/messages/conversations/${conversationId}/messages`, {
+      const response = await fetch(`/api/messages/conversations/${conversationId}/messages`, {
         method: 'POST',
         body: JSON.stringify({ content: content.trim(), quotedMessageId }),
       });
@@ -294,8 +294,8 @@ function ConversationView({ conversationId }: { conversationId: string }) {
     onSuccess: () => {
       setNewMessage("");
       setQuotedMessage(null);
-      queryClient.invalidateQueries({ 
-        queryKey: ['/api/messages/conversations', conversationId, 'messages'] 
+      queryClient.invalidateQueries({
+        queryKey: ['/api/messages/conversations', conversationId, 'messages']
       });
     },
     onError: (error) => {
