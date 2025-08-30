@@ -1,30 +1,40 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Clock, CheckCircle, Search, User as UserIcon, FileText, Eye, Cog, ChevronRight, FileEdit, MessageCircle } from "lucide-react";
+import { Plus, Search, Calendar } from "lucide-react";
 import ClientHeader from "@/components/client-header";
-import { apiRequest } from "@/lib/queryClient";
-import type { Find, Proposal, User } from "@shared/schema";
+import type { Find, Proposal } from "@shared/schema";
 import { useTranslation } from "react-i18next";
 
 export default function ClientDashboard() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
 
   // Format currency in Naira
   const formatCurrency = (amount: string | number | null) => {
-    if (amount === null || amount === undefined) return '₦0.00';
+    if (amount === null || amount === undefined) return '₦0';
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return `₦${(numAmount / 100).toFixed(2)}`;
+    return `₦${Math.round(numAmount / 100)}`;
   };
 
-  // Check if mobile view is needed
-  const isMobile = window.innerWidth < 640;
+  // Format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 14) return '1 week ago';
+    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+    return `${Math.ceil(diffDays / 30)} months ago`;
+  };
 
   const { data: requests = [], isLoading: requestsLoading } = useQuery<Find[]>({
     queryKey: ['/api/client/finds'],
@@ -35,11 +45,6 @@ export default function ClientDashboard() {
     queryKey: ['/api/client/proposals'],
     enabled: !!user && user.role === 'client'
   });
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/";
-  };
 
   // Check if user is a client, redirect if not
   if (user && user.role !== 'client') {
@@ -67,290 +72,179 @@ export default function ClientDashboard() {
     );
   }
 
-  // Mobile Dashboard Layout - Simplified and functional
-  if (isMobile) {
-    const userName = user?.firstName || "User";
-
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <ClientHeader currentPage="dashboard" />
-        {/* Mobile Dashboard Content */}
-        <div className="max-w-sm mx-auto bg-white min-h-screen">
-          {/* Header with User Profile */}
-          <div className="bg-finder-red px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3 shadow-sm">
-                <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center">
-                  <span className="text-xs text-white font-medium">👤</span>
-                </div>
-              </div>
-              <span className="text-white text-xl font-semibold">{userName}</span>
-            </div>
-            <ChevronRight className="h-5 w-5 text-white" />
-          </div>
-
-          {/* Main Content Area */}
-          <div className="px-4 py-6 bg-white flex-1">
-            {/* Action Grid - Exact 2x2 Layout */}
-            <div className="grid grid-cols-2 gap-4 mb-12">
-              {/* Post a Request - Top Left */}
-              <Link href="/client/create-find">
-                <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                  <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
-                    <div className="flex flex-col items-center">
-                      <div className="w-8 h-1 bg-white rounded mb-1"></div>
-                      <div className="w-6 h-1 bg-white rounded mb-1"></div>
-                      <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                        <span className="text-finder-red text-xs font-bold">+</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-gray-900 font-semibold text-sm leading-tight">Post a</div>
-                    <div className="text-gray-900 font-semibold text-sm leading-tight">Find</div>
-                  </div>
-                </div>
-              </Link>
-
-              {/* View Proposals - Top Right */}
-              <Link href="/client/proposals">
-                <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                  <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
-                    <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center relative">
-                      <div className="w-3 h-3 bg-white rounded-full"></div>
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full"></div>
-                      <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-white rounded-full"></div>
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-white rounded-full"></div>
-                      <div className="absolute -top-1 -left-1 w-3 h-3 bg-white rounded-full"></div>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-gray-900 font-semibold text-sm leading-tight">View</div>
-                    <div className="text-gray-900 font-semibold text-sm leading-tight">Proposals</div>
-                  </div>
-                </div>
-              </Link>
-
-              {/* Contracts - Bottom Left */}
-              <Link href="/client/contracts">
-                <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                  <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
-                    <div className="w-8 h-6 border-2 border-white rounded-lg flex flex-col justify-center items-center relative">
-                      <div className="w-4 h-0.5 bg-white rounded mb-0.5"></div>
-                      <div className="w-3 h-0.5 bg-white rounded mb-0.5"></div>
-                      <div className="w-5 h-0.5 bg-white rounded"></div>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-gray-900 font-semibold text-sm leading-tight">Contracts</div>
-                  </div>
-                </div>
-              </Link>
-
-              {/* Settings - Bottom Right */}
-              <Link href="/client/profile">
-                <div className="flex flex-col items-center justify-center py-8 px-4 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors">
-                  <div className="w-16 h-16 bg-finder-red rounded-xl flex items-center justify-center mb-3 shadow-sm">
-                    <div className="w-8 h-8 border-2 border-white rounded-full flex items-center justify-center relative">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                      <div className="absolute -top-1 w-1 h-3 bg-white rounded"></div>
-                      <div className="absolute -right-1 w-3 h-1 bg-white rounded"></div>
-                      <div className="absolute -bottom-1 w-1 h-3 bg-white rounded"></div>
-                      <div className="absolute -left-1 w-3 h-1 bg-white rounded"></div>
-                      <div className="absolute top-0 right-0 w-1 h-1 bg-white rounded-full"></div>
-                      <div className="absolute bottom-0 right-0 w-1 h-1 bg-white rounded-full"></div>
-                      <div className="absolute bottom-0 left-0 w-1 h-1 bg-white rounded-full"></div>
-                      <div className="absolute top-0 left-0 w-1 h-1 bg-white rounded-full"></div>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-gray-900 font-semibold text-sm leading-tight">Settings</div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-
-            {/* Bottom Tagline - Positioned at bottom */}
-            <div className="mt-12">
-              <div className="text-center px-4">
-                <p className="text-gray-500 text-base font-medium leading-snug">
-                  One successful find<br />
-                  at a time
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Desktop Dashboard Layout
   return (
     <div className="min-h-screen bg-gray-50">
       <ClientHeader currentPage="dashboard" />
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto py-8 px-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('navigation.welcome_back')}, {user?.firstName}!</h1>
-          <p className="text-gray-600">{t('common.dashboard_overview')}</p>
+        {/* Header Section */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Finds</h1>
+            <p className="text-gray-600">Manage your posted finds and track their progress</p>
+          </div>
+          <div className="mt-4 sm:mt-0 flex gap-3">
+            <Link href="/client/create-find">
+              <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
+                <Plus className="w-4 h-4 mr-2" />
+                Post New Find
+              </Button>
+            </Link>
+            <Link href="/client/proposals">
+              <Button variant="outline">
+                <Search className="w-4 h-4 mr-2" />
+                View Proposals
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card className="border-finder-red/30 hover:border-finder-red/60 transition-colors">
-            <CardContent className="p-6 text-center">
-              <div className="bg-finder-red rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{t('client.post_request')}</h3>
-              <p className="text-gray-600 mb-4 text-sm">{t('client.post_request_description')}</p>
-              <Link href="/client/create-find">
-                <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
-                  {t('client.create_find')}
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="border-blue-200">
-            <CardContent className="p-6 text-center">
-              <div className="bg-blue-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{t('client.open_finds')}</h3>
-              <p className="text-2xl font-bold text-blue-600 mb-2">{requests.filter((r: Find) => r.status === 'open' || r.status === 'active').length}</p>
-              <p className="text-gray-600 text-sm">{t('client.waiting_for_proposals')}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-yellow-200">
-            <CardContent className="p-6 text-center">
-              <div className="bg-yellow-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{t('client.in_progress')}</h3>
-              <p className="text-2xl font-bold text-yellow-600 mb-2">{requests.filter((r: Find) => r.status === 'in_progress').length}</p>
-              <p className="text-gray-600 text-sm">{t('client.currently_being_worked_on')}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-green-200">
-            <CardContent className="p-6 text-center">
-              <div className="bg-green-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{t('client.completed')}</h3>
-              <p className="text-2xl font-bold text-green-600 mb-2">{requests.filter((r: Find) => r.status === 'completed').length}</p>
-              <p className="text-gray-600 text-sm">{t('client.successfully_completed')}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-purple-200 hover:border-purple-400 transition-colors">
-            <CardContent className="p-6 text-center">
-              <div className="bg-purple-600 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
-                <MessageCircle className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{t('client.messages')}</h3>
-              <p className="text-gray-600 mb-4 text-sm">{t('client.chat_with_finders')}</p>
-              <Link href="/messages">
-                <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                  {t('client.view_messages')}
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+        {/* Status Filter Tabs */}
+        <div className="mb-6">
+          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+            <button className="px-4 py-2 text-sm font-medium text-white bg-finder-red rounded-md">
+              Open Requests
+            </button>
+          </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Recent Requests */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-xl text-gray-900">{t('client.recent_finds')}</CardTitle>
-              <Link href="/client/finds">
-                <Button variant="outline" size="sm">{t('common.view_all')}</Button>
-              </Link>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {requests.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>{t('client.no_finds_yet')}</p>
-                  <Link href="/client/create-request" className="text-finder-red hover:underline font-medium">
-                    {t('client.create_first_find')}
-                  </Link>
-                </div>
-              ) : (
-                requests.slice(0, 3).map((request: Find) => (
-                  <div key={request.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-gray-900">{request.title}</h4>
-                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${
-                        (request.status === 'active' || request.status === 'open') ? 'bg-blue-100 text-blue-700' :
-                        request.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700' :
-                        request.status === 'completed' ? 'bg-green-100 text-green-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
-                        {request.status === 'active' || request.status === 'open' ? t('common.open') : 
-                         request.status === 'in_progress' ? t('common.in_progress') :
-                         request.status === 'completed' ? t('common.completed') :
-                         request.status?.replace('_', ' ') || 'pending'}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 text-sm mb-3">{request.description.substring(0, 100)}...</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">Budget: {formatCurrency(request.budgetMin)} - {formatCurrency(request.budgetMax)}</span>
-                      <Link href={`/client/finds/${request.id}`}>
-                        <Button size="sm" variant="outline">{t('common.view')}</Button>
-                      </Link>
-                    </div>
+        {/* Requests Table */}
+        <Card>
+          <CardContent className="p-0">
+            {requests.length === 0 ? (
+              <div className="text-center py-12">
+                <Search className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No finds posted yet</h3>
+                <p className="text-gray-600 mb-6">Start by posting your first find to connect with talented finders</p>
+                <Link href="/client/create-find">
+                  <Button className="bg-finder-red hover:bg-finder-red-dark text-white">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Post Your First Find
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="overflow-hidden">
+                {/* Table Header */}
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                  <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-700">
+                    <div className="col-span-5">Title</div>
+                    <div className="col-span-2">Budget</div>
+                    <div className="col-span-2">Posted</div>
+                    <div className="col-span-2">Status</div>
+                    <div className="col-span-1"></div>
                   </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Proposals */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-xl text-gray-900">{t('client.recent_proposals')}</CardTitle>
-              <Link href="/client/proposals">
-                <Button variant="outline" size="sm">{t('common.view_all')}</Button>
-              </Link>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {proposals.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <UserIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>{t('client.no_proposals_yet')}</p>
-                  <p className="text-sm">{t('client.create_find_to_get_started')}</p>
                 </div>
-              ) : (
-                proposals.slice(0, 3).map((proposal: any) => (
-                  <div key={proposal.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h4 className="font-medium text-gray-900">{t('client.proposal_for_request')}</h4>
-                        <p className="text-sm text-gray-600">{t('client.by_finder')}</p>
+
+                {/* Table Rows */}
+                <div className="divide-y divide-gray-200">
+                  {requests.map((request: Find) => (
+                    <div key={request.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
+                      <div className="grid grid-cols-12 gap-4 items-center">
+                        {/* Title Column */}
+                        <div className="col-span-5">
+                          <h3 className="font-medium text-gray-900 mb-1">{request.title}</h3>
+                          <p className="text-sm text-gray-600 line-clamp-2">
+                            {request.description}
+                          </p>
+                        </div>
+
+                        {/* Budget Column */}
+                        <div className="col-span-2">
+                          <div className="text-sm font-semibold text-green-600">
+                            {formatCurrency(request.budgetMin)} - {formatCurrency(request.budgetMax)}
+                          </div>
+                        </div>
+
+                        {/* Posted Column */}
+                        <div className="col-span-2">
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Calendar className="w-4 h-4 mr-1" />
+                            {formatDate(request.createdAt || '')}
+                          </div>
+                        </div>
+
+                        {/* Status Column */}
+                        <div className="col-span-2">
+                          <Badge 
+                            variant={
+                              (request.status === 'active' || request.status === 'open') ? 'default' :
+                              request.status === 'in_progress' ? 'secondary' :
+                              request.status === 'completed' ? 'outline' :
+                              'destructive'
+                            }
+                            className={
+                              (request.status === 'active' || request.status === 'open') ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' :
+                              request.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' :
+                              request.status === 'completed' ? 'bg-green-100 text-green-700 hover:bg-green-200' :
+                              'bg-red-100 text-red-700 hover:bg-red-200'
+                            }
+                          >
+                            {request.status === 'active' || request.status === 'open' ? 'Open' : 
+                             request.status === 'in_progress' ? 'In Progress' :
+                             request.status === 'completed' ? 'Completed' :
+                             request.status?.replace('_', ' ') || 'Pending'}
+                          </Badge>
+                        </div>
+
+                        {/* Action Column */}
+                        <div className="col-span-1">
+                          <Link href={`/client/finds/${request.id}`}>
+                            <Button size="sm" variant="ghost" className="text-finder-red hover:text-finder-red-dark hover:bg-finder-red/10">
+                              View
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
-                      <span className="text-lg font-bold text-green-600">{formatCurrency(proposal.price)}</span>
                     </div>
-                    <p className="text-gray-600 text-sm mb-3">{proposal.approach?.substring(0, 100)}...</p>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-xs">
-                        Timeline: {proposal.timeline}
-                      </span>
-                      <Link href={`/client/proposals/${proposal.id}`}>
-                        <Button size="sm" variant="outline">{t('common.review')}</Button>
-                      </Link>
-                    </div>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick Stats */}
+        {requests.length > 0 && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-blue-600 mb-1">
+                  {requests.filter((r: Find) => r.status === 'open' || r.status === 'active').length}
+                </div>
+                <div className="text-sm text-gray-600">Open Finds</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-yellow-600 mb-1">
+                  {requests.filter((r: Find) => r.status === 'in_progress').length}
+                </div>
+                <div className="text-sm text-gray-600">In Progress</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-green-600 mb-1">
+                  {requests.filter((r: Find) => r.status === 'completed').length}
+                </div>
+                <div className="text-sm text-gray-600">Completed</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4 text-center">
+                <div className="text-2xl font-bold text-purple-600 mb-1">
+                  {proposals.length}
+                </div>
+                <div className="text-sm text-gray-600">Total Proposals</div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
