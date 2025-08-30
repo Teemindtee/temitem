@@ -119,9 +119,6 @@ export default function Messages() {
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-xl font-semibold text-gray-900">Message & System</h1>
               <div className="flex items-center space-x-2">
-                <Button size="sm" variant="ghost" className="p-2">
-                  <ExternalLink className="w-4 h-4 text-gray-500" />
-                </Button>
                 <div className="relative">
                   <Button size="sm" variant="ghost" className="p-2">
                     <Bell className="w-4 h-4 text-gray-500" />
