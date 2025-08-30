@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FinderHeader } from "@/components/finder-header";
 import { SupportWidget } from "@/components/support-widget";
 import { useAuth } from "@/hooks/use-auth";
-import { Search, DollarSign, Clock, Trophy, Plus, Coins } from "lucide-react";
+import { Search, Banknote, Clock, Trophy, Plus, Coins } from "lucide-react";
 import type { Find, Proposal, User } from "@shared/schema";
 import { useTranslation } from "react-i18next";
 
@@ -58,7 +58,7 @@ export default function FinderDashboard() {
           <Card className="border-green-200">
             <CardContent className="p-4 sm:p-6 text-center">
               <div className="bg-green-600 rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <Banknote className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">{t('common.total_earnings', 'Total Earnings')}</h3>
               <p className="text-xl sm:text-2xl font-bold text-green-600">₦{((finder as any)?.totalEarnings || 0).toLocaleString()}</p>
