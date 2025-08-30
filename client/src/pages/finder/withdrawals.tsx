@@ -19,9 +19,7 @@ export default function WithdrawalSettings() {
   const [formData, setFormData] = useState({
     bankName: "",
     accountNumber: "",
-    routingNumber: "",
-    accountHolder: "",
-    minimumThreshold: "50"
+    accountHolder: ""
   });
 
   const { data: withdrawalSettings, isLoading: settingsLoading } = useQuery({
@@ -50,9 +48,7 @@ export default function WithdrawalSettings() {
       setFormData({
         bankName: withdrawalSettings.bankDetails.bankName || "",
         accountNumber: withdrawalSettings.bankDetails.accountNumber || "",
-        routingNumber: withdrawalSettings.bankDetails.routingNumber || "",
-        accountHolder: withdrawalSettings.bankDetails.accountHolder || "",
-        minimumThreshold: withdrawalSettings.minimumThreshold?.toString() || "50"
+        accountHolder: withdrawalSettings.bankDetails.accountHolder || ""
       });
     }
   }, [withdrawalSettings]);
@@ -106,11 +102,10 @@ export default function WithdrawalSettings() {
   const handleUpdateSettings = () => {
     const settingsData = {
       paymentMethod: "bank_transfer",
-      minimumThreshold: parseInt(formData.minimumThreshold),
+      minimumThreshold: 50,
       bankDetails: {
         bankName: formData.bankName,
         accountNumber: formData.accountNumber,
-        routingNumber: formData.routingNumber,
         accountHolder: formData.accountHolder
       }
     };
@@ -121,7 +116,7 @@ export default function WithdrawalSettings() {
     // Convert from kobo to naira for display, but send kobo to backend
     const availableBalanceKobo = Math.max(0, parseFloat(finder?.availableBalance || '0')); // Ensure positive balance
     const availableBalanceNaira = availableBalanceKobo / 100;
-    const minimumThresholdNaira = parseInt(formData.minimumThreshold);
+    const minimumThresholdNaira = 50; // Fixed minimum withdrawal amount
     const minimumThresholdKobo = minimumThresholdNaira * 100;
 
     // Check if balance is sufficient for minimum threshold
@@ -287,26 +282,6 @@ export default function WithdrawalSettings() {
                     />
                   </div>
                 </div>
-              </div>
-
-              {/* Minimum Threshold */}
-              <div>
-                <Label htmlFor="minimumThreshold">Minimum Withdrawal Amount</Label>
-                <div className="relative mt-1">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <DollarSign className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <Input
-                    id="minimumThreshold"
-                    type="number"
-                    value={formData.minimumThreshold}
-                    onChange={(e) => setFormData(prev => ({ ...prev, minimumThreshold: e.target.value }))}
-                    className="pl-10"
-                    min="10"
-                    max="1000"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">Minimum amount before you can request a withdrawal (between ₦10 - ₦1000)</p>
               </div>
 
               {/* Update Button */}
