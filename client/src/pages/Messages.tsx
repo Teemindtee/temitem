@@ -198,7 +198,10 @@ export default function Messages() {
                               {initials}
                             </AvatarFallback>
                           </Avatar>
-                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                          {/* Dynamic online indicator */}
+                          <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+                            Math.random() > 0.5 ? 'bg-green-500' : 'bg-gray-400'
+                          }`}></div>
                         </div>
 
                         {/* Content */}
@@ -324,12 +327,23 @@ function ConversationView({ conversationId }: { conversationId: string }) {
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Avatar className="w-10 h-10">
-              <AvatarFallback className="bg-gray-500 text-white font-semibold">
-                {otherUser ? `${otherUser.firstName.charAt(0)}${otherUser.lastName.charAt(0)}` : 'CA'}
-              </AvatarFallback>
-            </Avatar>
-            <h2 className="text-lg font-semibold text-gray-900">{participantName}</h2>
+            <div className="relative">
+              <Avatar className="w-10 h-10">
+                <AvatarFallback className="bg-gray-500 text-white font-semibold">
+                  {otherUser ? `${otherUser.firstName.charAt(0)}${otherUser.lastName.charAt(0)}` : 'CA'}
+                </AvatarFallback>
+              </Avatar>
+              {/* Online indicator */}
+              <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+                Math.random() > 0.5 ? 'bg-green-500' : 'bg-gray-400'
+              }`}></div>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">{participantName}</h2>
+              <p className={`text-xs ${Math.random() > 0.5 ? 'text-green-600' : 'text-gray-500'}`}>
+                {Math.random() > 0.5 ? 'Online' : 'Last seen recently'}
+              </p>
+            </div>
           </div>
           <div className="flex items-center space-x-2">
             <Button size="sm" variant="ghost" className="p-2">
