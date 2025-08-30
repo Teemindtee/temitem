@@ -411,11 +411,7 @@ export default function BrowseRequests() {
                         <div className="flex items-center space-x-3 text-xs text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Users className="w-3 h-3" />
-                            <span>{proposalCount}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <Eye className="w-3 h-3" />
-                            <span>127</span>
+                            <span>{proposalCount} {proposalCount === 1 ? 'proposal' : 'proposals'}</span>
                           </div>
                         </div>
                       </div>
