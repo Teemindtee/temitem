@@ -383,14 +383,6 @@ function ConversationView({ conversationId }: { conversationId: string }) {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="relative">
-              <Button size="sm" variant="ghost" className="p-2">
-                <Bell className="w-4 h-4 text-gray-500" />
-              </Button>
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-xs text-white font-medium">3</span>
-              </div>
-            </div>
             <Avatar className="w-8 h-8">
               <AvatarFallback className="bg-orange-500 text-white text-sm font-semibold">
                 {user.firstName?.charAt(0)}{user.lastName?.charAt(0)}
