@@ -229,7 +229,7 @@ export default function ProposalDetail() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-green-600">${proposal.price}</div>
+                  <div className="text-2xl font-bold text-green-600">₦{parseInt(proposal.price).toLocaleString()}</div>
                   <div className="text-sm text-gray-600 flex items-center">
                     <Clock className="w-4 h-4 mr-1" />
                     {proposal.timeline}
