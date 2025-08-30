@@ -30,7 +30,7 @@ export async function apiRequest(
 ): Promise<any> {
   const token = localStorage.getItem('findermeister_token');
   const { method = 'GET', headers = {}, body } = options;
-  
+
   const res = await fetch(url, {
     method,
     headers: {

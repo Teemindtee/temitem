@@ -61,7 +61,8 @@ export default function FinderProfile() {
         availability: data.availability || "full-time"
       };
       
-      return apiRequest('PATCH', '/api/finder/profile', payload);
+      const response = await apiRequest('PATCH', '/api/finder/profile', payload);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });
@@ -72,6 +73,19 @@ export default function FinderProfile() {
     },
     onError: (error: any) => {
       console.error('Profile update error:', error);
+      
+      // Check if it's an authentication error
+      if (error.message?.includes('No authentication token') || error.message?.includes('Access token required')) {
+        toast({
+          title: "Authentication Error",
+          description: "Please log in again to continue.",
+          variant: "destructive",
+        });
+        // Redirect to login
+        window.location.href = '/login';
+        return;
+      }
+      
       toast({
         title: "Error",
         description: error.message || "Failed to update profile. Please try again.",
