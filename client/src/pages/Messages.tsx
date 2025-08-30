@@ -47,17 +47,20 @@ export default function Messages() {
 
   // Filter conversations based on search
   const filteredConversations = conversations.filter(conversation => {
+    if (!searchTerm.trim()) return true;
+    
     const otherUser = user?.role === 'client'
       ? conversation.finder?.user
       : conversation.client;
     const userName = otherUser ? `${otherUser.firstName} ${otherUser.lastName}` : '';
     const projectTitle = conversation.proposal?.request?.title || '';
+    const lastMessageContent = conversation.lastMessage?.content || '';
 
-    const matchesSearch = searchTerm === '' ||
-      userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      projectTitle.toLowerCase().includes(searchTerm.toLowerCase());
-
-    return matchesSearch;
+    const searchLower = searchTerm.toLowerCase().trim();
+    
+    return userName.toLowerCase().includes(searchLower) ||
+           projectTitle.toLowerCase().includes(searchLower) ||
+           lastMessageContent.toLowerCase().includes(searchLower);
   });
 
   if (!user) {
