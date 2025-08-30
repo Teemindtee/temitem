@@ -178,10 +178,14 @@ export default function ClientTokens() {
                 {formatCurrency(
                   transactions
                     .filter(t => t.type === 'findertoken_purchase')
-                    .reduce((sum, t) => sum + ((t as any).metadata?.price || 0), 0)
+                    .reduce((sum, t) => sum + ((t as any).metadata?.price || 0), 0) +
+                  // Add estimated cost of tokens used for find posting (5 tokens = ₦500 estimation)
+                  transactions
+                    .filter(t => t.type === 'find_posting')
+                    .reduce((sum, t) => sum + (Math.abs(t.amount) * 100), 0) // 100 naira per token estimation
                 )}
               </div>
-              <p className="text-gray-600 text-sm">On Findertokens</p>
+              <p className="text-gray-600 text-sm">On Findertokens & Find Postings</p>
             </CardContent>
           </Card>
         </div>
