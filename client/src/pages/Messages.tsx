@@ -478,11 +478,21 @@ function ConversationView({ conversationId }: { conversationId: string }) {
               />
 
               <div className="flex items-center space-x-1">
-                <Button size="sm" variant="ghost" className="p-2 rounded-full">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="p-2 rounded-full"
+                  onClick={() => setNewMessage(prev => prev + "😊")}
+                >
                   <span className="text-lg">😊</span>
                 </Button>
-                <Button size="sm" variant="ghost" className="p-2 rounded-full">
-                  <span className="text-lg">😊</span>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="p-2 rounded-full"
+                  onClick={() => setNewMessage(prev => prev + "👍")}
+                >
+                  <span className="text-lg">👍</span>
                 </Button>
               </div>
 
