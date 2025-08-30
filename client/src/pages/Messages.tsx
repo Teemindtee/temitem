@@ -282,7 +282,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
     if (!newMessage.trim()) return;
     
     try {
-      const response = await fetch(`/api/messages/conversations/${selectedConversation}/messages`, {
+      const response = await fetch(`/api/messages/conversations/${conversationId}/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
