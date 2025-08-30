@@ -973,11 +973,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
       } catch (paymentError) {
         console.error('Failed to initialize payment:', paymentError);
-        // Delete the contract if payment initialization fails
-        await storage.updateContract(contract.id, { escrowStatus: 'failed' });
-        return res.status(500).json({ 
-          message: "Failed to initialize payment. Please try again.",
-          error: "Payment initialization failed"
+        // Instead of failing completely, continue without payment initialization
+        // The contract is still created and can be funded later
+        console.log('Continuing without payment initialization - payment can be completed later');
+        
+        // Send response without payment data
+        return res.json({ 
+          success: true,
+          message: "Proposal accepted and contract created. Payment setup is pending - please contact support to complete escrow funding.",
+          proposal, 
+          contract: {
+            ...contract,
+            findTitle: request.title,
+            finderName: finderUser ? `${finderUser.firstName} ${finderUser.lastName}` : 'Unknown Finder'
+          },
+          payment: {
+            required: true,
+            amount: proposal.price,
+            contractId: contract.id,
+            setupPending: true
+          }
         });
       }
 

@@ -50,7 +50,15 @@ export class PaystackService {
     }
   }
 
+  isConfigured(): boolean {
+    return !!this.secretKey && !!this.publicKey;
+  }
+
   async initializeTransaction(email: string, amount: number, reference: string, metadata: any = {}, callbackUrl?: string) {
+    if (!this.isConfigured()) {
+      throw new Error('Paystack service is not properly configured. Please check your API keys.');
+    }
+
     try {
       const payload: any = {
         email,

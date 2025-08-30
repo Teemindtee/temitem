@@ -101,19 +101,30 @@ export default function RequestDetails() {
         method: 'POST'
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['/api/finds', findId, 'proposals'] });
       queryClient.invalidateQueries({ queryKey: ['/api/finds', findId] });
-      toast({
-        title: "Proposal Accepted!",
-        description: "The proposal has been accepted and a contract will be created.",
-      });
+      
+      if (data.payment && data.payment.required) {
+        toast({
+          title: "Proposal Accepted!",
+          description: "Please complete payment to fund the escrow and start work.",
+        });
+        // You can add payment modal logic here if needed
+      } else {
+        toast({
+          title: "Proposal Accepted!",
+          description: "The proposal has been accepted and a contract has been created.",
+        });
+      }
     },
     onError: (error: any) => {
+      console.error('Accept proposal error:', error);
+      const errorMessage = error.message || "Please try again later.";
       toast({
         variant: "destructive",
         title: "Failed to Accept Proposal",
-        description: "Please try again later.",
+        description: errorMessage,
       });
     }
   });
