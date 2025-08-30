@@ -48,7 +48,7 @@ export default function Messages() {
   // Filter conversations based on search
   const filteredConversations = conversations.filter(conversation => {
     if (!searchTerm.trim()) return true;
-    
+
     const otherUser = user?.role === 'client'
       ? conversation.finder?.user
       : conversation.client;
@@ -57,7 +57,7 @@ export default function Messages() {
     const lastMessageContent = conversation.lastMessage?.content || '';
 
     const searchLower = searchTerm.toLowerCase().trim();
-    
+
     return userName.toLowerCase().includes(searchLower) ||
            projectTitle.toLowerCase().includes(searchLower) ||
            lastMessageContent.toLowerCase().includes(searchLower);
@@ -268,7 +268,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
 
   // Popular emojis for quick access
   const popularEmojis = ["😊", "👍", "❤️", "😂", "😢", "😮", "😡", "🙏", "👏", "🔥", "💯", "✅", "❌", "⭐", "🎉", "💪"];
-  
+
   // Extended emoji collection
   const emojiCategories = {
     "Faces": ["😊", "😂", "🥰", "😍", "🤗", "🤔", "😎", "😴", "🤯", "😇", "🥺", "😭", "😤", "🙄", "😬", "🤐"],
@@ -306,11 +306,11 @@ function ConversationView({ conversationId }: { conversationId: string }) {
         },
         body: JSON.stringify({ content: content.trim(), quotedMessageId }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to send message: ${response.statusText}`);
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
