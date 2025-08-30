@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, Clock, User, Search, Filter, MoreVertical, CheckCircle2, Circle, Star, ExternalLink, Bell, Reply, X } from "lucide-react";
+import { MessageCircle, Clock, User, Search, Filter, MoreVertical, CheckCircle2, Circle, Star, ExternalLink, Bell, Reply, X, Loader2 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import ClientHeader from "@/components/client-header";
+import { apiRequest } from "@/lib/auth";
 
 type ConversationListItem = {
   id: string;
@@ -259,6 +260,7 @@ function ConversationView({ conversationId }: { conversationId: string }) {
   const { user } = useAuth();
   const [newMessage, setNewMessage] = useState("");
   const [quotedMessage, setQuotedMessage] = useState<Message | null>(null);
+  const queryClient = useQueryClient();
 
   const { data: conversation } = useQuery({
     queryKey: ['/api/messages/conversations', conversationId],
@@ -278,32 +280,30 @@ function ConversationView({ conversationId }: { conversationId: string }) {
     ? `${otherUser.firstName} ${otherUser.lastName}`
     : 'Client A';
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim()) return;
-    
-    try {
-      const response = await fetch(`/api/messages/conversations/${conversationId}/messages`, {
+  const sendMessageMutation = useMutation({
+    mutationFn: async ({ content, quotedMessageId }: { content: string, quotedMessageId?: string }) => {
+      const response = await apiRequest(`/api/messages/conversations/${conversationId}/messages`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          content: newMessage.trim(),
-          quotedMessageId: quotedMessage?.id
-        })
+        body: JSON.stringify({ content: content.trim(), quotedMessageId }),
       });
-
-      if (response.ok) {
-        setNewMessage("");
-        setQuotedMessage(null); // Clear quoted message after sending
-        // Messages will be refreshed by the polling interval
-      } else {
-        console.error('Failed to send message');
-      }
-    } catch (error) {
+      return response;
+    },
+    onSuccess: () => {
+      setNewMessage("");
+      setQuotedMessage(null);
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/messages/conversations', conversationId, 'messages'] 
+      });
+    },
+    onError: (error) => {
       console.error('Error sending message:', error);
     }
+  });
+
+  const handleSendMessage = () => {
+    const content = newMessage.trim();
+    if (!content) return;
+    sendMessageMutation.mutate({ content, quotedMessageId: quotedMessage?.id });
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -464,10 +464,14 @@ function ConversationView({ conversationId }: { conversationId: string }) {
 
               <Button
                 onClick={handleSendMessage}
-                disabled={!newMessage.trim()}
+                disabled={sendMessageMutation.isPending || !newMessage.trim()}
                 className="bg-blue-500 hover:bg-blue-600 text-white px-6 rounded-full"
               >
-                Send
+                {sendMessageMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Send"
+                )}
               </Button>
             </div>
           </div>
