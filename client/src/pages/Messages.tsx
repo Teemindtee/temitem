@@ -278,11 +278,32 @@ function ConversationView({ conversationId }: { conversationId: string }) {
     ? `${otherUser.firstName} ${otherUser.lastName}`
     : 'Client A';
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
-    // Send message logic here
-    setNewMessage("");
-    setQuotedMessage(null); // Clear quoted message after sending
+    
+    try {
+      const response = await fetch(`/api/messages/conversations/${selectedConversation}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          content: newMessage.trim(),
+          quotedMessageId: quotedMessage?.id
+        })
+      });
+
+      if (response.ok) {
+        setNewMessage("");
+        setQuotedMessage(null); // Clear quoted message after sending
+        // Messages will be refreshed by the polling interval
+      } else {
+        console.error('Failed to send message');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
