@@ -312,11 +312,12 @@ export default function FinderProfile() {
               </div>
 
               {/* Update Button */}
-              <div className="pt-4">
+              <div className="pt-4 flex justify-center">
                 <Button 
                   onClick={handleUpdateProfile}
                   disabled={updateProfileMutation.isPending}
-                  className="w-full bg-finder-red hover:bg-finder-red-dark text-white"
+                  className="bg-finder-red hover:bg-finder-red-dark text-white px-8 py-2"
+                  size="default"
                 >
                   {updateProfileMutation.isPending ? (
                     <>
