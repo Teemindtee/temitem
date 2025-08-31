@@ -270,18 +270,27 @@ export default function TokenManagement() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <AdminHeader currentPage="token-management" />
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center gap-3 mb-6">
-          <Coins className="h-8 w-8 text-red-600" />
-          <h1 className="text-3xl font-bold">Token Management</h1>
+      <div className="container mx-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="flex items-center gap-3 mb-4 sm:mb-6">
+          <Coins className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Token Management</h1>
         </div>
 
-      <Tabs defaultValue="distribute" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="distribute">Monthly Distribution</TabsTrigger>
-          <TabsTrigger value="grant">Grant Tokens</TabsTrigger>
-          <TabsTrigger value="settings">High Budget Settings</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
+      <Tabs defaultValue="distribute" className="space-y-4 sm:space-y-6">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1">
+          <TabsTrigger value="distribute" className="text-xs sm:text-sm px-2 py-2">
+            <span className="hidden sm:inline">Monthly Distribution</span>
+            <span className="sm:hidden">Monthly</span>
+          </TabsTrigger>
+          <TabsTrigger value="grant" className="text-xs sm:text-sm px-2 py-2">
+            <span className="hidden sm:inline">Grant Tokens</span>
+            <span className="sm:hidden">Grant</span>
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="text-xs sm:text-sm px-2 py-2">
+            <span className="hidden sm:inline">High Budget Settings</span>
+            <span className="sm:hidden">Settings</span>
+          </TabsTrigger>
+          <TabsTrigger value="history" className="text-xs sm:text-sm px-2 py-2">History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="distribute">
@@ -293,7 +302,7 @@ export default function TokenManagement() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-sm sm:text-base">
                 Distribute 20 tokens to all active finders for the current month.
                 This can only be done once per month per finder.
               </p>
@@ -301,44 +310,44 @@ export default function TokenManagement() {
               <Button
                 onClick={() => distributeMonthlyTokens.mutate()}
                 disabled={distributeMonthlyTokens.isPending}
-                className="bg-red-600 hover:bg-red-700"
+                className="bg-red-600 hover:bg-red-700 w-full sm:w-auto text-sm sm:text-base"
               >
                 {distributeMonthlyTokens.isPending ? "Distributing..." : "Distribute Monthly Tokens"}
               </Button>
 
               {/* Current month's distribution status */}
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold mb-3">
+              <div className="mt-4 sm:mt-6">
+                <h3 className="text-base sm:text-lg font-semibold mb-3">
                   {months[new Date().getMonth()]} {new Date().getFullYear()} Distribution Status
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-3 sm:p-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">
+                        <div className="text-xl sm:text-2xl font-bold text-green-600">
                           {monthlyDistributions.length}
                         </div>
-                        <div className="text-sm text-muted-foreground">Finders Received</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">Finders Received</div>
                       </div>
                     </CardContent>
                   </Card>
                   <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-3 sm:p-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600">
+                        <div className="text-xl sm:text-2xl font-bold text-blue-600">
                           {monthlyDistributions.length * 20}
                         </div>
-                        <div className="text-sm text-muted-foreground">Total Tokens Distributed</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">Total Tokens Distributed</div>
                       </div>
                     </CardContent>
                   </Card>
                   <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-3 sm:p-4">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-orange-600">
+                        <div className="text-xl sm:text-2xl font-bold text-orange-600">
                           {finders.length - monthlyDistributions.length}
                         </div>
-                        <div className="text-sm text-muted-foreground">Pending Finders</div>
+                        <div className="text-xs sm:text-sm text-muted-foreground">Pending Finders</div>
                       </div>
                     </CardContent>
                   </Card>
@@ -359,15 +368,15 @@ export default function TokenManagement() {
             <CardContent>
               <Dialog open={showGrantDialog} onOpenChange={setShowGrantDialog}>
                 <DialogTrigger asChild>
-                  <Button className="bg-red-600 hover:bg-red-700">
+                  <Button className="bg-red-600 hover:bg-red-700 w-full sm:w-auto">
                     Grant Tokens
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="w-[95vw] max-w-md mx-auto">
                   <DialogHeader>
-                    <DialogTitle>Grant Tokens to {selectedUserRole === 'finder' ? 'Finder' : 'Client'}</DialogTitle>
+                    <DialogTitle className="text-sm sm:text-base">Grant Tokens to {selectedUserRole === 'finder' ? 'Finder' : 'Client'}</DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4">
+                  <div className="space-y-4 max-h-[70vh] overflow-y-auto">
                     <div>
                       <Label htmlFor="role-select">User Type</Label>
                       <Select value={selectedUserRole} onValueChange={(value: "finder" | "client") => {
@@ -426,17 +435,18 @@ export default function TokenManagement() {
                       />
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <Button
                         onClick={handleGrantTokens}
                         disabled={grantTokens.isPending}
-                        className="bg-red-600 hover:bg-red-700"
+                        className="bg-red-600 hover:bg-red-700 flex-1 text-sm"
                       >
                         {grantTokens.isPending ? "Granting..." : "Grant Tokens"}
                       </Button>
                       <Button
                         variant="outline"
                         onClick={() => setShowGrantDialog(false)}
+                        className="flex-1 text-sm"
                       >
                         Cancel
                       </Button>
@@ -457,25 +467,25 @@ export default function TokenManagement() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-yellow-800 mb-2">Token Balance Synchronization</h3>
-                <p className="text-yellow-700 mb-4">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
+                <h3 className="text-base sm:text-lg font-semibold text-yellow-800 mb-2">Token Balance Synchronization</h3>
+                <p className="text-yellow-700 mb-3 sm:mb-4 text-sm sm:text-base">
                   If you notice discrepancies in finder token balances, use this tool to recalculate and sync all balances based on transaction history.
                 </p>
                 <Button
                   onClick={() => syncTokenBalances.mutate()}
                   disabled={syncTokenBalances.isPending}
                   variant="outline"
-                  className="border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                  className="border-yellow-300 text-yellow-700 hover:bg-yellow-100 w-full sm:w-auto text-sm sm:text-base"
                 >
                   {syncTokenBalances.isPending ? "Syncing..." : "Sync All Token Balances"}
                 </Button>
               </div>
 
-              <div className="text-center py-8">
-                <Target className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">High Budget Configuration</h3>
-                <p className="text-gray-600">Configure settings for high-budget posting requirements</p>
+              <div className="text-center py-6 sm:py-8">
+                <Target className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">High Budget Configuration</h3>
+                <p className="text-gray-600 text-sm sm:text-base">Configure settings for high-budget posting requirements</p>
               </div>
             </CardContent>
           </Card>
@@ -512,32 +522,34 @@ export default function TokenManagement() {
                       return (
                         <div
                           key={grant.id}
-                          className="flex items-center justify-between p-4 border rounded-lg"
+                          className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0"
                         >
-                          <div className="flex items-center gap-3">
-                            <User className="h-4 w-4 text-muted-foreground" />
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <div className="font-medium">{userName}</div>
-                                <Badge variant="outline" className="text-xs">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                <div className="font-medium text-sm sm:text-base truncate">{userName}</div>
+                                <Badge variant="outline" className="text-xs w-fit">
                                   {grant.userType}
                                 </Badge>
                               </div>
-                              <div className="text-sm text-muted-foreground">
+                              <div className="text-xs sm:text-sm text-muted-foreground truncate">
                                 {userEmail}
                               </div>
                             </div>
                           </div>
 
-                          <div className="text-right">
-                            <Badge variant="secondary" className="mb-1">
+                          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 sm:gap-1 text-right">
+                            <Badge variant="secondary" className="text-xs">
                               +{grant.amount} tokens
                             </Badge>
-                            <div className="text-xs text-muted-foreground">
-                              by {grant.grantedByUser?.firstName || 'Unknown'} {grant.grantedByUser?.lastName || 'Admin'}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {format(new Date(grant.createdAt), 'MMM d, yyyy h:mm a')}
+                            <div className="flex flex-col text-right">
+                              <div className="text-xs text-muted-foreground">
+                                by {grant.grantedByUser?.firstName || 'Unknown'} {grant.grantedByUser?.lastName || 'Admin'}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {format(new Date(grant.createdAt), 'MMM d, yyyy h:mm a')}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -557,12 +569,12 @@ export default function TokenManagement() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex gap-4 mb-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4">
                   <Select
                     value={selectedMonth.toString()}
                     onValueChange={(value) => setSelectedMonth(parseInt(value))}
                   >
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-full sm:w-40">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -578,7 +590,7 @@ export default function TokenManagement() {
                     value={selectedYear.toString()}
                     onValueChange={(value) => setSelectedYear(parseInt(value))}
                   >
-                    <SelectTrigger className="w-32">
+                    <SelectTrigger className="w-full sm:w-32">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -602,22 +614,22 @@ export default function TokenManagement() {
                     {monthlyDistributions.map((distribution: MonthlyDistribution) => (
                       <div
                         key={distribution.id}
-                        className="flex items-center justify-between p-4 border rounded-lg"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 border rounded-lg gap-3 sm:gap-0"
                       >
-                        <div className="flex items-center gap-3">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <div>
-                            <div className="font-medium">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <div className="font-medium text-sm sm:text-base truncate">
                               {distribution.finder?.user?.firstName || 'Unknown'} {distribution.finder?.user?.lastName || 'User'}
                             </div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-xs sm:text-sm text-muted-foreground truncate">
                               {distribution.finder?.user?.email || 'No email available'}
                             </div>
                           </div>
                         </div>
 
-                        <div className="text-right">
-                          <Badge variant="secondary" className="mb-1">
+                        <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 sm:gap-1 text-right">
+                          <Badge variant="secondary" className="text-xs">
                             +{distribution.tokensGranted} tokens
                           </Badge>
                           <div className="text-xs text-muted-foreground">
