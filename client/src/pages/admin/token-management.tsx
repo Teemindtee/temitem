@@ -459,36 +459,110 @@ export default function TokenManagement() {
         </TabsContent>
 
         <TabsContent value="settings">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" />
-                Token Balance Management
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
-                <h3 className="text-base sm:text-lg font-semibold text-yellow-800 mb-2">Token Balance Synchronization</h3>
-                <p className="text-yellow-700 mb-3 sm:mb-4 text-sm sm:text-base">
-                  If you notice discrepancies in finder token balances, use this tool to recalculate and sync all balances based on transaction history.
-                </p>
-                <Button
-                  onClick={() => syncTokenBalances.mutate()}
-                  disabled={syncTokenBalances.isPending}
-                  variant="outline"
-                  className="border-yellow-300 text-yellow-700 hover:bg-yellow-100 w-full sm:w-auto text-sm sm:text-base"
-                >
-                  {syncTokenBalances.isPending ? "Syncing..." : "Sync All Token Balances"}
-                </Button>
-              </div>
+          <div className="space-y-6">
+            {/* Token Balance Management */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Token Balance Management
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-yellow-800 mb-2">Token Balance Synchronization</h3>
+                  <p className="text-yellow-700 mb-3 sm:mb-4 text-sm sm:text-base">
+                    If you notice discrepancies in finder token balances, use this tool to recalculate and sync all balances based on transaction history.
+                  </p>
+                  <Button
+                    onClick={() => syncTokenBalances.mutate()}
+                    disabled={syncTokenBalances.isPending}
+                    variant="outline"
+                    className="border-yellow-300 text-yellow-700 hover:bg-yellow-100 w-full sm:w-auto text-sm sm:text-base"
+                  >
+                    {syncTokenBalances.isPending ? "Syncing..." : "Sync All Token Balances"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
-              <div className="text-center py-6 sm:py-8">
-                <Target className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-gray-300" />
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">High Budget Configuration</h3>
-                <p className="text-gray-600 text-sm sm:text-base">Configure settings for high-budget posting requirements</p>
-              </div>
-            </CardContent>
-          </Card>
+            {/* High Budget Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  High Budget Posting Configuration
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleUpdateHighBudgetSettings} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* High Budget Threshold */}
+                    <div className="space-y-3">
+                      <Label htmlFor="highBudgetThreshold" className="text-slate-700 text-sm font-semibold flex items-center">
+                        <Target className="w-4 h-4 mr-2 text-purple-600" />
+                        High Budget Threshold (₦)
+                      </Label>
+                      <Input
+                        id="highBudgetThreshold"
+                        type="number"
+                        min="1000"
+                        step="100"
+                        value={highBudgetThreshold}
+                        onChange={(e) => setHighBudgetThreshold(e.target.value)}
+                        className="h-12 text-lg bg-white/80 border-slate-200 focus:border-purple-500 focus:ring-purple-500/20"
+                        placeholder="Enter threshold amount"
+                      />
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                        <p className="text-sm text-purple-700">
+                          <strong>Current:</strong> ₦{parseInt(highBudgetThreshold || "100000").toLocaleString()} threshold
+                        </p>
+                        <p className="text-xs text-purple-600 mt-1">
+                          Posts with budget ≥ this amount require findertokens
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* High Budget Token Cost */}
+                    <div className="space-y-3">
+                      <Label htmlFor="highBudgetTokenCost" className="text-slate-700 text-sm font-semibold flex items-center">
+                        <Coins className="w-4 h-4 mr-2 text-indigo-600" />
+                        Required Findertokens
+                      </Label>
+                      <Input
+                        id="highBudgetTokenCost"
+                        type="number"
+                        min="1"
+                        max="50"
+                        value={highBudgetTokenCost}
+                        onChange={(e) => setHighBudgetTokenCost(e.target.value)}
+                        className="h-12 text-lg bg-white/80 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
+                        placeholder="Enter token count"
+                      />
+                      <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                        <p className="text-sm text-indigo-700">
+                          <strong>Current:</strong> {highBudgetTokenCost || "5"} findertokens required
+                        </p>
+                        <p className="text-xs text-indigo-600 mt-1">
+                          Tokens deducted for high-budget posts
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button
+                      type="submit"
+                      disabled={updateHighBudgetSettings.isPending}
+                      className="bg-red-600 hover:bg-red-700 px-6"
+                    >
+                      {updateHighBudgetSettings.isPending ? "Updating..." : "Update High Budget Settings"}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="history">
