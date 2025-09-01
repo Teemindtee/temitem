@@ -533,7 +533,6 @@ export default function TokenManagement() {
                         id="highBudgetTokenCost"
                         type="number"
                         min="1"
-                        max="50"
                         value={highBudgetTokenCost}
                         onChange={(e) => setHighBudgetTokenCost(e.target.value)}
                         className="h-12 text-lg bg-white/80 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500/20"
