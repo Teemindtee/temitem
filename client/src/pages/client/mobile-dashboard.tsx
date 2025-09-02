@@ -5,6 +5,7 @@ import { FileText, Eye, Cog, ChevronRight, FileEdit } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import ClientHeader from "@/components/client-header";
+import logoImage from "@assets/findermeister logo real_1756395091374.jpg";
 
 export default function ClientMobileDashboard() {
   const { user } = useAuth();

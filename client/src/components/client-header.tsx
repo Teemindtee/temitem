@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/use-auth";
 import { Handshake, User, Settings, Lock, LogOut, Menu, X, FileText, MessageSquare, Search, HelpCircle, Plus, Coins } from "lucide-react";
-import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
+import logoImage from "@assets/findermeister logo real_1756395091374.jpg";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 

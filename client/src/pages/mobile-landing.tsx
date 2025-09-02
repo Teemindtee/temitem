@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import logoImage from "@assets/findermeister logo real_1756395091374.jpg";
 
 export default function MobileLanding() {
   const { user } = useAuth();
@@ -12,9 +13,11 @@ export default function MobileLanding() {
       <div className="max-w-sm mx-auto min-h-screen bg-white shadow-xl relative">
         {/* Header with Logo */}
         <div className="bg-finder-red px-6 py-4 flex items-center rounded-t-3xl">
-          <div className="bg-white p-2 rounded-lg mr-3">
-            <Search className="h-6 w-6 text-finder-red" />
-          </div>
+          <img 
+            src={logoImage} 
+            alt="FinderMeister Logo" 
+            className="w-10 h-10 rounded-full object-contain bg-white p-1 mr-3" 
+          />
           <h1 className="text-2xl font-bold text-white">FinderMeister</h1>
         </div>
 
