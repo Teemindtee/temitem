@@ -131,8 +131,8 @@ export default function Landing() {
       </section>
 
       {/* How It Works Section */}
-        <section id="how-it-works" className="py-16 lg:py-24 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="how-it-works" className="py-16 lg:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
                 How It Works
@@ -220,9 +220,9 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Finder Path Section */}
-        <section id="finder-path" className="py-16 lg:py-24 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Finder Path Section */}
+      <section id="finder-path" className="py-16 lg:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
                 Finder Path
@@ -290,20 +290,21 @@ export default function Landing() {
           </div>
         </footer>
 
-        {/* Mobile Menu - Simple overlay for mobile */}
-        <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
-          <div className="bg-white rounded-full shadow-lg p-4 flex justify-center space-x-4">
-            <Link href="/login">
-              <Button variant="ghost" size="sm" className="text-gray-600">
-                Log In
-              </Button>
-            </Link>
-            <Link href="#how-it-works">
-              <Button variant="ghost" size="sm" className="text-gray-600">
-                How it Works
-              </Button>
-            </Link>
-          </div>
+      {/* Mobile Menu - Simple overlay for mobile */}
+      <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
+        <div className="bg-white rounded-full shadow-lg p-4 flex justify-center space-x-4">
+          <Link href="/login">
+            <Button variant="ghost" size="sm" className="text-gray-600">
+              Log In
+            </Button>
+          </Link>
+          <Link href="#how-it-works">
+            <Button variant="ghost" size="sm" className="text-gray-600">
+              How it Works
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
+  );
+}
