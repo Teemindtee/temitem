@@ -250,10 +250,10 @@ export default function TokenPackagesPage() {
             
             <Button 
               onClick={() => setIsCreating(true)}
-              className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 w-full sm:w-auto shrink-0"
+              className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 w-full sm:w-auto shrink-0"
             >
-              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              <span className="text-sm sm:text-base">Create Package</span>
+              <Plus className="w-4 h-4 mr-2" />
+              <span className="text-sm">Create Package</span>
             </Button>
           </div>
         </div>
