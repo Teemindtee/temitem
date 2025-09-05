@@ -51,7 +51,6 @@ import {
   type InsertTokenPackage,
   type ClientTokenGrant,
   type InsertClientTokenGrant,
-
   users,
   finders,
   finds,
@@ -80,6 +79,41 @@ import {
   behavioralTraining,
   trustedBadges,
   tokenPackages,
+  supportAgents,
+  supportTickets,
+  supportTicketMessages,
+  supportDepartments,
+  type SupportAgent,
+  type SupportTicket,
+  type SupportTicketMessage,
+  type SupportDepartment,
+  type InsertUserType,
+  type InsertFinderType,
+  type InsertFindType,
+  type InsertProposalType,
+  type InsertContractType,
+  type InsertReviewType,
+  type InsertTransactionType,
+  type InsertAdminSettingType,
+  type InsertConversationType,
+  type InsertMessageType,
+  type InsertCategory,
+  type InsertBlogPostType,
+  type InsertOrderSubmissionType,
+  type InsertFinderLevel,
+  type InsertWithdrawalSettings,
+  type InsertWithdrawalRequest,
+  type InsertTokenCharge,
+  type InsertMonthlyTokenDistribution,
+  type InsertTokenGrant,
+  type InsertClientTokenGrant,
+  type InsertStrike,
+  type InsertUserRestriction,
+  type InsertDispute,
+  type InsertRestrictedWord,
+  type InsertSupportAgent,
+  type InsertSupportTicket,
+  type InsertSupportDepartment,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql, asc } from "drizzle-orm";
@@ -282,6 +316,25 @@ export interface IStorage {
   removeRestrictedWord(id: string): Promise<boolean>;
   updateRestrictedWord(id: string, updates: Partial<RestrictedWord>): Promise<RestrictedWord | undefined>;
   checkContentForRestrictedWords(content: string): Promise<string[]>;
+
+  // Support Agent Management
+  createSupportAgent(data: InsertSupportAgent & { agentId: string }): Promise<SupportAgent>;
+  getSupportAgents(): Promise<Array<SupportAgent & { user: { id: string; firstName: string; lastName: string; email: string; } }>>;
+  getSupportAgent(id: string): Promise<SupportAgent & { user: { id: string; firstName: string; lastName: string; email: string; } } | undefined>;
+  updateSupportAgent(id: string, data: Partial<InsertSupportAgent>): Promise<SupportAgent | undefined>;
+  suspendSupportAgent(id: string, reason: string): Promise<SupportAgent | undefined>;
+  reactivateSupportAgent(id: string): Promise<SupportAgent | undefined>;
+  deleteSupportAgent(id: string): Promise<boolean>;
+  generateAgentId(): Promise<string>;
+
+  // Support Department Management
+  getSupportDepartments(): Promise<Array<SupportDepartment & { isActive: boolean; name: string; }>>;
+  createSupportDepartment(data: InsertSupportDepartment): Promise<SupportDepartment>;
+  updateSupportDepartment(id: string, data: Partial<InsertSupportDepartment>): Promise<SupportDepartment | undefined>;
+  deleteSupportDepartment(id: string): Promise<boolean>;
+
+  // Support Agent Check
+  getUserSupportAgent(userId: string): Promise<SupportAgent | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2447,6 +2500,191 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .delete(tokenPackages)
       .where(eq(tokenPackages.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Support Agent Management
+  async createSupportAgent(data: InsertSupportAgent & { agentId: string }) {
+    const [agent] = await this.db.insert(supportAgents).values({
+      ...data,
+      updatedAt: new Date()
+    }).returning();
+    return agent;
+  }
+
+  async getSupportAgents() {
+    return await this.db
+      .select({
+        id: supportAgents.id,
+        userId: supportAgents.userId,
+        agentId: supportAgents.agentId,
+        department: supportAgents.department,
+        permissions: supportAgents.permissions,
+        isActive: supportAgents.isActive,
+        maxTicketsPerDay: supportAgents.maxTicketsPerDay,
+        responseTimeTarget: supportAgents.responseTimeTarget,
+        specializations: supportAgents.specializations,
+        languages: supportAgents.languages,
+        suspendedAt: supportAgents.suspendedAt,
+        suspensionReason: supportAgents.suspensionReason,
+        createdAt: supportAgents.createdAt,
+        updatedAt: supportAgents.updatedAt,
+        user: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+        },
+      })
+      .from(supportAgents)
+      .leftJoin(users, eq(supportAgents.userId, users.id))
+      .orderBy(supportAgents.createdAt);
+  }
+
+  async getSupportAgent(id: string) {
+    const [agent] = await this.db
+      .select({
+        id: supportAgents.id,
+        userId: supportAgents.userId,
+        agentId: supportAgents.agentId,
+        department: supportAgents.department,
+        permissions: supportAgents.permissions,
+        isActive: supportAgents.isActive,
+        maxTicketsPerDay: supportAgents.maxTicketsPerDay,
+        responseTimeTarget: supportAgents.responseTimeTarget,
+        specializations: supportAgents.specializations,
+        languages: supportAgents.languages,
+        suspendedAt: supportAgents.suspendedAt,
+        suspensionReason: supportAgents.suspensionReason,
+        createdAt: supportAgents.createdAt,
+        updatedAt: supportAgents.updatedAt,
+        user: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+        },
+      })
+      .from(supportAgents)
+      .leftJoin(users, eq(supportAgents.userId, users.id))
+      .where(eq(supportAgents.id, id));
+    return agent;
+  }
+
+  async updateSupportAgent(id: string, data: Partial<InsertSupportAgent>) {
+    const [agent] = await this.db
+      .update(supportAgents)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(supportAgents.id, id))
+      .returning();
+    return agent;
+  }
+
+  async suspendSupportAgent(id: string, reason: string) {
+    return await this.updateSupportAgent(id, {
+      isActive: false,
+      suspendedAt: new Date(),
+      suspensionReason: reason,
+    });
+  }
+
+  async reactivateSupportAgent(id: string) {
+    return await this.updateSupportAgent(id, {
+      isActive: true,
+      suspendedAt: null,
+      suspensionReason: null,
+    });
+  }
+
+  async deleteSupportAgent(id: string) {
+    const result = await this.db.delete(supportAgents).where(eq(supportAgents.id, id));
+    return result.rowCount > 0;
+  }
+
+  async generateAgentId(): Promise<string> {
+    const agents = await this.db.select({ agentId: supportAgents.agentId }).from(supportAgents);
+    const existingIds = new Set(agents.map(a => a.agentId));
+
+    let counter = 1;
+    let agentId: string;
+
+    do {
+      agentId = `AGT${counter.toString().padStart(3, '0')}`;
+      counter++;
+    } while (existingIds.has(agentId));
+
+    return agentId;
+  }
+
+  async getSupportDepartments() {
+    return await this.db
+      .select()
+      .from(supportDepartments)
+      .where(eq(supportDepartments.isActive, true))
+      .orderBy(supportDepartments.name);
+  }
+
+  async createSupportDepartment(data: InsertSupportDepartment) {
+    const [department] = await this.db.insert(supportDepartments).values(data).returning();
+    return department;
+  }
+
+  async updateSupportDepartment(id: string, data: Partial<InsertSupportDepartment>) {
+    const [department] = await this.db
+      .update(supportDepartments)
+      .set(data)
+      .where(eq(supportDepartments.id, id))
+      .returning();
+    return department;
+  }
+
+  async deleteSupportDepartment(id: string) {
+    const result = await this.db.delete(supportDepartments).where(eq(supportDepartments.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Check if user is already a support agent
+  async getUserSupportAgent(userId: string) {
+    const [agent] = await this.db
+      .select()
+      .from(supportAgents)
+      .where(eq(supportAgents.userId, userId));
+    return agent;
+  }
+
+  // Restricted Words Management
+  async checkContentForRestrictedWords(content: string): Promise<string[]> {
+    try {
+      const words = await this.getRestrictedWords();
+      const activeWords = words.filter(w => w.isActive);
+
+      const contentLower = content.toLowerCase();
+      const flaggedWords: string[] = [];
+
+      for (const wordObj of activeWords) {
+        if (contentLower.includes(wordObj.word.toLowerCase())) {
+          flaggedWords.push(wordObj.word);
+        }
+      }
+
+      return flaggedWords;
+    } catch (error) {
+      console.error('Error checking content for restricted words:', error);
+      return [];
+    }
+  }
+
+  async getRestrictedWords(): Promise<RestrictedWord[]> {
+    return await this.db.select().from(restrictedWords).orderBy(restrictedWords.word);
+  }
+
+  async addRestrictedWord(data: InsertRestrictedWord): Promise<RestrictedWord> {
+    const [word] = await this.db.insert(restrictedWords).values(data).returning();
+    return word;
+  }
+
+  async removeRestrictedWord(id: string): Promise<boolean> {
+    const result = await this.db.delete(restrictedWords).where(eq(restrictedWords.id, id));
     return result.rowCount > 0;
   }
 }

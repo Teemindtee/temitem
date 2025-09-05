@@ -4078,6 +4078,226 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Support Agent Management Routes
+  app.get('/api/admin/support-agents', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const agents = await storage.getSupportAgents();
+      res.json(agents);
+    } catch (error: any) {
+      console.error('Error fetching support agents:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/admin/support-agents', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { userId, department, permissions, maxTicketsPerDay, responseTimeTarget, specializations, languages } = req.body;
+
+      if (!userId || !department || !permissions) {
+        return res.status(400).json({ message: 'User ID, department, and permissions are required' });
+      }
+
+      // Check if user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Check if user is already a support agent
+      const existingAgent = await storage.getUserSupportAgent(userId);
+      if (existingAgent) {
+        return res.status(400).json({ message: 'User is already a support agent' });
+      }
+
+      // Generate unique agent ID
+      const agentId = await storage.generateAgentId();
+
+      const agent = await storage.createSupportAgent({
+        userId,
+        agentId,
+        department,
+        permissions,
+        maxTicketsPerDay: maxTicketsPerDay || 20,
+        responseTimeTarget: responseTimeTarget || 24,
+        specializations: specializations || [],
+        languages: languages || ['en'],
+        assignedBy: req.user.userId,
+        isActive: true,
+      });
+
+      res.status(201).json(agent);
+    } catch (error: any) {
+      console.error('Error creating support agent:', error);
+      res.status(500).json({ message: 'Failed to create support agent' });
+    }
+  });
+
+  app.get('/api/admin/support-agents/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const agent = await storage.getSupportAgent(id);
+
+      if (!agent) {
+        return res.status(404).json({ message: 'Support agent not found' });
+      }
+
+      res.json(agent);
+    } catch (error: any) {
+      console.error('Error fetching support agent:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/admin/support-agents/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const updates = req.body;
+
+      // Remove fields that shouldn't be updated directly
+      delete updates.id;
+      delete updates.userId;
+      delete updates.agentId;
+      delete updates.createdAt;
+      delete updates.assignedBy;
+
+      const agent = await storage.updateSupportAgent(id, updates);
+
+      if (!agent) {
+        return res.status(404).json({ message: 'Support agent not found' });
+      }
+
+      res.json(agent);
+    } catch (error: any) {
+      console.error('Error updating support agent:', error);
+      res.status(500).json({ message: 'Failed to update support agent' });
+    }
+  });
+
+  app.post('/api/admin/support-agents/:id/suspend', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const { reason } = req.body;
+
+      if (!reason) {
+        return res.status(400).json({ message: 'Suspension reason is required' });
+      }
+
+      const agent = await storage.suspendSupportAgent(id, reason);
+
+      if (!agent) {
+        return res.status(404).json({ message: 'Support agent not found' });
+      }
+
+      res.json({ message: 'Support agent suspended successfully', agent });
+    } catch (error: any) {
+      console.error('Error suspending support agent:', error);
+      res.status(500).json({ message: 'Failed to suspend support agent' });
+    }
+  });
+
+  app.post('/api/admin/support-agents/:id/reactivate', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const agent = await storage.reactivateSupportAgent(id);
+
+      if (!agent) {
+        return res.status(404).json({ message: 'Support agent not found' });
+      }
+
+      res.json({ message: 'Support agent reactivated successfully', agent });
+    } catch (error: any) {
+      console.error('Error reactivating support agent:', error);
+      res.status(500).json({ message: 'Failed to reactivate support agent' });
+    }
+  });
+
+  app.delete('/api/admin/support-agents/:id', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { id } = req.params;
+      const success = await storage.deleteSupportAgent(id);
+
+      if (!success) {
+        return res.status(404).json({ message: 'Support agent not found' });
+      }
+
+      res.json({ message: 'Support agent deleted successfully' });
+    } catch (error: any) {
+      console.error('Error deleting support agent:', error);
+      res.status(500).json({ message: 'Failed to delete support agent' });
+    }
+  });
+
+  // Support Department Management
+  app.get('/api/admin/support-departments', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const departments = await storage.getSupportDepartments();
+      res.json(departments);
+    } catch (error: any) {
+      console.error('Error fetching support departments:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/admin/support-departments', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+      }
+
+      const { name, description, color, maxResponseTime } = req.body;
+
+      if (!name) {
+        return res.status(400).json({ message: 'Department name is required' });
+      }
+
+      const department = await storage.createSupportDepartment({
+        name,
+        description,
+        color: color || '#3B82F6',
+        maxResponseTime: maxResponseTime || 24,
+        isActive: true,
+        autoAssignments: true,
+      });
+
+      res.status(201).json(department);
+    } catch (error: any) {
+      console.error('Error creating support department:', error);
+      res.status(500).json({ message: 'Failed to create support department' });
+    }
+  });
+
   // Restricted Words Management - Admin only
   // Admin find status management
   app.put('/api/admin/finds/:id/status', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {

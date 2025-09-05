@@ -734,6 +734,73 @@ export const insertOrderSubmissionSchema = createInsertSchema(orderSubmissions).
 });
 export type InsertOrderSubmissionType = z.infer<typeof insertOrderSubmissionSchema>;
 
+// Support Agent System Tables
+export const supportAgents = pgTable("support_agents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull().unique(),
+  agentId: varchar("agent_id").notNull().unique(), // Human-readable ID like "AGT001"
+  department: text("department").notNull(), // 'general', 'technical', 'billing', 'disputes'
+  permissions: text("permissions").array().notNull(), // Array of permission strings
+  isActive: boolean("is_active").default(true),
+  maxTicketsPerDay: integer("max_tickets_per_day").default(20),
+  responseTimeTarget: integer("response_time_target").default(24), // hours
+  specializations: text("specializations").array(), // Areas of expertise
+  languages: text("languages").array().default(["en"]), // Languages spoken
+  assignedBy: varchar("assigned_by").references(() => users.id).notNull(),
+  suspendedAt: timestamp("suspended_at"),
+  suspensionReason: text("suspension_reason"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const supportTickets = pgTable("support_tickets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ticketNumber: varchar("ticket_number").notNull().unique(), // Human-readable ticket number
+  submitterName: text("submitter_name").notNull(),
+  submitterEmail: text("submitter_email").notNull(),
+  submitterId: varchar("submitter_id").references(() => users.id), // null if anonymous
+  category: text("category").notNull(),
+  priority: text("priority").notNull(), // 'low', 'medium', 'high', 'urgent'
+  department: text("department").notNull(),
+  subject: text("subject").notNull(),
+  description: text("description").notNull(),
+  status: text("status").default("open"), // 'open', 'assigned', 'in_progress', 'resolved', 'closed'
+  assignedTo: varchar("assigned_to").references(() => supportAgents.id),
+  assignedAt: timestamp("assigned_at"),
+  responseTimeDeadline: timestamp("response_time_deadline"),
+  firstResponseAt: timestamp("first_response_at"),
+  resolvedAt: timestamp("resolved_at"),
+  closedAt: timestamp("closed_at"),
+  satisfactionRating: integer("satisfaction_rating"), // 1-5 rating
+  satisfactionFeedback: text("satisfaction_feedback"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const supportTicketMessages = pgTable("support_ticket_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ticketId: varchar("ticket_id").references(() => supportTickets.id).notNull(),
+  senderId: varchar("sender_id").references(() => users.id),
+  senderType: text("sender_type").notNull(), // 'user', 'agent', 'system'
+  senderName: text("sender_name").notNull(),
+  senderEmail: text("sender_email"),
+  content: text("content").notNull(),
+  attachments: text("attachments").array(),
+  isInternal: boolean("is_internal").default(false), // Internal notes between agents
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const supportDepartments = pgTable("support_departments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  color: text("color").default("#3B82F6"), // Hex color for UI
+  isActive: boolean("is_active").default(true),
+  autoAssignments: boolean("auto_assignments").default(true),
+  maxResponseTime: integer("max_response_time").default(24), // hours
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Strike System Schemas
 export const insertStrikeSchema = createInsertSchema(strikes).omit({
   id: true,
@@ -780,6 +847,69 @@ export type SelectBehavioralTraining = typeof behavioralTraining.$inferSelect;
 export type TrustedBadge = typeof trustedBadges.$inferSelect;
 export type InsertTrustedBadge = typeof trustedBadges.$inferInsert;
 export type SelectTrustedBadge = typeof trustedBadges.$inferSelect;
+
+// Support Agent Relations
+export const supportAgentsRelations = relations(supportAgents, ({ one, many }) => ({
+  user: one(users, {
+    fields: [supportAgents.userId],
+    references: [users.id],
+  }),
+  assignedBy: one(users, {
+    fields: [supportAgents.assignedBy],
+    references: [users.id],
+  }),
+  assignedTickets: many(supportTickets),
+}));
+
+export const supportTicketsRelations = relations(supportTickets, ({ one, many }) => ({
+  submitter: one(users, {
+    fields: [supportTickets.submitterId],
+    references: [users.id],
+  }),
+  assignedAgent: one(supportAgents, {
+    fields: [supportTickets.assignedTo],
+    references: [supportAgents.id],
+  }),
+  messages: many(supportTicketMessages),
+}));
+
+export const supportTicketMessagesRelations = relations(supportTicketMessages, ({ one }) => ({
+  ticket: one(supportTickets, {
+    fields: [supportTicketMessages.ticketId],
+    references: [supportTickets.id],
+  }),
+  sender: one(users, {
+    fields: [supportTicketMessages.senderId],
+    references: [users.id],
+  }),
+}));
+
+// Support Agent Types
+export type SupportAgent = typeof supportAgents.$inferSelect;
+export type SupportTicket = typeof supportTickets.$inferSelect;
+export type SupportTicketMessage = typeof supportTicketMessages.$inferSelect;
+export type SupportDepartment = typeof supportDepartments.$inferSelect;
+
+export const insertSupportAgentSchema = createInsertSchema(supportAgents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSupportTicketSchema = createInsertSchema(supportTickets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSupportDepartmentSchema = createInsertSchema(supportDepartments).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertSupportAgent = z.infer<typeof insertSupportAgentSchema>;
+export type InsertSupportTicket = z.infer<typeof insertSupportTicketSchema>;
+export type InsertSupportDepartment = z.infer<typeof insertSupportDepartmentSchema>;
 
 // Restricted Words Types
 export type RestrictedWord = typeof restrictedWords.$inferSelect;
