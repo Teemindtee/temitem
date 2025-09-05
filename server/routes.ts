@@ -1980,20 +1980,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
+      // Check if already released
+      if (contract.escrowStatus === 'released') {
+        return res.status(400).json({ message: "Payment has already been released" });
+      }
+
       await storage.updateContract(id, { escrowStatus: 'released' });
 
-      // Update finder earnings and job count
-      const finder = await storage.getFinder(contract.finderId);
-      if (finder) {
-        const newTotal = parseFloat(finder.totalEarned ?? "0") + parseFloat(contract.amount.toString());
-        await storage.updateFinder(finder.id, {
-          totalEarned: newTotal.toFixed(2),
-          jobsCompleted: (finder.jobsCompleted ?? 0) + 1
-        });
-      }
+      // Release funds to finder's available balance
+      await storage.releaseFundsToFinder(contract.finderId, contract.amount.toString());
 
       res.json({ message: "Payment released successfully" });
     } catch (error) {
+      console.error('Release payment error:', error);
       res.status(500).json({ message: "Failed to release payment" });
     }
   });
@@ -3896,6 +3895,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(post);
     } catch (error: any) {
       res.status(400).json({ message: "Failed to fetch blog post", error: error.message });
+    }
+  });
+
+  // Auto-release endpoint for expired order submissions
+  app.post("/api/orders/auto-release", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      // Find all submitted order submissions where auto-release date has passed
+      const expiredSubmissions = await db
+        .select({
+          id: orderSubmissions.id,
+          contractId: orderSubmissions.contractId,
+          autoReleaseDate: orderSubmissions.autoReleaseDate
+        })
+        .from(orderSubmissions)
+        .innerJoin(contracts, eq(orderSubmissions.contractId, contracts.id))
+        .where(and(
+          eq(orderSubmissions.status, 'submitted'),
+          sql`${orderSubmissions.autoReleaseDate} <= NOW()`,
+          eq(contracts.escrowStatus, 'held')
+        ));
+
+      let releasedCount = 0;
+
+      for (const submission of expiredSubmissions) {
+        try {
+          // Auto-accept the submission
+          await storage.updateOrderSubmission(submission.id, { 
+            status: 'accepted',
+            clientFeedback: 'Auto-accepted due to expired review period'
+          });
+          releasedCount++;
+          
+          console.log(`Auto-released contract ${submission.contractId} for submission ${submission.id}`);
+        } catch (error) {
+          console.error(`Failed to auto-release submission ${submission.id}:`, error);
+        }
+      }
+
+      res.json({ 
+        message: `Auto-released ${releasedCount} expired submissions`,
+        released: releasedCount 
+      });
+    } catch (error) {
+      console.error('Auto-release error:', error);
+      res.status(500).json({ message: "Failed to process auto-releases" });
     }
   });
 

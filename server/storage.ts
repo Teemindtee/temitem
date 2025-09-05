@@ -211,6 +211,7 @@ export interface IStorage {
   getWithdrawalRequests(): Promise<any[]>;
   updateWithdrawalRequest(id: string, updates: Partial<WithdrawalRequest>): Promise<WithdrawalRequest | undefined>;
   updateFinderBalance(finderId: string, amount: string): Promise<void>;
+  releaseFundsToFinder(finderId: string, contractAmount: string): Promise<void>;
   getWithdrawalSettings(finderId: string): Promise<any>;
   updateWithdrawalSettings(finderId: string, settings: any): Promise<any>;
   getWithdrawalsByFinderId(finderId: string): Promise<WithdrawalRequest[]>;
@@ -1715,6 +1716,44 @@ export class DatabaseStorage implements IStorage {
       .where(eq(finders.id, finderId));
   }
 
+  // Release funds to finder's available balance with fee calculation
+  async releaseFundsToFinder(finderId: string, contractAmount: string): Promise<void> {
+    try {
+      // Get finder earnings charge percentage from admin settings
+      const feeSettings = await this.getAdminSetting('finder_earnings_charge_percentage');
+      const feePercentage = parseFloat(feeSettings?.value || '5'); // Default 5%
+      
+      const grossAmount = parseFloat(contractAmount);
+      const feeAmount = grossAmount * (feePercentage / 100);
+      const netAmount = grossAmount - feeAmount;
+
+      // Get current finder
+      const finder = await this.getFinder(finderId);
+      if (!finder) {
+        throw new Error('Finder not found');
+      }
+
+      // Update finder's available balance and total earned
+      const currentAvailableBalance = parseFloat(finder.availableBalance || '0');
+      const currentTotalEarned = parseFloat(finder.totalEarned || '0');
+      const currentJobsCompleted = finder.jobsCompleted || 0;
+
+      await db
+        .update(finders)
+        .set({
+          availableBalance: (currentAvailableBalance + netAmount).toFixed(2),
+          totalEarned: (currentTotalEarned + netAmount).toFixed(2),
+          jobsCompleted: currentJobsCompleted + 1
+        })
+        .where(eq(finders.id, finderId));
+
+      console.log(`Released ₦${netAmount.toFixed(2)} to finder ${finderId} (gross: ₦${grossAmount.toFixed(2)}, fee: ₦${feeAmount.toFixed(2)})`);
+    } catch (error) {
+      console.error('Error releasing funds to finder:', error);
+      throw error;
+    }
+  }
+
 
   // Finder Levels Management
   async getFinderLevels(): Promise<FinderLevel[]> {
@@ -1912,7 +1951,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(orderSubmissions.id, id))
       .returning();
 
-    // If accepting submission, update request status to completed and contract
+    // If accepting submission, update request status to completed, contract, and release funds
     if (updates.status === 'accepted' && submission) {
       const contract = await this.getContract(submission.contractId);
       if (contract) {
@@ -1922,11 +1961,18 @@ export class DatabaseStorage implements IStorage {
           .set({ status: 'completed' })
           .where(eq(finds.id, contract.findId));
 
-        // Update contract as completed
+        // Update contract as completed and released
         await db
           .update(contracts)
-          .set({ isCompleted: true, completedAt: new Date() })
+          .set({ 
+            isCompleted: true, 
+            completedAt: new Date(),
+            escrowStatus: 'released'
+          })
           .where(eq(contracts.id, submission.contractId));
+
+        // Release funds to finder's available balance
+        await this.releaseFundsToFinder(contract.finderId, contract.amount);
       }
     }
 
