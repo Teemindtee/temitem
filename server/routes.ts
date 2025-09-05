@@ -978,7 +978,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Instead of failing completely, continue without payment initialization
         // The contract is still created and can be funded later
         console.log('Continuing without payment initialization - payment can be completed later');
-        
+
         // Send response without payment data
         return res.json({ 
           success: true,
@@ -1025,12 +1025,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           required: true,
           amount: proposal.price,
           reference,
-
-  // Flutterwave token packages endpoint
-  app.get("/api/findertokens/flutterwave-packages", (req: Request, res: Response) => {
-    res.json(FLUTTERWAVE_TOKEN_PACKAGES);
-  });
-
           paymentUrl: paymentData.authorization_url,
           contractId: contract.id
         }
@@ -1098,7 +1092,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (paymentMethod === 'opay') {
         // Initialize payment with Opay
         const opayService = new OpayService();
-        
+
         if (!opayService.isConfigured()) {
           return res.status(500).json({ 
             message: "Opay payment service is currently unavailable. Please try Paystack or contact support.",
@@ -1119,7 +1113,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         // Initialize payment with Paystack (default)
         const paystackService = new PaystackService();
-        
+
+        if (!paystackService.isConfigured()) {
+          return res.status(500).json({ 
+            message: "Paystack payment service is currently unavailable. Please try Opay or contact support.",
+            error: "Paystack service not configured"
+          });
+        }
+
+        paymentData = await paystackService.initializeTransaction(
+          user.email,
+          parseInt(contract.amount.toString()),
+          `CONTRACT_${contractId}_${Date.now()}`,
+          {
+            contractId: contract.id,
+            userId: user.id,
+            type: 'escrow_funding'
+          }
+        );
+      }
+
+      res.json({
+        authorization_url: paymentData.authorization_url,
+        reference: paymentData.reference,
+        amount: parseInt(contract.amount),
+        paymentMethod
+      });
+
+    } catch (error) {
+      console.error('Contract payment initialization error:', error);
+      res.status(500).json({ message: "Failed to initialize payment" });
+    }
+  });
+
+  // Flutterwave token packages endpoint
+  app.get("/api/findertokens/flutterwave-packages", (req: Request, res: Response) => {
+    res.json(FLUTTERWAVE_TOKEN_PACKAGES);
+  });
+
+  // Support ticket submission endpoint
+  app.post("/api/support/tickets", async (req: Request, res: Response) => {
+    try {
+      const { name, email, category, priority, subject, message } = req.body;
+
+      // In a real application, you would save this to a database or send to a support system
+      console.log('Support ticket submitted:', { name, email, category, priority, subject, message });
+
+      // For now, just return success
+      res.json({ 
+        success: true, 
+        ticketId: `TICKET-${Date.now()}`,
+        message: "Support ticket submitted successfully" 
+      });
+    } catch (error) {
+      console.error('Failed to submit support ticket:', error);
+      res.status(500).json({ message: "Failed to submit support ticket" });
+    }
+  });
+
+  // Contract payment initialization endpoint
+  app.post("/api/contracts/:contractId/payment", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { contractId } = req.params;
+      const { paymentMethod = 'paystack' } = req.body;
+
+      // Get contract details
+      const contract = await storage.getContract(contractId);
+      if (!contract) {
+        return res.status(404).json({ message: "Contract not found" });
+      }
+
+      // Verify user is the client for this contract
+      if (contract.clientId !== req.user.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      // Check if contract is already funded
+      console.log(`Contract ${contractId} escrow status: ${contract.escrowStatus}`);
+      if (contract.escrowStatus === 'funded' || contract.escrowStatus === 'held') {
+        return res.status(400).json({ 
+          message: "Contract is already funded",
+          escrowStatus: contract.escrowStatus 
+        });
+      }
+
+      // Get user details for payment
+      const user = await storage.getUser(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      let paymentData;
+
+      if (paymentMethod === 'opay') {
+        // Initialize payment with Opay
+        const opayService = new OpayService();
+
+        if (!opayService.isConfigured()) {
+          return res.status(500).json({ 
+            message: "Opay payment service is currently unavailable. Please try Paystack or contact support.",
+            error: "Opay service not configured"
+          });
+        }
+
+        paymentData = await opayService.initializeTransaction(
+          user.email,
+          parseInt(contract.amount.toString()),
+          `OPAY_CONTRACT_${contractId}_${Date.now()}`,
+          {
+            contractId: contract.id,
+            userId: user.id,
+            type: 'escrow_funding'
+          }
+        );
+      } else {
+        // Initialize payment with Paystack (default)
+        const paystackService = new PaystackService();
+
         if (!paystackService.isConfigured()) {
           return res.status(500).json({ 
             message: "Paystack payment service is currently unavailable. Please try Opay or contact support.",
@@ -1490,7 +1600,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             18000: 50,  // Business Pack
             30000: 100  // Enterprise Pack
           };
-          
+
           const tokens = packageMapping[transaction.amount as keyof typeof packageMapping] || 10;
 
           // Update balance and create transaction record
@@ -1550,7 +1660,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             18000: 50,  // Business Pack
             30000: 100  // Enterprise Pack
           };
-          
+
           const tokens = packageMapping[transaction.amount as keyof typeof packageMapping] || 10;
 
           // Update balance and create transaction record
@@ -1645,7 +1755,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (event.status === 'SUCCESS') {
         const { reference, amount } = event;
-        
+
         // Extract user ID from reference (OPAY_USERID_TIMESTAMP_RANDOM format)
         const referenceMatch = reference.match(/^OPAY_([A-F0-9]{8})_/);
         if (!referenceMatch) {
@@ -1669,7 +1779,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           1800000: 50,  // Business Pack
           3000000: 100  // Enterprise Pack
         };
-        
+
         const tokens = packageMapping[amount as keyof typeof packageMapping] || 10;
 
         // Update user's findertoken balance
@@ -1715,7 +1825,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (event.event === 'charge.completed' && event.data.status === 'successful') {
         const { tx_ref, amount, meta } = event.data;
-        
+
         // Extract user ID from reference (FLW_USERID_TIMESTAMP_RANDOM format)
         const referenceMatch = tx_ref.match(/^FLW_([A-F0-9]{8})_/);
         if (!referenceMatch) {
@@ -1767,43 +1877,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Flutterwave webhook error:', error);
       res.status(500).send('Error processing Flutterwave webhook');
-    }
-  });
-
-  // Payment verification endpoint
-  app.get("/api/payments/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
-    try {
-      const { reference } = req.params;
-
-      const paystackService = new PaystackService();
-      const transaction = await paystackService.verifyTransaction(reference);
-
-      if (transaction.status === 'success' && transaction.metadata.userId === req.user.userId) {
-        const { tokens } = transaction.metadata;
-
-        // Update user's findertoken balance
-        const finder = await storage.getFinderByUserId(req.user.userId);
-        if (finder) {
-          const currentBalance = finder.findertokenBalance || 0;
-          await storage.updateFinder(finder.id, {
-            findertokenBalance: currentBalance + tokens
-          });
-
-          // Create transaction record
-          await storage.createTransaction({
-            userId: req.user.userId,
-            type: 'findertoken_purchase',
-            amount: tokens,
-            description: `Findertoken purchase - ${tokens} findertokens`,
-            reference: reference
-          });
-        }
-      }
-
-      res.json(transaction);
-    } catch (error) {
-      console.error('Payment verification error:', error);
-      res.status(500).json({ message: "Failed to verify payment" });
     }
   });
 
@@ -3565,19 +3638,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if logs directory exists and count recent emails
       const fs = require('fs').promises;
       const path = require('path');
-      
+
       let recentEmails = 0;
       let failedEmails = 0;
-      
+
       try {
         const emailsDir = path.join(process.cwd(), 'logs', 'emails');
         const failedDir = path.join(process.cwd(), 'logs', 'failed-emails');
-        
+
         // Count recent emails (last 24 hours)
         try {
           const emailFiles = await fs.readdir(emailsDir);
           const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
-          
+
           for (const file of emailFiles) {
             const filePath = path.join(emailsDir, file);
             const stats = await fs.stat(filePath);
@@ -3588,7 +3661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (e) {
           // Directory doesn't exist yet
         }
-        
+
         // Count failed emails
         try {
           const failedFiles = await fs.readdir(failedDir);
@@ -3596,7 +3669,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } catch (e) {
           // Directory doesn't exist yet
         }
-        
+
       } catch (error) {
         console.warn('Could not read email logs:', error);
       }
@@ -3626,13 +3699,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { to, subject, message } = req.body;
-      
+
       if (!to || !subject || !message) {
         return res.status(400).json({ message: "To, subject, and message are required" });
       }
 
       const { emailQueue } = await import('./emailQueue');
-      
+
       const emailId = await emailQueue.addToQueue({
         to,
         subject: subject || 'Test Email from FinderMeister',
