@@ -126,6 +126,7 @@ function Router() {
       <Route path="/admin/finder-levels" component={AdminFinderLevels} />
       <Route path="/admin/strike-system" component={AdminStrikeSystem} />
       <Route path="/admin/restricted-words" component={AdminRestrictedWords} />
+      <Route path="/admin/financial-dashboard" component={lazy(() => import("@/pages/admin/financial-dashboard"))} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/messages" component={Messages} />
       <Route path="/messages/:conversationId" component={ConversationDetail} />

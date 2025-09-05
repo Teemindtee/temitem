@@ -75,7 +75,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentPage === item.id || (item.subItems && item.subItems.some(sub => currentPage === sub.id));
-              
+
               if (item.hasDropdown && item.subItems) {
                 return (
                   <DropdownMenu key={item.id}>
@@ -112,7 +112,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                   </DropdownMenu>
                 );
               }
-              
+
               return (
                 <Link key={item.id} href={item.path}>
                   <Button
@@ -136,7 +136,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
           <div className="flex items-center space-x-2">
             {/* Language Switcher */}
             <LanguageSwitcher />
-            
+
             {/* Desktop Logout */}
             <Button 
               variant="outline" 
@@ -158,12 +158,12 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
               <SheetContent side="right" className="w-[300px] max-w-[85vw]">
                 <div className="flex flex-col mt-6">
                   <div className="text-lg font-semibold text-gray-900 mb-3 px-2">Admin Panel</div>
-                  
+
                   <div className="space-y-1">
                     {navItems.map((item) => {
                       const Icon = item.icon;
                       const isActive = currentPage === item.id || (item.subItems && item.subItems.some(sub => currentPage === sub.id));
-                      
+
                       if (item.hasDropdown && item.subItems) {
                         return (
                           <div key={item.id} className="space-y-1">
@@ -196,7 +196,7 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                           </div>
                         );
                       }
-                      
+
                       return (
                         <Link key={item.id} href={item.path}>
                           <Button
@@ -216,12 +216,12 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
                       );
                     })}
                   </div>
-                  
+
                   {/* Mobile Language Switcher */}
                   <div className="border-t border-gray-200 pt-3 mt-4 mb-3">
                     <LanguageSwitcher variant="mobile" />
                   </div>
-                  
+
                   <div className="border-t border-gray-200 pt-3 mt-4">
                     <Button 
                       variant="outline" 

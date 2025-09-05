@@ -2323,6 +2323,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Financial Dashboard API endpoints
+  app.get("/api/admin/transactions", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      // Get all transactions with user details
+      const transactions = await storage.getAllTransactionsWithUsers();
+      res.json(transactions);
+    } catch (error) {
+      console.error('Failed to fetch admin transactions:', error);
+      res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  app.get("/api/admin/contracts", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      // Get all contracts with client and finder details
+      const contracts = await storage.getAllContractsWithUsers();
+      res.json(contracts);
+    } catch (error) {
+      console.error('Failed to fetch admin contracts:', error);
+      res.status(500).json({ message: "Failed to fetch contracts" });
+    }
+  });
+
   // Admin management routes
   app.get("/api/admin/categories", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {

@@ -916,6 +916,67 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(transactions.createdAt));
   }
 
+  async getAllTransactionsWithUsers() {
+    return await db
+      .select({
+        id: transactions.id,
+        userId: transactions.userId,
+        finderId: transactions.finderId,
+        amount: transactions.amount,
+        type: transactions.type,
+        description: transactions.description,
+        reference: transactions.reference,
+        createdAt: transactions.createdAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+          role: users.role
+        },
+        finder: {
+          user: {
+            firstName: sql`finder_users.first_name`,
+            lastName: sql`finder_users.last_name`,
+            email: sql`finder_users.email`
+          }
+        }
+      })
+      .from(transactions)
+      .leftJoin(users, eq(transactions.userId, users.id))
+      .leftJoin(finders, eq(transactions.finderId, finders.id))
+      .leftJoin(sql`users as finder_users`, sql`finders.user_id = finder_users.id`)
+      .orderBy(desc(transactions.createdAt));
+  }
+
+  async getAllContractsWithUsers() {
+    return await db
+      .select({
+        id: contracts.id,
+        amount: contracts.amount,
+        escrowStatus: contracts.escrowStatus,
+        createdAt: contracts.createdAt,
+        clientId: contracts.clientId,
+        finderId: contracts.finderId,
+        client: {
+          firstName: sql`client_users.first_name`,
+          lastName: sql`client_users.last_name`,
+          email: sql`client_users.email`
+        },
+        finder: {
+          user: {
+            firstName: sql`finder_users.first_name`,
+            lastName: sql`finder_users.last_name`,
+            email: sql`finder_users.email`
+          }
+        }
+      })
+      .from(contracts)
+      .leftJoin(sql`users as client_users`, sql`contracts.client_id = client_users.id`)
+      .leftJoin(finders, eq(contracts.finderId, finders.id))
+      .leftJoin(sql`users as finder_users`, sql`finders.user_id = finder_users.id`)
+      .orderBy(desc(contracts.createdAt));
+  }
+
   async getAllUsers(): Promise<User[]> {
     const allUsers = await db
       .select()
@@ -2023,7 +2084,7 @@ export class DatabaseStorage implements IStorage {
   async grantTokensToClient(userId: string, amount: number, reason: string, grantedBy: string): Promise<ClientTokenGrant> {
     return await db.transaction(async (tx) => {
       // Verify user is a client
-      const user = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
+      const [user] = await tx.select().from(users).where(eq(users.id, userId)).limit(1);
       if (user.length === 0 || user[0].role !== 'client') {
         throw new Error('Client not found');
       }
