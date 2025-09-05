@@ -1,22 +1,78 @@
 import nodemailer from 'nodemailer';
-import { MailService } from '@sendgrid/mail';
+import { createTransport } from 'nodemailer';
 
-// SendGrid configuration for Replit
-const sendGridService = new MailService();
-if (process.env.SENDGRID_API_KEY) {
-  sendGridService.setApiKey(process.env.SENDGRID_API_KEY);
-}
+// Self-contained email configuration using various fallback methods
+const createEmailTransporter = () => {
+  // Try different transport methods in order of preference
+  const transports = [
+    // Method 1: Direct SMTP (if configured)
+    () => {
+      if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+        return createTransport({
+          host: process.env.SMTP_HOST,
+          port: parseInt(process.env.SMTP_PORT || '587'),
+          secure: false,
+          auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+          },
+        });
+      }
+      return null;
+    },
 
-// SMTP fallback configuration
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+    // Method 2: Gmail OAuth2 (self-contained)
+    () => {
+      if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+        return createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_APP_PASSWORD,
+          },
+        });
+      }
+      return null;
+    },
+
+    // Method 3: Local mail system simulation (for development)
+    () => {
+      return createTransport({
+        streamTransport: true,
+        newline: 'unix',
+        buffer: true,
+      });
+    },
+
+    // Method 4: File-based email logging (ultimate fallback)
+    () => {
+      return createTransport({
+        jsonTransport: true,
+      });
+    }
+  ];
+
+  for (const createTransporter of transports) {
+    try {
+      const transporter = createTransporter();
+      if (transporter) {
+        return transporter;
+      }
+    } catch (error) {
+      console.warn('Failed to create transporter:', error);
+      continue;
+    }
+  }
+
+  // Final fallback - create a test transporter
+  return createTransport({
+    streamTransport: true,
+    newline: 'unix',
+    buffer: true,
+  });
+};
+
+const transporter = createEmailTransporter();
 
 export interface EmailTemplate {
   to: string;

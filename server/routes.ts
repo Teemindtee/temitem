@@ -3375,6 +3375,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
+  // Email system monitoring (Admin only)
+  app.get("/api/admin/email-status", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { emailQueue } = await import('./emailQueue');
+      const status = emailQueue.getQueueStatus();
+
+      // Check if logs directory exists and count recent emails
+      const fs = require('fs').promises;
+      const path = require('path');
+      
+      let recentEmails = 0;
+      let failedEmails = 0;
+      
+      try {
+        const emailsDir = path.join(process.cwd(), 'logs', 'emails');
+        const failedDir = path.join(process.cwd(), 'logs', 'failed-emails');
+        
+        // Count recent emails (last 24 hours)
+        try {
+          const emailFiles = await fs.readdir(emailsDir);
+          const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+          
+          for (const file of emailFiles) {
+            const filePath = path.join(emailsDir, file);
+            const stats = await fs.stat(filePath);
+            if (stats.mtime.getTime() > oneDayAgo) {
+              recentEmails++;
+            }
+          }
+        } catch (e) {
+          // Directory doesn't exist yet
+        }
+        
+        // Count failed emails
+        try {
+          const failedFiles = await fs.readdir(failedDir);
+          failedEmails = failedFiles.length;
+        } catch (e) {
+          // Directory doesn't exist yet
+        }
+        
+      } catch (error) {
+        console.warn('Could not read email logs:', error);
+      }
+
+      res.json({
+        queue: status,
+        statistics: {
+          recentEmails,
+          failedEmails,
+        },
+        transportInfo: {
+          configured: !!(process.env.SMTP_HOST || process.env.GMAIL_USER),
+          type: process.env.SMTP_HOST ? 'SMTP' : process.env.GMAIL_USER ? 'Gmail' : 'Local/Development'
+        }
+      });
+    } catch (error) {
+      console.error('Email status error:', error);
+      res.status(500).json({ message: "Failed to get email status" });
+    }
+  });
+
+  // Test email endpoint (Admin only)
+  app.post("/api/admin/test-email", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { to, subject, message } = req.body;
+      
+      if (!to || !subject || !message) {
+        return res.status(400).json({ message: "To, subject, and message are required" });
+      }
+
+      const { emailQueue } = await import('./emailQueue');
+      
+      const emailId = await emailQueue.addToQueue({
+        to,
+        subject: subject || 'Test Email from FinderMeister',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Test Email</h2>
+            <p>${message}</p>
+            <p><small>Sent at: ${new Date().toISOString()}</small></p>
+            <p>Best regards,<br>FinderMeister Email System</p>
+          </div>
+        `
+      }, 'high');
+
+      res.json({ 
+        success: true, 
+        message: "Test email queued successfully",
+        emailId 
+      });
+    } catch (error) {
+      console.error('Test email error:', error);
+      res.status(500).json({ message: "Failed to send test email" });
+    }
+  });
+
   // Object Storage API
   app.get("/public-objects/:filePath(*)", async (req, res) => {
     const filePath = req.params.filePath;
