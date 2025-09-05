@@ -14,6 +14,7 @@ import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { PaystackService, TOKEN_PACKAGES } from "./paymentService";
 import { OpayService, OPAY_TOKEN_PACKAGES } from "./opayService";
+import { FlutterwaveService, FLUTTERWAVE_TOKEN_PACKAGES } from "./flutterwaveService";
 import { emailService } from "./emailService";
 import { strikeService } from "./strikeService";
 
@@ -1024,6 +1025,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           required: true,
           amount: proposal.price,
           reference,
+
+  // Flutterwave token packages endpoint
+  app.get("/api/findertokens/flutterwave-packages", (req: Request, res: Response) => {
+    res.json(FLUTTERWAVE_TOKEN_PACKAGES);
+  });
+
           paymentUrl: paymentData.authorization_url,
           contractId: contract.id
         }
@@ -1361,6 +1368,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Initialize Flutterwave payment endpoint
+  app.post("/api/payments/flutterwave/initialize", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { packageId, phone, customerName } = req.body;
+
+      const flutterwaveService = new FlutterwaveService();
+      const selectedPackage = FLUTTERWAVE_TOKEN_PACKAGES.find((pkg: any) => pkg.id === packageId);
+
+      if (!selectedPackage) {
+        return res.status(404).json({ message: "Package not found" });
+      }
+
+      const user = await storage.getUser(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const reference = flutterwaveService.generateTransactionReference(req.user.userId);
+
+      const transaction = await flutterwaveService.initializeTransaction(
+        user.email,
+        selectedPackage.price,
+        reference,
+        {
+          userId: req.user.userId,
+          packageId: packageId,
+          tokens: selectedPackage.tokens,
+          phone: phone,
+          customerName: customerName || `${user.firstName} ${user.lastName}`
+        }
+      );
+
+      res.json(transaction);
+    } catch (error) {
+      console.error('Flutterwave payment initialization error:', error);
+      res.status(500).json({ message: "Failed to initialize Flutterwave payment" });
+    }
+  });
+
   // Payment verification endpoint
   app.get("/api/payments/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -1479,6 +1525,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Flutterwave payment verification endpoint
+  app.get("/api/payments/flutterwave/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { reference } = req.params;
+      const flutterwaveService = new FlutterwaveService();
+
+      const transaction = await flutterwaveService.verifyTransaction(reference);
+
+      if (transaction.status === 'success') {
+        const finder = await storage.getFinderByUserId(req.user.userId);
+        if (!finder) {
+          return res.status(404).json({ message: "Finder profile not found" });
+        }
+
+        // Check if transaction already processed
+        const existingTransaction = await storage.getTransactionByReference(reference);
+
+        if (!existingTransaction) {
+          // Determine tokens from the amount or metadata
+          const packageMapping = {
+            5000: 10,   // Starter Pack
+            10000: 25,  // Professional Pack
+            18000: 50,  // Business Pack
+            30000: 100  // Enterprise Pack
+          };
+          
+          const tokens = packageMapping[transaction.amount as keyof typeof packageMapping] || 10;
+
+          // Update balance and create transaction record
+          const currentBalance = finder.findertokenBalance || 0;
+          await storage.updateFinder(finder.id, {
+            findertokenBalance: currentBalance + tokens
+          });
+
+          await storage.createTransaction({
+            userId: req.user.userId,
+            finderId: finder.id,
+            type: 'findertoken_purchase',
+            amount: tokens,
+            description: `FinderToken™ purchase via Flutterwave - ${tokens} tokens`,
+            reference: reference
+          });
+        }
+
+        res.json({ 
+          status: 'success', 
+          data: transaction 
+        });
+      } else {
+        res.json({ 
+          status: 'failed', 
+          message: 'Payment was not successful' 
+        });
+      }
+    } catch (error) {
+      console.error('Flutterwave payment verification error:', error);
+      res.status(500).json({ message: "Failed to verify Flutterwave payment" });
+    }
+  });
+
   // Payment webhook endpoint
   app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
     try {
@@ -1590,6 +1696,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Opay webhook error:', error);
       res.status(500).send('Error processing Opay webhook');
+    }
+  });
+
+  // Flutterwave webhook endpoint
+  app.post("/api/payments/flutterwave/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+    try {
+      const flutterwaveService = new FlutterwaveService();
+
+      const signature = req.headers['verif-hash'] as string;
+      const payload = req.body.toString();
+
+      if (!flutterwaveService.verifyWebhookSignature(payload, signature)) {
+        return res.status(400).send('Invalid signature');
+      }
+
+      const event = JSON.parse(payload);
+
+      if (event.event === 'charge.completed' && event.data.status === 'successful') {
+        const { tx_ref, amount, meta } = event.data;
+        
+        // Extract user ID from reference (FLW_USERID_TIMESTAMP_RANDOM format)
+        const referenceMatch = tx_ref.match(/^FLW_([A-F0-9]{8})_/);
+        if (!referenceMatch) {
+          console.error('Invalid reference format:', tx_ref);
+          return res.status(400).send('Invalid reference format');
+        }
+
+        const userIdPrefix = referenceMatch[1];
+        const users = await storage.getAllUsers();
+        const user = users.find(u => u.id.startsWith(userIdPrefix));
+
+        if (!user) {
+          console.error('User not found for reference:', tx_ref);
+          return res.status(400).send('User not found');
+        }
+
+        // Determine tokens from amount or metadata
+        const tokens = meta?.tokens || (() => {
+          const packageMapping = {
+            5000: 10,   // Starter Pack
+            10000: 25,  // Professional Pack
+            18000: 50,  // Business Pack
+            30000: 100  // Enterprise Pack
+          };
+          return packageMapping[amount as keyof typeof packageMapping] || 10;
+        })();
+
+        // Update user's findertoken balance
+        const finder = await storage.getFinderByUserId(user.id);
+        if (finder) {
+          const currentBalance = finder.findertokenBalance || 0;
+          await storage.updateFinder(finder.id, {
+            findertokenBalance: currentBalance + tokens
+          });
+
+          // Create transaction record
+          await storage.createTransaction({
+            userId: user.id,
+            finderId: finder.id,
+            type: 'findertoken_purchase',
+            amount: tokens,
+            description: `Findertoken purchase via Flutterwave - ${tokens} findertokens`,
+            reference: tx_ref
+          });
+        }
+      }
+
+      res.status(200).send('OK');
+    } catch (error) {
+      console.error('Flutterwave webhook error:', error);
+      res.status(500).send('Error processing Flutterwave webhook');
     }
   });
 

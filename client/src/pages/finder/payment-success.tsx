@@ -28,8 +28,16 @@ export default function PaymentSuccess() {
       }
 
       try {
+        // Determine payment service based on reference format
+        let verifyEndpoint = `/api/payments/verify/${reference}`;
+        if (reference.startsWith('OPAY_')) {
+          verifyEndpoint = `/api/payments/opay/verify/${reference}`;
+        } else if (reference.startsWith('FLW_')) {
+          verifyEndpoint = `/api/payments/flutterwave/verify/${reference}`;
+        }
+
         // Verify payment with backend
-        const result = await apiRequest(`/api/payments/verify/${reference}`);
+        const result = await apiRequest(verifyEndpoint);
         
         if (result.status === 'success') {
           setVerificationStatus('success');
