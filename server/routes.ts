@@ -13,6 +13,7 @@ import { insertUserSchema, insertFindSchema, insertProposalSchema, insertReviewS
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { PaystackService, TOKEN_PACKAGES } from "./paymentService";
+import { OpayService, OPAY_TOKEN_PACKAGES } from "./opayService";
 import { emailService } from "./emailService";
 import { strikeService } from "./strikeService";
 
@@ -1057,6 +1058,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contracts/:contractId/payment", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { contractId } = req.params;
+      const { paymentMethod = 'paystack' } = req.body;
 
       // Get contract details
       const contract = await storage.getContract(contractId);
@@ -1084,32 +1086,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      // Initialize payment with Paystack
-      const paystackService = new PaystackService();
-      
-      // Check if Paystack is properly configured
-      if (!paystackService.isConfigured()) {
-        return res.status(500).json({ 
-          message: "Payment service is currently unavailable. Please contact support to complete your payment.",
-          error: "Payment service not configured"
-        });
-      }
+      let paymentData;
 
-      const paymentData = await paystackService.initializeTransaction(
-        user.email,
-        parseInt(contract.amount.toString()),
-        `CONTRACT_${contractId}_${Date.now()}`,
-        {
-          contractId: contract.id,
-          userId: user.id,
-          type: 'escrow_funding'
+      if (paymentMethod === 'opay') {
+        // Initialize payment with Opay
+        const opayService = new OpayService();
+        
+        if (!opayService.isConfigured()) {
+          return res.status(500).json({ 
+            message: "Opay payment service is currently unavailable. Please try Paystack or contact support.",
+            error: "Opay service not configured"
+          });
         }
-      );
+
+        paymentData = await opayService.initializeTransaction(
+          user.email,
+          parseInt(contract.amount.toString()),
+          `OPAY_CONTRACT_${contractId}_${Date.now()}`,
+          {
+            contractId: contract.id,
+            userId: user.id,
+            type: 'escrow_funding'
+          }
+        );
+      } else {
+        // Initialize payment with Paystack (default)
+        const paystackService = new PaystackService();
+        
+        if (!paystackService.isConfigured()) {
+          return res.status(500).json({ 
+            message: "Paystack payment service is currently unavailable. Please try Opay or contact support.",
+            error: "Paystack service not configured"
+          });
+        }
+
+        paymentData = await paystackService.initializeTransaction(
+          user.email,
+          parseInt(contract.amount.toString()),
+          `CONTRACT_${contractId}_${Date.now()}`,
+          {
+            contractId: contract.id,
+            userId: user.id,
+            type: 'escrow_funding'
+          }
+        );
+      }
 
       res.json({
         authorization_url: paymentData.authorization_url,
         reference: paymentData.reference,
-        amount: parseInt(contract.amount)
+        amount: parseInt(contract.amount),
+        paymentMethod
       });
 
     } catch (error) {
@@ -1214,6 +1241,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(TOKEN_PACKAGES);
   });
 
+  // Opay token packages endpoint
+  app.get("/api/findertokens/opay-packages", (req: Request, res: Response) => {
+    res.json(OPAY_TOKEN_PACKAGES);
+  });
+
   // FinderToken™ Purchase endpoint
   app.post("/api/tokens/purchase", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -1291,6 +1323,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Initialize Opay payment endpoint
+  app.post("/api/payments/opay/initialize", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { packageId, phone } = req.body;
+
+      const opayService = new OpayService();
+      const selectedPackage = OPAY_TOKEN_PACKAGES.find((pkg: any) => pkg.id === packageId);
+
+      if (!selectedPackage) {
+        return res.status(404).json({ message: "Package not found" });
+      }
+
+      const user = await storage.getUser(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const reference = opayService.generateTransactionReference(req.user.userId);
+
+      const transaction = await opayService.initializeTransaction(
+        user.email,
+        selectedPackage.price,
+        reference,
+        {
+          userId: req.user.userId,
+          packageId: packageId,
+          tokens: selectedPackage.tokens,
+          phone: phone
+        }
+      );
+
+      res.json(transaction);
+    } catch (error) {
+      console.error('Opay payment initialization error:', error);
+      res.status(500).json({ message: "Failed to initialize Opay payment" });
+    }
+  });
+
   // Payment verification endpoint
   app.get("/api/payments/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -1347,6 +1417,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Opay payment verification endpoint
+  app.get("/api/payments/opay/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { reference } = req.params;
+      const opayService = new OpayService();
+
+      const transaction = await opayService.verifyTransaction(reference);
+
+      if (transaction.status === 'success') {
+        // Extract metadata from reference (since Opay doesn't return custom metadata)
+        const finder = await storage.getFinderByUserId(req.user.userId);
+        if (!finder) {
+          return res.status(404).json({ message: "Finder profile not found" });
+        }
+
+        // Check if transaction already processed
+        const existingTransaction = await storage.getTransactionByReference(reference);
+
+        if (!existingTransaction) {
+          // For now, we'll need to determine tokens from the amount or package
+          // This could be improved by storing the package info separately
+          const packageMapping = {
+            5000: 10,   // Starter Pack
+            10000: 25,  // Professional Pack
+            18000: 50,  // Business Pack
+            30000: 100  // Enterprise Pack
+          };
+          
+          const tokens = packageMapping[transaction.amount as keyof typeof packageMapping] || 10;
+
+          // Update balance and create transaction record
+          const currentBalance = finder.findertokenBalance || 0;
+          await storage.updateFinder(finder.id, {
+            findertokenBalance: currentBalance + tokens
+          });
+
+          await storage.createTransaction({
+            userId: req.user.userId,
+            finderId: finder.id,
+            type: 'findertoken_purchase',
+            amount: tokens,
+            description: `FinderToken™ purchase via Opay - ${tokens} tokens`,
+            reference: reference
+          });
+        }
+
+        res.json({ 
+          status: 'success', 
+          data: transaction 
+        });
+      } else {
+        res.json({ 
+          status: 'failed', 
+          message: 'Payment was not successful' 
+        });
+      }
+    } catch (error) {
+      console.error('Opay payment verification error:', error);
+      res.status(500).json({ message: "Failed to verify Opay payment" });
+    }
+  });
+
   // Payment webhook endpoint
   app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
     try {
@@ -1388,6 +1520,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Webhook error:', error);
       res.status(500).send('Error processing webhook');
+    }
+  });
+
+  // Opay webhook endpoint
+  app.post("/api/payments/opay/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+    try {
+      const opayService = new OpayService();
+
+      const signature = req.headers['x-opay-signature'] as string;
+      const payload = req.body.toString();
+
+      if (!opayService.verifyWebhookSignature(payload, signature)) {
+        return res.status(400).send('Invalid signature');
+      }
+
+      const event = JSON.parse(payload);
+
+      if (event.status === 'SUCCESS') {
+        const { reference, amount } = event;
+        
+        // Extract user ID from reference (OPAY_USERID_TIMESTAMP_RANDOM format)
+        const referenceMatch = reference.match(/^OPAY_([A-F0-9]{8})_/);
+        if (!referenceMatch) {
+          console.error('Invalid reference format:', reference);
+          return res.status(400).send('Invalid reference format');
+        }
+
+        const userIdPrefix = referenceMatch[1];
+        const users = await storage.getAllUsers();
+        const user = users.find(u => u.id.startsWith(userIdPrefix));
+
+        if (!user) {
+          console.error('User not found for reference:', reference);
+          return res.status(400).send('User not found');
+        }
+
+        // Determine tokens from amount
+        const packageMapping = {
+          500000: 10,   // Starter Pack (amount in kobo)
+          1000000: 25,  // Professional Pack
+          1800000: 50,  // Business Pack
+          3000000: 100  // Enterprise Pack
+        };
+        
+        const tokens = packageMapping[amount as keyof typeof packageMapping] || 10;
+
+        // Update user's findertoken balance
+        const finder = await storage.getFinderByUserId(user.id);
+        if (finder) {
+          const currentBalance = finder.findertokenBalance || 0;
+          await storage.updateFinder(finder.id, {
+            findertokenBalance: currentBalance + tokens
+          });
+
+          // Create transaction record
+          await storage.createTransaction({
+            userId: user.id,
+            finderId: finder.id,
+            type: 'findertoken_purchase',
+            amount: tokens,
+            description: `Findertoken purchase via Opay - ${tokens} findertokens`,
+            reference: reference
+          });
+        }
+      }
+
+      res.status(200).send('OK');
+    } catch (error) {
+      console.error('Opay webhook error:', error);
+      res.status(500).send('Error processing Opay webhook');
     }
   });
 

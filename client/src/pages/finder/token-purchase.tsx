@@ -11,6 +11,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Coins, CreditCard, ArrowLeft, Star, Zap, Users, Crown } from "lucide-react";
+import { PaymentModal } from "@/components/PaymentModal";
+import { OpayPaymentModal } from "@/components/OpayPaymentModal";
 
 interface PricingInfo {
   pricePerToken: number; // in kobo/cents
@@ -23,13 +25,17 @@ export default function TokenPurchase() {
   const [, setLocation] = useLocation();
   const [tokenAmount, setTokenAmount] = useState<number>(10);
   const [loading, setLoading] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isOpayModalOpen, setIsOpayModalOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'opay'>('paystack');
 
   // Check if user returned from payment and redirect to success page
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const payment = urlParams.get('payment');
     const reference = urlParams.get('reference');
-    
+
     if (payment === 'success' && reference) {
       // Redirect to payment success page immediately
       setLocation(`/finder/payment-success?payment=success&reference=${reference}`);
@@ -51,42 +57,25 @@ export default function TokenPurchase() {
   const totalPrice = pricing ? (tokenAmount * pricing.pricePerToken) : 0;
   const totalPriceInNaira = totalPrice / 100; // Convert kobo to naira
 
-  const handlePurchase = async (tokens: number, amount: number) => {
-    if (amount <= 0) return;
-    
-    setLoading(true);
-    
-    try {
-      // Initialize Paystack payment with authenticated request
-      const data = await apiRequest('/api/tokens/purchase', {
-        method: 'POST',
-        body: JSON.stringify({
-          tokenAmount: tokens,
-          amount: amount
-        })
-      });
-      
-      if (data && data.authorization_url) {
-        // Redirect to Paystack payment page
-        window.location.href = data.authorization_url;
-      } else {
-        throw new Error(data?.message || 'Failed to initialize payment');
-      }
-    } catch (error) {
-      console.error('Token purchase error:', error);
-      toast({
-        title: "Purchase Failed",
-        description: "There was an error processing your payment. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+  const handlePurchase = (packageData: any, method: 'paystack' | 'opay' = 'paystack') => {
+    setSelectedPackage(packageData);
+    setPaymentMethod(method);
+    if (method === 'opay') {
+      setIsOpayModalOpen(true);
+    } else {
+      setIsPaymentModalOpen(true);
     }
   };
 
   const handleCustomPurchase = async () => {
     if (!pricing || tokenAmount <= 0) return;
-    await handlePurchase(tokenAmount, totalPriceInNaira);
+    const packageData = {
+      id: 'custom',
+      name: `${tokenAmount} FinderTokens`,
+      price: totalPriceInNaira,
+      tokens: tokenAmount,
+    };
+    await handlePurchase(packageData, paymentMethod); // Use selected payment method
   };
 
   const handleTokenAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +104,7 @@ export default function TokenPurchase() {
   return (
     <div className="min-h-screen bg-gray-50">
       <FinderHeader />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
@@ -165,7 +154,7 @@ export default function TokenPurchase() {
                 Special pricing packages with better value for dedicated Finders
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {/* Light Usage Package */}
@@ -183,14 +172,22 @@ export default function TokenPurchase() {
                       <div className="text-sm text-muted-foreground">FinderTokens</div>
                       <div className="text-2xl font-bold">₦500</div>
                       <div className="text-sm text-muted-foreground">₦20 per token</div>
-                      <Button 
-                        className="w-full" 
-                        onClick={() => handlePurchase(25, 500)}
-                        disabled={loading}
-                      >
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Purchase Now
-                      </Button>
+                      <div className="space-y-2">
+                        <Button 
+                          onClick={() => handlePurchase({ id: 'light', name: 'Light Usage', price: 500, tokens: 25 }, 'paystack')}
+                          className="w-full bg-finder-red hover:bg-red-700 text-white"
+                          size="lg"
+                        >
+                          Pay with Paystack
+                        </Button>
+                        <Button 
+                          onClick={() => handlePurchase({ id: 'light', name: 'Light Usage', price: 500, tokens: 25 }, 'opay')}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                          size="lg"
+                        >
+                          Pay with Opay
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -210,14 +207,22 @@ export default function TokenPurchase() {
                       <div className="text-sm text-muted-foreground">FinderTokens</div>
                       <div className="text-2xl font-bold">₦1,000</div>
                       <div className="text-sm text-muted-foreground">₦20 per token</div>
-                      <Button 
-                        className="w-full" 
-                        onClick={() => handlePurchase(50, 1000)}
-                        disabled={loading}
-                      >
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Purchase Now
-                      </Button>
+                      <div className="space-y-2">
+                        <Button 
+                          onClick={() => handlePurchase({ id: 'moderate', name: 'Moderate Participation', price: 1000, tokens: 50 }, 'paystack')}
+                          className="w-full bg-finder-red hover:bg-red-700 text-white"
+                          size="lg"
+                        >
+                          Pay with Paystack
+                        </Button>
+                        <Button 
+                          onClick={() => handlePurchase({ id: 'moderate', name: 'Moderate Participation', price: 1000, tokens: 50 }, 'opay')}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                          size="lg"
+                        >
+                          Pay with Opay
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -238,14 +243,22 @@ export default function TokenPurchase() {
                       <div className="text-sm text-muted-foreground">FinderTokens</div>
                       <div className="text-2xl font-bold">₦2,000</div>
                       <div className="text-sm text-muted-foreground">₦20 per token</div>
-                      <Button 
-                        className="w-full bg-orange-600 hover:bg-orange-700" 
-                        onClick={() => handlePurchase(100, 2000)}
-                        disabled={loading}
-                      >
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Purchase Now
-                      </Button>
+                      <div className="space-y-2">
+                        <Button 
+                          onClick={() => handlePurchase({ id: 'power', name: 'Power Users', price: 2000, tokens: 100 }, 'paystack')}
+                          className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                          size="lg"
+                        >
+                          Pay with Paystack
+                        </Button>
+                        <Button 
+                          onClick={() => handlePurchase({ id: 'power', name: 'Power Users', price: 2000, tokens: 100 }, 'opay')}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                          size="lg"
+                        >
+                          Pay with Opay
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -265,19 +278,27 @@ export default function TokenPurchase() {
                       <div className="text-sm text-muted-foreground">FinderTokens</div>
                       <div className="text-2xl font-bold">₦4,000</div>
                       <div className="text-sm text-muted-foreground">₦20 per token</div>
-                      <Button 
-                        className="w-full bg-purple-600 hover:bg-purple-700" 
-                        onClick={() => handlePurchase(200, 4000)}
-                        disabled={loading}
-                      >
-                        <CreditCard className="w-4 h-4 mr-2" />
-                        Purchase Now
-                      </Button>
+                      <div className="space-y-2">
+                        <Button 
+                          onClick={() => handlePurchase({ id: 'prolific', name: 'Prolific Finders', price: 4000, tokens: 200 }, 'paystack')}
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                          size="lg"
+                        >
+                          Pay with Paystack
+                        </Button>
+                        <Button 
+                          onClick={() => handlePurchase({ id: 'prolific', name: 'Prolific Finders', price: 4000, tokens: 200 }, 'opay')}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
+                          size="lg"
+                        >
+                          Pay with Opay
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
-              
+
               {/* Monthly Allocation Info */}
               <Card className="bg-blue-50/50 border-blue-200">
                 <CardContent className="p-4">
@@ -299,7 +320,7 @@ export default function TokenPurchase() {
                 Current price: ₦{pricing ? (pricing.pricePerToken / 100).toFixed(2) : '0.00'} per token
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-6">
               {/* Token Amount Input */}
               <div className="space-y-2">
@@ -373,7 +394,7 @@ export default function TokenPurchase() {
               </Button>
             </CardContent>
           </Card>
-          
+
           {/* FinderToken™ Usage Overview */}
           <Card className="mb-6">
             <CardHeader>
@@ -399,7 +420,7 @@ export default function TokenPurchase() {
                   </ul>
                 </div>
               </div>
-              
+
               <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
                 <h4 className="font-semibold text-yellow-900 mb-2">Why FinderTokens?</h4>
                 <p className="text-sm text-yellow-800">
@@ -423,7 +444,7 @@ export default function TokenPurchase() {
                   <p className="text-sm text-muted-foreground">Buy FinderTokens using secure Paystack payment integration</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold shrink-0">2</div>
                 <div>
@@ -431,7 +452,7 @@ export default function TokenPurchase() {
                   <p className="text-sm text-muted-foreground">Use 10 tokens per proposal to apply for finds that match your expertise</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-sm font-bold shrink-0">3</div>
                 <div>
@@ -443,6 +464,46 @@ export default function TokenPurchase() {
           </Card>
         </div>
       </div>
+
+      {/* Payment Modals */}
+      {selectedPackage && (
+        <>
+          <PaymentModal
+            isOpen={isPaymentModalOpen}
+            onClose={() => setIsPaymentModalOpen(false)}
+            packageName={selectedPackage.name}
+            packagePrice={selectedPackage.price}
+            tokenCount={selectedPackage.tokens}
+            onPaymentSuccess={() => {
+              // queryClient.invalidateQueries({ queryKey: ['/api/findertokens/balance'] }); // Assuming queryClient is available
+              // queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });
+              toast({
+                title: "Purchase Successful!",
+                description: `${selectedPackage.tokens} tokens have been added to your account.`,
+              });
+              setIsPaymentModalOpen(false);
+            }}
+          />
+
+          <OpayPaymentModal
+            isOpen={isOpayModalOpen}
+            onClose={() => setIsOpayModalOpen(false)}
+            packageId={selectedPackage.id}
+            packageName={selectedPackage.name}
+            packagePrice={selectedPackage.price}
+            tokenCount={selectedPackage.tokens}
+            onPaymentSuccess={() => {
+              // queryClient.invalidateQueries({ queryKey: ['/api/findertokens/balance'] }); // Assuming queryClient is available
+              // queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });
+              toast({
+                title: "Purchase Successful!",
+                description: `${selectedPackage.tokens} tokens have been added to your account via Opay.`,
+              });
+              setIsOpayModalOpen(false);
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }
