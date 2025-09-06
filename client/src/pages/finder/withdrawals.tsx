@@ -113,17 +113,15 @@ export default function WithdrawalSettings() {
   };
 
   const handleWithdrawalRequest = () => {
-    // Convert from kobo to naira for display, but send kobo to backend
-    const availableBalanceKobo = Math.max(0, parseFloat(finder?.availableBalance || '0')); // Ensure positive balance
-    const availableBalanceNaira = availableBalanceKobo / 100;
-    const minimumThresholdNaira = 50; // Fixed minimum withdrawal amount
-    const minimumThresholdKobo = minimumThresholdNaira * 100;
+    // Available balance is already in naira format
+    const availableBalance = Math.max(0, parseFloat(finder?.availableBalance || '0'));
+    const minimumThreshold = 50;
 
     // Check if balance is sufficient for minimum threshold
-    if (availableBalanceKobo < minimumThresholdKobo) {
+    if (availableBalance < minimumThreshold) {
       toast({
         title: "Insufficient balance",
-        description: `Minimum withdrawal amount is ₦${minimumThresholdNaira}. Available: ₦${availableBalanceNaira.toFixed(2)}`,
+        description: `Minimum withdrawal amount is ₦${minimumThreshold}. Available: ₦${availableBalance.toFixed(2)}`,
         variant: "destructive",
       });
       return;
@@ -131,14 +129,14 @@ export default function WithdrawalSettings() {
 
     // Calculate withdrawal fees (5% fee)
     const feePercentage = 0.05;
-    const withdrawalFee = Math.round(availableBalanceKobo * feePercentage);
-    const netAmount = availableBalanceKobo - withdrawalFee;
+    const withdrawalFee = availableBalance * feePercentage;
+    const netAmount = availableBalance - withdrawalFee;
 
     // Double check net amount is positive
     if (netAmount <= 0) {
       toast({
         title: "Insufficient balance",
-        description: `Available balance after fees would be ₦${(netAmount / 100).toFixed(2)}`,
+        description: `Available balance after fees would be ₦${netAmount.toFixed(2)}`,
         variant: "destructive",
       });
       return;
@@ -148,11 +146,11 @@ export default function WithdrawalSettings() {
       accountName: formData.accountHolder,
       accountNumber: formData.accountNumber,
       bankName: formData.bankName,
-      routingNumber: formData.routingNumber
+      routingNumber: formData.routingNumber || ''
     };
 
     requestWithdrawalMutation.mutate({ 
-      amount: netAmount,
+      amount: netAmount.toFixed(2),
       paymentDetails
     });
   };
@@ -297,6 +295,84 @@ export default function WithdrawalSettings() {
             </CardContent>
           </Card>
 
+          {/* Withdrawal Request Form */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="w-5 h-5" />
+                Request Withdrawal
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-medium text-blue-900 mb-1">Withdrawal Information</h4>
+                    <ul className="text-sm text-blue-700 space-y-1">
+                      <li>• Minimum withdrawal amount: ₦50.00</li>
+                      <li>• 5% processing fee will be deducted</li>
+                      <li>• Withdrawals are processed within 1-3 business days</li>
+                      <li>• Ensure your bank details are correct before requesting</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Available Balance Display */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-green-700">Available for Withdrawal</p>
+                    <p className="text-2xl font-bold text-green-800">
+                      ₦{(Math.max(0, parseFloat(finder?.availableBalance || '0'))).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  <CreditCard className="w-8 h-8 text-green-600" />
+                </div>
+              </div>
+
+              {/* Withdrawal Button */}
+              <div className="space-y-4">
+                {(!formData.bankName || !formData.accountNumber || !formData.accountHolder) ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5 text-yellow-600" />
+                      <p className="text-sm text-yellow-800">
+                        Please complete your bank account settings above before requesting a withdrawal.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <Button 
+                    onClick={handleWithdrawalRequest}
+                    disabled={requestWithdrawalMutation.isPending || (Math.max(0, parseFloat(finder?.availableBalance || '0')) < 50)}
+                    className="w-full bg-finder-red hover:bg-finder-red-dark text-white py-3"
+                    size="lg"
+                  >
+                    {requestWithdrawalMutation.isPending ? (
+                      <div className="flex items-center gap-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Processing...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4" />
+                        Request Withdrawal of Full Balance
+                      </div>
+                    )}
+                  </Button>
+                )}
+                
+                {(Math.max(0, parseFloat(finder?.availableBalance || '0')) < 50) && (
+                  <p className="text-sm text-gray-600 text-center">
+                    Minimum withdrawal amount is ₦50.00
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Withdrawal History */}
           <Card>
             <CardHeader>
@@ -320,7 +396,7 @@ export default function WithdrawalSettings() {
                         <div className="flex items-center gap-3 mb-2">
                           <div className="flex items-center gap-2">
                             <DollarSign className="w-4 h-4 text-gray-600" />
-                            <span className="font-semibold text-gray-900">₦{(parseFloat(withdrawal.amount) / 100).toFixed(2)}</span>
+                            <span className="font-semibold text-gray-900">₦{(parseFloat(withdrawal.amount)).toFixed(2)}</span>
                           </div>
                           <Badge className={getStatusColor(withdrawal.status)}>
                             {withdrawal.status}
