@@ -753,18 +753,6 @@ export const supportAgents = pgTable("support_agents", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const supportDepartments = pgTable("support_departments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
-  description: text("description"),
-  color: text("color").default("#3B82F6"),
-  maxResponseTime: integer("max_response_time").default(24),
-  isActive: boolean("is_active").default(true),
-  autoAssignments: boolean("auto_assignments").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
 export type InsertSupportAgent = typeof supportAgents.$inferInsert;
 export type SelectSupportAgent = typeof supportAgents.$inferSelect;
 
@@ -808,16 +796,7 @@ export const supportTicketMessages = pgTable("support_ticket_messages", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const supportDepartments = pgTable("support_departments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull().unique(),
-  description: text("description"),
-  color: text("color").default("#3B82F6"), // Hex color for UI
-  isActive: boolean("is_active").default(true),
-  autoAssignments: boolean("auto_assignments").default(true),
-  maxResponseTime: integer("max_response_time").default(24), // hours
-  createdAt: timestamp("created_at").defaultNow(),
-});
+
 
 // Strike System Schemas
 export const insertStrikeSchema = createInsertSchema(strikes).omit({
