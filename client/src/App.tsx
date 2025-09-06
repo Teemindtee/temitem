@@ -37,6 +37,7 @@ import AdminBlogPostEdit from "@/pages/admin/blog-post-edit";
 import AdminFinderLevels from "@/pages/admin/finder-levels";
 import AdminStrikeSystem from "@/pages/admin/StrikeSystem";
 import AdminRestrictedWords from "@/pages/admin/restricted-words";
+import AdminSupportAgents from "@/pages/admin/support-agents";
 import BlogPost from "@/pages/blog-post";
 import Messages from "@/pages/Messages";
 import ConversationDetail from "@/pages/ConversationDetail";
@@ -126,6 +127,7 @@ function Router() {
       <Route path="/admin/finder-levels" component={AdminFinderLevels} />
       <Route path="/admin/strike-system" component={AdminStrikeSystem} />
       <Route path="/admin/restricted-words" component={AdminRestrictedWords} />
+      <Route path="/admin/support-agents" component={AdminSupportAgents} />
       <Route path="/admin/financial-dashboard" component={lazy(() => import("@/pages/admin/financial-dashboard"))} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/messages" component={Messages} />
