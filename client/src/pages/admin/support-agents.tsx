@@ -279,11 +279,11 @@ export default function SupportAgentsManagement() {
               Add Agent
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create Support Agent</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-6 py-4">
               <div>
                 <Label htmlFor="userId">Select User</Label>
                 <Select value={newAgent.userId} onValueChange={(value) => setNewAgent({...newAgent, userId: value})}>
@@ -318,9 +318,9 @@ export default function SupportAgentsManagement() {
 
               <div>
                 <Label>Permissions</Label>
-                <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="grid grid-cols-1 gap-1 mt-2 max-h-32 overflow-y-auto border rounded p-2">
                   {PERMISSION_OPTIONS.map((permission) => (
-                    <label key={permission.value} className="flex items-center space-x-2">
+                    <label key={permission.value} className="flex items-center space-x-2 text-xs">
                       <input
                         type="checkbox"
                         checked={newAgent.permissions.includes(permission.value)}
@@ -339,40 +339,42 @@ export default function SupportAgentsManagement() {
                         }}
                         className="rounded"
                       />
-                      <span className="text-sm">{permission.label}</span>
+                      <span>{permission.label}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3">
                 <div>
-                  <Label htmlFor="maxTicketsPerDay">Max Tickets Per Day</Label>
+                  <Label htmlFor="maxTicketsPerDay" className="text-sm">Max Tickets Per Day</Label>
                   <Input
                     type="number"
                     value={newAgent.maxTicketsPerDay}
                     onChange={(e) => setNewAgent({...newAgent, maxTicketsPerDay: parseInt(e.target.value)})}
                     min={1}
                     max={100}
+                    className="h-8"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="responseTimeTarget">Response Time Target (hours)</Label>
+                  <Label htmlFor="responseTimeTarget" className="text-sm">Response Time Target (hours)</Label>
                   <Input
                     type="number"
                     value={newAgent.responseTimeTarget}
                     onChange={(e) => setNewAgent({...newAgent, responseTimeTarget: parseInt(e.target.value)})}
                     min={1}
                     max={168}
+                    className="h-8"
                   />
                 </div>
               </div>
 
               <div>
                 <Label>Languages</Label>
-                <div className="grid grid-cols-3 gap-2 mt-2">
+                <div className="grid grid-cols-2 gap-1 mt-2 max-h-24 overflow-y-auto border rounded p-2">
                   {LANGUAGE_OPTIONS.map((language) => (
-                    <label key={language.value} className="flex items-center space-x-2">
+                    <label key={language.value} className="flex items-center space-x-2 text-xs">
                       <input
                         type="checkbox"
                         checked={newAgent.languages.includes(language.value)}
@@ -391,18 +393,26 @@ export default function SupportAgentsManagement() {
                         }}
                         className="rounded"
                       />
-                      <span className="text-sm">{language.label}</span>
+                      <span>{language.label}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateAgent} disabled={createAgentMutation.isPending}>
+              <div className="flex flex-col space-y-2 pt-4 border-t">
+                <Button 
+                  onClick={handleCreateAgent} 
+                  disabled={createAgentMutation.isPending}
+                  className="w-full bg-finder-red hover:bg-finder-red/90"
+                >
                   {createAgentMutation.isPending ? "Creating..." : "Create Agent"}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowCreateDialog(false)}
+                  className="w-full"
+                >
+                  Cancel
                 </Button>
               </div>
             </div>
@@ -616,12 +626,12 @@ export default function SupportAgentsManagement() {
 
       {/* Edit Agent Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Support Agent</DialogTitle>
           </DialogHeader>
           {selectedAgent && (
-            <div className="space-y-4">
+            <div className="space-y-6 py-4">
               <div>
                 <Label>Agent Information</Label>
                 <div className="p-3 bg-gray-50 rounded">
@@ -652,9 +662,9 @@ export default function SupportAgentsManagement() {
 
               <div>
                 <Label>Permissions</Label>
-                <div className="grid grid-cols-2 gap-2 mt-2">
+                <div className="grid grid-cols-1 gap-1 mt-2 max-h-32 overflow-y-auto border rounded p-2">
                   {PERMISSION_OPTIONS.map((permission) => (
-                    <label key={permission.value} className="flex items-center space-x-2">
+                    <label key={permission.value} className="flex items-center space-x-2 text-xs">
                       <input
                         type="checkbox"
                         checked={selectedAgent.permissions.includes(permission.value)}
@@ -673,15 +683,15 @@ export default function SupportAgentsManagement() {
                         }}
                         className="rounded"
                       />
-                      <span className="text-sm">{permission.label}</span>
+                      <span>{permission.label}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3">
                 <div>
-                  <Label htmlFor="maxTicketsPerDay">Max Tickets Per Day</Label>
+                  <Label htmlFor="maxTicketsPerDay" className="text-sm">Max Tickets Per Day</Label>
                   <Input
                     type="number"
                     value={selectedAgent.maxTicketsPerDay}
@@ -691,10 +701,11 @@ export default function SupportAgentsManagement() {
                     })}
                     min={1}
                     max={100}
+                    className="h-8"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="responseTimeTarget">Response Time Target (hours)</Label>
+                  <Label htmlFor="responseTimeTarget" className="text-sm">Response Time Target (hours)</Label>
                   <Input
                     type="number"
                     value={selectedAgent.responseTimeTarget}
@@ -704,16 +715,25 @@ export default function SupportAgentsManagement() {
                     })}
                     min={1}
                     max={168}
+                    className="h-8"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleEditAgent} disabled={updateAgentMutation.isPending}>
+              <div className="flex flex-col space-y-2 pt-4 border-t">
+                <Button 
+                  onClick={handleEditAgent} 
+                  disabled={updateAgentMutation.isPending}
+                  className="w-full bg-finder-red hover:bg-finder-red/90"
+                >
                   {updateAgentMutation.isPending ? "Updating..." : "Update Agent"}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEditDialog(false)}
+                  className="w-full"
+                >
+                  Cancel
                 </Button>
               </div>
             </div>
