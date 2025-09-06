@@ -510,6 +510,9 @@ export default function AdminWithdrawals() {
                                         <p className="font-semibold text-green-600">
                                           {selectedWithdrawal && formatCurrency(selectedWithdrawal.amount)}
                                         </p>
+                                        <p className="text-xs text-gray-500">
+                                          Requested on {selectedWithdrawal && new Date(selectedWithdrawal.requestedAt).toLocaleDateString()}
+                                        </p>
                                       </div>
                                     </div>
 
@@ -661,6 +664,9 @@ export default function AdminWithdrawals() {
                                       <Label>Amount</Label>
                                       <p className="font-semibold text-green-600">
                                         {selectedWithdrawal && formatCurrency(selectedWithdrawal.amount)}
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        Requested on {selectedWithdrawal && new Date(selectedWithdrawal.requestedAt).toLocaleDateString()}
                                       </p>
                                     </div>
                                   </div>
