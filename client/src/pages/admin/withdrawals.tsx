@@ -44,7 +44,7 @@ export default function AdminWithdrawals() {
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
   const [newStatus, setNewStatus] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
-  
+
   // Search and pagination state
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -86,7 +86,7 @@ export default function AdminWithdrawals() {
 
   const handleUpdateWithdrawal = () => {
     if (!selectedWithdrawal || !newStatus) return;
-    
+
     updateWithdrawalMutation.mutate({
       id: selectedWithdrawal.id,
       status: newStatus,
@@ -125,16 +125,16 @@ export default function AdminWithdrawals() {
         withdrawal.finderEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         formatCurrency(withdrawal.amount).includes(searchTerm) ||
         withdrawal.status.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       const matchesStatus = statusFilter === 'all' || withdrawal.status === statusFilter;
-      
+
       return matchesSearch && matchesStatus;
     });
 
     // Sort
     filtered.sort((a, b) => {
       let aVal, bVal;
-      
+
       switch (sortField) {
         case 'requestedAt':
           aVal = new Date(a.requestedAt).getTime();
@@ -196,7 +196,7 @@ export default function AdminWithdrawals() {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Withdrawals');
     XLSX.writeFile(workbook, `withdrawals_${new Date().toISOString().split('T')[0]}.xlsx`);
-    
+
     toast({
       title: "Export Complete",
       description: "Withdrawals exported to Excel file successfully"
@@ -205,7 +205,7 @@ export default function AdminWithdrawals() {
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    
+
     doc.setFontSize(20);
     doc.text('Withdrawal Requests Report', 20, 20);
     doc.setFontSize(12);
@@ -232,7 +232,7 @@ export default function AdminWithdrawals() {
     });
 
     doc.save(`withdrawals_${new Date().toISOString().split('T')[0]}.pdf`);
-    
+
     toast({
       title: "Export Complete", 
       description: "Withdrawals exported to PDF successfully"
@@ -516,23 +516,35 @@ export default function AdminWithdrawals() {
                                       </div>
                                     </div>
 
-                                    <div>
-                                      <Label>Bank Details</Label>
-                                      <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                                        {selectedWithdrawal?.paymentDetails ? (() => {
-                                          const details = JSON.parse(selectedWithdrawal.paymentDetails);
-                                          return (
-                                            <div className="space-y-1">
-                                              <div><strong>Account Name:</strong> {details.accountName || 'N/A'}</div>
-                                              <div><strong>Account Number:</strong> {details.accountNumber || 'N/A'}</div>
-                                              <div><strong>Bank Name:</strong> {details.bankName || 'N/A'}</div>
-                                              <div><strong>Sort Code:</strong> {details.sortCode || 'N/A'}</div>
-                                            </div>
-                                          );
-                                        })() : 'No bank details provided'}
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                      <div>
+                                        <Label>Payment Method</Label>
+                                        <p className="text-sm text-gray-600 capitalize">
+                                          {selectedWithdrawal?.paymentMethod?.replace('_', ' ') || 'N/A'}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <Label>Current Status</Label>
+                                        <div className="mt-1">
+                                          {selectedWithdrawal && getStatusBadge(selectedWithdrawal.status)}
+                                        </div>
                                       </div>
                                     </div>
 
+                                    {/* Bank Details */}
+                                    <div>
+                                      <Label>Bank Details</Label>
+                                      <div className="bg-gray-50 p-3 rounded-lg mt-1">
+                                        <div className="grid grid-cols-1 gap-2 text-sm">
+                                          <div><span className="font-medium">Account Name:</span> {selectedWithdrawal?.paymentDetails ? JSON.parse(selectedWithdrawal.paymentDetails).accountName || 'N/A' : 'N/A'}</div>
+                                          <div><span className="font-medium">Account Number:</span> {selectedWithdrawal?.paymentDetails ? JSON.parse(selectedWithdrawal.paymentDetails).accountNumber || 'N/A' : 'N/A'}</div>
+                                          <div><span className="font-medium">Bank Name:</span> {selectedWithdrawal?.paymentDetails ? JSON.parse(selectedWithdrawal.paymentDetails).bankName || 'N/A' : 'N/A'}</div>
+                                          <div><span className="font-medium">Sort Code:</span> {selectedWithdrawal?.paymentDetails ? JSON.parse(selectedWithdrawal.paymentDetails).routingNumber || 'N/A' : 'N/A'}</div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Status Update */}
                                     <div>
                                       <Label htmlFor="status">Status</Label>
                                       <Select value={newStatus} onValueChange={setNewStatus}>
@@ -548,18 +560,20 @@ export default function AdminWithdrawals() {
                                       </Select>
                                     </div>
 
+                                    {/* Admin Notes */}
                                     <div>
                                       <Label htmlFor="notes">Admin Notes</Label>
                                       <Textarea
                                         id="notes"
                                         value={adminNotes}
                                         onChange={(e) => setAdminNotes(e.target.value)}
-                                        placeholder="Add notes about this withdrawal request..."
+                                        placeholder="Add notes about this withdrawal..."
                                         rows={3}
                                       />
                                     </div>
 
-                                    <div className="flex justify-end space-x-2">
+                                    {/* Action Buttons */}
+                                    <div className="flex justify-end space-x-2 pt-4 border-t">
                                       <Button
                                         variant="outline"
                                         onClick={() => setSelectedWithdrawal(null)}
@@ -671,23 +685,35 @@ export default function AdminWithdrawals() {
                                     </div>
                                   </div>
 
-                                  <div>
-                                    <Label>Bank Details</Label>
-                                    <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
-                                      {selectedWithdrawal?.paymentDetails ? (() => {
-                                        const details = JSON.parse(selectedWithdrawal.paymentDetails);
-                                        return (
-                                          <div className="space-y-1">
-                                            <div><strong>Account Name:</strong> {details.accountName || 'N/A'}</div>
-                                            <div><strong>Account Number:</strong> {details.accountNumber || 'N/A'}</div>
-                                            <div><strong>Bank Name:</strong> {details.bankName || 'N/A'}</div>
-                                            <div><strong>Sort Code:</strong> {details.sortCode || 'N/A'}</div>
-                                          </div>
-                                        );
-                                      })() : 'No bank details provided'}
+                                  <div className="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                      <Label>Payment Method</Label>
+                                      <p className="text-sm text-gray-600 capitalize">
+                                        {selectedWithdrawal?.paymentMethod?.replace('_', ' ') || 'N/A'}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <Label>Current Status</Label>
+                                      <div className="mt-1">
+                                        {selectedWithdrawal && getStatusBadge(selectedWithdrawal.status)}
+                                      </div>
                                     </div>
                                   </div>
 
+                                  {/* Bank Details */}
+                                  <div>
+                                    <Label>Bank Details</Label>
+                                    <div className="bg-gray-50 p-3 rounded-lg mt-1">
+                                      <div className="grid grid-cols-1 gap-2 text-sm">
+                                        <div><span className="font-medium">Account Name:</span> {selectedWithdrawal?.paymentDetails ? JSON.parse(selectedWithdrawal.paymentDetails).accountName || 'N/A' : 'N/A'}</div>
+                                        <div><span className="font-medium">Account Number:</span> {selectedWithdrawal?.paymentDetails ? JSON.parse(selectedWithdrawal.paymentDetails).accountNumber || 'N/A' : 'N/A'}</div>
+                                        <div><span className="font-medium">Bank Name:</span> {selectedWithdrawal?.paymentDetails ? JSON.parse(selectedWithdrawal.paymentDetails).bankName || 'N/A' : 'N/A'}</div>
+                                        <div><span className="font-medium">Sort Code:</span> {selectedWithdrawal?.paymentDetails ? JSON.parse(selectedWithdrawal.paymentDetails).routingNumber || 'N/A' : 'N/A'}</div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Status Update */}
                                   <div>
                                     <Label htmlFor="status">Status</Label>
                                     <Select value={newStatus} onValueChange={setNewStatus}>
@@ -703,18 +729,20 @@ export default function AdminWithdrawals() {
                                     </Select>
                                   </div>
 
+                                  {/* Admin Notes */}
                                   <div>
                                     <Label htmlFor="notes">Admin Notes</Label>
                                     <Textarea
                                       id="notes"
                                       value={adminNotes}
                                       onChange={(e) => setAdminNotes(e.target.value)}
-                                      placeholder="Add notes about this withdrawal request..."
+                                      placeholder="Add notes about this withdrawal..."
                                       rows={3}
                                     />
                                   </div>
 
-                                  <div className="flex justify-end space-x-2">
+                                  {/* Action Buttons */}
+                                  <div className="flex justify-end space-x-2 pt-4 border-t">
                                     <Button
                                       variant="outline"
                                       onClick={() => setSelectedWithdrawal(null)}
