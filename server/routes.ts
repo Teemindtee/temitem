@@ -3372,7 +3372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const finder = await storage.getFinder(withdrawal.finderId);
         const currentBalance = parseFloat(finder?.availableBalance || '0');
         const withdrawalAmount = parseFloat(withdrawal.amount);
-        
+
         if (finder && currentBalance >= withdrawalAmount) {
           // Deduct the withdrawal amount from available balance
           const newBalance = (currentBalance - withdrawalAmount).toFixed(2);
@@ -3410,7 +3410,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const currentBalance = parseFloat(finder.availableBalance || '0');
       const requestedAmount = parseFloat(amount);
-      
+
       if (requestedAmount > currentBalance) {
         return res.status(400).json({ 
           message: "Insufficient balance",
@@ -3941,7 +3941,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { contractId } = req.params;
       const { autoReleaseService } = await import('./autoReleaseService');
-      
+
       const result = await autoReleaseService.manualRelease(contractId);
       res.json(result);
     } catch (error) {
@@ -4352,7 +4352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/offenses/:role', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied. Admin role required.' });
+        return res.status(403).json({ message: 'Admin access required.' });
       }
 
       const { role } = req.params;
@@ -4368,7 +4368,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/strike-stats', authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied. Admin role required.' });
+        return res.status(403).json({ message: 'Admin access required.' });
       }
 
       const stats = await strikeService.getStrikeStatistics();
@@ -4400,53 +4400,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      const { email, firstName, lastName, department, permissions, maxTicketsPerDay, responseTimeTarget, specializations, languages } = req.body;
+      const { 
+        email, 
+        firstName, 
+        lastName, 
+        department, 
+        permissions, 
+        maxTicketsPerDay, 
+        responseTimeTarget, 
+        specializations, 
+        languages 
+      } = req.body;
 
       if (!email || !firstName || !lastName || !department || !permissions) {
         return res.status(400).json({ message: 'Email, first name, last name, department, and permissions are required' });
       }
 
-      // Check if user exists by email
+      // Check if user already exists
       let user = await storage.getUserByEmail(email);
-      
-      if (!user) {
-        // Create new user for the support agent
-        user = await storage.createUser({
-          email,
-          firstName,
-          lastName,
-          role: 'support_agent',
-          emailVerified: false,
-          password: null, // They'll need to set password during first login
-        });
-      } else {
+
+      if (user) {
         // Check if user is already a support agent
         const existingAgent = await storage.getUserSupportAgent(user.id);
         if (existingAgent) {
-          return res.status(400).json({ message: 'User is already a support agent' });
+          return res.status(400).json({ message: "User is already a support agent" });
         }
+      } else {
+        // Create new user account for the support agent
+        const hashedPassword = await bcrypt.hash('ChangeMe123!', 10);
+
+        user = await storage.createUser({
+          email,
+          password: hashedPassword,
+          firstName,
+          lastName,
+          role: 'admin' // Support agents get admin role for system access
+        });
       }
 
       // Generate unique agent ID
       const agentId = await storage.generateAgentId();
 
+      // Create support agent record
       const agent = await storage.createSupportAgent({
         userId: user.id,
         agentId,
         department,
-        permissions,
+        permissions: permissions || [],
+        isActive: true,
         maxTicketsPerDay: maxTicketsPerDay || 20,
         responseTimeTarget: responseTimeTarget || 24,
         specializations: specializations || [],
         languages: languages || ['en'],
-        assignedBy: req.user.userId,
-        isActive: true,
+        assignedBy: req.user.userId
       });
 
-      res.status(201).json(agent);
+      // Get the created agent with user details
+      const agentWithUser = await storage.getSupportAgent(agent.id);
+
+      res.status(201).json(agentWithUser);
     } catch (error: any) {
-      console.error('Error creating support agent:', error);
-      res.status(500).json({ message: 'Failed to create support agent' });
+      console.error('Create support agent error:', error);
+      res.status(500).json({ 
+        message: "Failed to create support agent", 
+        error: error.message 
+      });
     }
   });
 

@@ -2637,7 +2637,7 @@ export class DatabaseStorage implements IStorage {
     do {
       agentId = `AGT${counter.toString().padStart(3, '0')}`;
       counter++;
-    } while (existingIds.has(agentId));
+    } while (existingIds.has(agentId) && counter < 1000);
 
     return agentId;
   }
