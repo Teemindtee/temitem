@@ -2531,7 +2531,7 @@ export class DatabaseStorage implements IStorage {
 
   // Support Agent Management
   async createSupportAgent(data: InsertSupportAgent & { agentId: string }) {
-    const [agent] = await this.db.insert(supportAgents).values({
+    const [agent] = await db.insert(supportAgents).values({
       ...data,
       updatedAt: new Date()
     }).returning();
@@ -2539,7 +2539,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSupportAgents() {
-    return await this.db
+    return await db
       .select({
         id: supportAgents.id,
         userId: supportAgents.userId,
@@ -2568,7 +2568,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSupportAgent(id: string) {
-    const [agent] = await this.db
+    const [agent] = await db
       .select({
         id: supportAgents.id,
         userId: supportAgents.userId,
@@ -2598,7 +2598,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateSupportAgent(id: string, data: Partial<InsertSupportAgent>) {
-    const [agent] = await this.db
+    const [agent] = await db
       .update(supportAgents)
       .set({ ...data, updatedAt: new Date() })
       .where(eq(supportAgents.id, id))
@@ -2623,12 +2623,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteSupportAgent(id: string) {
-    const result = await this.db.delete(supportAgents).where(eq(supportAgents.id, id));
+    const result = await db.delete(supportAgents).where(eq(supportAgents.id, id));
     return result.rowCount > 0;
   }
 
   async generateAgentId(): Promise<string> {
-    const agents = await this.db.select({ agentId: supportAgents.agentId }).from(supportAgents);
+    const agents = await db.select({ agentId: supportAgents.agentId }).from(supportAgents);
     const existingIds = new Set(agents.map(a => a.agentId));
 
     let counter = 1;
@@ -2643,7 +2643,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSupportDepartments() {
-    return await this.db
+    return await db
       .select()
       .from(supportDepartments)
       .where(eq(supportDepartments.isActive, true))
@@ -2651,12 +2651,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSupportDepartment(data: InsertSupportDepartment) {
-    const [department] = await this.db.insert(supportDepartments).values(data).returning();
+    const [department] = await db.insert(supportDepartments).values(data).returning();
     return department;
   }
 
   async updateSupportDepartment(id: string, data: Partial<InsertSupportDepartment>) {
-    const [department] = await this.db
+    const [department] = await db
       .update(supportDepartments)
       .set(data)
       .where(eq(supportDepartments.id, id))
@@ -2665,13 +2665,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteSupportDepartment(id: string) {
-    const result = await this.db.delete(supportDepartments).where(eq(supportDepartments.id, id));
+    const result = await db.delete(supportDepartments).where(eq(supportDepartments.id, id));
     return result.rowCount > 0;
   }
 
   // Check if user is already a support agent
   async getUserSupportAgent(userId: string) {
-    const [agent] = await this.db
+    const [agent] = await db
       .select()
       .from(supportAgents)
       .where(eq(supportAgents.userId, userId));
@@ -2701,16 +2701,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getRestrictedWords(): Promise<RestrictedWord[]> {
-    return await this.db.select().from(restrictedWords).orderBy(restrictedWords.word);
+    return await db.select().from(restrictedWords).orderBy(restrictedWords.word);
   }
 
   async addRestrictedWord(data: InsertRestrictedWord): Promise<RestrictedWord> {
-    const [word] = await this.db.insert(restrictedWords).values(data).returning();
+    const [word] = await db.insert(restrictedWords).values(data).returning();
     return word;
   }
 
   async removeRestrictedWord(id: string): Promise<boolean> {
-    const result = await this.db.delete(restrictedWords).where(eq(restrictedWords.id, id));
+    const result = await db.delete(restrictedWords).where(eq(restrictedWords.id, id));
     return result.rowCount > 0;
   }
 }
