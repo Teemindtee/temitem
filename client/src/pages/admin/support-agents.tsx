@@ -27,7 +27,7 @@ import {
   MessageSquare,
   HeadphonesIcon
 } from "lucide-react";
-import AdminHeader from "@/components/AdminHeader";
+import AdminHeader from "@/components/admin-header";
 
 interface SupportAgent {
   id: string;
