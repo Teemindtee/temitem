@@ -336,6 +336,9 @@ export interface IStorage {
 
   // Support Agent Check
   getUserSupportAgent(userId: string): Promise<SupportAgent | undefined>;
+
+  // Generate withdrawal request ID
+  generateWithdrawalRequestId(): Promise<string>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1676,6 +1679,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select({
         id: withdrawalRequests.id,
+        requestId: withdrawalRequests.requestId,
         amount: withdrawalRequests.amount,
         status: withdrawalRequests.status,
         paymentMethod: withdrawalRequests.paymentMethod,
@@ -2713,6 +2717,22 @@ export class DatabaseStorage implements IStorage {
       .from(supportAgents)
       .where(eq(supportAgents.userId, userId));
     return agent;
+  }
+
+  async generateWithdrawalRequestId(): Promise<string> {
+    const year = new Date().getFullYear();
+    
+    // Get count of withdrawal requests this year
+    const yearStart = new Date(year, 0, 1);
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(withdrawalRequests)
+      .where(sql`${withdrawalRequests.requestedAt} >= ${yearStart}`);
+    
+    const count = result[0]?.count || 0;
+    const nextNumber = count + 1;
+    
+    return `WR-${year}-${nextNumber.toString().padStart(3, '0')}`;
   }
 
   // Restricted Words Management

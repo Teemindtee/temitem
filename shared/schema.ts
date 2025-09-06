@@ -180,6 +180,7 @@ export const withdrawalSettings = pgTable("withdrawal_settings", {
 
 export const withdrawalRequests = pgTable("withdrawal_requests", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  requestId: varchar("request_id").notNull().unique(), // Human-readable request ID like "WR-2025-001"
   finderId: varchar("finder_id").references(() => finders.id).notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   status: text("status").default("pending"), // 'pending', 'processing', 'approved', 'rejected'

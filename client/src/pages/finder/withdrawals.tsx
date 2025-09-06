@@ -11,6 +11,15 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { CreditCard, Clock, DollarSign, AlertCircle } from "lucide-react";
 import type { WithdrawalRequest } from "@shared/schema";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function WithdrawalSettings() {
   const { user } = useAuth();
@@ -19,7 +28,8 @@ export default function WithdrawalSettings() {
   const [formData, setFormData] = useState({
     bankName: "",
     accountNumber: "",
-    accountHolder: ""
+    accountHolder: "",
+    routingNumber: ""
   });
 
   const { data: withdrawalSettings, isLoading: settingsLoading } = useQuery({
@@ -48,7 +58,8 @@ export default function WithdrawalSettings() {
       setFormData({
         bankName: withdrawalSettings.bankDetails.bankName || "",
         accountNumber: withdrawalSettings.bankDetails.accountNumber || "",
-        accountHolder: withdrawalSettings.bankDetails.accountHolder || ""
+        accountHolder: withdrawalSettings.bankDetails.accountHolder || "",
+        routingNumber: withdrawalSettings.bankDetails.routingNumber || ""
       });
     }
   }, [withdrawalSettings]);
@@ -106,7 +117,8 @@ export default function WithdrawalSettings() {
       bankDetails: {
         bankName: formData.bankName,
         accountNumber: formData.accountNumber,
-        accountHolder: formData.accountHolder
+        accountHolder: formData.accountHolder,
+        routingNumber: formData.routingNumber
       }
     };
     updateSettingsMutation.mutate(settingsData);
@@ -146,7 +158,7 @@ export default function WithdrawalSettings() {
       accountName: formData.accountHolder,
       accountNumber: formData.accountNumber,
       bankName: formData.bankName,
-      routingNumber: formData.routingNumber || ''
+      routingNumber: formData.routingNumber
     };
 
     requestWithdrawalMutation.mutate({ 
@@ -363,7 +375,7 @@ export default function WithdrawalSettings() {
                     )}
                   </Button>
                 )}
-                
+
                 {(Math.max(0, parseFloat(finder?.availableBalance || '0')) < 50) && (
                   <p className="text-sm text-gray-600 text-center">
                     Minimum withdrawal amount is ₦50.00
@@ -390,32 +402,46 @@ export default function WithdrawalSettings() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {withdrawalHistory.map((withdrawal) => (
-                    <div key={withdrawal.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-lg gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="flex items-center gap-2">
-                            <DollarSign className="w-4 h-4 text-gray-600" />
-                            <span className="font-semibold text-gray-900">₦{(parseFloat(withdrawal.amount)).toFixed(2)}</span>
-                          </div>
-                          <Badge className={getStatusColor(withdrawal.status)}>
-                            {withdrawal.status}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          Requested on {withdrawal.requestedAt ? new Date(withdrawal.requestedAt).toLocaleDateString() : 'Unknown'}
-                          {withdrawal.processedAt && (
-                            <span> • Processed on {new Date(withdrawal.processedAt).toLocaleDateString()}</span>
-                          )}
-                        </p>
-                        {withdrawal.adminNotes && (
-                          <p className="text-sm text-gray-700 mt-1">
-                            <span className="font-medium">Admin Notes:</span> {withdrawal.adminNotes}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Request ID</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Payment Method</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Requested At</TableHead>
+                        <TableHead>Processed At</TableHead>
+                        <TableHead>Notes</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {withdrawalHistory.map((withdrawal) => (
+                        <TableRow key={withdrawal.id}>
+                          <TableCell>
+                            <Badge variant="outline" className="font-mono">
+                              {withdrawal.requestId || 'N/A'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>₦{parseFloat(withdrawal.amount).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                          <TableCell>{withdrawal.paymentMethod}</TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(withdrawal.status)}>
+                              {withdrawal.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {withdrawal.requestedAt ? new Date(withdrawal.requestedAt).toLocaleDateString() : 'Unknown'}
+                          </TableCell>
+                          <TableCell>
+                            {withdrawal.processedAt ? new Date(withdrawal.processedAt).toLocaleDateString() : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            {withdrawal.adminNotes || 'N/A'}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               )}
             </CardContent>

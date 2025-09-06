@@ -3419,7 +3419,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
+      // Generate unique request ID
+      const requestId = await storage.generateWithdrawalRequestId();
+
       const withdrawal = await storage.createWithdrawalRequest({
+        requestId,
         finderId: finder.id,
         amount,
         paymentMethod,

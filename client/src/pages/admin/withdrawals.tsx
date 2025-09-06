@@ -258,7 +258,7 @@ export default function AdminWithdrawals() {
   // Get sort icon
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) return <ArrowUpDown className="w-4 h-4" />;
-    return sortDirection === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />;
+    return sortDirection === 'asc' ? <ArrowDown className="w-4 h-4" /> : <ArrowUp className="w-4 h-4" />;
   };
 
   if (isLoading) {
@@ -497,7 +497,7 @@ export default function AdminWithdrawals() {
                                       Process Withdrawal Request
                                     </DialogTitle>
                                   </DialogHeader>
-                                  
+
                                   <div className="space-y-6">
                                     {/* Header Summary Card */}
                                     <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-l-finder-red">
@@ -774,7 +774,7 @@ export default function AdminWithdrawals() {
                                     Process Withdrawal Request
                                   </DialogTitle>
                                 </DialogHeader>
-                                
+
                                 <div className="space-y-6">
                                   {/* Header Summary Card */}
                                   <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-l-finder-red">
