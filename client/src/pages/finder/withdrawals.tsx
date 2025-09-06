@@ -198,7 +198,7 @@ export default function WithdrawalSettings() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-1">Available Balance</h3>
                   <p className="text-3xl font-bold text-green-600">
-                    ₦{((Math.max(0, parseFloat(finder?.availableBalance || '0'))) / 100).toFixed(2)}
+                    ₦{(Math.max(0, parseFloat(finder?.availableBalance || '0'))).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
               </div>

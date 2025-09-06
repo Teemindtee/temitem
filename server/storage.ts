@@ -1718,40 +1718,20 @@ export class DatabaseStorage implements IStorage {
 
   // Release funds to finder's available balance with fee calculation
   async releaseFundsToFinder(finderId: string, contractAmount: string): Promise<void> {
-    try {
-      // Get finder earnings charge percentage from admin settings
-      const feeSettings = await this.getAdminSetting('finder_earnings_charge_percentage');
-      const feePercentage = parseFloat(feeSettings?.value || '5'); // Default 5%
-      
-      const grossAmount = parseFloat(contractAmount);
-      const feeAmount = grossAmount * (feePercentage / 100);
-      const netAmount = grossAmount - feeAmount;
+    // Get current balance
+    const finder = await this.getFinder(finderId);
+    if (!finder) throw new Error('Finder not found');
 
-      // Get current finder
-      const finder = await this.getFinder(finderId);
-      if (!finder) {
-        throw new Error('Finder not found');
-      }
+    const currentBalance = parseFloat(finder.availableBalance || '0');
+    const releaseAmount = parseFloat(contractAmount) / 100; // Convert from kobo to naira
+    const newBalance = (currentBalance + releaseAmount).toFixed(2);
 
-      // Update finder's available balance and total earned
-      const currentAvailableBalance = parseFloat(finder.availableBalance || '0');
-      const currentTotalEarned = parseFloat(finder.totalEarned || '0');
-      const currentJobsCompleted = finder.jobsCompleted || 0;
+    console.log(`Releasing funds to finder ${finderId}: Current balance: ₦${currentBalance}, Release amount: ₦${releaseAmount}, New balance: ₦${newBalance}`);
 
-      await db
-        .update(finders)
-        .set({
-          availableBalance: (currentAvailableBalance + netAmount).toFixed(2),
-          totalEarned: (currentTotalEarned + netAmount).toFixed(2),
-          jobsCompleted: currentJobsCompleted + 1
-        })
-        .where(eq(finders.id, finderId));
-
-      console.log(`Released ₦${netAmount.toFixed(2)} to finder ${finderId} (gross: ₦${grossAmount.toFixed(2)}, fee: ₦${feeAmount.toFixed(2)})`);
-    } catch (error) {
-      console.error('Error releasing funds to finder:', error);
-      throw error;
-    }
+    // Update available balance
+    await db.update(finders)
+      .set({ availableBalance: newBalance })
+      .where(eq(finders.id, finderId));
   }
 
 
