@@ -3905,45 +3905,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      // Find all submitted order submissions where auto-release date has passed
-      const expiredSubmissions = await db
-        .select({
-          id: orderSubmissions.id,
-          contractId: orderSubmissions.contractId,
-          autoReleaseDate: orderSubmissions.autoReleaseDate
-        })
-        .from(orderSubmissions)
-        .innerJoin(contracts, eq(orderSubmissions.contractId, contracts.id))
-        .where(and(
-          eq(orderSubmissions.status, 'submitted'),
-          sql`${orderSubmissions.autoReleaseDate} <= NOW()`,
-          eq(contracts.escrowStatus, 'held')
-        ));
-
-      let releasedCount = 0;
-
-      for (const submission of expiredSubmissions) {
-        try {
-          // Auto-accept the submission
-          await storage.updateOrderSubmission(submission.id, { 
-            status: 'accepted',
-            clientFeedback: 'Auto-accepted due to expired review period'
-          });
-          releasedCount++;
-          
-          console.log(`Auto-released contract ${submission.contractId} for submission ${submission.id}`);
-        } catch (error) {
-          console.error(`Failed to auto-release submission ${submission.id}:`, error);
-        }
-      }
+      const { autoReleaseService } = await import('./autoReleaseService');
+      const result = await autoReleaseService.manualRelease();
 
       res.json({ 
-        message: `Auto-released ${releasedCount} expired submissions`,
-        released: releasedCount 
+        message: `Auto-release process completed: ${result.released} contracts released`,
+        released: result.released 
       });
     } catch (error) {
       console.error('Auto-release error:', error);
       res.status(500).json({ message: "Failed to process auto-releases" });
+    }
+  });
+
+  // Manual contract release endpoint
+  app.post("/api/admin/contracts/:contractId/manual-release", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { contractId } = req.params;
+      const { autoReleaseService } = await import('./autoReleaseService');
+      
+      const result = await autoReleaseService.manualRelease(contractId);
+      res.json(result);
+    } catch (error) {
+      console.error('Manual release error:', error);
+      res.status(500).json({ message: error.message || "Failed to release contract" });
     }
   });
 
