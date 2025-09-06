@@ -221,13 +221,13 @@ export interface IStorage {
   getConversationById(conversationId: string): Promise<Conversation | undefined>;
   createConversation(conversation: InsertConversation): Promise<Conversation>;
   getConversationsByClientId(clientId: string): Promise<Array<Conversation & {
-    proposal: { find: { title: string; }; };
+    proposal: { request: { title: string; }; };
     finder: { user: { firstName: string; lastName: string; }; };
     lastMessage?: { content: string; createdAt: Date; senderId: string; };
     unreadCount: number;
   }>>;
   getConversationsByFinderId(finderId: string): Promise<Array<Conversation & {
-    proposal: { find: { title: string; }; };
+    proposal: { request: { title: string; }; };
     client: { firstName: string; lastName: string; };
     lastMessage?: { content: string; createdAt: Date; senderId: string; };
     unreadCount: number;
@@ -1312,7 +1312,7 @@ export class DatabaseStorage implements IStorage {
         phone: user.phone
       },
       completedJobs: finder.jobsCompleted || 0,
-      totalEarnings: finder.totalEarned || "0.00",
+      totalEarned: finder.totalEarned || "0.00",
       availableBalance: finder.availableBalance || "0.00",
       rating: parseFloat(finder.averageRating || "5.0"),
       tokens: 10, // Default tokens since not in schema
@@ -2318,7 +2318,7 @@ export class DatabaseStorage implements IStorage {
     return newRestriction;
   }
 
-  async getUserActiveRestrictions(userId: string): Promise<UserRestriction[]> {
+  async getUserActiveRestrictions(userId: string): Promise<UserRestriction[]>{
     return await db
       .select()
       .from(userRestrictions)

@@ -4400,29 +4400,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      const { userId, department, permissions, maxTicketsPerDay, responseTimeTarget, specializations, languages } = req.body;
+      const { email, firstName, lastName, department, permissions, maxTicketsPerDay, responseTimeTarget, specializations, languages } = req.body;
 
-      if (!userId || !department || !permissions) {
-        return res.status(400).json({ message: 'User ID, department, and permissions are required' });
+      if (!email || !firstName || !lastName || !department || !permissions) {
+        return res.status(400).json({ message: 'Email, first name, last name, department, and permissions are required' });
       }
 
-      // Check if user exists
-      const user = await storage.getUser(userId);
+      // Check if user exists by email
+      let user = await storage.getUserByEmail(email);
+      
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-
-      // Check if user is already a support agent
-      const existingAgent = await storage.getUserSupportAgent(userId);
-      if (existingAgent) {
-        return res.status(400).json({ message: 'User is already a support agent' });
+        // Create new user for the support agent
+        user = await storage.createUser({
+          email,
+          firstName,
+          lastName,
+          role: 'support_agent',
+          emailVerified: false,
+          password: null, // They'll need to set password during first login
+        });
+      } else {
+        // Check if user is already a support agent
+        const existingAgent = await storage.getUserSupportAgent(user.id);
+        if (existingAgent) {
+          return res.status(400).json({ message: 'User is already a support agent' });
+        }
       }
 
       // Generate unique agent ID
       const agentId = await storage.generateAgentId();
 
       const agent = await storage.createSupportAgent({
-        userId,
+        userId: user.id,
         agentId,
         department,
         permissions,

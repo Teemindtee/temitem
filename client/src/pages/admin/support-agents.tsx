@@ -91,7 +91,9 @@ export default function SupportAgentsManagement() {
   const [selectedAgent, setSelectedAgent] = useState<SupportAgent | null>(null);
 
   const [newAgent, setNewAgent] = useState({
-    userId: '',
+    email: '',
+    firstName: '',
+    lastName: '',
     department: '',
     permissions: [] as string[],
     maxTicketsPerDay: 20,
@@ -116,7 +118,9 @@ export default function SupportAgentsManagement() {
       queryClient.invalidateQueries({ queryKey: ["support-agents"] });
       setShowCreateDialog(false);
       setNewAgent({
-        userId: '',
+        email: '',
+        firstName: '',
+        lastName: '',
         department: '',
         permissions: [],
         maxTicketsPerDay: 20,
@@ -217,7 +221,7 @@ export default function SupportAgentsManagement() {
   });
 
   const handleCreateAgent = () => {
-    if (!newAgent.userId || !newAgent.department || newAgent.permissions.length === 0) {
+    if (!newAgent.email || !newAgent.firstName || !newAgent.lastName || !newAgent.department || newAgent.permissions.length === 0) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -285,19 +289,37 @@ export default function SupportAgentsManagement() {
             </DialogHeader>
             <div className="space-y-6 py-4">
               <div>
-                <Label htmlFor="userId">Select User</Label>
-                <Select value={newAgent.userId} onValueChange={(value) => setNewAgent({...newAgent, userId: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a user to make a support agent" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableUsers.map((user: any) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.firstName} {user.lastName} ({user.email})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  type="email"
+                  value={newAgent.email}
+                  onChange={(e) => setNewAgent({...newAgent, email: e.target.value})}
+                  placeholder="Enter email address"
+                  className="h-8"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    type="text"
+                    value={newAgent.firstName}
+                    onChange={(e) => setNewAgent({...newAgent, firstName: e.target.value})}
+                    placeholder="First name"
+                    className="h-8"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    type="text"
+                    value={newAgent.lastName}
+                    onChange={(e) => setNewAgent({...newAgent, lastName: e.target.value})}
+                    placeholder="Last name"
+                    className="h-8"
+                  />
+                </div>
               </div>
 
               <div>
