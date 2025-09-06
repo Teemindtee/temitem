@@ -3370,8 +3370,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If approved, deduct from finder balance - but check balance first
       if (status === 'approved') {
         const finder = await storage.getFinder(withdrawal.finderId);
-        if (finder && parseFloat(finder.availableBalance || '0') >= parseFloat(withdrawal.amount)) {
-          await storage.updateFinderBalance(withdrawal.finderId, withdrawal.amount);
+        const currentBalance = parseFloat(finder?.availableBalance || '0');
+        const withdrawalAmount = parseFloat(withdrawal.amount);
+        
+        if (finder && currentBalance >= withdrawalAmount) {
+          // Deduct the withdrawal amount from available balance
+          const newBalance = (currentBalance - withdrawalAmount).toFixed(2);
+          await db.update(finders)
+            .set({ availableBalance: newBalance })
+            .where(eq(finders.id, withdrawal.finderId));
         } else {
           return res.status(400).json({ 
             message: "Cannot approve withdrawal: Insufficient finder balance",
@@ -3401,8 +3408,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { amount, paymentMethod, paymentDetails } = req.body;
 
-      if (parseFloat(amount) > parseFloat(finder.availableBalance || '0')) {
-        return res.status(400).json({ message: "Insufficient balance" });
+      const currentBalance = parseFloat(finder.availableBalance || '0');
+      const requestedAmount = parseFloat(amount);
+      
+      if (requestedAmount > currentBalance) {
+        return res.status(400).json({ 
+          message: "Insufficient balance",
+          availableBalance: currentBalance,
+          requestedAmount: requestedAmount
+        });
       }
 
       const withdrawal = await storage.createWithdrawalRequest({
