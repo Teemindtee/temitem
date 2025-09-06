@@ -1851,7 +1851,7 @@ export class DatabaseStorage implements IStorage {
     return post || undefined;
   }
 
-  async getPublishedBlogPosts(): Promise<BlogPost[]> {
+  async getPublishedBlogPosts(): Promise<BlogPost[]>{
     return await db
       .select()
       .from(blogPosts)
@@ -1944,8 +1944,8 @@ export class DatabaseStorage implements IStorage {
         // Update contract as completed and released
         await db
           .update(contracts)
-          .set({ 
-            isCompleted: true, 
+          .set({
+            isCompleted: true,
             completedAt: new Date(),
             escrowStatus: 'released'
           })
@@ -2539,7 +2539,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getSupportAgents() {
-    return await db
+    const results = await db
       .select({
         id: supportAgents.id,
         userId: supportAgents.userId,
@@ -2554,7 +2554,6 @@ export class DatabaseStorage implements IStorage {
         suspendedAt: supportAgents.suspendedAt,
         suspensionReason: supportAgents.suspensionReason,
         createdAt: supportAgents.createdAt,
-        updatedAt: supportAgents.updatedAt,
         user: {
           id: users.id,
           firstName: users.firstName,
@@ -2565,6 +2564,24 @@ export class DatabaseStorage implements IStorage {
       .from(supportAgents)
       .leftJoin(users, eq(supportAgents.userId, users.id))
       .orderBy(supportAgents.createdAt);
+
+    // Map snake_case to camelCase for frontend
+    return results.map(agent => ({
+      id: agent.id,
+      userId: agent.userId,
+      agentId: agent.agentId,
+      department: agent.department,
+      permissions: agent.permissions,
+      isActive: agent.isActive,
+      maxTicketsPerDay: agent.maxTicketsPerDay,
+      responseTimeTarget: agent.responseTimeTarget,
+      specializations: agent.specializations,
+      languages: agent.languages,
+      suspendedAt: agent.suspendedAt,
+      suspensionReason: agent.suspensionReason,
+      createdAt: agent.createdAt,
+      user: agent.user,
+    }));
   }
 
   async getSupportAgent(id: string) {
@@ -2594,7 +2611,27 @@ export class DatabaseStorage implements IStorage {
       .from(supportAgents)
       .leftJoin(users, eq(supportAgents.userId, users.id))
       .where(eq(supportAgents.id, id));
-    return agent;
+
+    if (!agent) return null;
+
+    // Map snake_case to camelCase for frontend
+    return {
+      id: agent.id,
+      userId: agent.userId,
+      agentId: agent.agentId,
+      department: agent.department,
+      permissions: agent.permissions,
+      isActive: agent.isActive,
+      maxTicketsPerDay: agent.maxTicketsPerDay,
+      responseTimeTarget: agent.responseTimeTarget,
+      specializations: agent.specializations,
+      languages: agent.languages,
+      suspendedAt: agent.suspendedAt,
+      suspensionReason: agent.suspensionReason,
+      createdAt: agent.createdAt,
+      updatedAt: agent.updatedAt,
+      user: agent.user,
+    };
   }
 
   async updateSupportAgent(id: string, data: Partial<InsertSupportAgent>) {
