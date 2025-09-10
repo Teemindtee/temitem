@@ -27,8 +27,6 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import AdminUsers from "@/pages/admin/users";
 import AdminRequests from "@/pages/admin/requests";
 import AdminCategories from "@/pages/admin/categories";
-import AdminSettings from "@/pages/admin/settings";
-import AdminWithdrawals from "@/pages/admin/withdrawals";
 import AdminTokenPackages from "@/pages/admin/token-packages";
 import AdminTokenManagement from "@/pages/admin/token-management";
 import AdminBlogPosts from "@/pages/admin/blog-posts";
@@ -136,9 +134,8 @@ function Router() {
       <Route path="/admin/strike-system" component={AdminStrikeSystem} />
       <Route path="/admin/restricted-words" component={AdminRestrictedWords} />
       <Route path="/admin/support-agents" component={AdminSupportAgents} />
-      <Route path="/admin/financial-dashboard" component={withAuth(AdminFinancialDashboard, ['admin'])} />
-            <Route path="/admin/support-messages" component={withAuth(AdminSupportMessages, ['admin'])} />
-            <Route path="/admin/settings" component={withAuth(AdminSettings, ['admin'])} />
+      <Route path="/admin/financial-dashboard" component={AdminFinancialDashboard} />
+      <Route path="/admin/support-messages" component={AdminSupportMessages} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/messages" component={Messages} />
       <Route path="/messages/:conversationId" component={ConversationDetail} />

@@ -216,7 +216,7 @@ export default function FinancialDashboard() {
       .sort((a, b) => {
         const aKey = Object.keys(a)[0];
         const bKey = Object.keys(b)[0];
-        return a[aKey].localeCompare(b[bKey]);
+        return String(a[aKey]).localeCompare(String(b[bKey]));
       });
   };
 
