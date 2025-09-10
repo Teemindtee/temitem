@@ -58,7 +58,6 @@ import OrderReview from "@/pages/order-review";
 import SupportIndex from "@/pages/support/index";
 import HelpCenter from "@/pages/support/help-center";
 import ContactSupport from "@/pages/support/contact";
-import ContactUs from "@/pages/contact-us";
 import BrowseRequests from "@/pages/BrowseRequests";
 import { AuthProvider } from "@/hooks/use-auth";
 import "./lib/i18n"; // Initialize i18n
@@ -115,8 +114,6 @@ function Router() {
       <Route path="/support" component={SupportIndex} />
       <Route path="/support/help-center" component={HelpCenter} />
       <Route path="/support/contact" component={ContactSupport} />
-      <Route path="/contact-us" component={ContactUs} />
-      <Route path="/contact" component={ContactUs} />
       <Route path="/terms-and-conditions" component={TermsAndConditions} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/users" component={AdminUsers} />
