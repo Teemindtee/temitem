@@ -26,6 +26,7 @@ export default function Register() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Get user type from URL params
   useEffect(() => {
@@ -54,6 +55,15 @@ export default function Register() {
         variant: "destructive",
         title: "Error",
         description: "Please select your role",
+      });
+      return;
+    }
+
+    if (!acceptedTerms) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please accept the terms and conditions",
       });
       return;
     }
@@ -170,10 +180,26 @@ export default function Register() {
                   className="bg-gray-50 border-gray-300"
                 />
 
+                <div className="flex items-start space-x-3 mb-4">
+                  <input
+                    type="checkbox"
+                    id="acceptTermsFinder"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="mt-1 rounded border-gray-300 text-finder-red focus:ring-finder-red"
+                  />
+                  <label htmlFor="acceptTermsFinder" className="text-sm text-gray-600">
+                    I agree to the{" "}
+                    <Link href="/terms-and-conditions" className="text-finder-red hover:underline font-medium">
+                      Terms and Conditions
+                    </Link>
+                  </label>
+                </div>
+
                 <Button
                   type="submit"
                   className="w-full bg-finder-red hover:bg-finder-red-dark text-white py-3 font-medium"
-                  disabled={isLoading}
+                  disabled={isLoading || !acceptedTerms}
                 >
                   {isLoading ? "Creating Account..." : "Sign Up"}
                 </Button>
@@ -297,10 +323,26 @@ export default function Register() {
                 </button>
               </div>
 
+              <div className="flex items-start space-x-3 mb-4">
+                <input
+                  type="checkbox"
+                  id="acceptTerms"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="mt-1 rounded border-gray-300 text-finder-red focus:ring-finder-red"
+                />
+                <label htmlFor="acceptTerms" className="text-sm text-gray-600">
+                  I agree to the{" "}
+                  <Link href="/terms-and-conditions" className="text-finder-red hover:underline font-medium">
+                    Terms and Conditions
+                  </Link>
+                </label>
+              </div>
+
               <Button
                 type="submit"
                 className="w-full bg-finder-red hover:bg-finder-red-dark text-white py-3 font-medium"
-                disabled={isLoading}
+                disabled={isLoading || !acceptedTerms}
               >
                 {isLoading ? "Creating Account..." : "Create Account"}
               </Button>

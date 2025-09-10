@@ -62,6 +62,7 @@ import BrowseRequests from "@/pages/BrowseRequests";
 import { AuthProvider } from "@/hooks/use-auth";
 import "./lib/i18n"; // Initialize i18n
 import { lazy } from "react";
+import TermsAndConditions from "@/pages/terms-and-conditions";
 
 // Dynamically import ResetPassword component
 const ResetPassword = lazy(() => import("@/pages/auth/reset-password"));
@@ -113,6 +114,7 @@ function Router() {
       <Route path="/support" component={SupportIndex} />
       <Route path="/support/help-center" component={HelpCenter} />
       <Route path="/support/contact" component={ContactSupport} />
+      <Route path="/terms-and-conditions" component={TermsAndConditions} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/requests" component={AdminRequests} />

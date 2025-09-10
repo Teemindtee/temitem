@@ -23,6 +23,7 @@ export default function RegisterFinder() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -45,6 +46,15 @@ export default function RegisterFinder() {
         variant: "destructive",
         title: "Error",
         description: "Password must be at least 6 characters long",
+      });
+      return;
+    }
+
+    if (!acceptedTerms) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please accept the terms and conditions",
       });
       return;
     }
@@ -197,10 +207,26 @@ export default function RegisterFinder() {
                 />
               </div>
 
+              <div className="flex items-start space-x-3 mb-6">
+                <input
+                  type="checkbox"
+                  id="acceptTermsFinder"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="mt-1 rounded border-gray-300 text-finder-red focus:ring-finder-red"
+                />
+                <label htmlFor="acceptTermsFinder" className="text-sm text-gray-600">
+                  I agree to the{" "}
+                  <Link href="/terms-and-conditions" className="text-finder-red hover:underline font-medium">
+                    Terms and Conditions
+                  </Link>
+                </label>
+              </div>
+
               <Button
                 type="submit"
-                disabled={isLoading}
-                className="w-full h-12 bg-finder-red hover:bg-finder-red-dark text-white font-medium text-lg rounded-md mt-6"
+                disabled={isLoading || !acceptedTerms}
+                className="w-full h-12 bg-finder-red hover:bg-finder-red-dark text-white font-medium text-lg rounded-md"
               >
                 {isLoading ? "Creating Account..." : "Sign Up"}
               </Button>
