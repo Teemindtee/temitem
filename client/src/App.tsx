@@ -60,6 +60,7 @@ import HelpCenter from "@/pages/support/help-center";
 import ContactSupport from "@/pages/support/contact";
 import ContactUs from "@/pages/contact-us";
 import TermsAndConditions from "@/pages/terms-and-conditions";
+import { lazy } from "react";
 
 // Dynamically import ResetPassword component
 const ResetPassword = lazy(() => import("@/pages/auth/reset-password"));
