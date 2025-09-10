@@ -17,7 +17,6 @@ import { OpayService, OPAY_TOKEN_PACKAGES } from "./opayService";
 import { FlutterwaveService, FLUTTERWAVE_TOKEN_PACKAGES } from "./flutterwaveService";
 import { emailService } from "./emailService";
 import { strikeService } from "./strikeService";
-import { supportTickets } from "@shared/schema";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -39,7 +38,7 @@ const storage_multer = multer.diskStorage({
   }
 });
 
-const upload = multer({
+const upload = multer({ 
   storage: storage_multer,
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit
@@ -49,7 +48,7 @@ const upload = multer({
     // Allow specific file types
     const allowedMimes = [
       'image/jpeg',
-      'image/png',
+      'image/png', 
       'image/gif',
       'image/webp',
       'application/pdf',
@@ -382,7 +381,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Failed to update finder profile" });
       }
 
-      res.json({
+      res.json({ 
         message: "Profile updated successfully",
         profile: updatedFinder
       });
@@ -420,7 +419,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      res.json({
+      res.json({ 
         message: "Profile updated successfully",
         user: { ...updatedUser, password: undefined }
       });
@@ -559,7 +558,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const clientBalance = client.findertokenBalance || 0;
         if (clientBalance < highBudgetTokenCost) {
-          return res.status(400).json({
+          return res.status(400).json({ 
             message: `Insufficient findertokens. You need ${highBudgetTokenCost} findertokens for high-budget postings but only have ${clientBalance}. Please purchase findertokens to post this find.`,
             requiredTokens: highBudgetTokenCost,
             currentBalance: clientBalance,
@@ -602,7 +601,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      const responseMessage = isHighBudget
+      const responseMessage = isHighBudget 
         ? `Find posted successfully! ${highBudgetTokenCost} findertokens have been deducted for this high-budget posting.`
         : "Find posted successfully!";
 
@@ -657,8 +656,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Client profile not found" });
       }
 
-      res.json({
-        balance: client.findertokenBalance || 0
+      res.json({ 
+        balance: client.findertokenBalance || 0 
       });
     } catch (error) {
       console.error('Failed to fetch client balance:', error);
@@ -791,7 +790,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const proposal = await storage.createProposal(proposalData);
 
-      // Deduct findertoken - update finder balance directly
+      // Deduct findertoken - update finder balance directly  
       const newBalance = (finder.findertokenBalance ?? 0) - requiredTokens;
       await storage.updateFinderTokenBalance(finder.id, newBalance);
 
@@ -981,10 +980,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Continuing without payment initialization - payment can be completed later');
 
         // Send response without payment data
-        return res.json({
+        return res.json({ 
           success: true,
           message: "Proposal accepted and contract created. Payment setup is pending - please contact support to complete escrow funding.",
-          proposal,
+          proposal, 
           contract: {
             ...contract,
             findTitle: request.title,
@@ -1013,10 +1012,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      res.json({
+      res.json({ 
         success: true,
         message: "Proposal accepted and contract created. Please complete payment to start work.",
-        proposal,
+        proposal, 
         contract: {
           ...contract,
           findTitle: request.title,
@@ -1041,52 +1040,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { name, email, category, priority, subject, message } = req.body;
 
-      if (!name || !email || !category || !priority || !subject || !message) {
-        return res.status(400).json({ error: "All fields are required" });
-      }
+      // In a real application, you would save this to a database or send to a support system
+      console.log('Support ticket submitted:', { name, email, category, priority, subject, message });
 
-      // Insert support ticket into database
-      const [ticket] = await db.insert(supportTickets).values({
-        name,
-        email,
-        category,
-        priority,
-        subject,
-        message,
-        status: 'open'
-      }).returning();
-
-      res.json({ ticket });
+      // For now, just return success
+      res.json({ 
+        success: true, 
+        ticketId: `TICKET-${Date.now()}`,
+        message: "Support ticket submitted successfully" 
+      });
     } catch (error) {
-      console.error("Error submitting support ticket:", error);
-      res.status(500).json({ error: "Failed to submit support ticket" });
-    }
-  });
-
-  // Contact form submission endpoint
-  app.post("/api/contact", async (req, res) => {
-    try {
-      const { name, email, phone, category, subject, message } = req.body;
-
-      if (!name || !email || !category || !subject || !message) {
-        return res.status(400).json({ error: "Required fields are missing" });
-      }
-
-      // Insert contact message into support tickets table
-      const [ticket] = await db.insert(supportTickets).values({
-        name,
-        email,
-        category,
-        priority: 'medium', // Default priority for contact form
-        subject,
-        message: phone ? `Phone: ${phone}\n\n${message}` : message,
-        status: 'open'
-      }).returning();
-
-      res.json({ success: true, ticket });
-    } catch (error) {
-      console.error("Error submitting contact message:", error);
-      res.status(500).json({ error: "Failed to send contact message" });
+      console.error('Failed to submit support ticket:', error);
+      res.status(500).json({ message: "Failed to submit support ticket" });
     }
   });
 
@@ -1110,9 +1075,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if contract is already funded
       console.log(`Contract ${contractId} escrow status: ${contract.escrowStatus}`);
       if (contract.escrowStatus === 'funded' || contract.escrowStatus === 'held') {
-        return res.status(400).json({
+        return res.status(400).json({ 
           message: "Contract is already funded",
-          escrowStatus: contract.escrowStatus
+          escrowStatus: contract.escrowStatus 
         });
       }
 
@@ -1129,7 +1094,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const opayService = new OpayService();
 
         if (!opayService.isConfigured()) {
-          return res.status(500).json({
+          return res.status(500).json({ 
             message: "Opay payment service is currently unavailable. Please try Paystack or contact support.",
             error: "Opay service not configured"
           });
@@ -1150,7 +1115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const paystackService = new PaystackService();
 
         if (!paystackService.isConfigured()) {
-          return res.status(500).json({
+          return res.status(500).json({ 
             message: "Paystack payment service is currently unavailable. Please try Opay or contact support.",
             error: "Paystack service not configured"
           });
@@ -1195,10 +1160,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Support ticket submitted:', { name, email, category, priority, subject, message });
 
       // For now, just return success
-      res.json({
-        success: true,
+      res.json({ 
+        success: true, 
         ticketId: `TICKET-${Date.now()}`,
-        message: "Support ticket submitted successfully"
+        message: "Support ticket submitted successfully" 
       });
     } catch (error) {
       console.error('Failed to submit support ticket:', error);
@@ -1226,9 +1191,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if contract is already funded
       console.log(`Contract ${contractId} escrow status: ${contract.escrowStatus}`);
       if (contract.escrowStatus === 'funded' || contract.escrowStatus === 'held') {
-        return res.status(400).json({
+        return res.status(400).json({ 
           message: "Contract is already funded",
-          escrowStatus: contract.escrowStatus
+          escrowStatus: contract.escrowStatus 
         });
       }
 
@@ -1245,7 +1210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const opayService = new OpayService();
 
         if (!opayService.isConfigured()) {
-          return res.status(500).json({
+          return res.status(500).json({ 
             message: "Opay payment service is currently unavailable. Please try Paystack or contact support.",
             error: "Opay service not configured"
           });
@@ -1266,7 +1231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const paystackService = new PaystackService();
 
         if (!paystackService.isConfigured()) {
-          return res.status(500).json({
+          return res.status(500).json({ 
             message: "Paystack payment service is currently unavailable. Please try Opay or contact support.",
             error: "Paystack service not configured"
           });
@@ -1592,14 +1557,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
 
-        res.json({
-          status: 'success',
-          data: transaction
+        res.json({ 
+          status: 'success', 
+          data: transaction 
         });
       } else {
-        res.json({
-          status: 'failed',
-          message: 'Payment was not successful'
+        res.json({ 
+          status: 'failed', 
+          message: 'Payment was not successful' 
         });
       }
     } catch (error) {
@@ -1654,14 +1619,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
-        res.json({
-          status: 'success',
-          data: transaction
+        res.json({ 
+          status: 'success', 
+          data: transaction 
         });
       } else {
-        res.json({
-          status: 'failed',
-          message: 'Payment was not successful'
+        res.json({ 
+          status: 'failed', 
+          message: 'Payment was not successful' 
         });
       }
     } catch (error) {
@@ -1714,14 +1679,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
-        res.json({
-          status: 'success',
-          data: transaction
+        res.json({ 
+          status: 'success', 
+          data: transaction 
         });
       } else {
-        res.json({
-          status: 'failed',
-          message: 'Payment was not successful'
+        res.json({ 
+          status: 'failed', 
+          message: 'Payment was not successful' 
         });
       }
     } catch (error) {
@@ -1915,7 +1880,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Client-specific contracts endpoint
+  // Client-specific contracts endpoint  
   app.get("/api/client/contracts", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       if (req.user.role !== 'client') {
@@ -1989,7 +1954,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      await storage.updateContract(id, {
+      await storage.updateContract(id, { 
         escrowStatus: 'completed',
         isCompleted: true,
         completedAt: new Date()
@@ -2337,7 +2302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       );
 
-      res.json({
+      res.json({ 
         objectPath,
         fileName,
         success: true
@@ -3115,11 +3080,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "Admin access required" });
       }
 
-      const {
-        proposalTokenCost,
-        findertokenPrice,
-        platformFeePercentage,
-        clientPaymentChargePercentage,
+      const { 
+        proposalTokenCost, 
+        findertokenPrice, 
+        platformFeePercentage, 
+        clientPaymentChargePercentage, 
         finderEarningsChargePercentage,
         highBudgetThreshold,
         highBudgetTokenCost
@@ -3415,7 +3380,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .set({ availableBalance: newBalance })
             .where(eq(finders.id, withdrawal.finderId));
         } else {
-          return res.status(400).json({
+          return res.status(400).json({ 
             message: "Cannot approve withdrawal: Insufficient finder balance",
             availableBalance: finder?.availableBalance,
             requestedAmount: withdrawal.amount
@@ -3447,7 +3412,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const requestedAmount = parseFloat(amount);
 
       if (requestedAmount > currentBalance) {
-        return res.status(400).json({
+        return res.status(400).json({ 
           message: "Insufficient balance",
           availableBalance: currentBalance,
           requestedAmount: requestedAmount
@@ -3771,10 +3736,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `
       }, 'high');
 
-      res.json({
-        success: true,
+      res.json({ 
+        success: true, 
         message: "Test email queued successfully",
-        emailId
+        emailId 
       });
     } catch (error) {
       console.error('Test email error:', error);
@@ -3961,9 +3926,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { autoReleaseService } = await import('./autoReleaseService');
       const result = await autoReleaseService.manualRelease();
 
-      res.json({
+      res.json({ 
         message: `Auto-release process completed: ${result.released} contracts released`,
-        released: result.released
+        released: result.released 
       });
     } catch (error) {
       console.error('Auto-release error:', error);
@@ -4439,16 +4404,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: 'Admin access required' });
       }
 
-      const {
-        email,
-        firstName,
-        lastName,
-        department,
-        permissions,
-        maxTicketsPerDay,
-        responseTimeTarget,
-        specializations,
-        languages
+      const { 
+        email, 
+        firstName, 
+        lastName, 
+        department, 
+        permissions, 
+        maxTicketsPerDay, 
+        responseTimeTarget, 
+        specializations, 
+        languages 
       } = req.body;
 
       if (!email || !firstName || !lastName || !department || !permissions) {
@@ -4500,9 +4465,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(agentWithUser);
     } catch (error: any) {
       console.error('Create support agent error:', error);
-      res.status(500).json({
-        message: "Failed to create support agent",
-        error: error.message
+      res.status(500).json({ 
+        message: "Failed to create support agent", 
+        error: error.message 
       });
     }
   });
