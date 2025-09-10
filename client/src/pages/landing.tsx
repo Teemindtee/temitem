@@ -282,7 +282,7 @@ export default function Landing() {
                 <a href="/support" className="hover:text-white transition-colors">Support</a>
                 <a href="/support/help-center" className="hover:text-white transition-colors">FAQ</a>
                 <a href="#" className="hover:text-white transition-colors">Privacy</a>
-                <a href="#" className="hover:text-white transition-colors">Terms</a>
+                <a href="/terms-and-conditions" className="hover:text-white transition-colors">TOS</a>
               </div>
               <p className="text-gray-400">
                 © 2025 FinderMeister. All rights reserved.
