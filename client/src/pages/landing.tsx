@@ -278,7 +278,8 @@ export default function Landing() {
               </div>
               <div className="flex flex-wrap justify-center gap-8 text-gray-400 mb-8">
                 <a href="#" className="hover:text-white transition-colors">About</a>
-                <a href="/support" className="hover:text-white transition-colors">Contact</a>
+                <a href="/contact-us" className="hover:text-white transition-colors">Contact Us</a>
+                <a href="/support" className="hover:text-white transition-colors">Support</a>
                 <a href="/support/help-center" className="hover:text-white transition-colors">FAQ</a>
                 <a href="#" className="hover:text-white transition-colors">Privacy</a>
                 <a href="#" className="hover:text-white transition-colors">Terms</a>
