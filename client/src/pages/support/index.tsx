@@ -1,15 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useAuth } from "@/hooks/use-auth";
 import { 
   HelpCircle, 
   MessageSquare, 
@@ -20,76 +11,10 @@ import {
   Search,
   BookOpen,
   Headphones,
-  Clock,
-  Send,
-  Mail
+  Clock
 } from "lucide-react";
 
-const contactCategories = [
-  { value: "general", label: "General Inquiry" },
-  { value: "account", label: "Account Issues" },
-  { value: "billing", label: "Billing & Payments" },
-  { value: "technical", label: "Technical Problems" },
-  { value: "proposals", label: "Proposals & Contracts" },
-  { value: "messaging", label: "Messaging Issues" },
-  { value: "feature", label: "Feature Request" },
-  { value: "other", label: "Other" }
-];
-
 export default function SupportIndex() {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: user?.firstName + " " + user?.lastName || "",
-    email: user?.email || "",
-    category: "",
-    subject: "",
-    message: ""
-  });
-
-  const submitMessage = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) throw new Error("Failed to submit message");
-      return response.json();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Message sent successfully",
-        description: "We'll get back to you within 24 hours.",
-      });
-      setFormData({
-        name: user?.firstName + " " + user?.lastName || "",
-        email: user?.email || "",
-        category: "",
-        subject: "",
-        message: ""
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    submitMessage.mutate(formData);
-  };
-
-  const updateFormData = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -251,126 +176,6 @@ export default function SupportIndex() {
             <CardContent className="p-4 flex items-center space-x-3">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
               <span className="text-green-700 font-medium">All systems operational</span>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Contact Us Form */}
-        <div className="mt-16">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Contact Us</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Can't find what you're looking for? Send us a message and we'll get back to you as soon as possible.
-            </p>
-          </div>
-
-          <Card className="max-w-3xl mx-auto bg-white border border-gray-200 shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center text-2xl">
-                <Mail className="w-6 h-6 mr-3 text-finder-red" />
-                Send us a Message
-              </CardTitle>
-              <p className="text-gray-600">
-                Fill out the form below and we'll respond within 24 hours.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                      Full Name *
-                    </Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => updateFormData("name", e.target.value)}
-                      placeholder="Enter your full name"
-                      required
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                      Email Address *
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => updateFormData("email", e.target.value)}
-                      placeholder="Enter your email address"
-                      required
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="category" className="text-sm font-medium text-gray-700">
-                    Category *
-                  </Label>
-                  <Select value={formData.category} onValueChange={(value) => updateFormData("category", value)}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {contactCategories.map((category) => (
-                        <SelectItem key={category.value} value={category.value}>
-                          {category.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="subject" className="text-sm font-medium text-gray-700">
-                    Subject *
-                  </Label>
-                  <Input
-                    id="subject"
-                    value={formData.subject}
-                    onChange={(e) => updateFormData("subject", e.target.value)}
-                    placeholder="Brief description of your inquiry"
-                    required
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="message" className="text-sm font-medium text-gray-700">
-                    Message *
-                  </Label>
-                  <Textarea
-                    id="message"
-                    value={formData.message}
-                    onChange={(e) => updateFormData("message", e.target.value)}
-                    placeholder="Provide detailed information about your inquiry..."
-                    rows={6}
-                    required
-                    className="mt-1"
-                  />
-                </div>
-
-                <Button 
-                  type="submit" 
-                  className="w-full bg-finder-red hover:bg-finder-red/90 text-white py-3 text-lg font-medium"
-                  disabled={submitMessage.isPending}
-                >
-                  {submitMessage.isPending ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5 mr-2" />
-                      Send Message
-                    </>
-                  )}
-                </Button>
-              </form>
             </CardContent>
           </Card>
         </div>

@@ -381,18 +381,6 @@ export class EmailService {
     };
     return this.sendEmail(template);
   }
-
-  async sendSupportReply(to: string, userName: string, originalSubject: string, replyMessage: string, adminName: string): Promise<boolean> {
-    try {
-      const subject = `Re: ${originalSubject}`;
-      const html = emailTemplates.supportReply(userName, originalSubject, replyMessage, adminName);
-
-      return await this.sendEmail(to, subject, html);
-    } catch (error) {
-      console.error('Error sending support reply email:', error);
-      return false;
-    }
-  }
 }
 
 export const emailService = EmailService.getInstance();

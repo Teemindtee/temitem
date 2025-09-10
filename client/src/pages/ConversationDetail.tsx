@@ -20,8 +20,7 @@ import {
   Loader2,
   ExternalLink,
   Bell,
-  Reply,
-  X
+  Reply
 } from "lucide-react";
 import { format } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
@@ -317,72 +316,54 @@ export default function ConversationDetail() {
           {/* Message Input */}
           <div className="bg-white border-t border-gray-200 p-4">
             {quotedMessage && (
-              <div className="flex items-center justify-between p-3 mb-3 border rounded-lg bg-blue-50 border-blue-200">
-                <div className="flex-1">
-                  <p className="text-xs text-blue-600 font-medium">Replying to {quotedMessage.sender?.firstName} {quotedMessage.sender?.lastName}</p>
-                  <p className="text-sm text-gray-800 truncate max-w-md mt-1">{quotedMessage.content}</p>
+              <div className="flex items-center justify-between p-2 mb-2 border rounded-lg bg-gray-100">
+                <div>
+                  <p className="text-xs text-gray-600">Replying to {quotedMessage.sender?.firstName} {quotedMessage.sender?.lastName}</p>
+                  <p className="text-sm text-gray-800 truncate max-w-md">{quotedMessage.content}</p>
                 </div>
-                <Button variant="ghost" size="sm" onClick={cancelQuote} className="text-gray-500 hover:text-gray-700">
-                  <X className="w-4 h-4" />
+                <Button variant="ghost" size="sm" onClick={cancelQuote}>
+                  <X className="w-4 h-4 text-gray-500" />
                 </Button>
               </div>
             )}
-            
-            <div className="flex items-end space-x-3">
-              <Avatar className="w-10 h-10 mb-1">
+            <div className="flex items-center space-x-3">
+              <Avatar className="w-10 h-10">
                 <AvatarFallback className="bg-gray-400 text-white">
                   <User className="w-5 h-5" />
                 </AvatarFallback>
               </Avatar>
 
-              <div className="flex-1 bg-gray-50 rounded-2xl border border-gray-200 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
-                <div className="flex items-center px-4 py-2">
-                  <Input
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Type a message..."
-                    className="flex-1 border-0 bg-transparent focus:ring-0 focus:border-0 p-0"
-                    disabled={sendMessageMutation.isPending}
-                  />
-                  
-                  {/* Attachment and Emoji buttons */}
-                  <div className="flex items-center space-x-1 ml-2">
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="p-2 rounded-full hover:bg-gray-200 transition-colors"
-                      title="Attach file"
-                    >
-                      <Paperclip className="w-4 h-4 text-gray-500" />
-                    </Button>
-                    
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      className="p-2 rounded-full hover:bg-gray-200 transition-colors"
-                      title="Add emoji"
-                    >
-                      <span className="text-lg">😊</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              <div className="flex-1 flex items-center space-x-2">
+                <Input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type a message..."
+                  className="flex-1 border-gray-200 rounded-full px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  disabled={sendMessageMutation.isPending}
+                />
 
-              <Button 
-                onClick={handleSend}
-                disabled={sendMessageMutation.isPending || (!newMessage.trim() && !quotedMessage)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2.5 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-200 mb-1"
-              >
-                {sendMessageMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <>
-                    <Send className="w-4 h-4 mr-2" />
-                    Send
-                  </>
-                )}
-              </Button>
+                <div className="flex items-center space-x-1">
+                  <Button size="sm" variant="ghost" className="p-2 rounded-full">
+                    <span className="text-lg">😊</span>
+                  </Button>
+                  <Button size="sm" variant="ghost" className="p-2 rounded-full">
+                    <span className="text-lg">😊</span>
+                  </Button>
+                </div>
+
+                <Button 
+                  onClick={handleSend}
+                  disabled={sendMessageMutation.isPending || (!newMessage.trim() && !quotedMessage)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 rounded-full"
+                >
+                  {sendMessageMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Send"
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

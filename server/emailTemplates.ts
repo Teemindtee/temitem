@@ -1,3 +1,4 @@
+
 interface EmailTemplateData {
   [key: string]: any;
 }
@@ -22,7 +23,7 @@ export class EmailTemplateEngine {
         </div>
       `
     },
-
+    
     proposalNotification: {
       subject: 'New Proposal Received - {{requestTitle}}',
       html: `
@@ -85,53 +86,5 @@ export class EmailTemplateEngine {
 
   static getAvailableTemplates(): string[] {
     return Object.keys(this.templates);
-  }
-
-  static supportReply(userName: string, originalSubject: string, replyMessage: string, adminName: string): string {
-    return `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb;">
-        <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 20px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">FinderMeister Support</h1>
-        </div>
-
-        <div style="padding: 30px; background-color: white; margin: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-          <h2 style="color: #1f2937; margin-bottom: 20px;">Hi ${userName},</h2>
-
-          <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px;">
-            Thank you for contacting FinderMeister support. We've reviewed your inquiry regarding "<strong>${originalSubject}</strong>" and have a response for you.
-          </p>
-
-          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
-            <h3 style="color: #1f2937; margin-top: 0; margin-bottom: 15px;">Our Response:</h3>
-            <div style="color: #374151; line-height: 1.6; white-space: pre-wrap;">${replyMessage}</div>
-          </div>
-
-          <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px;">
-            If you have any follow-up questions or need further assistance, please don't hesitate to reach out to us.
-          </p>
-
-          <div style="background-color: #fef2f2; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <p style="color: #7f1d1d; margin: 0; font-size: 14px;">
-              <strong>Need more help?</strong> Visit our support page or reply to this email.
-            </p>
-          </div>
-
-          <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-            Best regards,<br>
-            ${adminName}<br>
-            FinderMeister Support Team
-          </p>
-        </div>
-
-        <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p>© 2024 FinderMeister. All rights reserved.</p>
-          <p>
-            <a href="https://findermeister.com" style="color: #dc2626; text-decoration: none;">Website</a> |
-            <a href="https://findermeister.com/support" style="color: #dc2626; text-decoration: none;">Support</a> |
-            <a href="https://findermeister.com/terms" style="color: #dc2626; text-decoration: none;">Terms</a>
-          </p>
-        </div>
-      </div>
-    `;
   }
 }

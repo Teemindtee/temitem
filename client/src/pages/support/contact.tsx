@@ -16,8 +16,7 @@ import {
   Clock, 
   CheckCircle,
   AlertCircle,
-  HelpCircle,
-  MapPin
+  HelpCircle
 } from "lucide-react";
 
 const supportCategories = [
@@ -222,7 +221,7 @@ export default function ContactSupport() {
                   <Mail className="w-5 h-5 text-finder-red mt-0.5" />
                   <div>
                     <p className="font-medium">Email Support</p>
-                    <p className="text-sm text-gray-600">findermeisterinnovations@gmail.com</p>
+                    <p className="text-sm text-gray-600">support@findermeister.com</p>
                     <p className="text-xs text-gray-500 mt-1">Response within 24 hours</p>
                   </div>
                 </div>
@@ -230,16 +229,8 @@ export default function ContactSupport() {
                   <Phone className="w-5 h-5 text-finder-red mt-0.5" />
                   <div>
                     <p className="font-medium">Phone Support</p>
-                    <p className="text-sm text-gray-600">+233-7039391065</p>
-                    <p className="text-xs text-gray-500 mt-1">Mon-Fri, 9 AM - 6 PM WAT</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <MapPin className="w-5 h-5 text-finder-red mt-0.5" />
-                  <div>
-                    <p className="font-medium">Office Address</p>
-                    <p className="text-sm text-gray-600">18 Back of Road safety office, Moniya, Ibadan</p>
-                    <p className="text-xs text-gray-500 mt-1">Nigeria</p>
+                    <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
+                    <p className="text-xs text-gray-500 mt-1">Mon-Fri, 9 AM - 6 PM EST</p>
                   </div>
                 </div>
               </CardContent>
@@ -304,34 +295,6 @@ export default function ContactSupport() {
                       <span className="text-xs text-green-600">Operational</span>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Social Media */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <MessageSquare className="w-5 h-5 mr-2" />
-                  Follow Us
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium">X (Twitter):</span>
-                  <a href="https://twitter.com/findermeister" target="_blank" rel="noopener noreferrer" className="text-sm text-finder-red hover:underline">@findermeister</a>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium">Facebook:</span>
-                  <a href="https://facebook.com/findermeister" target="_blank" rel="noopener noreferrer" className="text-sm text-finder-red hover:underline">@findermeister</a>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium">Instagram:</span>
-                  <a href="https://instagram.com/findermeister" target="_blank" rel="noopener noreferrer" className="text-sm text-finder-red hover:underline">@findermeister</a>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium">TikTok:</span>
-                  <a href="https://tiktok.com/@findermeisterinnovations" target="_blank" rel="noopener noreferrer" className="text-sm text-finder-red hover:underline">@findermeisterinnovations</a>
                 </div>
               </CardContent>
             </Card>
