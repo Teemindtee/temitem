@@ -9,9 +9,9 @@ import jwt from "jsonwebtoken";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { insertUserSchema, insertFindSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema, type Find, finders } from "@shared/schema";
+import { insertUserSchema, insertFindSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema, type Find, finders, supportTickets } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { PaystackService, TOKEN_PACKAGES } from "./paymentService";
 import { OpayService, OPAY_TOKEN_PACKAGES } from "./opayService";
 import { FlutterwaveService, FLUTTERWAVE_TOKEN_PACKAGES } from "./flutterwaveService";
@@ -1191,18 +1191,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { name, email, category, priority, subject, message } = req.body;
 
-      // In a real application, you would save this to a database or send to a support system
-      console.log('Support ticket submitted:', { name, email, category, priority, subject, message });
+      if (!name || !email || !category || !priority || !subject || !message) {
+        return res.status(400).json({ error: "All fields are required" });
+      }
 
-      // For now, just return success
-      res.json({
-        success: true,
-        ticketId: `TICKET-${Date.now()}`,
-        message: "Support ticket submitted successfully"
+      // Insert support ticket into database
+      const [ticket] = await db.insert(supportTickets).values({
+        name,
+        email,
+        category,
+        priority,
+        subject,
+        message,
+        status: 'open'
+      }).returning();
+
+      res.json({ ticket });
+    } catch (error) {
+      console.error("Error submitting support ticket:", error);
+      res.status(500).json({ error: "Failed to submit support ticket" });
+    }
+  });
+
+  // Admin: Get all support tickets
+  app.get("/api/admin/support-tickets", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const tickets = await db.select().from(supportTickets).orderBy(desc(supportTickets.createdAt));
+      res.json(tickets);
+    } catch (error) {
+      console.error("Error fetching support tickets:", error);
+      res.status(500).json({ error: "Failed to fetch support tickets" });
+    }
+  });
+
+  // Admin: Update support ticket status
+  app.put("/api/admin/support-tickets/:id", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!['open', 'in_progress', 'resolved', 'closed'].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+
+      const [updatedTicket] = await db.update(supportTickets)
+        .set({ status, updatedAt: new Date() })
+        .where(eq(supportTickets.id, id))
+        .returning();
+
+      if (!updatedTicket) {
+        return res.status(404).json({ message: "Support ticket not found" });
+      }
+
+      res.json(updatedTicket);
+    } catch (error) {
+      console.error("Error updating support ticket:", error);
+      res.status(500).json({ error: "Failed to update support ticket" });
+    }
+  });
+
+  // Admin: Reply to support ticket
+  app.post("/api/admin/support-tickets/:id/reply", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const { reply } = req.body;
+
+      if (!reply || !reply.trim()) {
+        return res.status(400).json({ message: "Reply message is required" });
+      }
+
+      // Get the support ticket
+      const [ticket] = await db.select().from(supportTickets).where(eq(supportTickets.id, id));
+      
+      if (!ticket) {
+        return res.status(404).json({ message: "Support ticket not found" });
+      }
+
+      // Update ticket status to resolved
+      await db.update(supportTickets)
+        .set({ status: 'resolved', updatedAt: new Date() })
+        .where(eq(supportTickets.id, id));
+
+      // Send email reply to the user
+      try {
+        const admin = await storage.getUser(req.user.userId);
+        if (admin) {
+          await emailService.sendSupportReply(
+            ticket.email,
+            ticket.name,
+            ticket.subject,
+            reply,
+            `${admin.firstName} ${admin.lastName}`
+          );
+        }
+      } catch (emailError) {
+        console.error('Failed to send support reply email:', emailError);
+        // Continue anyway - the reply was processed
+      }
+
+      res.json({ 
+        success: true, 
+        message: "Reply sent successfully" 
       });
     } catch (error) {
-      console.error('Failed to submit support ticket:', error);
-      res.status(500).json({ message: "Failed to submit support ticket" });
+      console.error("Error sending support reply:", error);
+      res.status(500).json({ error: "Failed to send reply" });
     }
   });
 

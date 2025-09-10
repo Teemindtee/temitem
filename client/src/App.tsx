@@ -66,6 +66,12 @@ import TermsAndConditions from "@/pages/terms-and-conditions";
 
 // Dynamically import ResetPassword component
 const ResetPassword = lazy(() => import("@/pages/auth/reset-password"));
+// Dynamically import Admin Support Messages component
+const AdminSupportMessages = lazy(() => import("@/pages/admin/support-messages"));
+const AdminFinancialDashboard = lazy(() => import("@/pages/admin/financial-dashboard"));
+const AdminSettings = lazy(() => import("@/pages/admin/settings"));
+const AdminWithdrawals = lazy(() => import("@/pages/admin/withdrawals"));
+
 
 function Router() {
   return (
@@ -130,7 +136,9 @@ function Router() {
       <Route path="/admin/strike-system" component={AdminStrikeSystem} />
       <Route path="/admin/restricted-words" component={AdminRestrictedWords} />
       <Route path="/admin/support-agents" component={AdminSupportAgents} />
-      <Route path="/admin/financial-dashboard" component={lazy(() => import("@/pages/admin/financial-dashboard"))} />
+      <Route path="/admin/financial-dashboard" component={withAuth(AdminFinancialDashboard, ['admin'])} />
+            <Route path="/admin/support-messages" component={withAuth(AdminSupportMessages, ['admin'])} />
+            <Route path="/admin/settings" component={withAuth(AdminSettings, ['admin'])} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/messages" component={Messages} />
       <Route path="/messages/:conversationId" component={ConversationDetail} />
