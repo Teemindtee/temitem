@@ -281,7 +281,7 @@ export default function Landing() {
                 <a href="/support/contact" className="hover:text-white transition-colors">Contact Us</a>
                 <a href="/support" className="hover:text-white transition-colors">Support</a>
                 <a href="/support/help-center" className="hover:text-white transition-colors">FAQ</a>
-                <a href="#" className="hover:text-white transition-colors">Privacy</a>
+                <a href="/privacy-policy" className="hover:text-white transition-colors">Privacy</a>
                 <a href="/terms-and-conditions" className="hover:text-white transition-colors">TOS</a>
               </div>
               <p className="text-gray-400">
