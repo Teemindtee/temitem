@@ -221,7 +221,7 @@ export default function ContactSupport() {
                   <Mail className="w-5 h-5 text-finder-red mt-0.5" />
                   <div>
                     <p className="font-medium">Email Support</p>
-                    <p className="text-sm text-gray-600">support@findermeister.com</p>
+                    <p className="text-sm text-gray-600">findermeisterinnovations@gmail.com</p>
                     <p className="text-xs text-gray-500 mt-1">Response within 24 hours</p>
                   </div>
                 </div>
@@ -229,8 +229,31 @@ export default function ContactSupport() {
                   <Phone className="w-5 h-5 text-finder-red mt-0.5" />
                   <div>
                     <p className="font-medium">Phone Support</p>
-                    <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
-                    <p className="text-xs text-gray-500 mt-1">Mon-Fri, 9 AM - 6 PM EST</p>
+                    <p className="text-sm text-gray-600">+233-7039391065</p>
+                    <p className="text-xs text-gray-500 mt-1">Mon-Fri, 9 AM - 6 PM WAT</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-5 h-5 text-finder-red mt-0.5 flex items-center justify-center">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium">Office Address</p>
+                    <p className="text-sm text-gray-600">18 Back of Road safety office, Moniya, Ibadan</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <div className="w-5 h-5 text-finder-red mt-0.5 flex items-center justify-center">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-medium">Social Media</p>
+                    <p className="text-sm text-gray-600">X, Facebook, Instagram: @findermeister</p>
+                    <p className="text-sm text-gray-600">TikTok: @findermeisterinnovations</p>
                   </div>
                 </div>
               </CardContent>
