@@ -221,7 +221,7 @@ export default function ContactSupport() {
                   <Mail className="w-5 h-5 text-finder-red mt-0.5" />
                   <div>
                     <p className="font-medium">Email Support</p>
-                    <p className="text-sm text-gray-600">support@findermeister.com</p>
+                    <p className="text-sm text-gray-600">findermeisterinnovations@gmail.com</p>
                     <p className="text-xs text-gray-500 mt-1">Response within 24 hours</p>
                   </div>
                 </div>
@@ -229,8 +229,8 @@ export default function ContactSupport() {
                   <Phone className="w-5 h-5 text-finder-red mt-0.5" />
                   <div>
                     <p className="font-medium">Phone Support</p>
-                    <p className="text-sm text-gray-600">+1 (555) 123-4567</p>
-                    <p className="text-xs text-gray-500 mt-1">Mon-Fri, 9 AM - 6 PM EST</p>
+                    <p className="text-sm text-gray-600">+233-7039391065</p>
+                    <p className="text-xs text-gray-500 mt-1">Mon-Fri, 9 AM - 6 PM WAT</p>
                   </div>
                 </div>
               </CardContent>
