@@ -1,0 +1,227 @@
+ Terms Of Service
+
+
+1. Terms of Use
+
+Introduction
+
+Welcome to FinderMeister Innovations. By registering as a Client (who posts finds) or a Finder (who applies to complete finds), you agree to abide by these Terms of Use, our Privacy Policy, and Refund Policy. These Terms are legally binding under the laws of the Federal Republic of Nigeria.
+
+Nature of Services
+
+FinderMeister is an online marketplace platform. We do not directly supply goods or services.
+
+Our role is to connect Clients and Finders and facilitate secure transactions using escrow via licensed payment processors (e.g., Flutterwave, Opay).
+
+FinderMeister does not issue wallets or hold customer funds.
+
+
+FinderTokens
+
+FinderTokens are access credits used to apply for finds by Finders or boost a find by Clients
+
+They are not currency, not legal tender, and hold no monetary value outside the platform.
+
+FinderTokens are:
+
+Non-refundable
+
+Non-transferable
+
+Expire after six (6) months from issuance 
+
+And 20 Findertokens are awarded to each finder monthly
+
+The expiry and non-refundable nature of FinderTokens are final and binding.
+
+
+Contracts & Escrow
+
+All contracts are fixed budget that can be agreed on between Finders and Clients.
+
+Clients must deposit funds into escrow before a Finder begins work.
+
+Escrow funds are released:
+
+Automatically if no dispute is raised within the inspection period (48 hours).
+
+Upon Client approval of deliverables.
+
+Following dispute resolution (see Section 4).
+
+
+Finality Clause: Once escrow is released, payment is irreversible except in proven fraud.
+
+
+User Obligations
+
+No exchange of phone numbers, email addresses and other contact details before a contract starts
+
+No illegal or prohibited finds (e.g., drugs, contraband, fraud, prostitution or trafficking)
+
+No bypassing escrow.
+
+No fraudulent evidence.
+
+
+Account Suspension
+
+FinderMeister operates a strike system. 3 strikes = suspension.
+
+Severe breaches may result in immediate account termination.
+
+
+Limitation of Liability
+
+FinderMeister is not liable for indirect or consequential damages.
+
+Our maximum liability = service fee earned on the disputed contract.
+
+
+Indemnity
+
+Users indemnify FinderMeister against losses, damages, or claims arising from their activities on the platform.
+
+
+
+
+
+---
+
+2. Refund Policy
+
+Eligible Refunds:
+
+Non-completion of Find(s) 
+Breach of contract proven through disputes.
+
+Unsatisfactory delivery where both parties agree.
+
+
+Non-Refundable Items
+
+FinderTokens are strictly non-refundable, non-transferable, and expire after 6 months.
+
+
+Processing Time
+
+Refunds processed in 7–14 working days through Flutterwave/Opay.
+
+
+
+---
+
+3. Privacy Policy
+
+Data We Collect: Name, email, phone, payment details, account activity.
+
+Verification documents: Voter’s Card, Driver’s License, International Passport, NIN.
+
+
+Purpose
+
+Account management, escrow, fraud prevention, dispute resolution, compliance.
+
+
+Data Security
+
+Encrypted storage, restricted staff access.
+
+
+Third Parties
+
+Data may be shared only with licensed partners (e.g., Flutterwave, Opay).
+
+
+User Rights
+
+Request access, correction, or deletion of data in line with NDPR.
+
+
+
+---
+
+4. Dispute Resolution Policy
+
+Scope covers disputes relating to:
+
+Non-delivery, late delivery, quality issues, fraud, refund eligibility.
+
+
+Principles
+
+Funds in escrow remain until Client confirms delivery or a dispute decision is reached.
+
+Admissible evidence during dispute resolution includes in-platform communications and other notable communication channels.
+
+Timelines
+
+Dispute must be raised within 72 hours of completion of a find.
+
+Evidence submission: 72 hours per party.
+
+
+Mediation resolution: within 72 hours after evidence submission.
+
+Auto-release if no dispute is raised in inspection window.
+
+
+Evidence Standards
+
+Goods: unboxing videos/photos, courier tracking etc
+
+Real Estate: inspection photos/videos, listings, agent communications etc
+
+Services/Healthcare: logs, before/after evidence, correspondence. etc
+
+Digital Items: access logs, versioned files etc.
+
+Manipulated evidence = penalties.
+
+
+Resolution Tiers
+
+Tier 1 – Mediation: Support reviews and proposes outcome.
+
+Tier 2 – Dispute Panel: Final internal decision.
+
+Appeals allowed once with new material evidence.
+
+
+Possible Outcomes
+
+Full release to Finder.
+
+Full refund to Client.
+
+Partial split/refund.
+
+Redo/repair with new deadline.
+
+
+Fees & Chargebacks
+
+Payment processor fees may not be refundable.
+
+FinderTokens are not refundable.
+
+Excessive chargebacks = account suspension.
+
+
+Unresponsive Party
+
+If Client unresponsive = funds released to Finder.
+
+If Finder unresponsive = refund to Client.
+
+
+Prohibited Activity
+
+Illegal finds = cancellation, refund to Client, and ban.
+
+Fraudulent evidence = penalties and account termination.
+
+
+Governing Law
+
+Nigerian law governs all disputes.
