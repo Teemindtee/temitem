@@ -1818,33 +1818,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('Flutterwave webhook error:', error);
       res.status(500).send('Error processing Flutterwave webhook');
     }
-  });etadata;
-
-        // Update user's findertoken balance
-        const finder = await storage.getFinderByUserId(userId);
-        if (finder) {
-          const currentBalance = finder.findertokenBalance || 0;
-          await storage.updateFinder(finder.id, {
-            findertokenBalance: currentBalance + tokens
-          });
-
-          // Create transaction record
-          await storage.createTransaction({
-            userId: userId,
-            type: 'findertoken_purchase',
-            amount: tokens,
-            description: `Findertoken purchase - ${tokens} findertokens`,
-            reference: reference
-          });
-        }
-      }
-
-      res.status(200).send('OK');
-    } catch (error) {
-      console.error('Webhook error:', error);
-      res.status(500).send('Error processing webhook');
-    }
   });
+
 
   // Opay webhook endpoint
   app.post("/api/payments/opay/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
