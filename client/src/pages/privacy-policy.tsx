@@ -163,7 +163,7 @@ export default function PrivacyPolicy() {
             <p className="mb-4">For privacy-related questions, requests, or concerns, please contact us:</p>
             <ul className="list-disc pl-6 mb-4">
               <li><strong>Email:</strong> privacy@findermeister.com</li>
-              <li><strong>Phone:</strong> +234-XXX-XXX-XXXX</li>
+              <li><strong>Phone:</strong> +2347039391065</li>
               <li><strong>Address:</strong> FinderMeister Innovations, Lagos, Nigeria</li>
               <li><strong>Data Protection Officer:</strong> dpo@findermeister.com</li>
             </ul>
