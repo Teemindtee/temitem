@@ -1478,6 +1478,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Check Flutterwave configuration
+  app.get("/api/payments/flutterwave/config", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const flutterwaveService = new FlutterwaveService();
+      res.json({ 
+        isConfigured: flutterwaveService.isConfigured(),
+        hasSecretKey: !!process.env.FLUTTERWAVE_SECRET_KEY,
+        hasPublicKey: !!process.env.FLUTTERWAVE_PUBLIC_KEY
+      });
+    } catch (error) {
+      console.error('Error checking Flutterwave configuration:', error);
+      res.status(500).json({ message: "Failed to check Flutterwave configuration" });
+    }
+  });
+
   // Initialize Flutterwave payment endpoint
   app.post("/api/payments/flutterwave/initialize", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -1653,15 +1668,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const existingTransaction = await storage.getTransactionByReference(reference);
 
         if (!existingTransaction) {
+          // Import the helper function
+          const { getTokensFromAmount } = require('./flutterwaveService');
+          
           // Determine tokens from the amount or metadata
-          const packageMapping = {
-            5000: 10,   // Starter Pack
-            10000: 25,  // Professional Pack
-            18000: 50,  // Business Pack
-            30000: 100  // Enterprise Pack
-          };
-
-          const tokens = packageMapping[transaction.amount as keyof typeof packageMapping] || 10;
+          const tokens = transaction.metadata?.tokens || getTokensFromAmount(transaction.amount) || 10;
 
           // Update balance and create transaction record
           const currentBalance = finder.findertokenBalance || 0;
@@ -1677,6 +1688,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             description: `FinderToken™ purchase via Flutterwave - ${tokens} tokens`,
             reference: reference
           });
+
+          console.log(`Flutterwave verification: Added ${tokens} tokens to user ${req.user.userId}`);
+        } else {
+          console.log(`Flutterwave verification: Transaction ${reference} already processed`);
         }
 
         res.json({ 
@@ -1695,8 +1710,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Payment webhook endpoint
-  app.post("/api/payments/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+  // Payment webhook endpoint (Paystack)
+  app.post("/api/payments/paystack/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
     try {
       const paystackService = new PaystackService();
 
@@ -1712,6 +1727,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (event.event === 'charge.success') {
         const { reference, metadata } = event.data;
         const { userId, tokens } = metadata;
+
+        // Check if transaction already processed
+        const existingTransaction = await storage.getTransactionByReference(reference);
+        
+        if (!existingTransaction) {
+          const finder = await storage.getFinderByUserId(userId);
+          if (finder) {
+            const currentBalance = finder.findertokenBalance || 0;
+            await storage.updateFinder(finder.id, {
+              findertokenBalance: currentBalance + tokens
+            });
+
+            await storage.createTransaction({
+              userId: userId,
+              finderId: finder.id,
+              type: 'findertoken_purchase',
+              amount: tokens,
+              description: `FinderToken™ purchase via Paystack - ${tokens} tokens`,
+              reference: reference
+            });
+
+            console.log(`Paystack webhook: Added ${tokens} tokens to user ${userId}`);
+          }
+        }
+      }
+
+      res.status(200).send('OK');
+    } catch (error) {
+      console.error('Paystack webhook error:', error);
+      res.status(500).send('Error processing Paystack webhook');
+    }
+  });
+
+  // Flutterwave webhook endpoint
+  app.post("/api/payments/flutterwave/webhook", express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+    try {
+      const flutterwaveService = new FlutterwaveService();
+
+      const signature = req.headers['verif-hash'] as string;
+      const payload = req.body.toString();
+
+      if (!flutterwaveService.verifyWebhookSignature(payload, signature)) {
+        console.log('Invalid Flutterwave webhook signature');
+        return res.status(400).send('Invalid signature');
+      }
+
+      const event = JSON.parse(payload);
+
+      if (event.event === 'charge.completed' && event.data.status === 'successful') {
+        const { tx_ref, amount, meta } = event.data;
+        const { userId, tokens } = meta || {};
+
+        if (!userId || !tokens) {
+          console.log('Missing userId or tokens in Flutterwave webhook metadata');
+          return res.status(400).send('Missing required metadata');
+        }
+
+        // Check if transaction already processed
+        const existingTransaction = await storage.getTransactionByReference(tx_ref);
+        
+        if (!existingTransaction) {
+          const finder = await storage.getFinderByUserId(userId);
+          if (finder) {
+            const currentBalance = finder.findertokenBalance || 0;
+            await storage.updateFinder(finder.id, {
+              findertokenBalance: currentBalance + tokens
+            });
+
+            await storage.createTransaction({
+              userId: userId,
+              finderId: finder.id,
+              type: 'findertoken_purchase',
+              amount: tokens,
+              description: `FinderToken™ purchase via Flutterwave - ${tokens} tokens`,
+              reference: tx_ref
+            });
+
+            console.log(`Flutterwave webhook: Added ${tokens} tokens to user ${userId}`);
+          } else {
+            console.log(`Flutterwave webhook: Finder not found for user ${userId}`);
+          }
+        } else {
+          console.log(`Flutterwave webhook: Transaction ${tx_ref} already processed`);
+        }
+      }
+
+      res.status(200).send('OK');
+    } catch (error) {
+      console.error('Flutterwave webhook error:', error);
+      res.status(500).send('Error processing Flutterwave webhook');
+    }
+  });etadata;
 
         // Update user's findertoken balance
         const finder = await storage.getFinderByUserId(userId);

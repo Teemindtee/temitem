@@ -37,6 +37,17 @@ export const FLUTTERWAVE_TOKEN_PACKAGES: FlutterwaveTokenPackage[] = [
   }
 ];
 
+export function getTokensFromAmount(amount: number): number {
+  const packageMapping: { [key: number]: number } = {
+    5000: 10,   // Starter Pack
+    10000: 25,  // Professional Pack
+    18000: 50,  // Business Pack
+    30000: 100  // Enterprise Pack
+  };
+
+  return packageMapping[amount] || 0;
+}
+
 export class FlutterwaveService {
   private secretKey: string;
   private publicKey: string;
@@ -107,8 +118,10 @@ export class FlutterwaveService {
       });
 
       const data = await response.json();
+      console.log('Flutterwave response:', JSON.stringify(data, null, 2));
       
       if (!response.ok || data.status !== 'success') {
+        console.error('Flutterwave initialization failed:', data);
         throw new Error(data.message || 'Failed to initialize transaction');
       }
 
@@ -134,8 +147,10 @@ export class FlutterwaveService {
       });
 
       const data = await response.json();
+      console.log('Flutterwave verification response:', JSON.stringify(data, null, 2));
       
       if (!response.ok || data.status !== 'success') {
+        console.error('Flutterwave verification failed:', data);
         throw new Error(data.message || 'Failed to verify transaction');
       }
 
@@ -154,14 +169,25 @@ export class FlutterwaveService {
   }
 
   verifyWebhookSignature(payload: string, signature: string): boolean {
-    if (!signature) return false;
+    if (!signature || !this.secretKey) {
+      console.log('Missing signature or secret key for webhook verification');
+      return false;
+    }
     
     const hash = crypto
       .createHmac('sha256', this.secretKey)
       .update(payload)
       .digest('hex');
     
-    return hash === signature;
+    const isValid = hash === signature;
+    
+    if (!isValid) {
+      console.log('Flutterwave webhook signature verification failed');
+      console.log('Expected:', hash);
+      console.log('Received:', signature);
+    }
+    
+    return isValid;
   }
 
   generateTransactionReference(userId: string): string {
