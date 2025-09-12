@@ -1364,7 +1364,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(categories).orderBy(categories.name);
   }
 
-  async getActiveCategories(): Promise<Category[]>> {
+  async getActiveCategories(): Promise<Category[]> {
     return await db.select().from(categories)
       .where(eq(categories.isActive, true))
       .orderBy(categories.name);

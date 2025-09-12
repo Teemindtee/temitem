@@ -20,7 +20,7 @@ import {
   Star
 } from "lucide-react";
 import type { Transaction, TokenPackage } from "@shared/schema";
-import FlutterwavePaymentModal from "@/components/flutterwave-payment-modal";
+import FlutterwavePaymentModal from "@/components/FlutterwavePaymentModal";
 
 // Helper function to format currency
 const formatCurrency = (amount: string | number) => {
