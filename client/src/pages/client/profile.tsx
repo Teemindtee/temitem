@@ -65,9 +65,21 @@ export default function ClientProfile() {
   const { data: profileUser, isLoading: profileLoading, error: profileError } = useQuery({
     queryKey: ['/api/admin/users', viewUserId],
     queryFn: () => {
+      console.log('Fetching profile user for:', viewUserId);
       return apiRequest(`/api/admin/users/${viewUserId}`);
     },
     enabled: Boolean(isAdminViewing && viewUserId),
+  });
+
+  // Debug logging
+  console.log('Profile page state:', {
+    user,
+    authLoading,
+    isAdminViewing,
+    viewUserId,
+    displayUser,
+    profileLoading,
+    profileError
   });
   
   // Use either the profile user (for admin viewing) or the logged-in user (for self-viewing)
@@ -152,6 +164,21 @@ export default function ClientProfile() {
     setIsEditing(false);
   };
 
+  // Show loading state while auth is loading
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Loading...</h1>
+          <p className="text-slate-600">Please wait while we load your profile.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Access control: allow clients to view their own profile, or admins to view any client profile
   if (!user || (user.role !== 'client' && user.role !== 'admin')) {
     return (
@@ -180,6 +207,39 @@ export default function ClientProfile() {
           </div>
           <h1 className="text-2xl font-bold text-slate-900 mb-2">User ID Required</h1>
           <p className="text-slate-600 mb-6">Please provide a userId parameter to view a client profile.</p>
+          <Button onClick={() => navigate("/admin/users")} className="bg-blue-600 hover:bg-blue-700">
+            Back to Users
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state while profile is loading for admin
+  if (isAdminViewing && profileLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Loading Profile...</h1>
+          <p className="text-slate-600">Please wait while we load the user profile.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if profile loading failed for admin
+  if (isAdminViewing && profileError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-10 h-10 text-red-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Profile Not Found</h1>
+          <p className="text-slate-600 mb-6">The requested user profile could not be loaded.</p>
           <Button onClick={() => navigate("/admin/users")} className="bg-blue-600 hover:bg-blue-700">
             Back to Users
           </Button>
