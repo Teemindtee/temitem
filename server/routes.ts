@@ -1532,6 +1532,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Client token purchase with Flutterwave
+  app.post("/api/client/tokens/flutterwave/initialize", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can purchase tokens" });
+      }
+
+      const { packageId, phone, customerName } = req.body;
+
+      const flutterwaveService = new FlutterwaveService();
+      const selectedPackage = FLUTTERWAVE_TOKEN_PACKAGES.find((pkg: any) => pkg.id === packageId);
+
+      if (!selectedPackage) {
+        return res.status(404).json({ message: "Package not found" });
+      }
+
+      const user = await storage.getUser(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const reference = flutterwaveService.generateTransactionReference(req.user.userId);
+
+      const transaction = await flutterwaveService.initializeTransaction(
+        user.email,
+        selectedPackage.price,
+        reference,
+        {
+          userId: req.user.userId,
+          packageId: packageId,
+          tokens: selectedPackage.tokens,
+          phone: phone,
+          customerName: customerName || `${user.firstName} ${user.lastName}`,
+          userRole: 'client'
+        }
+      );
+
+      res.json(transaction);
+    } catch (error) {
+      console.error('Client Flutterwave payment initialization error:', error);
+      res.status(500).json({ message: "Failed to initialize Flutterwave payment" });
+    }
+  });
+
+  // Client token purchase verification
+  app.get("/api/client/tokens/flutterwave/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (req.user.role !== 'client') {
+        return res.status(403).json({ message: "Only clients can verify token purchases" });
+      }
+
+      const { reference } = req.params;
+      const flutterwaveService = new FlutterwaveService();
+
+      const transaction = await flutterwaveService.verifyTransaction(reference);
+
+      if (transaction.status === 'success') {
+        // Check if transaction already processed
+        const existingTransaction = await storage.getTransactionByReference(reference);
+
+        if (!existingTransaction) {
+          // For clients, we need to add to their findertoken balance
+          // First check if they have a client profile or create one
+          let client = await storage.getClientProfile(req.user.userId);
+          
+          // Get tokens from metadata or amount mapping
+          const { getTokensFromAmount } = require('./flutterwaveService');
+          const tokens = transaction.metadata?.tokens || getTokensFromAmount(transaction.amount) || 10;
+
+          // Add tokens to client balance
+          await storage.addClientFindertokens(req.user.userId, tokens, `FinderToken™ purchase via Flutterwave - ${tokens} tokens`);
+
+          // Create transaction record
+          await storage.createTransaction({
+            userId: req.user.userId,
+            type: 'findertoken_purchase',
+            amount: tokens,
+            description: `FinderToken™ purchase via Flutterwave - ${tokens} tokens`,
+            reference: reference
+          });
+
+          console.log(`Flutterwave client verification: Added ${tokens} tokens to client ${req.user.userId}`);
+        } else {
+          console.log(`Flutterwave client verification: Transaction ${reference} already processed`);
+        }
+
+        res.json({ 
+          status: 'success', 
+          data: transaction 
+        });
+      } else {
+        res.json({ 
+          status: 'failed', 
+          message: 'Payment was not successful' 
+        });
+      }
+    } catch (error) {
+      console.error('Client Flutterwave payment verification error:', error);
+      res.status(500).json({ message: "Failed to verify Flutterwave payment" });
+    }
+  });
+
   // Payment verification endpoint
   app.get("/api/payments/verify/:reference", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {

@@ -173,10 +173,12 @@ export interface IStorage {
   syncFinderTokenBalances(): Promise<void>;
 
   // Transaction operations
-  createTransaction(transaction: InsertTransaction): Promise<Transaction>;
+  createTransaction(transaction: any): Promise<Transaction>;
   getTransactionsByFinderId(finderId: string): Promise<Transaction[]>;
   getTransactionsByUserId(userId: string): Promise<Transaction[]>;
   getTransactionByReference(reference: string): Promise<Transaction | undefined>;
+  getAllTransactionsWithUsers(): Promise<any[]>;
+  getAllContractsWithUsers(): Promise<any[]>;
 
   // Admin operations
   getAllUsers(): Promise<User[]>;
@@ -187,6 +189,7 @@ export interface IStorage {
   // Client operations
   getClientProfile(clientId: string): Promise<User | undefined>;
   deductClientFindertokens(clientId: string, amount: number, description: string): Promise<void>;
+  addClientFindertokens(clientId: string, amount: number, description: string): Promise<{ success: boolean; newBalance: number; }>;
 
   // Token charging
   chargeFinderTokens(finderId: string, amount: number, reason: string, chargedBy: string): Promise<boolean>;
@@ -940,12 +943,40 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
-    const [transaction] = await db
-      .insert(transactions)
-      .values(insertTransaction)
-      .returning();
-    return transaction;
+  async createTransaction(transaction: any): Promise<Transaction> {
+    const [newTransaction] = await db.insert(transactions).values(transaction).returning();
+    return newTransaction;
+  }
+
+  async addClientFindertokens(clientId: string, amount: number, description: string) {
+    // Get current client profile or create one
+    let client = await this.getClientProfile(clientId);
+
+    if (!client) {
+      // Create a basic client profile
+      client = {
+        userId: clientId,
+        findertokenBalance: 0
+      };
+    }
+
+    const newBalance = (client.findertokenBalance || 0) + amount;
+
+    // Update client findertoken balance - since we don't have a dedicated clients table,
+    // we'll store this in the users table or create a simple tracking mechanism
+    await db.update(users)
+      .set({ findertokenBalance: newBalance })
+      .where(eq(users.id, clientId));
+
+    // Create transaction record
+    await this.createTransaction({
+      userId: clientId,
+      type: 'findertoken_purchase',
+      amount: amount,
+      description: description
+    });
+
+    return { success: true, newBalance };
   }
 
   async getTransactionByReference(reference: string): Promise<Transaction | undefined> {
@@ -1333,7 +1364,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(categories).orderBy(categories.name);
   }
 
-  async getActiveCategories(): Promise<Category[]> {
+  async getActiveCategories(): Promise<Category[]>> {
     return await db.select().from(categories)
       .where(eq(categories.isActive, true))
       .orderBy(categories.name);
@@ -2721,17 +2752,17 @@ export class DatabaseStorage implements IStorage {
 
   async generateWithdrawalRequestId(): Promise<string> {
     const year = new Date().getFullYear();
-    
+
     // Get count of withdrawal requests this year
     const yearStart = new Date(year, 0, 1);
     const result = await db
       .select({ count: sql<number>`count(*)` })
       .from(withdrawalRequests)
       .where(sql`${withdrawalRequests.requestedAt} >= ${yearStart}`);
-    
+
     const count = result[0]?.count || 0;
     const nextNumber = count + 1;
-    
+
     return `WR-${year}-${nextNumber.toString().padStart(3, '0')}`;
   }
 

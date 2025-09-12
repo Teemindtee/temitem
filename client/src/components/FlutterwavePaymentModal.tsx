@@ -36,7 +36,12 @@ export function FlutterwavePaymentModal({
   // Payment verification mutation
   const verifyPayment = useMutation({
     mutationFn: async (reference: string) => {
-      const response = await apiRequest(`/api/payments/flutterwave/verify/${reference}`);
+      // Use client-specific endpoint if available, otherwise fallback to general endpoint
+      const endpoint = window.location.pathname.includes('/client/') 
+        ? `/api/client/tokens/flutterwave/verify/${reference}`
+        : `/api/payments/flutterwave/verify/${reference}`;
+        
+      const response = await apiRequest(endpoint);
       return response;
     },
     onSuccess: (data) => {
@@ -59,7 +64,12 @@ export function FlutterwavePaymentModal({
   // Payment initialization mutation
   const initializePayment = useMutation({
     mutationFn: async ({ packageId, phone, customerName }: { packageId: string; phone: string; customerName: string }) => {
-      const response = await apiRequest('/api/payments/flutterwave/initialize', {
+      // Use client-specific endpoint if available, otherwise fallback to general endpoint
+      const endpoint = window.location.pathname.includes('/client/') 
+        ? '/api/client/tokens/flutterwave/initialize'
+        : '/api/payments/flutterwave/initialize';
+        
+      const response = await apiRequest(endpoint, {
         method: 'POST',
         body: JSON.stringify({ packageId, phone, customerName })
       });

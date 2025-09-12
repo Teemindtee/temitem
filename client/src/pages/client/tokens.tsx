@@ -20,6 +20,7 @@ import {
   Star
 } from "lucide-react";
 import type { Transaction, TokenPackage } from "@shared/schema";
+import FlutterwavePaymentModal from "@/components/flutterwave-payment-modal";
 
 // Helper function to format currency
 const formatCurrency = (amount: string | number) => {
@@ -36,13 +37,20 @@ export default function ClientTokens() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [purchasingPackage, setPurchasingPackage] = useState<string | null>(null);
+  const [flutterwaveModal, setFlutterwaveModal] = useState({
+    isOpen: false,
+    packageId: '',
+    packageName: '',
+    packagePrice: 0,
+    tokenCount: 0
+  });
 
-  const { data: transactions = [], isLoading: transactionsLoading } = useQuery<Transaction[]>({
+  const { data: transactions = [], isLoading: transactionsLoading, refetch: refetchTransactions } = useQuery<Transaction[]>({
     queryKey: ['/api/client/transactions'],
     enabled: !!user
   });
 
-  const { data: balanceData } = useQuery({
+  const { data: balanceData, refetch: refetchBalance } = useQuery({
     queryKey: ['/api/client/balance'],
     enabled: !!user
   });
@@ -53,7 +61,7 @@ export default function ClientTokens() {
   });
 
   const currentBalance = (balanceData as any)?.balance || 0;
-  
+
   const getTransactionIcon = (type: string) => {
     switch (type) {
       case 'findertoken_purchase': return <Plus className="w-4 h-4 text-green-600" />;
@@ -77,37 +85,33 @@ export default function ClientTokens() {
   };
 
   const handlePurchasePackage = async (packageId: string) => {
-    setPurchasingPackage(packageId);
-    
-    try {
-      const packageToPurchase = tokenPackages.find(pkg => pkg.id === packageId);
-      if (!packageToPurchase) {
-        throw new Error('Package not found');
-      }
-
-      const data = await apiRequest('/api/tokens/purchase', {
-        method: 'POST',
-        body: JSON.stringify({
-          tokenAmount: packageToPurchase.tokenCount,
-          amount: Math.round(parseFloat(packageToPurchase.price) * 100) // Convert to kobo
-        })
-      });
-      
-      if (data && data.authorization_url) {
-        // Redirect to Paystack payment page
-        window.location.href = data.authorization_url;
-      } else {
-        throw new Error('Failed to initialize payment');
-      }
-    } catch (error: any) {
+    const packageToPurchase = tokenPackages.find(pkg => pkg.id === packageId);
+    if (!packageToPurchase) {
       toast({
-        title: "Purchase Failed",
-        description: error.message || "Failed to purchase token package",
+        title: "Error",
+        description: "Package not found",
         variant: "destructive",
       });
-    } finally {
-      setPurchasingPackage(null);
+      return;
     }
+
+    // Open Flutterwave payment modal
+    setFlutterwaveModal({
+      isOpen: true,
+      packageId: packageToPurchase.id,
+      packageName: packageToPurchase.name,
+      packagePrice: parseFloat(packageToPurchase.price),
+      tokenCount: packageToPurchase.tokenCount
+    });
+  };
+
+  const handlePaymentSuccess = () => {
+    toast({
+      title: "Payment Successful!",
+      description: "Tokens have been added to your account",
+    });
+    refetchBalance();
+    refetchTransactions();
   };
 
   if (transactionsLoading || packagesLoading) {
@@ -127,7 +131,7 @@ export default function ClientTokens() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <ClientHeader currentPage="tokens" />
-      
+
       <div className="container mx-auto p-6 max-w-6xl">
         <div className="flex items-center gap-3 mb-6">
           <Wallet className="h-8 w-8 text-finder-red" />
@@ -292,7 +296,16 @@ export default function ClientTokens() {
           </Card>
         </div>
       </div>
-      
+
+      <FlutterwavePaymentModal
+        isOpen={flutterwaveModal.isOpen}
+        onClose={() => setFlutterwaveModal(prev => ({ ...prev, isOpen: false }))}
+        packageId={flutterwaveModal.packageId}
+        packageName={flutterwaveModal.packageName}
+        packagePrice={flutterwaveModal.packagePrice}
+        tokenCount={flutterwaveModal.tokenCount}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 }
