@@ -17,8 +17,10 @@ export default function PaymentSuccess() {
 
   // Get reference from URL params
   const urlParams = new URLSearchParams(window.location.search);
-  const reference = urlParams.get('reference');
+  const reference = urlParams.get('reference') || urlParams.get('tx_ref'); // Flutterwave uses tx_ref
   const paymentParam = urlParams.get('payment');
+  const status = urlParams.get('status');
+  const transactionId = urlParams.get('transaction_id');
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -56,7 +58,8 @@ export default function PaymentSuccess() {
     };
 
     // Only verify if we have a reference and the URL indicates success
-    if (reference && paymentParam === 'success') {
+    // Handle both generic payment=success and Flutterwave status=completed
+    if (reference && (paymentParam === 'success' || status === 'completed')) {
       verifyPayment();
     } else {
       setVerificationStatus('failed');
@@ -128,9 +131,12 @@ export default function PaymentSuccess() {
                       {paymentDetails.metadata?.tokens || 'N/A'} FinderTokens™ Added
                     </span>
                   </div>
-                  <p className="text-sm text-green-600 mt-2">
-                    Transaction Reference: {reference}
-                  </p>
+                  <div className="text-sm text-green-600 mt-2 space-y-1">
+                    <p>Transaction Reference: {reference}</p>
+                    {transactionId && (
+                      <p>Transaction ID: {transactionId}</p>
+                    )}
+                  </div>
                 </div>
               )}
 
