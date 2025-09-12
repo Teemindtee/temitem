@@ -140,7 +140,8 @@ export default function BrowseFinds() {
         ) : (
           <Card className="bg-white shadow-sm">
             <CardContent className="p-0">
-              <div className="overflow-x-auto">
+              {/* Desktop Table View */}
+              <div className="hidden lg:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b">
                     <tr>
@@ -192,6 +193,55 @@ export default function BrowseFinds() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Mobile/Tablet Card View */}
+              <div className="lg:hidden divide-y divide-gray-200">
+                {filteredFinds.map((find: Find) => (
+                  <div key={find.id} className="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <div className="space-y-3">
+                      {/* Title and Action Row */}
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate hover:text-finder-red transition-colors cursor-pointer">
+                            {find.title}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2">
+                            {find.description}
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <Link href={`/finder/finds/${find.id}`}>
+                            <Button 
+                              size="sm" 
+                              className="bg-finder-red hover:bg-finder-red-dark text-white px-2 sm:px-3"
+                            >
+                              <span className="hidden sm:inline">View Details</span>
+                              <span className="sm:hidden text-xs">View</span>
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Details Row */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+                        {/* Budget */}
+                        <div>
+                          <span className="text-gray-500 font-medium">Budget: </span>
+                          <span className="font-semibold text-green-600">
+                            ₦{parseInt(find.budgetMin || "0").toLocaleString()} - ₦{parseInt(find.budgetMax || "0").toLocaleString()}
+                          </span>
+                        </div>
+
+                        {/* Posted Date */}
+                        <div className="text-gray-600">
+                          <span className="text-gray-500 font-medium">Posted: </span>
+                          {getTimeAgo(find.createdAt || "")}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
