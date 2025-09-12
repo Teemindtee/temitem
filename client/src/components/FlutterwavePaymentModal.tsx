@@ -36,10 +36,14 @@ function FlutterwavePaymentModal({
   // Payment verification mutation
   const verifyPayment = useMutation({
     mutationFn: async (reference: string) => {
-      // Use client-specific endpoint if available, otherwise fallback to general endpoint
-      const endpoint = window.location.pathname.includes('/client/') 
-        ? `/api/client/tokens/flutterwave/verify/${reference}`
-        : `/api/payments/flutterwave/verify/${reference}`;
+      // Use role-specific endpoint based on current path
+      let endpoint = `/api/payments/flutterwave/verify/${reference}`; // fallback
+      
+      if (window.location.pathname.includes('/client/')) {
+        endpoint = `/api/client/tokens/flutterwave/verify/${reference}`;
+      } else if (window.location.pathname.includes('/finder/')) {
+        endpoint = `/api/finder/tokens/flutterwave/verify/${reference}`;
+      }
         
       const response = await apiRequest(endpoint);
       return response;
@@ -64,10 +68,14 @@ function FlutterwavePaymentModal({
   // Payment initialization mutation
   const initializePayment = useMutation({
     mutationFn: async ({ packageId, phone, customerName }: { packageId: string; phone: string; customerName: string }) => {
-      // Use client-specific endpoint if available, otherwise fallback to general endpoint
-      const endpoint = window.location.pathname.includes('/client/') 
-        ? '/api/client/tokens/flutterwave/initialize'
-        : '/api/payments/flutterwave/initialize';
+      // Use role-specific endpoint based on current path
+      let endpoint = '/api/payments/flutterwave/initialize'; // fallback
+      
+      if (window.location.pathname.includes('/client/')) {
+        endpoint = '/api/client/tokens/flutterwave/initialize';
+      } else if (window.location.pathname.includes('/finder/')) {
+        endpoint = '/api/finder/tokens/flutterwave/initialize';
+      }
         
       const response = await apiRequest(endpoint, {
         method: 'POST',
