@@ -31,13 +31,39 @@ export function PaymentModal({
 }: PaymentModalProps) {
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'verifying' | 'success' | 'failed'>('pending');
 
+  // Payment initialization mutation
+  const initializePayment = useMutation({
+    mutationFn: async ({ packageId }: { packageId: string }) => {
+      // Use role-specific endpoint based on current path
+      let endpoint = '/api/payments/initialize'; // fallback
+
+      if (window.location.pathname.includes('/client/')) {
+        endpoint = '/api/client/tokens/paystack/initialize';
+      } else if (window.location.pathname.includes('/finder/')) {
+        endpoint = '/api/payments/initialize'; // existing finder endpoint
+      }
+
+      const response = await apiRequest(endpoint, {
+        method: 'POST',
+        body: JSON.stringify({ packageId })
+      });
+      return response;
+    },
+  });
+
   // Payment verification mutation
   const verifyPayment = useMutation({
-    mutationFn: async ({ contractId, reference }: { contractId: string; reference: string }) => {
-      const response = await apiRequest(`/api/contracts/${contractId}/verify-payment`, {
-        method: 'POST',
-        body: JSON.stringify({ reference })
-      });
+    mutationFn: async (reference: string) => {
+      // Use role-specific endpoint based on current path
+      let endpoint = `/api/payments/verify/${reference}`; // fallback
+
+      if (window.location.pathname.includes('/client/')) {
+        endpoint = `/api/client/tokens/paystack/verify/${reference}`;
+      } else if (window.location.pathname.includes('/finder/')) {
+        endpoint = `/api/payments/verify/${reference}`; // existing finder endpoint
+      }
+
+      const response = await apiRequest(endpoint);
       return response;
     },
     onSuccess: () => {
@@ -55,7 +81,7 @@ export function PaymentModal({
   const handlePayNow = () => {
     // Open Paystack payment page in new window
     const paymentWindow = window.open(paymentUrl, '_blank', 'width=600,height=600');
-    
+
     if (paymentWindow) {
       // Poll for window closure (indicating payment completion)
       const checkClosed = setInterval(() => {
@@ -63,7 +89,7 @@ export function PaymentModal({
           clearInterval(checkClosed);
           // Start verification process
           setPaymentStatus('verifying');
-          verifyPayment.mutate({ contractId, reference });
+          verifyPayment.mutate(reference);
         }
       }, 1000);
     }
@@ -71,7 +97,7 @@ export function PaymentModal({
 
   const handleVerifyPayment = () => {
     setPaymentStatus('verifying');
-    verifyPayment.mutate({ contractId, reference });
+    verifyPayment.mutate(reference);
   };
 
   const formatCurrency = (amount: number) => {

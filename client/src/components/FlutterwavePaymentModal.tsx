@@ -76,6 +76,8 @@ function FlutterwavePaymentModal({
       } else if (window.location.pathname.includes('/finder/')) {
         endpoint = '/api/finder/tokens/flutterwave/initialize';
       }
+      
+      console.log('Using endpoint:', endpoint, 'for path:', window.location.pathname);
         
       const response = await apiRequest(endpoint, {
         method: 'POST',

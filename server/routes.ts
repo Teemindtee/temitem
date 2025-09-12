@@ -1540,11 +1540,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { packageId, phone, customerName } = req.body;
-
       const flutterwaveService = new FlutterwaveService();
-      const selectedPackage = FLUTTERWAVE_TOKEN_PACKAGES.find((pkg: any) => pkg.id === packageId);
+
+      // Get token packages from storage instead of hardcoded packages
+      const tokenPackages = await storage.getTokenPackages();
+      const selectedPackage = tokenPackages.find(pkg => pkg.id === packageId);
 
       if (!selectedPackage) {
+        console.log('Available packages:', tokenPackages.map(p => ({ id: p.id, name: p.name })));
+        console.log('Requested package ID:', packageId);
         return res.status(404).json({ message: "Package not found" });
       }
 
@@ -1557,12 +1561,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const transaction = await flutterwaveService.initializeTransaction(
         user.email,
-        selectedPackage.price,
+        parseFloat(selectedPackage.price),
         reference,
         {
           userId: req.user.userId,
           packageId: packageId,
-          tokens: selectedPackage.tokens,
+          tokens: selectedPackage.tokenCount,
           phone: phone,
           customerName: customerName || `${user.firstName} ${user.lastName}`,
           userRole: 'client'
@@ -1596,7 +1600,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // For clients, we need to add to their findertoken balance
           // First check if they have a client profile or create one
           let client = await storage.getClientProfile(req.user.userId);
-          
+
           // Get tokens from metadata or amount mapping
           const { getTokensFromAmount } = require('./flutterwaveService');
           const tokens = transaction.metadata?.tokens || getTokensFromAmount(transaction.amount) || 10;
@@ -1666,6 +1670,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             await storage.createTransaction({
               userId: userId,
+              finderId: finder.id,
               type: 'findertoken_purchase',
               amount: tokens,
               description: `FinderToken™ purchase - ${tokens} tokens`,
@@ -1772,7 +1777,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!existingTransaction) {
           // Import the helper function
           const { getTokensFromAmount } = require('./flutterwaveService');
-          
+
           // Determine tokens from the amount or metadata
           const tokens = transaction.metadata?.tokens || getTokensFromAmount(transaction.amount) || 10;
 
@@ -1832,7 +1837,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Check if transaction already processed
         const existingTransaction = await storage.getTransactionByReference(reference);
-        
+
         if (!existingTransaction) {
           const finder = await storage.getFinderByUserId(userId);
           if (finder) {
@@ -1888,7 +1893,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Check if transaction already processed
         const existingTransaction = await storage.getTransactionByReference(tx_ref);
-        
+
         if (!existingTransaction) {
           const finder = await storage.getFinderByUserId(userId);
           if (finder) {
@@ -3977,7 +3982,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const posts = await storage.getBlogPosts();
       res.json(posts);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch blog posts" });
+      res.status(500).json({ message: "Failed to fetchblog posts" });
     }
   });
 
@@ -4254,7 +4259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { submissionId } = req.params;
       const { status, clientFeedback } = req.body;
 
-      if (!['accepted', 'rejected'].includes(status)) {
+      if (!status || !['accepted', 'rejected'].includes(status)) {
         return res.status(400).json({ message: 'Status must be "accepted" or "rejected"' });
       }
 

@@ -7,12 +7,12 @@ import ClientHeader from "@/components/client-header";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { 
-  Wallet, 
-  Plus, 
-  Minus, 
-  Clock, 
-  TrendingUp, 
+import {
+  Wallet,
+  Plus,
+  Minus,
+  Clock,
+  TrendingUp,
   Banknote,
   CreditCard,
   Zap,
@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import type { Transaction, TokenPackage } from "@shared/schema";
 import FlutterwavePaymentModal from "@/components/FlutterwavePaymentModal";
+import { PaymentModal } from "@/components/PaymentModal";
 
 // Helper function to format currency
 const formatCurrency = (amount: string | number) => {
@@ -37,7 +38,27 @@ export default function ClientTokens() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [purchasingPackage, setPurchasingPackage] = useState<string | null>(null);
-  const [flutterwaveModal, setFlutterwaveModal] = useState({
+  const [flutterwaveModal, setFlutterwaveModal] = useState<{
+    isOpen: boolean;
+    packageId: string;
+    packageName: string;
+    packagePrice: number;
+    tokenCount: number;
+  }>({
+    isOpen: false,
+    packageId: '',
+    packageName: '',
+    packagePrice: 0,
+    tokenCount: 0
+  });
+
+  const [paymentModal, setPaymentModal] = useState<{
+    isOpen: boolean;
+    packageId: string;
+    packageName: string;
+    packagePrice: number;
+    tokenCount: number;
+  }>({
     isOpen: false,
     packageId: '',
     packageName: '',
@@ -84,7 +105,7 @@ export default function ClientTokens() {
     return type === 'findertoken_purchase' || type === 'refund' ? '+' : '-';
   };
 
-  const handlePurchasePackage = async (packageId: string) => {
+  const handlePurchasePackage = async (packageId: string, paymentMethod: 'paystack' | 'flutterwave') => {
     const packageToPurchase = tokenPackages.find(pkg => pkg.id === packageId);
     if (!packageToPurchase) {
       toast({
@@ -95,14 +116,25 @@ export default function ClientTokens() {
       return;
     }
 
-    // Open Flutterwave payment modal
-    setFlutterwaveModal({
-      isOpen: true,
-      packageId: packageToPurchase.id,
-      packageName: packageToPurchase.name,
-      packagePrice: parseFloat(packageToPurchase.price),
-      tokenCount: packageToPurchase.tokenCount
-    });
+    if (paymentMethod === 'flutterwave') {
+      // Open Flutterwave payment modal
+      setFlutterwaveModal({
+        isOpen: true,
+        packageId: packageToPurchase.id,
+        packageName: packageToPurchase.name,
+        packagePrice: parseFloat(packageToPurchase.price),
+        tokenCount: packageToPurchase.tokenCount
+      });
+    } else if (paymentMethod === 'paystack') {
+      // Open Paystack payment modal
+      setPaymentModal({
+        isOpen: true,
+        packageId: packageToPurchase.id,
+        packageName: packageToPurchase.name,
+        packagePrice: parseFloat(packageToPurchase.price),
+        tokenCount: packageToPurchase.tokenCount
+      });
+    }
   };
 
   const handlePaymentSuccess = () => {
@@ -204,41 +236,51 @@ export default function ClientTokens() {
                 <div className="grid gap-3">
                   {tokenPackages
                     .filter(pkg => pkg.isActive)
-                    .map((pkg) => (
-                      <div 
-                        key={pkg.id} 
+                    .map((tokenPackage) => (
+                      <div
+                        key={tokenPackage.id}
                         className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                        data-testid={`token-package-${pkg.id}`}
+                        data-testid={`token-package-${tokenPackage.id}`}
                       >
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold">{pkg.name}</h3>
-                            {pkg.name.toLowerCase().includes('popular') && (
+                            <h3 className="font-semibold">{tokenPackage.name}</h3>
+                            {tokenPackage.name.toLowerCase().includes('popular') && (
                               <Badge variant="default" className="bg-finder-red">
                                 <Star className="w-3 h-3 mr-1" />
                                 Popular
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">{pkg.description}</p>
+                          <p className="text-sm text-gray-600 mb-2">{tokenPackage.description}</p>
                           <div className="flex items-center gap-4 text-sm">
                             <span className="flex items-center gap-1">
                               <Zap className="w-4 h-4 text-yellow-500" />
-                              {pkg.tokenCount} Tokens
+                              {tokenPackage.tokenCount} Tokens
                             </span>
                             <span className="font-medium text-finder-red">
-                              {formatCurrency(pkg.price)}
+                              {formatCurrency(tokenPackage.price)}
                             </span>
                           </div>
                         </div>
-                        <Button
-                          onClick={() => handlePurchasePackage(pkg.id)}
-                          disabled={purchasingPackage === pkg.id}
-                          className="bg-finder-red hover:bg-finder-red-dark"
-                          data-testid={`button-purchase-${pkg.id}`}
-                        >
-                          {purchasingPackage === pkg.id ? "Processing..." : "Purchase"}
-                        </Button>
+                        <div className="space-y-2">
+                          <Button
+                            onClick={() => handlePurchasePackage(tokenPackage.id, 'paystack')}
+                            className="w-full bg-finder-red hover:bg-red-700 text-white"
+                            size="lg"
+                          >
+                            <CreditCard className="w-4 h-4 mr-2" />
+                            Pay with Paystack
+                          </Button>
+                          <Button
+                            onClick={() => handlePurchasePackage(tokenPackage.id, 'flutterwave')}
+                            className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                            size="lg"
+                          >
+                            <CreditCard className="w-4 h-4 mr-2" />
+                            Pay with Flutterwave
+                          </Button>
+                        </div>
                       </div>
                     ))}
                 </div>
@@ -260,8 +302,8 @@ export default function ClientTokens() {
               ) : (
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {transactions.slice(0, 10).map((transaction) => (
-                    <div 
-                      key={transaction.id} 
+                    <div
+                      key={transaction.id}
                       className="flex items-center justify-between p-3 border rounded-lg"
                       data-testid={`transaction-${transaction.id}`}
                     >
@@ -304,6 +346,15 @@ export default function ClientTokens() {
         packageName={flutterwaveModal.packageName}
         packagePrice={flutterwaveModal.packagePrice}
         tokenCount={flutterwaveModal.tokenCount}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
+      <PaymentModal
+        isOpen={paymentModal.isOpen}
+        onClose={() => setPaymentModal(prev => ({ ...prev, isOpen: false }))}
+        packageId={paymentModal.packageId}
+        packageName={paymentModal.packageName}
+        packagePrice={paymentModal.packagePrice}
+        tokenCount={paymentModal.tokenCount}
         onPaymentSuccess={handlePaymentSuccess}
       />
     </div>
