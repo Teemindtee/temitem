@@ -12,8 +12,7 @@ import fs from "fs";
 import { insertUserSchema, insertFindSchema, insertProposalSchema, insertReviewSchema, insertMessageSchema, insertBlogPostSchema, insertOrderSubmissionSchema, type Find, finders } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
-import { PaystackService, TOKEN_PACKAGES } from "./paymentService";
-import { OpayService, OPAY_TOKEN_PACKAGES } from "./opayService";
+// Payment service imports removed
 import { FlutterwaveService, FLUTTERWAVE_TOKEN_PACKAGES } from "./flutterwaveService";
 import { emailService } from "./emailService";
 import { strikeService } from "./strikeService";
@@ -955,49 +954,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         escrowStatus: 'pending'
       });
 
-      // Generate payment information immediately
-      const paystackService = new PaystackService();
-      const reference = paystackService.generateTransactionReference(request.clientId);
-
-      // Initialize payment for escrow funding
-      let paymentData = null;
-      try {
-        paymentData = await paystackService.initializeTransaction(
-          clientUser!.email,
-          parseFloat(proposal.price.toString()),
-          reference,
-          {
-            contractId: contract.id,
-            type: 'escrow_funding',
-            findTitle: request.title,
-            finderName: finderUser ? `${finderUser.firstName} ${finderUser.lastName}` : 'Unknown Finder'
-          }
-        );
-      } catch (paymentError) {
-        console.error('Failed to initialize payment:', paymentError);
-        // Instead of failing completely, continue without payment initialization
-        // The contract is still created and can be funded later
-        console.log('Continuing without payment initialization - payment can be completed later');
-
-        // Send response without payment data
-        return res.json({ 
-          success: true,
-          message: "Proposal accepted and contract created. Payment setup is pending - please contact support to complete escrow funding.",
-          proposal, 
-          contract: {
-            ...contract,
-            findTitle: request.title,
-            finderName: finderUser ? `${finderUser.firstName} ${finderUser.lastName}` : 'Unknown Finder'
-          },
-          payment: {
-            required: true,
-            amount: proposal.price,
-            contractId: contract.id,
-            setupPending: true
-          }
-        });
-      }
-
       // Send email notification to finder about being hired (pending payment)
       if (finderUser && clientUser) {
         try {
@@ -1024,8 +980,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         payment: {
           required: true,
           amount: proposal.price,
-          reference,
-          paymentUrl: paymentData.authorization_url,
           contractId: contract.id
         }
       });
@@ -1087,57 +1041,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      let paymentData;
-
-      if (paymentMethod === 'opay') {
-        // Initialize payment with Opay
-        const opayService = new OpayService();
-
-        if (!opayService.isConfigured()) {
-          return res.status(500).json({ 
-            message: "Opay payment service is currently unavailable. Please try Paystack or contact support.",
-            error: "Opay service not configured"
-          });
-        }
-
-        paymentData = await opayService.initializeTransaction(
-          user.email,
-          parseInt(contract.amount.toString()),
-          `OPAY_CONTRACT_${contractId}_${Date.now()}`,
-          {
-            contractId: contract.id,
-            userId: user.id,
-            type: 'escrow_funding'
-          }
-        );
-      } else {
-        // Initialize payment with Paystack (default)
-        const paystackService = new PaystackService();
-
-        if (!paystackService.isConfigured()) {
-          return res.status(500).json({ 
-            message: "Paystack payment service is currently unavailable. Please try Opay or contact support.",
-            error: "Paystack service not configured"
-          });
-        }
-
-        paymentData = await paystackService.initializeTransaction(
-          user.email,
-          parseInt(contract.amount.toString()),
-          `CONTRACT_${contractId}_${Date.now()}`,
-          {
-            contractId: contract.id,
-            userId: user.id,
-            type: 'escrow_funding'
-          }
-        );
-      }
-
-      res.json({
-        authorization_url: paymentData.authorization_url,
-        reference: paymentData.reference,
-        amount: parseInt(contract.amount),
-        paymentMethod
+      // Payment services have been removed
+      return res.status(503).json({ 
+        message: "Payment services are currently unavailable. Please contact support.",
+        error: "Payment services removed"
       });
 
     } catch (error) {
@@ -1203,57 +1110,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
-      let paymentData;
-
-      if (paymentMethod === 'opay') {
-        // Initialize payment with Opay
-        const opayService = new OpayService();
-
-        if (!opayService.isConfigured()) {
-          return res.status(500).json({ 
-            message: "Opay payment service is currently unavailable. Please try Paystack or contact support.",
-            error: "Opay service not configured"
-          });
-        }
-
-        paymentData = await opayService.initializeTransaction(
-          user.email,
-          parseInt(contract.amount.toString()),
-          `OPAY_CONTRACT_${contractId}_${Date.now()}`,
-          {
-            contractId: contract.id,
-            userId: user.id,
-            type: 'escrow_funding'
-          }
-        );
-      } else {
-        // Initialize payment with Paystack (default)
-        const paystackService = new PaystackService();
-
-        if (!paystackService.isConfigured()) {
-          return res.status(500).json({ 
-            message: "Paystack payment service is currently unavailable. Please try Opay or contact support.",
-            error: "Paystack service not configured"
-          });
-        }
-
-        paymentData = await paystackService.initializeTransaction(
-          user.email,
-          parseInt(contract.amount.toString()),
-          `CONTRACT_${contractId}_${Date.now()}`,
-          {
-            contractId: contract.id,
-            userId: user.id,
-            type: 'escrow_funding'
-          }
-        );
-      }
-
-      res.json({
-        authorization_url: paymentData.authorization_url,
-        reference: paymentData.reference,
-        amount: parseInt(contract.amount),
-        paymentMethod
+      // Payment services have been removed
+      return res.status(503).json({ 
+        message: "Payment services are currently unavailable. Please contact support.",
+        error: "Payment services removed"
       });
 
     } catch (error) {
