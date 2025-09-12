@@ -11,9 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Coins, CreditCard, ArrowLeft, Star, Zap, Users, Crown } from "lucide-react";
-import { PaymentModal } from "@/components/PaymentModal";
-import { OpayPaymentModal } from "@/components/OpayPaymentModal";
-import { FlutterwavePaymentModal } from "@/components/FlutterwavePaymentModal"; // Assuming this component exists
+import { FlutterwavePaymentModal } from "@/components/FlutterwavePaymentModal";
 
 interface PricingInfo {
   pricePerToken: number; // in kobo/cents
@@ -33,24 +31,7 @@ export default function TokenPurchase() {
   const [, setLocation] = useLocation();
   const [tokenAmount, setTokenAmount] = useState<number>(10);
   const [loading, setLoading] = useState(false);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [isOpayModalOpen, setIsOpayModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<TokenPackage | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<'paystack' | 'opay' | 'flutterwave'>('paystack');
-
-  const [opayModal, setOpayModal] = useState<{
-    isOpen: boolean;
-    packageId: string;
-    packageName: string;
-    packagePrice: number;
-    tokenCount: number;
-  }>({
-    isOpen: false,
-    packageId: '',
-    packageName: '',
-    packagePrice: 0,
-    tokenCount: 0
-  });
 
   const [flutterwaveModal, setFlutterwaveModal] = useState<{
     isOpen: boolean;
@@ -93,28 +74,15 @@ export default function TokenPurchase() {
   const totalPrice = pricing ? (tokenAmount * pricing.pricePerToken) : 0;
   const totalPriceInNaira = totalPrice / 100; // Convert kobo to naira
 
-  const handlePurchase = async (pkg: TokenPackage, method: 'paystack' | 'opay' | 'flutterwave') => {
+  const handlePurchase = async (pkg: TokenPackage) => {
     setSelectedPackage(pkg);
-    setPaymentMethod(method);
-    if (method === 'paystack') {
-      setIsPaymentModalOpen(true);
-    } else if (method === 'opay') {
-      setOpayModal({
-        isOpen: true,
-        packageId: pkg.id,
-        packageName: pkg.name,
-        packagePrice: pkg.price,
-        tokenCount: pkg.tokens
-      });
-    } else if (method === 'flutterwave') {
-      setFlutterwaveModal({
-        isOpen: true,
-        packageId: pkg.id,
-        packageName: pkg.name,
-        packagePrice: pkg.price,
-        tokenCount: pkg.tokens
-      });
-    }
+    setFlutterwaveModal({
+      isOpen: true,
+      packageId: pkg.id,
+      packageName: pkg.name,
+      packagePrice: pkg.price,
+      tokenCount: pkg.tokens
+    });
   };
 
   const handleCustomPurchase = async () => {
@@ -125,7 +93,15 @@ export default function TokenPurchase() {
       price: totalPriceInNaira,
       tokens: tokenAmount,
     };
-    await handlePurchase(packageData, paymentMethod); // Use selected payment method
+    await handlePurchase(packageData);
+  };
+
+  const handlePaymentSuccess = () => {
+    toast({
+      title: "Purchase Successful!",
+      description: "Tokens have been added to your account.",
+    });
+    // Refresh data here if needed
   };
 
   const handleTokenAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -222,27 +198,15 @@ export default function TokenPurchase() {
                       <div className="text-sm text-muted-foreground">FinderTokens</div>
                       <div className="text-2xl font-bold">₦500</div>
                       <div className="text-sm text-muted-foreground">₦20 per token</div>
-                      <div className="space-y-2">
+                      <div>
                         <Button
-                          onClick={() => handlePurchase({ id: 'light', name: 'Light Usage', price: 500, tokens: 25 }, 'paystack')}
-                          className="w-full bg-finder-red hover:bg-red-700 text-white"
-                          size="lg"
-                        >
-                          Pay with Paystack
-                        </Button>
-                        <Button
-                          onClick={() => handlePurchase({ id: 'light', name: 'Light Usage', price: 500, tokens: 25 }, 'opay')}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white"
-                          size="lg"
-                        >
-                          Pay with Opay
-                        </Button>
-                        <Button
-                          onClick={() => handlePurchase({ id: 'light', name: 'Light Usage', price: 500, tokens: 25 }, 'flutterwave')}
+                          onClick={() => handlePurchase({ id: 'light', name: 'Light Usage', price: 500, tokens: 25 })}
                           className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                           size="lg"
+                          data-testid="purchase-light"
                         >
-                          Pay with Flutterwave
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Purchase with Flutterwave
                         </Button>
                       </div>
                     </div>
@@ -264,27 +228,15 @@ export default function TokenPurchase() {
                       <div className="text-sm text-muted-foreground">FinderTokens</div>
                       <div className="text-2xl font-bold">₦1,000</div>
                       <div className="text-sm text-muted-foreground">₦20 per token</div>
-                      <div className="space-y-2">
+                      <div>
                         <Button
-                          onClick={() => handlePurchase({ id: 'moderate', name: 'Moderate Participation', price: 1000, tokens: 50 }, 'paystack')}
-                          className="w-full bg-finder-red hover:bg-red-700 text-white"
-                          size="lg"
-                        >
-                          Pay with Paystack
-                        </Button>
-                        <Button
-                          onClick={() => handlePurchase({ id: 'moderate', name: 'Moderate Participation', price: 1000, tokens: 50 }, 'opay')}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white"
-                          size="lg"
-                        >
-                          Pay with Opay
-                        </Button>
-                        <Button
-                          onClick={() => handlePurchase({ id: 'moderate', name: 'Moderate Participation', price: 1000, tokens: 50 }, 'flutterwave')}
+                          onClick={() => handlePurchase({ id: 'moderate', name: 'Moderate Participation', price: 1000, tokens: 50 })}
                           className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                           size="lg"
+                          data-testid="purchase-moderate"
                         >
-                          Pay with Flutterwave
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Purchase with Flutterwave
                         </Button>
                       </div>
                     </div>
@@ -307,27 +259,15 @@ export default function TokenPurchase() {
                       <div className="text-sm text-muted-foreground">FinderTokens</div>
                       <div className="text-2xl font-bold">₦2,000</div>
                       <div className="text-sm text-muted-foreground">₦20 per token</div>
-                      <div className="space-y-2">
+                      <div>
                         <Button
-                          onClick={() => handlePurchase({ id: 'power', name: 'Power Users', price: 2000, tokens: 100 }, 'paystack')}
+                          onClick={() => handlePurchase({ id: 'power', name: 'Power Users', price: 2000, tokens: 100 })}
                           className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                           size="lg"
+                          data-testid="purchase-power"
                         >
-                          Pay with Paystack
-                        </Button>
-                        <Button
-                          onClick={() => handlePurchase({ id: 'power', name: 'Power Users', price: 2000, tokens: 100 }, 'opay')}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white"
-                          size="lg"
-                        >
-                          Pay with Opay
-                        </Button>
-                        <Button
-                          onClick={() => handlePurchase({ id: 'power', name: 'Power Users', price: 2000, tokens: 100 }, 'flutterwave')}
-                          className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                          size="lg"
-                        >
-                          Pay with Flutterwave
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Purchase with Flutterwave
                         </Button>
                       </div>
                     </div>
@@ -349,27 +289,15 @@ export default function TokenPurchase() {
                       <div className="text-sm text-muted-foreground">FinderTokens</div>
                       <div className="text-2xl font-bold">₦4,000</div>
                       <div className="text-sm text-muted-foreground">₦20 per token</div>
-                      <div className="space-y-2">
+                      <div>
                         <Button
-                          onClick={() => handlePurchase({ id: 'prolific', name: 'Prolific Finders', price: 4000, tokens: 200 }, 'paystack')}
-                          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                          size="lg"
-                        >
-                          Pay with Paystack
-                        </Button>
-                        <Button
-                          onClick={() => handlePurchase({ id: 'prolific', name: 'Prolific Finders', price: 4000, tokens: 200 }, 'opay')}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white"
-                          size="lg"
-                        >
-                          Pay with Opay
-                        </Button>
-                        <Button
-                          onClick={() => handlePurchase({ id: 'prolific', name: 'Prolific Finders', price: 4000, tokens: 200 }, 'flutterwave')}
+                          onClick={() => handlePurchase({ id: 'prolific', name: 'Prolific Finders', price: 4000, tokens: 200 })}
                           className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                           size="lg"
+                          data-testid="purchase-prolific"
                         >
-                          Pay with Flutterwave
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Purchase with Flutterwave
                         </Button>
                       </div>
                     </div>
@@ -391,27 +319,15 @@ export default function TokenPurchase() {
                       <div className="text-sm text-muted-foreground">FinderTokens</div>
                       <div className="text-2xl font-bold">₦5,000</div>
                       <div className="text-sm text-muted-foreground">₦20 per token</div>
-                      <div className="space-y-2">
+                      <div>
                         <Button
-                          onClick={() => handlePurchase({ id: 'enterprise', name: 'Enterprise', price: 5000, tokens: 250 }, 'paystack')}
-                          className="w-full bg-primary hover:bg-primary-dark text-white"
-                          size="lg"
-                        >
-                          Pay with Paystack
-                        </Button>
-                        <Button
-                          onClick={() => handlePurchase({ id: 'enterprise', name: 'Enterprise', price: 5000, tokens: 250 }, 'opay')}
-                          className="w-full bg-green-600 hover:bg-green-700 text-white"
-                          size="lg"
-                        >
-                          Pay with Opay
-                        </Button>
-                        <Button
-                          onClick={() => handlePurchase({ id: 'enterprise', name: 'Enterprise', price: 4000, tokens: 250 }, 'flutterwave')}
+                          onClick={() => handlePurchase({ id: 'enterprise', name: 'Enterprise', price: 5000, tokens: 250 })}
                           className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                           size="lg"
+                          data-testid="purchase-enterprise"
                         >
-                          Pay with Flutterwave
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          Purchase with Flutterwave
                         </Button>
                       </div>
                     </div>
@@ -585,47 +501,16 @@ export default function TokenPurchase() {
         </div>
       </div>
 
-      {/* Payment Modals */}
-      {selectedPackage && (
-        <>
-          <PaymentModal
-            isOpen={isPaymentModalOpen}
-            onClose={() => setIsPaymentModalOpen(false)}
-            packageName={selectedPackage.name}
-            packagePrice={selectedPackage.price}
-            tokenCount={selectedPackage.tokens}
-            onPaymentSuccess={() => {
-              // queryClient.invalidateQueries({ queryKey: ['/api/findertokens/balance'] }); // Assuming queryClient is available
-              // queryClient.invalidateQueries({ queryKey: ['/api/finder/profile'] });
-              toast({
-                title: "Purchase Successful!",
-                description: `${selectedPackage.tokens} tokens have been added to your account.`,
-              });
-              setIsPaymentModalOpen(false);
-            }}
-          />
-
-          <OpayPaymentModal
-            isOpen={opayModal.isOpen}
-            onClose={() => setOpayModal(prev => ({ ...prev, isOpen: false }))}
-            packageId={opayModal.packageId}
-            packageName={opayModal.packageName}
-            packagePrice={opayModal.packagePrice}
-            tokenCount={opayModal.tokenCount}
-            onPaymentSuccess={handlePaymentSuccess}
-          />
-
-          <FlutterwavePaymentModal
-            isOpen={flutterwaveModal.isOpen}
-            onClose={() => setFlutterwaveModal(prev => ({ ...prev, isOpen: false }))}
-            packageId={flutterwaveModal.packageId}
-            packageName={flutterwaveModal.packageName}
-            packagePrice={flutterwaveModal.packagePrice}
-            tokenCount={flutterwaveModal.tokenCount}
-            onPaymentSuccess={handlePaymentSuccess}
-          />
-        </>
-      )}
+      {/* Flutterwave Payment Modal */}
+      <FlutterwavePaymentModal
+        isOpen={flutterwaveModal.isOpen}
+        onClose={() => setFlutterwaveModal(prev => ({ ...prev, isOpen: false }))}
+        packageId={flutterwaveModal.packageId}
+        packageName={flutterwaveModal.packageName}
+        packagePrice={flutterwaveModal.packagePrice}
+        tokenCount={flutterwaveModal.tokenCount}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 }
