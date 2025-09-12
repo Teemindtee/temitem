@@ -1364,7 +1364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const flutterwaveService = new FlutterwaveService();
 
       // Get token packages from storage instead of hardcoded packages
-      const tokenPackages = await storage.getTokenPackages();
+      const tokenPackages = await storage.getActiveTokenPackages();
       const selectedPackage = tokenPackages.find(pkg => pkg.id === packageId);
 
       if (!selectedPackage) {
