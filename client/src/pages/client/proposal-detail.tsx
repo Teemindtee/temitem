@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, User, Clock, DollarSign } from "lucide-react";
 import ClientHeader from "@/components/client-header";
 import StartConversationButton from "@/components/StartConversationButton";
-import { PaymentModal } from "@/components/PaymentModal";
 import { apiRequest } from "@/lib/queryClient";
 import type { Proposal } from "@shared/schema";
 import { useState } from "react";
@@ -290,32 +289,7 @@ export default function ProposalDetail() {
         </div>
       </div>
 
-      {/* Payment Modal */}
-      {paymentModal.isOpen && paymentModal.contractId && (
-        <PaymentModal
-          isOpen={paymentModal.isOpen}
-          onClose={() => setPaymentModal({ isOpen: false })}
-          contractId={paymentModal.contractId}
-          amount={paymentModal.amount || 0}
-          paymentUrl={paymentModal.paymentUrl || ''}
-          reference={paymentModal.reference || ''}
-          findTitle={paymentModal.findTitle || 'Find Request'}
-          finderName={paymentModal.finderName || 'Finder'}
-          onPaymentSuccess={() => {
-            // Refresh proposal data after payment
-            queryClient.invalidateQueries({ queryKey: ['/api/proposals', proposalId] });
-            queryClient.invalidateQueries({ queryKey: ['/api/client/requests'] });
-            queryClient.invalidateQueries({ queryKey: ['/api/client/proposals'] });
-
-            toast({
-              title: "Payment Successful!",
-              description: "Escrow has been funded. Work can now begin.",
-            });
-            setPaymentModal({ isOpen: false }); // Close modal after success
-            window.location.href = "/client/contracts"; // Navigate to contracts page
-          }}
-        />
-      )}
+      {/* Payment Modal - Removed for Flutterwave streamlining */}
     </div>
   );
 }

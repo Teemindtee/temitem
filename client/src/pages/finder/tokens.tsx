@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import type { Transaction, TokenPackage } from "@shared/schema";
 import { FlutterwavePaymentModal } from "@/components/FlutterwavePaymentModal";
-import { OpayPaymentModal } from "@/components/OpayPaymentModal";
 
 // Helper function to format currency
 const formatCurrency = (amount: string | number) => {
@@ -53,7 +52,7 @@ export default function FindertokenBalance() {
     enabled: !!user
   });
 
-  const currentBalance = finder?.findertokenBalance || 0;
+  const currentBalance = (finder as any)?.findertokenBalance || 0;
   
   const getTransactionIcon = (type: string) => {
     switch (type) {
@@ -100,7 +99,7 @@ export default function FindertokenBalance() {
       isOpen: true,
       packageId: tokenPackage.id,
       packageName: tokenPackage.name,
-      packagePrice: tokenPackage.price,
+      packagePrice: typeof tokenPackage.price === 'string' ? parseFloat(tokenPackage.price) : tokenPackage.price,
       tokenCount: tokenPackage.tokenCount
     });
     setSelectedPaymentMethod(method);
@@ -331,25 +330,6 @@ export default function FindertokenBalance() {
         />
       )}
 
-      {selectedPaymentMethod === 'opay' && (
-        <OpayPaymentModal
-          isOpen={paymentModal.isOpen}
-          onClose={() => setPaymentModal({ ...paymentModal, isOpen: false })}
-          packageId={paymentModal.packageId}
-          packageName={paymentModal.packageName}
-          packagePrice={paymentModal.packagePrice}
-          tokenCount={paymentModal.tokenCount}
-          onPaymentSuccess={() => {
-            toast({
-              title: "Payment successful!",
-              description: `${paymentModal.tokenCount} FinderTokens have been added to your account.`,
-            });
-            setPaymentModal({ ...paymentModal, isOpen: false });
-            // Refresh data
-            window.location.reload();
-          }}
-        />
-      )}
       
     </div>
   );

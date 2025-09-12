@@ -33,7 +33,6 @@ import {
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import ClientHeader from "@/components/client-header";
-import { PaymentModal } from "@/components/PaymentModal";
 import { ContractDisputeModal } from "@/components/ContractDisputeModal";
 
 interface ContractDetails {
@@ -694,31 +693,7 @@ export default function ContractDetails() {
         </div>
       </main>
 
-      {/* Payment Modal */}
-      {paymentModal.isOpen && paymentModal.contractId && (
-        <PaymentModal
-          isOpen={paymentModal.isOpen}
-          onClose={() => setPaymentModal({ isOpen: false })}
-          contractId={paymentModal.contractId}
-          amount={paymentModal.amount || 0}
-          paymentUrl={paymentModal.paymentUrl || ''}
-          reference={paymentModal.reference || ''}
-          findTitle={paymentModal.findTitle || 'Find Request'}
-          finderName={paymentModal.finderName || 'Finder'}
-          onPaymentSuccess={() => {
-            // Refresh contract data after payment
-            queryClient.invalidateQueries({ queryKey: ["/api/client/contracts", contractId] });
-            queryClient.invalidateQueries({ queryKey: ["/api/client/contracts"] });
-            
-            toast({
-              title: "Payment Successful!",
-              description: "Escrow has been funded. Work can now begin.",
-            });
-            
-            setPaymentModal({ isOpen: false });
-          }}
-        />
-      )}
+      {/* Payment Modal - Removed for Flutterwave streamlining */}
       
       {/* Dispute Modal */}
       <ContractDisputeModal
