@@ -19,15 +19,12 @@ import {
   Briefcase,
   Edit,
   Save,
-  Shield,
-  Star,
   Eye,
   Users,
   Target,
   Award,
   TrendingUp,
   Settings,
-  Bell,
   Lock,
   Camera,
   CheckCircle2,
@@ -47,6 +44,13 @@ export default function ClientProfile() {
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  // Fetch user's requests for statistics
+  const { data: requests = [] } = useQuery({
+    queryKey: ['/api/client/finds'],
+    queryFn: () => apiRequest('/api/client/finds'),
+    enabled: !isAdminViewing && user?.role === 'client',
+  });
   
   // Get userId from URL parameters (direct userId in path)
   const params = useParams();
@@ -184,14 +188,13 @@ export default function ClientProfile() {
     );
   }
 
-  // Mock stats for demonstration (these would come from API in real app)
+  // Get real client statistics from the requests data
   const clientStats = {
-    totalFinds: 5,
-    activeFinds: 3,
-    completedFinds: 2,
-    totalSpent: 45000,
-    avgRating: 4.8,
-    joinDate: new Date().toISOString()
+    totalFinds: requests?.length || 0,
+    activeFinds: requests?.filter(r => r.status === 'open' || r.status === 'in_progress').length || 0,
+    completedFinds: requests?.filter(r => r.status === 'completed').length || 0,
+    totalSpent: 0, // This would need to be calculated from completed contracts
+    joinDate: displayUser?.createdAt || new Date().toISOString()
   };
 
   return (
@@ -241,17 +244,12 @@ export default function ClientProfile() {
                 <p className="text-slate-600 mb-6 font-medium">{displayUser?.email}</p>
                 
                 <div className="flex items-center justify-center space-x-1 mb-8">
-                  <div className="flex items-center bg-gradient-to-r from-amber-50 to-yellow-50 p-2 rounded-full">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star 
-                        key={star} 
-                        className={`w-5 h-5 ${star <= Math.floor(clientStats.avgRating) ? 'text-amber-400 fill-current' : 'text-slate-300'} transition-all duration-300 hover:scale-110`} 
-                      />
-                    ))}
+                  <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-full">
+                    <Calendar className="w-5 h-5 text-blue-600 mr-2" />
+                    <span className="text-sm text-slate-700 font-medium">
+                      Member since {format(new Date(clientStats.joinDate), 'MMM yyyy')}
+                    </span>
                   </div>
-                  <span className="text-sm text-slate-600 ml-3 font-semibold">
-                    {clientStats.avgRating} rating
-                  </span>
                 </div>
 
                 <Badge className="text-white border-0 px-4 py-2 mb-8 shadow-lg" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
@@ -315,9 +313,9 @@ export default function ClientProfile() {
 
                   <div className="rounded-2xl p-6 text-center text-white shadow-lg" style={{ background: "linear-gradient(to right, hsl(1, 81%, 53%), hsl(1, 71%, 43%))" }}>
                     <div className="text-3xl font-bold mb-2">
-                      ₦{clientStats.totalSpent.toLocaleString()}
+                      {clientStats.totalFinds}
                     </div>
-                    <div className="text-sm opacity-90 font-medium">Total Invested</div>
+                    <div className="text-sm opacity-90 font-medium">Total Requests</div>
                   </div>
                 </div>
               </CardContent>
@@ -568,39 +566,7 @@ export default function ClientProfile() {
                     </Button>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-gradient-to-r from-slate-50/80 to-slate-50/80 rounded-2xl hover:from-slate-50 hover:to-slate-100 transition-all duration-300 border border-slate-200/50">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-slate-600 to-slate-800 rounded-2xl flex items-center justify-center shadow-lg">
-                        <Bell className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-slate-900 text-lg">Notifications</h4>
-                        <p className="text-sm text-slate-600">Manage your notification preferences</p>
-                      </div>
-                    </div>
-                    <Button 
-                      className="bg-gradient-to-r from-slate-600 to-slate-800 hover:from-slate-700 hover:to-slate-900 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                      size="sm"
-                    >
-                      Configure
-                    </Button>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6 bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-2xl hover:from-green-50 hover:to-emerald-50 transition-all duration-300 border border-green-100/50">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-emerald-700 rounded-2xl flex items-center justify-center shadow-lg">
-                        <Shield className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-slate-900 text-lg">Two-Factor Authentication</h4>
-                        <p className="text-sm text-slate-600">Enhanced account security</p>
-                      </div>
-                    </div>
-                    <Badge className="bg-gradient-to-r from-green-600 to-emerald-700 text-white border-0 px-4 py-2 shadow-lg">
-                      <CheckCircle2 className="w-4 h-4 mr-2" />
-                      Active & Secure
-                    </Badge>
-                  </div>
+                  
                 </div>
               </CardContent>
             </Card>
