@@ -1013,7 +1013,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contracts/:contractId/payment", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { contractId } = req.params;
-      const { paymentMethod = 'paystack' } = req.body;
 
       // Get contract details
       const contract = await storage.getContract(contractId);
@@ -1082,7 +1081,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contracts/:contractId/payment", authenticateToken, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { contractId } = req.params;
-      const { paymentMethod = 'paystack' } = req.body;
 
       // Get contract details
       const contract = await storage.getContract(contractId);
@@ -1577,7 +1575,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // For now, we'll need to determine tokens from the amount or package
           // This could be improved by storing the package info separately
           const packageMapping = {
-            5000: 10,   // Starter Pack
+            5000: 10,   // Starter Pack (amount in kobo)
             10000: 25,  // Professional Pack
             18000: 50,  // Business Pack
             30000: 100  // Enterprise Pack
