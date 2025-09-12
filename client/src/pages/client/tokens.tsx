@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import type { Transaction, TokenPackage } from "@shared/schema";
 import FlutterwavePaymentModal from "@/components/FlutterwavePaymentModal";
+import { PaymentModal } from "@/components/PaymentModal";
 
 // Helper function to format currency
 const formatCurrency = (amount: string | number) => {
@@ -51,7 +52,19 @@ export default function ClientTokens() {
     tokenCount: 0
   });
 
-  
+  const [paymentModal, setPaymentModal] = useState<{
+    isOpen: boolean;
+    packageId: string;
+    packageName: string;
+    packagePrice: number;
+    tokenCount: number;
+  }>({
+    isOpen: false,
+    packageId: '',
+    packageName: '',
+    packagePrice: 0,
+    tokenCount: 0
+  });
 
   const { data: transactions = [], isLoading: transactionsLoading, refetch: refetchTransactions } = useQuery<Transaction[]>({
     queryKey: ['/api/client/transactions'],
@@ -92,7 +105,7 @@ export default function ClientTokens() {
     return type === 'findertoken_purchase' || type === 'refund' ? '+' : '-';
   };
 
-  const handlePurchasePackage = async (packageId: string) => {
+  const handlePurchasePackage = async (packageId: string, paymentMethod: 'paystack' | 'flutterwave') => {
     const packageToPurchase = tokenPackages.find(pkg => pkg.id === packageId);
     if (!packageToPurchase) {
       toast({
@@ -103,14 +116,25 @@ export default function ClientTokens() {
       return;
     }
 
-    // Open Flutterwave payment modal
-    setFlutterwaveModal({
-      isOpen: true,
-      packageId: packageToPurchase.id,
-      packageName: packageToPurchase.name,
-      packagePrice: parseFloat(packageToPurchase.price),
-      tokenCount: packageToPurchase.tokenCount
-    });
+    if (paymentMethod === 'flutterwave') {
+      // Open Flutterwave payment modal
+      setFlutterwaveModal({
+        isOpen: true,
+        packageId: packageToPurchase.id,
+        packageName: packageToPurchase.name,
+        packagePrice: parseFloat(packageToPurchase.price),
+        tokenCount: packageToPurchase.tokenCount
+      });
+    } else if (paymentMethod === 'paystack') {
+      // Open Paystack payment modal
+      setPaymentModal({
+        isOpen: true,
+        packageId: packageToPurchase.id,
+        packageName: packageToPurchase.name,
+        packagePrice: parseFloat(packageToPurchase.price),
+        tokenCount: packageToPurchase.tokenCount
+      });
+    }
   };
 
   const handlePaymentSuccess = () => {
@@ -239,14 +263,22 @@ export default function ClientTokens() {
                             </span>
                           </div>
                         </div>
-                        <div>
+                        <div className="space-y-2">
                           <Button
-                            onClick={() => handlePurchasePackage(tokenPackage.id)}
+                            onClick={() => handlePurchasePackage(tokenPackage.id, 'paystack')}
                             className="w-full bg-finder-red hover:bg-red-700 text-white"
                             size="lg"
                           >
                             <CreditCard className="w-4 h-4 mr-2" />
-                            Purchase Tokens
+                            Pay with Paystack
+                          </Button>
+                          <Button
+                            onClick={() => handlePurchasePackage(tokenPackage.id, 'flutterwave')}
+                            className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                            size="lg"
+                          >
+                            <CreditCard className="w-4 h-4 mr-2" />
+                            Pay with Flutterwave
                           </Button>
                         </div>
                       </div>
@@ -316,7 +348,15 @@ export default function ClientTokens() {
         tokenCount={flutterwaveModal.tokenCount}
         onPaymentSuccess={handlePaymentSuccess}
       />
-      
+      <PaymentModal
+        isOpen={paymentModal.isOpen}
+        onClose={() => setPaymentModal(prev => ({ ...prev, isOpen: false }))}
+        packageId={paymentModal.packageId}
+        packageName={paymentModal.packageName}
+        packagePrice={paymentModal.packagePrice}
+        tokenCount={paymentModal.tokenCount}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 }
