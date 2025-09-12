@@ -19,6 +19,8 @@ import {
   Award
 } from "lucide-react";
 import type { Transaction, TokenPackage } from "@shared/schema";
+import { FlutterwavePaymentModal } from "@/components/FlutterwavePaymentModal";
+import { OpayPaymentModal } from "@/components/OpayPaymentModal";
 
 // Helper function to format currency
 const formatCurrency = (amount: string | number) => {
@@ -75,7 +77,16 @@ export default function FindertokenBalance() {
     return type === 'findertoken_purchase' || type === 'refund' ? '+' : '';
   };
 
-  const handlePurchase = async (tokenPackage: TokenPackage) => {
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'paystack' | 'flutterwave' | 'opay'>('paystack');
+  const [paymentModal, setPaymentModal] = useState({
+    isOpen: false,
+    packageId: '',
+    packageName: '',
+    packagePrice: 0,
+    tokenCount: 0
+  });
+
+  const handlePurchase = (tokenPackage: TokenPackage, method: 'paystack' | 'flutterwave' | 'opay') => {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -85,29 +96,14 @@ export default function FindertokenBalance() {
       return;
     }
 
-    setPurchasingPackage(tokenPackage.id);
-
-    try {
-      // Initialize payment with backend
-      const paymentData = await apiRequest("/api/payments/initialize-token-purchase", {
-        method: "POST",
-        body: JSON.stringify({ packageId: tokenPackage.id })
-      });
-
-      if (paymentData.success) {
-        // Redirect to Paystack payment page
-        window.location.href = paymentData.paymentUrl;
-      } else {
-        throw new Error("Failed to initialize payment");
-      }
-    } catch (error: any) {
-      toast({
-        title: "Payment failed",
-        description: error.message || "Failed to initialize payment",
-        variant: "destructive"
-      });
-      setPurchasingPackage(null);
-    }
+    setPaymentModal({
+      isOpen: true,
+      packageId: tokenPackage.id,
+      packageName: tokenPackage.name,
+      packagePrice: tokenPackage.price,
+      tokenCount: tokenPackage.tokenCount
+    });
+    setSelectedPaymentMethod(method);
   };
 
   if (transactionsLoading || packagesLoading) {
@@ -226,13 +222,33 @@ export default function FindertokenBalance() {
                         <div className="text-sm text-gray-600 mb-3">
                           {tokenPackage.description || `Submit ${tokenPackage.tokenCount} proposals`}
                         </div>
-                        <Button 
-                          className="w-full bg-finder-red hover:bg-finder-red-dark"
-                          onClick={() => handlePurchase(tokenPackage)}
-                          disabled={purchasingPackage === tokenPackage.id}
-                        >
-                          {purchasingPackage === tokenPackage.id ? "Processing..." : "Purchase"}
-                        </Button>
+                        <div className="space-y-2">
+                          <Button 
+                            className="w-full bg-finder-red hover:bg-finder-red-dark"
+                            onClick={() => handlePurchase(tokenPackage, 'paystack')}
+                            disabled={purchasingPackage === tokenPackage.id}
+                          >
+                            {purchasingPackage === tokenPackage.id ? "Processing..." : "Pay with Paystack"}
+                          </Button>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button 
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handlePurchase(tokenPackage, 'flutterwave')}
+                              className="text-orange-600 border-orange-300 hover:bg-orange-50"
+                            >
+                              Flutterwave
+                            </Button>
+                            <Button 
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handlePurchase(tokenPackage, 'opay')}
+                              className="text-green-600 border-green-300 hover:bg-green-50"
+                            >
+                              Opay
+                            </Button>
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
@@ -293,6 +309,47 @@ export default function FindertokenBalance() {
           </Card>
         </div>
       </div>
+
+      {/* Payment Modals */}
+      {selectedPaymentMethod === 'flutterwave' && (
+        <FlutterwavePaymentModal
+          isOpen={paymentModal.isOpen}
+          onClose={() => setPaymentModal({ ...paymentModal, isOpen: false })}
+          packageId={paymentModal.packageId}
+          packageName={paymentModal.packageName}
+          packagePrice={paymentModal.packagePrice}
+          tokenCount={paymentModal.tokenCount}
+          onPaymentSuccess={() => {
+            toast({
+              title: "Payment successful!",
+              description: `${paymentModal.tokenCount} FinderTokens have been added to your account.`,
+            });
+            setPaymentModal({ ...paymentModal, isOpen: false });
+            // Refresh data
+            window.location.reload();
+          }}
+        />
+      )}
+
+      {selectedPaymentMethod === 'opay' && (
+        <OpayPaymentModal
+          isOpen={paymentModal.isOpen}
+          onClose={() => setPaymentModal({ ...paymentModal, isOpen: false })}
+          packageId={paymentModal.packageId}
+          packageName={paymentModal.packageName}
+          packagePrice={paymentModal.packagePrice}
+          tokenCount={paymentModal.tokenCount}
+          onPaymentSuccess={() => {
+            toast({
+              title: "Payment successful!",
+              description: `${paymentModal.tokenCount} FinderTokens have been added to your account.`,
+            });
+            setPaymentModal({ ...paymentModal, isOpen: false });
+            // Refresh data
+            window.location.reload();
+          }}
+        />
+      )}
       
     </div>
   );
