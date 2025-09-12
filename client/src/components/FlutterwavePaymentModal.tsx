@@ -310,5 +310,169 @@ function FlutterwavePaymentModal({
   );
 }
 
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Loader2, CreditCard } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+
+interface FlutterwavePaymentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  packageId: string;
+  packageName: string;
+  packagePrice: number;
+  tokenCount: number;
+  onPaymentSuccess: () => void;
+}
+
+const formatCurrency = (amount: string | number) => {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  return new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(numAmount);
+};
+
+export function FlutterwavePaymentModal({
+  isOpen,
+  onClose,
+  packageId,
+  packageName,
+  packagePrice,
+  tokenCount,
+  onPaymentSuccess
+}: FlutterwavePaymentModalProps) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [customerName, setCustomerName] = useState('');
+
+  const handlePayment = async () => {
+    if (!phone.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter your phone number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await apiRequest('/api/client/tokens/flutterwave/initialize', {
+        method: 'POST',
+        body: JSON.stringify({
+          packageId,
+          phone,
+          customerName: customerName || `${user?.firstName} ${user?.lastName}`
+        })
+      });
+
+      if (response.authorization_url) {
+        // Redirect to Flutterwave checkout
+        window.open(response.authorization_url, '_blank');
+        onClose();
+        
+        toast({
+          title: "Payment Initiated",
+          description: "Complete your payment in the new window",
+        });
+      } else {
+        throw new Error('Invalid response from payment service');
+      }
+    } catch (error) {
+      console.error('Payment initialization error:', error);
+      toast({
+        title: "Payment Error",
+        description: error instanceof Error ? error.message : "Failed to initialize payment",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5" />
+            Complete Payment
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-medium">{packageName}</h3>
+            <p className="text-sm text-gray-600">{tokenCount} Tokens</p>
+            <p className="text-lg font-bold text-finder-red">
+              {formatCurrency(packagePrice)}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="e.g., +2348012345678"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="customerName">Full Name (Optional)</Label>
+            <Input
+              id="customerName"
+              type="text"
+              placeholder="Your full name"
+              value={customerName}
+              onChange={(e) => setCustomerName(e.target.value)}
+            />
+          </div>
+
+          <div className="flex space-x-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handlePayment}
+              disabled={isLoading}
+              className="flex-1 bg-orange-600 hover:bg-orange-700"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Pay Now
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export { FlutterwavePaymentModal };
 export default FlutterwavePaymentModal;

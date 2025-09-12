@@ -1400,6 +1400,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { packageId, phone, customerName } = req.body;
       const flutterwaveService = new FlutterwaveService();
 
+      if (!flutterwaveService.isConfigured()) {
+        return res.status(500).json({ 
+          message: "Payment service is not properly configured. Please contact support." 
+        });
+      }
+
       // Get token packages from storage instead of hardcoded packages
       const tokenPackages = await storage.getTokenPackages();
       const selectedPackage = tokenPackages.find(pkg => pkg.id === packageId);
@@ -1408,6 +1414,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log('Available packages:', tokenPackages.map(p => ({ id: p.id, name: p.name })));
         console.log('Requested package ID:', packageId);
         return res.status(404).json({ message: "Package not found" });
+      }
       }
 
       const user = await storage.getUser(req.user.userId);
@@ -1434,7 +1441,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(transaction);
     } catch (error) {
       console.error('Client Flutterwave payment initialization error:', error);
-      res.status(500).json({ message: "Failed to initialize Flutterwave payment" });
+      res.status(500).json({ 
+        message: "Failed to initialize payment. Please try again or contact support.",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
