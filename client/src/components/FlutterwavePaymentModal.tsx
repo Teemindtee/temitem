@@ -18,7 +18,7 @@ interface FlutterwavePaymentModalProps {
   onPaymentSuccess: () => void;
 }
 
-export function FlutterwavePaymentModal({
+function FlutterwavePaymentModal({
   isOpen,
   onClose,
   packageId,
@@ -299,3 +299,6 @@ export function FlutterwavePaymentModal({
     </Dialog>
   );
 }
+
+export { FlutterwavePaymentModal };
+export default FlutterwavePaymentModal;
