@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import type { Transaction, TokenPackage } from "@shared/schema";
 import FlutterwavePaymentModal from "@/components/FlutterwavePaymentModal";
-import { PaymentModal } from "@/components/PaymentModal";
 
 // Helper function to format currency
 const formatCurrency = (amount: string | number) => {
@@ -39,20 +38,6 @@ export default function ClientTokens() {
   const { toast } = useToast();
   const [purchasingPackage, setPurchasingPackage] = useState<string | null>(null);
   const [flutterwaveModal, setFlutterwaveModal] = useState<{
-    isOpen: boolean;
-    packageId: string;
-    packageName: string;
-    packagePrice: number;
-    tokenCount: number;
-  }>({
-    isOpen: false,
-    packageId: '',
-    packageName: '',
-    packagePrice: 0,
-    tokenCount: 0
-  });
-
-  const [paymentModal, setPaymentModal] = useState<{
     isOpen: boolean;
     packageId: string;
     packageName: string;
@@ -105,7 +90,7 @@ export default function ClientTokens() {
     return type === 'findertoken_purchase' || type === 'refund' ? '+' : '-';
   };
 
-  const handlePurchasePackage = async (packageId: string, paymentMethod: 'paystack' | 'flutterwave') => {
+  const handlePurchasePackage = async (packageId: string) => {
     const packageToPurchase = tokenPackages.find(pkg => pkg.id === packageId);
     if (!packageToPurchase) {
       toast({
@@ -116,25 +101,14 @@ export default function ClientTokens() {
       return;
     }
 
-    if (paymentMethod === 'flutterwave') {
-      // Open Flutterwave payment modal
-      setFlutterwaveModal({
-        isOpen: true,
-        packageId: packageToPurchase.id,
-        packageName: packageToPurchase.name,
-        packagePrice: parseFloat(packageToPurchase.price),
-        tokenCount: packageToPurchase.tokenCount
-      });
-    } else if (paymentMethod === 'paystack') {
-      // Open Paystack payment modal
-      setPaymentModal({
-        isOpen: true,
-        packageId: packageToPurchase.id,
-        packageName: packageToPurchase.name,
-        packagePrice: parseFloat(packageToPurchase.price),
-        tokenCount: packageToPurchase.tokenCount
-      });
-    }
+    // Open Flutterwave payment modal
+    setFlutterwaveModal({
+      isOpen: true,
+      packageId: packageToPurchase.id,
+      packageName: packageToPurchase.name,
+      packagePrice: parseFloat(packageToPurchase.price),
+      tokenCount: packageToPurchase.tokenCount
+    });
   };
 
   const handlePaymentSuccess = () => {
@@ -263,22 +237,15 @@ export default function ClientTokens() {
                             </span>
                           </div>
                         </div>
-                        <div className="space-y-2">
+                        <div>
                           <Button
-                            onClick={() => handlePurchasePackage(tokenPackage.id, 'paystack')}
-                            className="w-full bg-finder-red hover:bg-red-700 text-white"
-                            size="lg"
-                          >
-                            <CreditCard className="w-4 h-4 mr-2" />
-                            Pay with Paystack
-                          </Button>
-                          <Button
-                            onClick={() => handlePurchasePackage(tokenPackage.id, 'flutterwave')}
+                            onClick={() => handlePurchasePackage(tokenPackage.id)}
                             className="w-full bg-orange-600 hover:bg-orange-700 text-white"
                             size="lg"
+                            data-testid={`purchase-button-${tokenPackage.id}`}
                           >
                             <CreditCard className="w-4 h-4 mr-2" />
-                            Pay with Flutterwave
+                            Purchase with Flutterwave
                           </Button>
                         </div>
                       </div>
@@ -346,15 +313,6 @@ export default function ClientTokens() {
         packageName={flutterwaveModal.packageName}
         packagePrice={flutterwaveModal.packagePrice}
         tokenCount={flutterwaveModal.tokenCount}
-        onPaymentSuccess={handlePaymentSuccess}
-      />
-      <PaymentModal
-        isOpen={paymentModal.isOpen}
-        onClose={() => setPaymentModal(prev => ({ ...prev, isOpen: false }))}
-        packageId={paymentModal.packageId}
-        packageName={paymentModal.packageName}
-        packagePrice={paymentModal.packagePrice}
-        tokenCount={paymentModal.tokenCount}
         onPaymentSuccess={handlePaymentSuccess}
       />
     </div>
