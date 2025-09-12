@@ -126,8 +126,8 @@ export default function ClientDashboard() {
               </div>
             ) : (
               <div className="overflow-hidden">
-                {/* Table Header */}
-                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                {/* Table Header - Hidden on mobile */}
+                <div className="hidden lg:block bg-gray-50 px-6 py-4 border-b border-gray-200">
                   <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-700">
                     <div className="col-span-5">Title</div>
                     <div className="col-span-2">Budget</div>
@@ -140,8 +140,9 @@ export default function ClientDashboard() {
                 {/* Table Rows */}
                 <div className="divide-y divide-gray-200">
                   {requests.map((request: Find) => (
-                    <div key={request.id} className="px-6 py-4 hover:bg-gray-50 transition-colors">
-                      <div className="grid grid-cols-12 gap-4 items-center">
+                    <div key={request.id} className="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors">
+                      {/* Desktop Layout */}
+                      <div className="hidden lg:grid lg:grid-cols-12 gap-4 items-center">
                         {/* Title Column */}
                         <div className="col-span-5">
                           <h3 className="font-medium text-gray-900 mb-1">{request.title}</h3>
@@ -195,6 +196,67 @@ export default function ClientDashboard() {
                               View
                             </Button>
                           </Link>
+                        </div>
+                      </div>
+
+                      {/* Mobile/Tablet Layout */}
+                      <div className="lg:hidden space-y-3">
+                        {/* Title and Action Row */}
+                        <div className="flex justify-between items-start gap-3">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-gray-900 text-sm sm:text-base truncate">{request.title}</h3>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">
+                              {request.description}
+                            </p>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <Link href={`/client/finds/${request.id}`}>
+                              <Button size="sm" variant="ghost" className="text-finder-red hover:text-finder-red-dark hover:bg-finder-red/10 px-2 sm:px-3">
+                                <span className="hidden sm:inline">View</span>
+                                <span className="sm:hidden text-xs">View</span>
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+
+                        {/* Details Row */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
+                          {/* Budget */}
+                          <div>
+                            <span className="text-gray-500 font-medium">Budget: </span>
+                            <span className="font-semibold text-green-600">
+                              {formatCurrency(request.budgetMin)} - {formatCurrency(request.budgetMax)}
+                            </span>
+                          </div>
+
+                          {/* Posted Date */}
+                          <div className="flex items-center">
+                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 text-gray-500" />
+                            <span className="text-gray-600">{formatDate(request.createdAt || '')}</span>
+                          </div>
+
+                          {/* Status */}
+                          <div className="flex items-center">
+                            <Badge 
+                              variant={
+                                (request.status === 'active' || request.status === 'open') ? 'default' :
+                                request.status === 'in_progress' ? 'secondary' :
+                                request.status === 'completed' ? 'outline' :
+                                'destructive'
+                              }
+                              className={`text-xs ${
+                                (request.status === 'active' || request.status === 'open') ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' :
+                                request.status === 'in_progress' ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' :
+                                request.status === 'completed' ? 'bg-green-100 text-green-700 hover:bg-green-200' :
+                                'bg-red-100 text-red-700 hover:bg-red-200'
+                              }`}
+                            >
+                              {request.status === 'active' || request.status === 'open' ? 'Open' : 
+                               request.status === 'in_progress' ? 'In Progress' :
+                               request.status === 'completed' ? 'Completed' :
+                               request.status?.replace('_', ' ') || 'Pending'}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     </div>
