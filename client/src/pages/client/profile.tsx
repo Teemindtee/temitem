@@ -71,6 +71,9 @@ export default function ClientProfile() {
     enabled: Boolean(isAdminViewing && viewUserId),
   });
 
+  // Use either the profile user (for admin viewing) or the logged-in user (for self-viewing)
+  const displayUser = isAdminViewing ? profileUser : user;
+
   // Debug logging
   console.log('Profile page state:', {
     user,
@@ -79,11 +82,29 @@ export default function ClientProfile() {
     viewUserId,
     displayUser,
     profileLoading,
-    profileError
+    profileError,
+    userRole: user?.role,
+    displayUserExists: !!displayUser
   });
-  
-  // Use either the profile user (for admin viewing) or the logged-in user (for self-viewing)
-  const displayUser = isAdminViewing ? profileUser : user;
+
+  // Additional check: if we have a user but no displayUser, something is wrong
+  if (user && !authLoading && !displayUser) {
+    console.error('User exists but displayUser is null:', { user, isAdminViewing, profileUser });
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-10 h-10 text-red-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Profile Loading Error</h1>
+          <p className="text-slate-600 mb-6">There was an issue loading your profile. Please try refreshing the page.</p>
+          <Button onClick={() => window.location.reload()} className="bg-blue-600 hover:bg-blue-700">
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    );
+  }
   
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -242,6 +263,25 @@ export default function ClientProfile() {
           <p className="text-slate-600 mb-6">The requested user profile could not be loaded.</p>
           <Button onClick={() => navigate("/admin/users")} className="bg-blue-600 hover:bg-blue-700">
             Back to Users
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Ensure we have a displayUser before proceeding
+  if (!displayUser) {
+    console.warn('No displayUser available, redirecting to access denied');
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <User className="w-10 h-10 text-red-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Profile Not Available</h1>
+          <p className="text-slate-600 mb-6">Unable to load profile data. Please try again.</p>
+          <Button onClick={() => navigate("/client/dashboard")} className="bg-blue-600 hover:bg-blue-700">
+            Go to Dashboard
           </Button>
         </div>
       </div>

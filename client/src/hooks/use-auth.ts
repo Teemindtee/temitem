@@ -117,10 +117,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
+    console.log('Auth effect triggered:', { data, error, isLoading });
     if (data) {
+      console.log('Setting user from auth data:', data.user);
       setUser(data.user);
       setProfile(data.profile);
     } else if (error) {
+      console.error('Auth error, clearing token:', error);
       AuthService.clearToken();
       setUser(null);
       setProfile(null);
