@@ -672,58 +672,7 @@ export default function ClientProfile() {
               </CardContent>
             </Card>
 
-            {/* Recent Activity */}
-            <Card className="bg-white/80 backdrop-blur-xl border-white/20 shadow-2xl shadow-slate-200/25 hover:shadow-3xl transition-all duration-500">
-              <CardHeader className="pb-6">
-                <CardTitle className="flex items-center text-slate-900 text-xl">
-                  <div className="w-8 h-8 bg-gradient-to-r from-indigo-600 to-purple-700 rounded-lg flex items-center justify-center mr-3">
-                    <Clock className="w-4 h-4 text-white" />
-                  </div>
-                  Recent Activity
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-8 sm:p-10">
-                <div className="space-y-6">
-                  <div className="flex items-start space-x-4 p-4 bg-gradient-to-r from-green-50/80 to-emerald-50/80 rounded-2xl border border-green-100/50 hover:from-green-50 hover:to-emerald-50 transition-all duration-300">
-                    <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-emerald-700 rounded-2xl flex items-center justify-center shadow-lg mt-1">
-                      <CheckCircle2 className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-slate-900 font-semibold text-lg">Find completed successfully</p>
-                      <p className="text-sm text-slate-600 font-medium">Web development project - 2 days ago</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4 p-4 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-2xl border border-blue-100/50 hover:from-blue-50 hover:to-indigo-50 transition-all duration-300">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg mt-1">
-                      <FileText className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-slate-900 font-semibold text-lg">New find posted</p>
-                      <p className="text-sm text-slate-600 font-medium">Mobile app design - 5 days ago</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-4 p-4 bg-gradient-to-r from-amber-50/80 to-yellow-50/80 rounded-2xl border border-amber-100/50 hover:from-amber-50 hover:to-yellow-50 transition-all duration-300">
-                    <div className="w-10 h-10 bg-gradient-to-r from-amber-600 to-yellow-700 rounded-2xl flex items-center justify-center shadow-lg mt-1">
-                      <Star className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-slate-900 font-semibold text-lg">Received 5-star rating</p>
-                      <p className="text-sm text-slate-600 font-medium">Logo design project - 1 week ago</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 text-center">
-                  <Button 
-                    className="bg-gradient-to-r from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 py-3"
-                  >
-                    View Complete Activity History
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            
           </div>
         </div>
       </main>
