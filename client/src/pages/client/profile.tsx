@@ -31,7 +31,8 @@ import {
   AlertCircle,
   Loader2,
   FileText,
-  Clock
+  Clock,
+  Star
 } from "lucide-react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -291,8 +292,8 @@ export default function ClientProfile() {
   // Get real client statistics from the requests data
   const clientStats = {
     totalFinds: requests?.length || 0,
-    activeFinds: requests?.filter(r => r.status === 'open' || r.status === 'in_progress').length || 0,
-    completedFinds: requests?.filter(r => r.status === 'completed').length || 0,
+    activeFinds: requests?.filter((r: any) => r.status === 'open' || r.status === 'in_progress').length || 0,
+    completedFinds: requests?.filter((r: any) => r.status === 'completed').length || 0,
     totalSpent: 0, // This would need to be calculated from completed contracts
     joinDate: displayUser?.createdAt || new Date().toISOString()
   };
