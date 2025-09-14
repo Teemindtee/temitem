@@ -45,13 +45,6 @@ export default function ClientProfile() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  // Fetch user's requests for statistics
-  const { data: requests = [] } = useQuery({
-    queryKey: ['/api/client/finds'],
-    queryFn: () => apiRequest('/api/client/finds'),
-    enabled: !isAdminViewing && user?.role === 'client',
-  });
-  
   // Get userId from URL parameters (direct userId in path)
   const params = useParams();
   const urlParams = new URLSearchParams(window.location.search);
@@ -60,6 +53,13 @@ export default function ClientProfile() {
   // Handle both nameSlug and direct userId routes
   const viewUserId = queryUserId || params.userId;
   const isAdminViewing = user?.role === 'admin' && !!viewUserId;
+  
+  // Fetch user's requests for statistics
+  const { data: requests = [] } = useQuery({
+    queryKey: ['/api/client/finds'],
+    queryFn: () => apiRequest('/api/client/finds'),
+    enabled: !isAdminViewing && user?.role === 'client',
+  });
   
   // Fetch user data if admin is viewing another user's profile
   const { data: profileUser, isLoading: profileLoading, error: profileError } = useQuery({
