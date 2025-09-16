@@ -216,7 +216,7 @@ export default function BrowseRequests() {
                 <Award className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
               </div>
               <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{stats.completed}</div>
-              <div className="text-xs sm:text-sm text-gray-500">Completed</div>
+              <div className="text-xs sm:text-sm text-gray-500">Completed Finds</div>
             </CardContent>
           </Card>
         </div>
