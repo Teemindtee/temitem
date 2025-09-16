@@ -1,0 +1,89 @@
+ 
+FinderMeister — Frequently Asked Questions (FAQ)
+
+Who can join FinderMeister?
+Two roles, one community (you can be both):
+Clients — Anyone who needs something sourced or a task executed: individuals, students, small businesses/brands, event planners, NGOs, and Nigerians in the diaspora. Clients pay safely via escrow and can optionally boost requests with FinderTokens (required for high-budget finds > ■50,000).
+
+Finders — Resourceful people who can locate items/services or carry out tasks reliably: students, side-hustlers, personal shoppers, couriers, fixers, and professionals.
+
+Do I need technical expertise or special skills?
+No. You don’t need coding or advanced skills. If you’re good at locating items (gadgets, accommodation, groceries, pharmaceuticals, thrift) or handling tasks (errands, delivery, event setup), you qualify.
+
+What exactly is a Find?
+A Find can be either:
+Sourcing — Helping a client locate a product, service, or opportunity (e.g., apartment, sneakers, textbooks, medications, tickets).
+Task Execution — Carrying out an activity on behalf of a client (e.g., groceries, couriering, event setup).
+
+How do payments work?
+⦁	Client pays the contract fee upfront through Flutterwave escrow.
+⦁	Flutterwave adds a small processing fee (1.4% local, capped at ■2,000; 3.8% for international) — on the client’s side.
+⦁	FinderMeister holds funds until completion.
+⦁	FinderMeister deducts 15% per contract.
+⦁	Finder receives the remaining 85% directly to their account.
+
+Example: Client pays ■20,000 (+ processing fee). FinderMeister charges ■3,000 (15%). Finder gets ■17,000.
+
+Is my money safe?
+Yes. All payments are held in escrow until the client confirms delivery.
+
+What if there’s a dispute?
+
+FinderMeister has a dispute resolution system. If a complaint is raised, we investigate and only release funds once it’s resolved fairly.
+
+When do I get paid?
+Once the client approves completion, payments are split automatically. Funds are sent to your bank account (Flutterwave may apply a small payout fee, e.g., ■45).
+
+Can I join from outside Nigeria?
+At launch, FinderMeister is Nigeria-first. Clients abroad can still pay through Flutterwave, while Nigerian Finders complete local finds.
+
+What types of finds are popular?
+Groceries & Errands: shopping, delivery runs. Pharmaceuticals: medications and health supplies. Fashion & Thrift: clothes, sneakers, accessories. Tech & Gadgets: phones, laptops, electronics.
+Real Estate: hostels, apartments, short lets.
+Events & Entertainment: tickets, logistics.
+Everyday Tasks: courier services, school errands, small repairs.
+
+How much does it cost to register?
+Registration is free. FinderMeister only charges 15% per contract once you earn.
+
+What are FinderTokens?
+FinderTokens are platform credits used to apply for finds and boost visibility.
+
+How do FinderTokens work for Finders?
+⦁	Each application costs 10 FinderTokens.
+⦁	Every Finder receives 20 FinderTokens free monthly.
+⦁	Additional tokens can be purchased to apply for more finds.
+
+How do FinderTokens work for Clients?
+⦁	Optional for boosting a find (makes it more visible).
+⦁	Required for high-budget finds above ■50,000.
+
+Do FinderTokens replace money?
+No. FinderTokens are not cash. They are credits for applying/boosting. Payments are always made in Naira (■) via escrow.
+
+Why use FinderTokens?
+⦁	To reduce spam (Finders apply more carefully).
+⦁	To show seriousness (Clients boost or stake tokens).
+⦁	To keep the marketplace balanced and active.
+
+What is gamification on FinderMeister?
+
+Gamification makes FinderMeister more fun and rewarding by adding game-like features for Finders. Instead of only earning money, you also rise through ranks, earn recognition, and build credibility.
+
+How does gamification work for Finders?
+Finders rise through 5 ranks as they complete more finds, maintain good ratings, and stay consistent:
+⦁	Novice — New member, just starting out.
+⦁	Pathfinder — Completed first successful finds.
+⦁	Seeker — Gaining trust with multiple completed finds.
+⦁	Meister — Highly trusted, proven Finder with excellent client reviews.
+⦁	Grandmeister — The elite top-tier Finder: consistent, reliable, and top rated.
+
+Why gamify FinderMeister?
+⦁	Makes the Finder journey exciting and rewarding.
+⦁	Motivates Finders to stay consistent and professional.
+⦁	Builds trust by showing clients the rank and credibility of each Finder.
+⦁	Creates a sense of achievement beyond just money.
+
+
+
+For further inquiries or support, contact us at: find@findermeister.com
