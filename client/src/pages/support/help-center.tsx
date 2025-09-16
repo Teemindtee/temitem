@@ -29,59 +29,178 @@ interface FAQ {
 const faqs: FAQ[] = [
   {
     id: "1",
+    question: "Who can join FinderMeister?",
+    answer: "Two roles, one community (you can be both): Clients — Anyone who needs something sourced or a task executed: individuals, students, small businesses/brands, event planners, NGOs, and Nigerians in the diaspora. Clients pay safely via escrow and can optionally boost requests with FinderTokens (required for high-budget finds > ₦50,000). Finders — Resourceful people who can locate items/services or carry out tasks reliably: students, side-hustlers, personal shoppers, couriers, fixers, and professionals.",
+    category: "Getting Started",
+    tags: ["registration", "client", "finder", "community"]
+  },
+  {
+    id: "2",
+    question: "Do I need technical expertise or special skills?",
+    answer: "No. You don't need coding or advanced skills. If you're good at locating items (gadgets, accommodation, groceries, pharmaceuticals, thrift) or handling tasks (errands, delivery, event setup), you qualify.",
+    category: "Getting Started",
+    tags: ["skills", "requirements", "finder"]
+  },
+  {
+    id: "3",
+    question: "What exactly is a Find?",
+    answer: "A Find can be either: Sourcing — Helping a client locate a product, service, or opportunity (e.g., apartment, sneakers, textbooks, medications, tickets). Task Execution — Carrying out an activity on behalf of a client (e.g., groceries, couriering, event setup).",
+    category: "Getting Started",
+    tags: ["find", "sourcing", "task", "service"]
+  },
+  {
+    id: "4",
     question: "How do I create a service request?",
     answer: "To create a service request: 1) Log in to your client account, 2) Click 'Create Request' on your dashboard, 3) Fill in the details including title, description, budget, and timeline, 4) Click 'Post Request' to make it live for finders to see.",
     category: "Getting Started",
     tags: ["request", "posting", "client"]
   },
   {
-    id: "2",
+    id: "5",
     question: "How do I become a finder?",
     answer: "To become a finder: 1) Click 'Register as Finder' on the homepage, 2) Complete your profile with skills, experience, and portfolio, 3) Purchase proposal tokens to submit proposals, 4) Browse available finds and submit proposals to win contracts.",
     category: "Getting Started",
     tags: ["finder", "registration", "profile"]
   },
   {
-    id: "3",
-    question: "What are proposal tokens and how do they work?",
-    answer: "Proposal tokens are required to submit proposals as a finder. Each proposal costs 1 token. You can purchase tokens in packages (10, 25, 50, or 100 tokens). This system ensures serious, quality proposals and helps maintain platform integrity.",
-    category: "Tokens & Payments",
-    tags: ["tokens", "proposals", "payment"]
-  },
-  {
-    id: "4",
-    question: "How does the escrow system work?",
-    answer: "When a contract is created, the client's payment is held in escrow. The finder completes the work and submits it for review. Once the client approves the work, the payment is released to the finder. This protects both parties in the transaction.",
-    category: "Tokens & Payments",
-    tags: ["escrow", "payment", "security"]
-  },
-  {
-    id: "5",
-    question: "How do I message other users?",
-    answer: "Clients can initiate conversations with finders who have submitted proposals for their finds. Go to your find details, view proposals, and click 'Message' next to any finder. All conversations are linked to specific proposals for context.",
-    category: "Communication",
-    tags: ["messaging", "communication", "proposals"]
-  },
-  {
     id: "6",
-    question: "What happens after I submit my work?",
-    answer: "After submitting work: 1) Your submission goes to 'Under Review' status, 2) The client reviews your work and may request revisions, 3) Once approved, the contract is marked complete and payment is released from escrow to your account.",
-    category: "Work Completion",
-    tags: ["submission", "review", "completion"]
+    question: "How much does it cost to register?",
+    answer: "Registration is free. FinderMeister only charges 15% per contract once you earn.",
+    category: "Getting Started",
+    tags: ["registration", "cost", "free"]
   },
   {
     id: "7",
+    question: "Can I join from outside Nigeria?",
+    answer: "At launch, FinderMeister is Nigeria-first. Clients abroad can still pay through Flutterwave, while Nigerian Finders complete local finds.",
+    category: "Getting Started",
+    tags: ["international", "nigeria", "location"]
+  },
+  {
+    id: "8",
+    question: "How do payments work?",
+    answer: "Client pays the contract fee upfront through Flutterwave escrow. Flutterwave adds a small processing fee (1.4% local, capped at ₦2,000; 3.8% for international) — on the client's side. FinderMeister holds funds until completion. FinderMeister deducts 15% per contract. Finder receives the remaining 85% directly to their account. Example: Client pays ₦20,000 (+ processing fee). FinderMeister charges ₦3,000 (15%). Finder gets ₦17,000.",
+    category: "Tokens & Payments",
+    tags: ["payment", "escrow", "fees", "flutterwave"]
+  },
+  {
+    id: "9",
+    question: "Is my money safe?",
+    answer: "Yes. All payments are held in escrow until the client confirms delivery.",
+    category: "Tokens & Payments",
+    tags: ["escrow", "safety", "security"]
+  },
+  {
+    id: "10",
+    question: "What if there's a dispute?",
+    answer: "FinderMeister has a dispute resolution system. If a complaint is raised, we investigate and only release funds once it's resolved fairly.",
+    category: "Tokens & Payments",
+    tags: ["dispute", "resolution", "support"]
+  },
+  {
+    id: "11",
+    question: "When do I get paid?",
+    answer: "Once the client approves completion, payments are split automatically. Funds are sent to your bank account (Flutterwave may apply a small payout fee, e.g., ₦45).",
+    category: "Tokens & Payments",
+    tags: ["payment", "withdrawal", "timing"]
+  },
+  {
+    id: "12",
     question: "How do I withdraw my earnings?",
     answer: "To withdraw earnings: 1) Go to your finder profile settings, 2) Click 'Withdrawals', 3) Enter the amount you want to withdraw, 4) Provide your payment details, 5) Submit the withdrawal request for processing.",
     category: "Tokens & Payments",
     tags: ["withdrawal", "earnings", "payment"]
   },
   {
-    id: "8",
+    id: "13",
+    question: "What are FinderTokens?",
+    answer: "FinderTokens are platform credits used to apply for finds and boost visibility.",
+    category: "Tokens & Payments",
+    tags: ["tokens", "credits", "findertokens"]
+  },
+  {
+    id: "14",
+    question: "How do FinderTokens work for Finders?",
+    answer: "Each application costs 10 FinderTokens. Every Finder receives 20 FinderTokens free monthly. Additional tokens can be purchased to apply for more finds.",
+    category: "Tokens & Payments",
+    tags: ["tokens", "finder", "proposals", "monthly"]
+  },
+  {
+    id: "15",
+    question: "How do FinderTokens work for Clients?",
+    answer: "Optional for boosting a find (makes it more visible). Required for high-budget finds above ₦50,000.",
+    category: "Tokens & Payments",
+    tags: ["tokens", "client", "boost", "visibility"]
+  },
+  {
+    id: "16",
+    question: "Do FinderTokens replace money?",
+    answer: "No. FinderTokens are not cash. They are credits for applying/boosting. Payments are always made in Naira (₦) via escrow.",
+    category: "Tokens & Payments",
+    tags: ["tokens", "currency", "naira", "escrow"]
+  },
+  {
+    id: "17",
+    question: "Why use FinderTokens?",
+    answer: "To reduce spam (Finders apply more carefully). To show seriousness (Clients boost or stake tokens). To keep the marketplace balanced and active.",
+    category: "Tokens & Payments",
+    tags: ["tokens", "spam", "quality", "marketplace"]
+  },
+  {
+    id: "18",
+    question: "How does the escrow system work?",
+    answer: "When a contract is created, the client's payment is held in escrow. The finder completes the work and submits it for review. Once the client approves the work, the payment is released to the finder. This protects both parties in the transaction.",
+    category: "Tokens & Payments",
+    tags: ["escrow", "payment", "security"]
+  },
+  {
+    id: "19",
+    question: "How do I message other users?",
+    answer: "Clients can initiate conversations with finders who have submitted proposals for their finds. Go to your find details, view proposals, and click 'Message' next to any finder. All conversations are linked to specific proposals for context.",
+    category: "Communication",
+    tags: ["messaging", "communication", "proposals"]
+  },
+  {
+    id: "20",
+    question: "What happens after I submit my work?",
+    answer: "After submitting work: 1) Your submission goes to 'Under Review' status, 2) The client reviews your work and may request revisions, 3) Once approved, the contract is marked complete and payment is released from escrow to your account.",
+    category: "Work Completion",
+    tags: ["submission", "review", "completion"]
+  },
+  {
+    id: "21",
     question: "Can I edit my profile after registration?",
     answer: "Yes! You can always edit your profile. For finders, go to 'Profile' in your dashboard to update skills, bio, portfolio, and rates. For clients, you can update your basic information in account settings.",
     category: "Account Management",
     tags: ["profile", "editing", "account"]
+  },
+  {
+    id: "22",
+    question: "What types of finds are popular?",
+    answer: "Groceries & Errands: shopping, delivery runs. Pharmaceuticals: medications and health supplies. Fashion & Thrift: clothes, sneakers, accessories. Tech & Gadgets: phones, laptops, electronics. Real Estate: hostels, apartments, short lets. Events & Entertainment: tickets, logistics. Everyday Tasks: courier services, school errands, small repairs.",
+    category: "Getting Started",
+    tags: ["finds", "categories", "popular", "types"]
+  },
+  {
+    id: "23",
+    question: "What is gamification on FinderMeister?",
+    answer: "Gamification makes FinderMeister more fun and rewarding by adding game-like features for Finders. Instead of only earning money, you also rise through ranks, earn recognition, and build credibility.",
+    category: "Gamification",
+    tags: ["gamification", "ranks", "finder", "rewards"]
+  },
+  {
+    id: "24",
+    question: "How does gamification work for Finders?",
+    answer: "Finders rise through 5 ranks as they complete more finds, maintain good ratings, and stay consistent: Novice — New member, just starting out. Pathfinder — Completed first successful finds. Seeker — Gaining trust with multiple completed finds. Meister — Highly trusted, proven Finder with excellent client reviews. Grandmeister — The elite top-tier Finder: consistent, reliable, and top rated.",
+    category: "Gamification",
+    tags: ["ranks", "levels", "progression", "finder"]
+  },
+  {
+    id: "25",
+    question: "Why gamify FinderMeister?",
+    answer: "Makes the Finder journey exciting and rewarding. Motivates Finders to stay consistent and professional. Builds trust by showing clients the rank and credibility of each Finder. Creates a sense of achievement beyond just money.",
+    category: "Gamification",
+    tags: ["motivation", "trust", "achievement", "professional"]
   }
 ];
 
@@ -90,7 +209,8 @@ const categories = [
   { name: "Tokens & Payments", icon: CreditCard, color: "bg-green-100 text-green-800" },
   { name: "Communication", icon: MessageSquare, color: "bg-purple-100 text-purple-800" },
   { name: "Work Completion", icon: FileText, color: "bg-orange-100 text-orange-800" },
-  { name: "Account Management", icon: Shield, color: "bg-gray-100 text-gray-800" }
+  { name: "Account Management", icon: Shield, color: "bg-gray-100 text-gray-800" },
+  { name: "Gamification", icon: HelpCircle, color: "bg-indigo-100 text-indigo-800" }
 ];
 
 export default function HelpCenter() {
