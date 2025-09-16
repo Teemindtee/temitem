@@ -2717,7 +2717,7 @@ export class DatabaseStorage implements IStorage {
     return result.rowCount > 0;
   }
 
-  // Check if user is already a support agent
+  // Support Agent Check
   async getUserSupportAgent(userId: string) {
     const [agent] = await db
       .select()

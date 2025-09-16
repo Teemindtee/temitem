@@ -2,6 +2,8 @@ import { sql, relations } from "drizzle-orm";
 import { pgTable, text, varchar, integer, timestamp, boolean, decimal, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
+
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -29,6 +31,7 @@ export const finders = pgTable("finders", {
   currentLevelId: varchar("current_level_id").references(() => finderLevels.id), // references finder levels table
   bio: text("bio"),
   category: text("category"), // Finder's specialty category
+  categories: text("categories").array(), // New field for multiple categories
   skills: text("skills").array(),
   hourlyRate: decimal("hourly_rate", { precision: 8, scale: 2 }),
   availability: text("availability").default("full-time"),
@@ -547,41 +550,41 @@ export const restrictedWordsRelations = relations(restrictedWords, ({ one }) => 
 }));
 
 // Export types
-export type User = typeof users.$inferSelect;
-export type InsertUser = typeof users.$inferInsert;
-export type Finder = typeof finders.$inferSelect;
-export type InsertFinder = typeof finders.$inferInsert;
-export type Find = typeof finds.$inferSelect;
-export type InsertFind = typeof finds.$inferInsert;
-export type Proposal = typeof proposals.$inferSelect;
-export type InsertProposal = typeof proposals.$inferInsert;
-export type Contract = typeof contracts.$inferSelect;
-export type InsertContract = typeof contracts.$inferInsert;
-export type Review = typeof reviews.$inferSelect;
-export type InsertReview = typeof reviews.$inferInsert;
-export type Findertoken = typeof findertokens.$inferSelect;
-export type InsertFindertoken = typeof findertokens.$inferInsert;
-export type Transaction = typeof transactions.$inferSelect;
-export type InsertTransaction = typeof transactions.$inferInsert;
-export type AdminSetting = typeof adminSettings.$inferSelect;
-export type InsertAdminSetting = typeof adminSettings.$inferInsert;
-export type Conversation = typeof conversations.$inferSelect;
-export type InsertConversation = typeof conversations.$inferInsert;
-export type Message = typeof messages.$inferSelect;
-export type InsertMessage = typeof messages.$inferInsert;
-export type FinderLevel = typeof finderLevels.$inferSelect;
-export type InsertFinderLevel = typeof finderLevels.$inferInsert;
-export type BlogPost = typeof blogPosts.$inferSelect;
-export type InsertBlogPost = typeof blogPosts.$inferInsert;
-export type TokenPackage = typeof tokenPackages.$inferSelect;
-export type InsertTokenPackage = typeof tokenPackages.$inferInsert;
-export type OrderSubmission = typeof orderSubmissions.$inferSelect;
-export type InsertOrderSubmission = typeof orderSubmissions.$inferInsert;
+export type User = InferSelectModel<typeof users>;
+export type InsertUser = InferInsertModel<typeof users>;
+export type Finder = InferSelectModel<typeof finders>;
+export type InsertFinder = InferInsertModel<typeof finders>;
+export type Find = InferSelectModel<typeof finds>;
+export type InsertFind = InferInsertModel<typeof finds>;
+export type Proposal = InferSelectModel<typeof proposals>;
+export type InsertProposal = InferInsertModel<typeof proposals>;
+export type Contract = InferSelectModel<typeof contracts>;
+export type InsertContract = InferInsertModel<typeof contracts>;
+export type Review = InferSelectModel<typeof reviews>;
+export type InsertReview = InferInsertModel<typeof reviews>;
+export type Findertoken = InferSelectModel<typeof findertokens>;
+export type InsertFindertoken = InferInsertModel<typeof findertokens>;
+export type Transaction = InferSelectModel<typeof transactions>;
+export type InsertTransaction = InferInsertModel<typeof transactions>;
+export type AdminSetting = InferSelectModel<typeof adminSettings>;
+export type InsertAdminSetting = InferInsertModel<typeof adminSettings>;
+export type Conversation = InferSelectModel<typeof conversations>;
+export type InsertConversation = InferInsertModel<typeof conversations>;
+export type Message = InferSelectModel<typeof messages>;
+export type InsertMessage = InferInsertModel<typeof messages>;
+export type FinderLevel = InferSelectModel<typeof finderLevels>;
+export type InsertFinderLevel = InferInsertModel<typeof finderLevels>;
+export type BlogPost = InferSelectModel<typeof blogPosts>;
+export type InsertBlogPost = InferInsertModel<typeof blogPosts>;
+export type TokenPackage = InferSelectModel<typeof tokenPackages>;
+export type InsertTokenPackage = InferInsertModel<typeof tokenPackages>;
+export type OrderSubmission = InferSelectModel<typeof orderSubmissions>;
+export type InsertOrderSubmission = InferInsertModel<typeof orderSubmissions>;
 
 // Categories
 export const insertCategorySchema = createInsertSchema(categories);
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
-export type Category = typeof categories.$inferSelect;
+export type Category = InferSelectModel<typeof categories>;
 
 // Withdrawal Settings
 export const insertWithdrawalSettingsSchema = createInsertSchema(withdrawalSettings).omit({
@@ -590,12 +593,12 @@ export const insertWithdrawalSettingsSchema = createInsertSchema(withdrawalSetti
   updatedAt: true,
 });
 export type InsertWithdrawalSettings = z.infer<typeof insertWithdrawalSettingsSchema>;
-export type WithdrawalSettings = typeof withdrawalSettings.$inferSelect;
+export type WithdrawalSettings = InferSelectModel<typeof withdrawalSettings>;
 
 // Withdrawal Requests
 export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalRequests);
 export type InsertWithdrawalRequest = z.infer<typeof insertWithdrawalRequestSchema>;
-export type WithdrawalRequest = typeof withdrawalRequests.$inferSelect;
+export type WithdrawalRequest = InferSelectModel<typeof withdrawalRequests>;
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -659,7 +662,7 @@ export const insertTokenGrantSchema = createInsertSchema(tokenGrants).omit({
 });
 
 // Monthly Token Distribution Types
-export type MonthlyTokenDistribution = typeof monthlyTokenDistributions.$inferSelect & {
+export type MonthlyTokenDistribution = InferSelectModel<typeof monthlyTokenDistributions> & {
   finder?: {
     id: string;
     user?: {
@@ -672,11 +675,11 @@ export type MonthlyTokenDistribution = typeof monthlyTokenDistributions.$inferSe
 export type InsertMonthlyTokenDistribution = z.infer<typeof insertMonthlyTokenDistributionSchema>;
 
 // Token Grant Types  
-export type TokenGrant = typeof tokenGrants.$inferSelect;
+export type TokenGrant = InferSelectModel<typeof tokenGrants>;
 export type InsertTokenGrant = z.infer<typeof insertTokenGrantSchema>;
 
 // Client Token Grant Types
-export type ClientTokenGrant = typeof clientTokenGrants.$inferSelect;
+export type ClientTokenGrant = InferSelectModel<typeof clientTokenGrants>;
 export const insertClientTokenGrantSchema = createInsertSchema(clientTokenGrants).omit({
   id: true,
   createdAt: true,
@@ -754,11 +757,11 @@ export const supportAgents = pgTable("support_agents", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export type InsertSupportAgent = typeof supportAgents.$inferInsert;
-export type SelectSupportAgent = typeof supportAgents.$inferSelect;
+export type InsertSupportAgent = InferInsertModel<typeof supportAgents>;
+export type SelectSupportAgent = InferSelectModel<typeof supportAgents>;
 
-export type InsertSupportDepartment = typeof supportDepartments.$inferInsert;
-export type SelectSupportDepartment = typeof supportDepartments.$inferSelect;
+export type InsertSupportDepartment = InferInsertModel<typeof supportDepartments>;
+export type SelectSupportDepartment = InferSelectModel<typeof supportDepartments>;
 
 export const supportTickets = pgTable("support_tickets", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -835,25 +838,25 @@ export const insertTrustedBadgeSchema = createInsertSchema(trustedBadges).omit({
 });
 
 // Strike System Types
-export type Strike = typeof strikes.$inferSelect;
-export type InsertStrike = typeof strikes.$inferInsert;
-export type SelectStrike = typeof strikes.$inferSelect;
+export type Strike = InferSelectModel<typeof strikes>;
+export type InsertStrike = InferInsertModel<typeof strikes>;
+export type SelectStrike = InferSelectModel<typeof strikes>;
 
-export type UserRestriction = typeof userRestrictions.$inferSelect;
-export type InsertUserRestriction = typeof userRestrictions.$inferInsert;
-export type SelectUserRestriction = typeof userRestrictions.$inferSelect;
+export type UserRestriction = InferSelectModel<typeof userRestrictions>;
+export type InsertUserRestriction = InferInsertModel<typeof userRestrictions>;
+export type SelectUserRestriction = InferSelectModel<typeof userRestrictions>;
 
-export type Dispute = typeof disputes.$inferSelect;
-export type InsertDispute = typeof disputes.$inferInsert;
-export type SelectDispute = typeof disputes.$inferSelect;
+export type Dispute = InferSelectModel<typeof disputes>;
+export type InsertDispute = InferInsertModel<typeof disputes>;
+export type SelectDispute = InferSelectModel<typeof disputes>;
 
-export type BehavioralTraining = typeof behavioralTraining.$inferSelect;
-export type InsertBehavioralTraining = typeof behavioralTraining.$inferInsert;
-export type SelectBehavioralTraining = typeof behavioralTraining.$inferSelect;
+export type BehavioralTraining = InferSelectModel<typeof behavioralTraining>;
+export type InsertBehavioralTraining = InferInsertModel<typeof behavioralTraining>;
+export type SelectBehavioralTraining = InferSelectModel<typeof behavioralTraining>;
 
-export type TrustedBadge = typeof trustedBadges.$inferSelect;
-export type InsertTrustedBadge = typeof trustedBadges.$inferInsert;
-export type SelectTrustedBadge = typeof trustedBadges.$inferSelect;
+export type TrustedBadge = InferSelectModel<typeof trustedBadges>;
+export type InsertTrustedBadge = InferInsertModel<typeof trustedBadges>;
+export type SelectTrustedBadge = InferSelectModel<typeof trustedBadges>;
 
 // Support Agent Relations
 export const supportAgentsRelations = relations(supportAgents, ({ one, many }) => ({
@@ -892,10 +895,10 @@ export const supportTicketMessagesRelations = relations(supportTicketMessages, (
 }));
 
 // Support Agent Types
-export type SupportAgent = typeof supportAgents.$inferSelect;
-export type SupportTicket = typeof supportTickets.$inferSelect;
-export type SupportTicketMessage = typeof supportTicketMessages.$inferSelect;
-export type SupportDepartment = typeof supportDepartments.$inferSelect;
+export type SupportAgent = InferSelectModel<typeof supportAgents>;
+export type SupportTicket = InferSelectModel<typeof supportTickets>;
+export type SupportTicketMessage = InferSelectModel<typeof supportTicketMessages>;
+export type SupportDepartment = InferSelectModel<typeof supportDepartments>;
 
 export const insertSupportAgentSchema = createInsertSchema(supportAgents).omit({
   id: true,
@@ -918,10 +921,10 @@ export type InsertSupportAgent = z.infer<typeof insertSupportAgentSchema>;
 export type InsertSupportTicket = z.infer<typeof insertSupportTicketSchema>;
 export type InsertSupportDepartment = z.infer<typeof insertSupportDepartmentSchema>;
 
-export type SupportDepartment = typeof supportDepartments.$inferSelect;
+export type SupportDepartment = InferSelectModel<typeof supportDepartments>;
 
 // Restricted Words Types
-export type RestrictedWord = typeof restrictedWords.$inferSelect;
+export type RestrictedWord = InferSelectModel<typeof restrictedWords>;
 export const insertRestrictedWordSchema = createInsertSchema(restrictedWords).omit({
   id: true,
   createdAt: true,

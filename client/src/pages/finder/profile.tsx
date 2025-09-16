@@ -19,10 +19,11 @@ export default function FinderProfile() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   const [formData, setFormData] = useState({
     bio: "",
-    category: "",
+    category: "", // Kept for backward compatibility, but new logic uses 'categories'
+    categories: [] as string[], // New field for multiple categories
     skills: "",
     availability: "full-time"
   });
@@ -43,7 +44,8 @@ export default function FinderProfile() {
     if (finder) {
       setFormData({
         bio: finder.bio || "",
-        category: finder.category || "",
+        category: finder.category || "", // For backward compatibility if needed
+        categories: Array.isArray(finder.categories) ? finder.categories : (finder.category ? [finder.category] : []), // Initialize with existing single category if available
         skills: Array.isArray(finder.skills) ? finder.skills.join(", ") : "",
         availability: finder.availability || "full-time"
       });
@@ -54,13 +56,26 @@ export default function FinderProfile() {
     mutationFn: async (data: any) => {
       const payload = {
         bio: data.bio || "",
-        category: data.category || "",
-        skills: typeof data.skills === 'string' 
+        category: data.category || "", // Keep for backward compatibility
+        categories: data.categories || [], // New multiple categories field
+        skills: typeof data.skills === 'string'
           ? data.skills.split(",").map((s: string) => s.trim()).filter(Boolean)
           : data.skills || [],
         availability: data.availability || "full-time"
       };
-      
+
+      // For API, ensure we only send 'categories' if it's not empty, otherwise send the old 'category' if present
+      if (payload.categories.length > 0) {
+        delete payload.category; // Remove the old single category field if new ones are provided
+      } else if (payload.category) {
+        // If no new categories are selected, but an old one exists, keep it.
+        // If both are empty, the API should handle it.
+      } else {
+        // If neither categories nor category are present, remove category to avoid sending empty string if not intended.
+        delete payload.category;
+      }
+
+
       const response = await apiRequest('PATCH', '/api/finder/profile', payload);
       return response.json();
     },
@@ -73,7 +88,7 @@ export default function FinderProfile() {
     },
     onError: (error: any) => {
       console.error('Profile update error:', error);
-      
+
       // Check if it's an authentication error
       if (error.message?.includes('No authentication token') || error.message?.includes('Access token required')) {
         toast({
@@ -85,7 +100,7 @@ export default function FinderProfile() {
         window.location.href = '/login';
         return;
       }
-      
+
       toast({
         title: "Error",
         description: error.message || "Failed to update profile. Please try again.",
@@ -96,10 +111,10 @@ export default function FinderProfile() {
 
   const handleUpdateProfile = () => {
     // Basic validation
-    if (!formData.category) {
+    if (formData.categories.length === 0) {
       toast({
         title: "Validation Error",
-        description: "Please select a specialty category.",
+        description: "Please select at least one specialty category.",
         variant: "destructive",
       });
       return;
@@ -111,9 +126,9 @@ export default function FinderProfile() {
   // Get star rating display
   const getStarRating = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
-      <Star 
-        key={i} 
-        className={`w-6 h-6 ${i < rating ? 'text-finder-red fill-current' : 'text-gray-300'}`} 
+      <Star
+        key={i}
+        className={`w-6 h-6 ${i < rating ? 'text-finder-red fill-current' : 'text-gray-300'}`}
       />
     ));
   };
@@ -137,7 +152,7 @@ export default function FinderProfile() {
   return (
     <div className="min-h-screen bg-gray-50">
       <FinderHeader currentPage="profile" />
-      
+
       <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6">
         {/* Beautiful Profile Card - Like the Design */}
         {finder && (
@@ -147,7 +162,7 @@ export default function FinderProfile() {
               <div className="bg-finder-red px-8 py-6 text-center">
                 <h1 className="text-white text-2xl font-bold">FinderMeister</h1>
               </div>
-              
+
               {/* Profile Content */}
               <div className="px-8 py-8 text-center bg-white">
                 {/* Profile Picture Placeholder */}
@@ -157,26 +172,26 @@ export default function FinderProfile() {
                   </div>
                   {/* Level Badge */}
                   <div className="absolute -bottom-2 -right-2">
-                    <FinderLevelBadge 
-                      completedJobs={finder.jobsCompleted || 0} 
+                    <FinderLevelBadge
+                      completedJobs={finder.jobsCompleted || 0}
                       className="text-sm px-3 py-1"
                     />
                   </div>
                 </div>
-                
+
                 {/* Name */}
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">{fullName}</h2>
-                
+
                 {/* Stars */}
                 <div className="flex justify-center mb-4">
                   {getStarRating(Math.round(parseFloat(finder.averageRating || "5.0")))}
                 </div>
-                
+
                 {/* Completed Jobs */}
                 <p className="text-lg text-gray-600 mb-4 font-medium">
                   {finder.jobsCompleted || 0} Completed Finds
                 </p>
-                
+
                 {/* Testimonials/Bio */}
                 <div className="space-y-2 mb-8">
                   {finder.bio && (
@@ -189,9 +204,9 @@ export default function FinderProfile() {
                     </>
                   )}
                 </div>
-                
+
                 {/* Hire Button */}
-                <Button className="w-full bg-finder-red hover:bg-finder-red-dark text-white font-bold py-4 text-lg rounded-xl">
+                <Button className="w-full bg-finder-red hover:bg-finder-red-dark text-white py-4 text-lg rounded-xl">
                   Edit Profile
                 </Button>
               </div>
@@ -246,28 +261,64 @@ export default function FinderProfile() {
                 <p className="text-xs text-gray-500 mt-1">Contact admin to change your name</p>
               </div>
 
-              {/* Category */}
+              {/* Categories - Multiple Selection */}
               <div>
-                <Label htmlFor="category" className="text-sm font-medium">Specialty Category</Label>
-                <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select your area of expertise" />
-                  </SelectTrigger>
-                  <SelectContent>
+                <Label htmlFor="categories">Categories</Label>
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600">Select all categories that match your skills and expertise:</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-48 overflow-y-auto p-3 border rounded-md bg-white/80">
                     {categoriesLoading ? (
-                      <SelectItem value="loading" disabled>Loading categories...</SelectItem>
+                      <div className="col-span-full text-center py-4 text-gray-500">Loading categories...</div>
                     ) : categories.length > 0 ? (
-                      categories.map((category) => (
-                        <SelectItem key={category.id} value={category.name}>
-                          {category.name}
-                        </SelectItem>
-                      ))
+                      categories
+                        .filter(category => category.isActive)
+                        .map((category) => (
+                          <label key={category.id} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                            <input
+                              type="checkbox"
+                              checked={formData.categories.includes(category.name)}
+                              onChange={(e) => {
+                                const isChecked = e.target.checked;
+                                setFormData(prev => ({
+                                  ...prev,
+                                  categories: isChecked
+                                    ? [...prev.categories, category.name]
+                                    : prev.categories.filter(cat => cat !== category.name)
+                                }));
+                              }}
+                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            />
+                            <span className="text-sm font-medium text-gray-700">{category.name}</span>
+                          </label>
+                        ))
                     ) : (
-                      <SelectItem value="none" disabled>No categories available</SelectItem>
+                      <div className="col-span-full text-center py-4 text-gray-500">No categories available</div>
                     )}
-                  </SelectContent>
-                </Select>
+                  </div>
+                  {formData.categories.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {formData.categories.map((categoryName) => (
+                        <Badge key={categoryName} variant="secondary" className="text-xs">
+                          {categoryName}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                categories: prev.categories.filter(cat => cat !== categoryName)
+                              }));
+                            }}
+                            className="ml-1 text-gray-500 hover:text-gray-700"
+                          >
+                            ×
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
+
 
               {/* Availability */}
               <div>
@@ -312,7 +363,7 @@ export default function FinderProfile() {
 
               {/* Update Button */}
               <div className="pt-4 flex justify-center">
-                <Button 
+                <Button
                   onClick={handleUpdateProfile}
                   disabled={updateProfileMutation.isPending}
                   className="bg-finder-red hover:bg-finder-red-dark text-white px-8 py-2"
