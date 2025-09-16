@@ -127,7 +127,7 @@ export class AutoReleaseService {
       return { released: releasedCount };
     } catch (error) {
       console.error('Error in auto-release process:', error);
-      return { released: 0, error: error.message };
+      return { released: 0, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
