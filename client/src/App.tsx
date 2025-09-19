@@ -38,6 +38,7 @@ import AdminFinderLevels from "@/pages/admin/finder-levels";
 import AdminStrikeSystem from "@/pages/admin/StrikeSystem";
 import AdminRestrictedWords from "@/pages/admin/restricted-words";
 import AdminSupportAgents from "@/pages/admin/support-agents";
+import AdminFAQManagement from "./pages/admin/faq-management";
 import BlogPost from "@/pages/blog-post";
 import Messages from "@/pages/Messages";
 import ConversationDetail from "@/pages/ConversationDetail";
@@ -124,14 +125,17 @@ function Router() {
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/withdrawals" component={AdminWithdrawals} />
       <Route path="/admin/token-packages" component={AdminTokenPackages} />
-      <Route path="/admin/token-management" component={AdminTokenManagement} />
+      <Route path="/admin/finder-levels" component={AdminFinderLevels} />
+      <Route path="/admin/withdrawals" component={AdminWithdrawals} />
+      <Route path="/admin/restricted-words" component={AdminRestrictedWords} />
+      <Route path="/admin/support-agents" component={AdminSupportAgents} />
+      <Route path="/admin/faq-management" component={AdminFAQManagement} />
+
+      {/* Blog Routes */}
       <Route path="/admin/blog-posts" component={AdminBlogPosts} />
       <Route path="/admin/blog-posts/create" component={AdminBlogPostCreate} />
       <Route path="/admin/blog-posts/edit/:id" component={AdminBlogPostEdit} />
-      <Route path="/admin/finder-levels" component={AdminFinderLevels} />
       <Route path="/admin/strike-system" component={AdminStrikeSystem} />
-      <Route path="/admin/restricted-words" component={AdminRestrictedWords} />
-      <Route path="/admin/support-agents" component={AdminSupportAgents} />
       <Route path="/admin/financial-dashboard" component={lazy(() => import("@/pages/admin/financial-dashboard"))} />
       <Route path="/blog/:slug" component={BlogPost} />
       <Route path="/messages" component={Messages} />
