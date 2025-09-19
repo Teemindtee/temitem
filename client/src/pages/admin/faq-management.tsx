@@ -49,14 +49,29 @@ export default function AdminFAQManagement() {
 
   const { data: faqs = [], isLoading } = useQuery<FAQ[]>({
     queryKey: ['/api/admin/faqs'],
+    queryFn: async () => {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/admin/faqs', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch FAQs');
+      return response.json();
+    },
     enabled: !!user && user.role === 'admin'
   });
 
   const createMutation = useMutation({
     mutationFn: async (faqData: any) => {
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/admin/faqs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(faqData),
         credentials: 'include'
       });
@@ -75,9 +90,13 @@ export default function AdminFAQManagement() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...faqData }: any) => {
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/faqs/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(faqData),
         credentials: 'include'
       });
@@ -97,8 +116,12 @@ export default function AdminFAQManagement() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/admin/faqs/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
         credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to delete FAQ');
