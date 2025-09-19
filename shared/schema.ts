@@ -919,11 +919,11 @@ export const faqs = pgTable("faqs", {
   question: text("question").notNull(),
   answer: text("answer").notNull(),
   category: text("category").notNull(),
-  tags: text("tags").array(),
+  tags: text("tags").array().default([]),
   isActive: boolean("is_active").notNull().default(true),
   sortOrder: integer("sort_order").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow()
+  createdAt: timestamp("created_at").default(sql`now()`),
+  updatedAt: timestamp("updated_at").default(sql`now()`)
 });
 
 export type FAQ = typeof faqs.$inferSelect;
