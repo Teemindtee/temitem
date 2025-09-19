@@ -936,7 +936,7 @@ export class DatabaseStorage implements IStorage {
       };
     }
 
-    const newBalance = (client.findertokenBalance || 0) + amount;
+    const newBalance = (client?.findertokenBalance || 0) + amount;
 
     // Update client findertoken balance - since we don't have a dedicated clients table,
     // we'll store this in the users table or create a simple tracking mechanism
@@ -999,9 +999,9 @@ export class DatabaseStorage implements IStorage {
         },
         finder: {
           user: {
-            firstName: sql`finder_users.first_name`,
-            lastName: sql`finder_users.last_name`,
-            email: sql`finder_users.email`
+            firstName: sql<string>`finder_users.first_name`,
+            lastName: sql<string>`finder_users.last_name`,
+            email: sql<string>`finder_users.email`
           }
         }
       })
@@ -1022,15 +1022,15 @@ export class DatabaseStorage implements IStorage {
         clientId: contracts.clientId,
         finderId: contracts.finderId,
         client: {
-          firstName: sql`client_users.first_name`,
-          lastName: sql`client_users.last_name`,
-          email: sql`client_users.email`
+          firstName: sql<string>`client_users.first_name`,
+          lastName: sql<string>`client_users.last_name`,
+          email: sql<string>`client_users.email`
         },
         finder: {
           user: {
-            firstName: sql`finder_users.first_name`,
-            lastName: sql`finder_users.last_name`,
-            email: sql`finder_users.email`
+            firstName: sql<string>`finder_users.first_name`,
+            lastName: sql<string>`finder_users.last_name`,
+            email: sql<string>`finder_users.email`
           }
         }
       })
@@ -1139,7 +1139,7 @@ export class DatabaseStorage implements IStorage {
     return result.map(row => ({
       ...row.conversation,
       proposal: {
-        find: {
+        request: {
           title: row.requestTitle
         }
       },
@@ -1202,7 +1202,7 @@ export class DatabaseStorage implements IStorage {
     return result.map(row => ({
       ...row.conversation,
       proposal: {
-        find: {
+        request: {
           title: row.requestTitle
         }
       },
@@ -1363,61 +1363,52 @@ export class DatabaseStorage implements IStorage {
     const [result] = await db
       .select()
       .from(withdrawalSettings)
-      .where(eq(withdrawalSettings.finderId, finderId));
+      .limit(1);
 
     if (!result) {
       // Return default settings if none exist
       return {
         paymentMethod: "bank_transfer",
-        minimumThreshold: 50,
-        bankDetails: {
-          bankName: "",
-          accountNumber: "",
-          routingNumber: "",
-          accountHolder: ""
-        },
-        paypalDetails: {
-          email: ""
-        }
+        minimumThreshold: "50",
+        processingFee: "45",
+        processingTimeHours: 24,
+        isActive: true
       };
     }
 
     return {
-      paymentMethod: result.paymentMethod,
-      minimumThreshold: result.minimumThreshold,
-      bankDetails: result.bankDetails ? JSON.parse(result.bankDetails) : null,
-      paypalDetails: result.paypalDetails ? JSON.parse(result.paypalDetails) : null
+      minimumAmount: result.minimumAmount,
+      processingFee: result.processingFee,
+      processingTimeHours: result.processingTimeHours,
+      isActive: result.isActive
     };
   }
 
   async updateWithdrawalSettings(finderId: string, settings: any): Promise<any> {
     const updateData = {
-      paymentMethod: settings.paymentMethod,
-      minimumThreshold: settings.minimumThreshold,
-      bankDetails: settings.bankDetails ? JSON.stringify(settings.bankDetails) : null,
-      paypalDetails: settings.paypalDetails ? JSON.stringify(settings.paypalDetails) : null,
+      minimumAmount: settings.minimumAmount || "1000",
+      processingFee: settings.processingFee || "45",
+      processingTimeHours: settings.processingTimeHours || 24,
+      isActive: settings.isActive !== false,
       updatedAt: new Date()
     };
 
     const [existing] = await db
       .select()
       .from(withdrawalSettings)
-      .where(eq(withdrawalSettings.finderId, finderId));
+      .limit(1);
 
     if (existing) {
       const [updated] = await db
         .update(withdrawalSettings)
         .set(updateData)
-        .where(eq(withdrawalSettings.finderId, finderId))
+        .where(eq(withdrawalSettings.id, existing.id))
         .returning();
       return updated;
     } else {
       const [created] = await db
         .insert(withdrawalSettings)
-        .values({
-          ...updateData,
-          finderId
-        })
+        .values(updateData)
         .returning();
       return created;
     }

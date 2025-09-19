@@ -914,8 +914,6 @@ export type InsertSupportAgent = z.infer<typeof insertSupportAgentSchema>;
 export type InsertSupportTicket = z.infer<typeof insertSupportTicketSchema>;
 export type InsertSupportDepartment = z.infer<typeof insertSupportDepartmentSchema>;
 
-export type SupportDepartment = InferSelectModel<typeof supportDepartments>;
-
 export const faqs = pgTable("faqs", {
   id: text("id").primaryKey().default(sql`gen_random_uuid()`),
   question: text("question").notNull(),
