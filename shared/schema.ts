@@ -490,12 +490,8 @@ export const orderSubmissionsRelations = relations(orderSubmissions, ({ one }) =
   }),
 }));
 
-export const withdrawalSettingsRelations = relations(withdrawalSettings, ({ one }) => ({
-  finder: one(finders, {
-    fields: [withdrawalSettings.finderId],
-    references: [finders.id],
-  }),
-}));
+// Removed withdrawalSettingsRelations as withdrawalSettings table doesn't have a finderId field
+// This table contains global withdrawal settings, not finder-specific settings
 
 export const withdrawalRequestsRelations = relations(withdrawalRequests, ({ one }) => ({
   finder: one(finders, {
