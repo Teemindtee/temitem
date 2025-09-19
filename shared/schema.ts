@@ -171,14 +171,13 @@ export const categories = pgTable("categories", {
 });
 
 export const withdrawalSettings = pgTable("withdrawal_settings", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  finderId: varchar("finder_id").references(() => finders.id).notNull().unique(),
-  paymentMethod: text("payment_method").notNull().default("bank_transfer"), // 'bank_transfer', 'paypal'
-  minimumThreshold: integer("minimum_threshold").notNull().default(50),
-  bankDetails: text("bank_details"), // JSON string with bank info
-  paypalDetails: text("paypal_details"), // JSON string with paypal info
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  minimumAmount: text("minimum_amount").notNull().default("1000"),
+  processingFee: text("processing_fee").notNull().default("45"),
+  processingTimeHours: integer("processing_time_hours").notNull().default(24),
+  isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
 });
 
 export const withdrawalRequests = pgTable("withdrawal_requests", {
@@ -594,6 +593,7 @@ export const insertWithdrawalSettingsSchema = createInsertSchema(withdrawalSetti
 });
 export type InsertWithdrawalSettings = z.infer<typeof insertWithdrawalSettingsSchema>;
 export type WithdrawalSettings = InferSelectModel<typeof withdrawalSettings>;
+export type InsertWithdrawalSettings = typeof withdrawalSettings.$inferInsert;
 
 // Withdrawal Requests
 export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalRequests);
@@ -674,7 +674,7 @@ export type MonthlyTokenDistribution = InferSelectModel<typeof monthlyTokenDistr
 };
 export type InsertMonthlyTokenDistribution = z.infer<typeof insertMonthlyTokenDistributionSchema>;
 
-// Token Grant Types  
+// Token Grant Types
 export type TokenGrant = InferSelectModel<typeof tokenGrants>;
 export type InsertTokenGrant = z.infer<typeof insertTokenGrantSchema>;
 
@@ -759,9 +759,6 @@ export const supportAgents = pgTable("support_agents", {
 
 export type InsertSupportAgent = InferInsertModel<typeof supportAgents>;
 export type SelectSupportAgent = InferSelectModel<typeof supportAgents>;
-
-export type InsertSupportDepartment = InferInsertModel<typeof supportDepartments>;
-export type SelectSupportDepartment = InferSelectModel<typeof supportDepartments>;
 
 export const supportTickets = pgTable("support_tickets", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -920,6 +917,23 @@ export const insertSupportDepartmentSchema = createInsertSchema(supportDepartmen
 export type InsertSupportAgent = z.infer<typeof insertSupportAgentSchema>;
 export type InsertSupportTicket = z.infer<typeof insertSupportTicketSchema>;
 export type InsertSupportDepartment = z.infer<typeof insertSupportDepartmentSchema>;
+
+export type SupportDepartment = InferSelectModel<typeof supportDepartments>;
+
+export const faqs = pgTable("faqs", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  question: text("question").notNull(),
+  answer: text("answer").notNull(),
+  category: text("category").notNull(),
+  tags: text("tags").array(),
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export type FAQ = typeof faqs.$inferSelect;
+export type InsertFAQ = typeof faqs.$inferInsert;
 
 export type SupportDepartment = InferSelectModel<typeof supportDepartments>;
 

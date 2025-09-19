@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
-import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu, ChevronDown, TrendingUp, Coins, Shield, Package, HeadphonesIcon } from "lucide-react";
+import { User, Users, Settings, FileText, LogOut, BarChart3, MessageSquare, DollarSign, Tags, Edit, Menu, ChevronDown, TrendingUp, Coins, Shield, Package, HeadphonesIcon, HelpCircle } from "lucide-react";
 import logoImage from "@assets/Findermeister logo_1755186313310.jpg";
 import { useTranslation } from "react-i18next";
 
@@ -46,7 +46,9 @@ export default function AdminHeader({ currentPage }: AdminHeaderProps) {
       ]
     },
     { path: "/admin/restricted-words", label: "Restricted Words", icon: Shield, id: "restricted-words" },
-    { path: "/admin/blog-posts", label: "Blog Posts", icon: Edit, id: "blog-posts" },
+    { path: "/admin/blog-posts", label: "Blog Posts", icon: FileText, id: "blog-posts" },
+    { path: "/admin/categories", label: "Categories", icon: Tags, id: "categories" },
+    { path: "/admin/faq-management", icon: HelpCircle, label: "FAQs", id: "faq-management" },
     { path: "/admin/settings", label: "Settings", icon: Settings, id: "settings" },
     { path: "/admin/support-agents", label: "Support Agents", icon: HeadphonesIcon, id: "support-agents" },
   ];
