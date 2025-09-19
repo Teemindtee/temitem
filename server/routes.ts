@@ -4501,25 +4501,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/admin/faqs", requireAuth, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const { question, answer, category, tags, isActive, sortOrder } = req.body;
-
-      if (!question || !answer || !category) {
-        return res.status(400).json({ error: 'Question, answer, and category are required' });
-      }
+      const { insertFAQSchema } = await import('@shared/schema');
+      const faqData = insertFAQSchema.parse(req.body);
 
       const newFaq = await db.insert(faqs).values({
-        question,
-        answer,
-        category,
-        tags: tags || [],
-        isActive: isActive ?? true,
-        sortOrder: sortOrder || 0
+        ...faqData,
+        tags: faqData.tags || [],
+        isActive: faqData.isActive ?? true,
+        sortOrder: faqData.sortOrder || 0
       }).returning();
 
       res.json(newFaq[0]);
     } catch (error) {
       console.error('Error creating FAQ:', error);
-      res.status(500).json({ error: 'Failed to create FAQ' });
+      res.status(500).json({ error: 'Failed to create FAQ', details: error.message });
     }
   });
 

@@ -929,6 +929,12 @@ export const faqs = pgTable("faqs", {
 export type FAQ = typeof faqs.$inferSelect;
 export type InsertFAQ = typeof faqs.$inferInsert;
 
+export const insertFAQSchema = createInsertSchema(faqs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type SupportDepartment = InferSelectModel<typeof supportDepartments>;
 
 // Restricted Words Types
